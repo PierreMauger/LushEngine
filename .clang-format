@@ -1,0 +1,44 @@
+{
+  UseTab: Never,
+  IndentWidth: 4,
+  TabWidth: 4,
+
+  IncludeCategories:
+    [{ Regex: "<.*>", Priority: 0 }, { Regex: '".*"', Priority: 1 }],
+  IncludeBlocks: Regroup,
+  SortIncludes: true,
+  IndentPPDirectives: BeforeHash,
+
+  BreakBeforeBraces: Custom,
+  BraceWrapping:
+    {
+      AfterClass: true,
+      AfterControlStatement: false,
+      AfterEnum: false,
+      AfterFunction: true,
+      AfterNamespace: true,
+      AfterObjCDeclaration: true,
+      AfterStruct: true,
+      AfterUnion: true,
+      BeforeCatch: true,
+      BeforeElse: false,
+      IndentBraces: false,
+    },
+
+  AllowShortIfStatementsOnASingleLine: false,
+  AllowShortBlocksOnASingleLine: Never,
+  AllowShortFunctionsOnASingleLine: None,
+  IndentCaseLabels: false,
+  # ColumnLimit: 0,
+  ColumnLimit: 120,
+  PointerAlignment: Right,
+  AccessModifierOffset: -4,
+  NamespaceIndentation: All,
+  IndentAccessModifiers: true,
+  FixNamespaceComments: false,
+  MaxEmptyLinesToKeep: 1,
+  SpacesInParentheses: false,
+  SpacesInCStyleCastParentheses: false,
+  SpaceInEmptyParentheses: false,
+  CommentPragmas: '^\* .*',
+}
