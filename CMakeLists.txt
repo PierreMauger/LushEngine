@@ -1,7 +1,7 @@
 #init Cmake
 cmake_minimum_required(VERSION 3.16)
 
-project(Lush LANGUAGES CXX VERSION 1.0)
+project(LushEngine LANGUAGES CXX VERSION 1.0)
 
 #set standard flags
 set(CMAKE_CXX_STANDARD 17)
@@ -9,6 +9,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wextra -Werror -pedantic")
 set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS} "-g")
+
+set(CMAKE_THREAD_LIBS_INIT "-lpthread")
+set(CMAKE_HAVE_THREADS_LIBRARY true)
+set(CMAKE_USE_WIN32F_THREADS_INIT OFF)
+set(CMAKE_USE_PTHREADS_INIT true)
 
 if(UNIX)
     set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS} "-O3")
@@ -21,12 +26,14 @@ set(EXEC_NAME lush)
 
 #fetch include paths
 set(INC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/
 )
 
 #fetch source files
 set(SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/SafeQueue.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/Packet.cpp
 )
 
 #set include paths
@@ -35,7 +42,7 @@ include_directories(${INC})
 #set source files
 add_executable(${EXEC_NAME}
     ${SRC}
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/main.cpp
 )
 
 if(WIN32)
