@@ -34,6 +34,9 @@ set(INC
 set(SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/SafeQueue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/Packet.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/Message.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/Node.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/MessageBus.cpp
 )
 
 #set include paths
