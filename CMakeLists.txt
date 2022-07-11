@@ -28,6 +28,11 @@ set(EXEC_NAME lush)
 set(INC
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Audio/
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Core/
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Input/
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Loader/
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Render/
 )
 
 #fetch source files
@@ -37,6 +42,11 @@ set(SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/Message.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/Node.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/MessageBus.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Audio/Audio.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Core/Core.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Input/Input.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Loader/Loader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Render/Render.cpp
 )
 
 #set include paths
