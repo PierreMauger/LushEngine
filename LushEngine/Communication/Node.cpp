@@ -4,6 +4,8 @@ using namespace Lush;
 
 Node::Node(std::shared_ptr<MessageBus> messageBus)
 {
+    // messageBus->safeCopy();
+    std::unique_lock<std::mutex> lock(messageBus->_copyLock);
     this->_messageBus = messageBus;
     this->_messageBus->addReceiver(this->getNotify());
     this->_running = true;

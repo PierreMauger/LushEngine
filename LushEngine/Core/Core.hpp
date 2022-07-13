@@ -13,6 +13,7 @@ namespace Lush
         public:
             Core(std::shared_ptr<MessageBus> messageBus);
             ~Core();
+            void run();
     };
 }
 

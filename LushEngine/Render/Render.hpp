@@ -13,6 +13,7 @@ namespace Lush
         public:
             Render(std::shared_ptr<MessageBus> messageBus);
             ~Render();
+            void run();
     };
 }
 

@@ -13,6 +13,7 @@ namespace Lush
         public:
             Input(std::shared_ptr<MessageBus> messageBus);
             ~Input();
+            void run();
     };
 }
 

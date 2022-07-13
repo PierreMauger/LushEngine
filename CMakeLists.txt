@@ -26,7 +26,7 @@ set(EXEC_NAME lush)
 
 #fetch include paths
 set(INC
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Audio/
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Core/
@@ -37,6 +37,7 @@ set(INC
 
 #fetch source files
 set(SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Engine.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/SafeQueue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/Packet.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/Message.cpp

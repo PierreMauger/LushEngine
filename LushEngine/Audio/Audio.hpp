@@ -13,6 +13,7 @@ namespace Lush
         public:
             Audio(std::shared_ptr<MessageBus> messageBus);
             ~Audio();
+            void run();
     };
 }
 

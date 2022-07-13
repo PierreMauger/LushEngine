@@ -27,3 +27,8 @@ void MessageBus::sendMessage(Message message)
     else
         this->_queues[message.getTarget()].push(message);
 }
+
+void MessageBus::safeCopy()
+{
+    std::unique_lock<std::mutex> lock(this->_copyLock);
+}

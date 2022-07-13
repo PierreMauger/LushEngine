@@ -14,9 +14,11 @@ namespace Lush
             std::vector<SafeQueue<Message>> _queues;
 
         public:
+            std::mutex _copyLock;
             void addReceiver(std::function<void(Message)> function);
             void notify(int module);
             void sendMessage(Message message);
+            void safeCopy();
     };
 }
 
