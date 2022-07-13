@@ -2,11 +2,11 @@
 
 using namespace Lush;
 
-Message::Message(Packet data, int status, int target)
+Message::Message(Packet data, int status, Module target)
 {
     this->_data = data;
     this->_status = status;
-    this->_target = target;
+    this->_target = static_cast<int>(target);
 }
 
 Packet &Message::getData()

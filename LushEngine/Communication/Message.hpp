@@ -2,6 +2,7 @@
 #define MESSAGE_HPP
 
 #include "Includes.hpp"
+#include "NodeInfo.hpp"
 #include "Packet.hpp"
 
 namespace Lush
@@ -14,7 +15,7 @@ namespace Lush
             int _target;
 
         public:
-            Message(Packet data, int status, int target = -1);
+            Message(Packet data, int status, Module target = Module::BROADCAST);
             ~Message() = default;
 
             Packet &getData();

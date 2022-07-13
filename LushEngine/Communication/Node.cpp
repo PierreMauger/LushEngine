@@ -4,13 +4,12 @@ using namespace Lush;
 
 Node::Node(std::shared_ptr<MessageBus> messageBus)
 {
-    // messageBus->safeCopy();
-    std::unique_lock<std::mutex> lock(messageBus->_copyLock);
     this->_messageBus = messageBus;
     this->_messageBus->addReceiver(this->getNotify());
     this->_running = true;
 
     this->_functionList.push_back(std::bind(&Node::receiveQuit, this, std::placeholders::_1));
+    this->_functionList.push_back(std::bind(&Node::receiveSleepFor, this, std::placeholders::_1));
 }
 
 std::function<void(Message)> Node::getNotify()
@@ -37,4 +36,12 @@ void Node::onNotify(Message message)
 void Node::receiveQuit([[maybe_unused]] Packet packet)
 {
     this->_running = false;
+}
+
+void Node::receiveSleepFor(Packet packet)
+{
+    int value = 0;
+
+    packet >> value;
+    std::this_thread::sleep_for(std::chrono::seconds(value));
 }

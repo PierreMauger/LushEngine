@@ -21,6 +21,7 @@ namespace Lush
             virtual void run() = 0;
 
             void receiveQuit(Packet);
+            void receiveSleepFor(Packet);
 
         public:
             Node(std::shared_ptr<MessageBus> messageBus);

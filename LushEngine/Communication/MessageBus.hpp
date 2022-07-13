@@ -12,13 +12,12 @@ namespace Lush
         private:
             std::vector<std::function<void(Message)>> _functionList;
             std::vector<SafeQueue<Message>> _queues;
+            std::mutex _copyLock;
 
         public:
-            std::mutex _copyLock;
             void addReceiver(std::function<void(Message)> function);
-            void notify(int module);
+            void notify(Module module);
             void sendMessage(Message message);
-            void safeCopy();
     };
 }
 
