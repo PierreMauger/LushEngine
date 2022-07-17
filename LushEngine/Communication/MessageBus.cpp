@@ -11,6 +11,8 @@ void MessageBus::addReceiver(std::function<void(Message)> function)
 
 void MessageBus::notify(Module module)
 {
+    if (static_cast<std::size_t>(module) >= this->_queues.size() || static_cast<std::size_t>(module) >= this->_functionList.size())
+        return;
     SafeQueue<Message> &queue = this->_queues[static_cast<int>(module)];
     auto &function = this->_functionList[static_cast<int>(module)];
 
@@ -27,4 +29,6 @@ void MessageBus::sendMessage(Message message)
             queue.push(message);
     else if (message.getTarget() >= 0 && message.getTarget() < static_cast<int>(this->_queues.size()))
         this->_queues[message.getTarget()].push(message);
+    else
+        std::cerr << "MessageBus::sendMessage: invalid target" << std::endl;
 }

@@ -7,18 +7,20 @@ project(LushEngine LANGUAGES CXX VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wextra -Werror -pedantic")
-set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS} "-g")
+set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wextra -Werror -pedantic -g")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/")
 
+#set thread flags
 set(CMAKE_THREAD_LIBS_INIT "-lpthread")
 set(CMAKE_HAVE_THREADS_LIBRARY true)
 set(CMAKE_USE_WIN32F_THREADS_INIT OFF)
 set(CMAKE_USE_PTHREADS_INIT true)
 
 if(UNIX)
-    set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS} "-O3")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
 else()
-    set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS} "/Ox")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /Ox")
 endif()
 
 #set binary/executable name
@@ -26,29 +28,32 @@ set(EXEC_NAME lush)
 
 #fetch include paths
 set(INC
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Audio/
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Core/
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Input/
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Loader/
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Render/
+    ${PROJECT_NAME}/
+    ${PROJECT_NAME}/Communication/
+    ${PROJECT_NAME}/Audio/
+    ${PROJECT_NAME}/Core/
+    ${PROJECT_NAME}/Input/
+    ${PROJECT_NAME}/Loader/
+    ${PROJECT_NAME}/Render/
 )
 
 #fetch source files
 set(SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Engine.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/SafeQueue.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/Packet.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/Message.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/Node.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Communication/MessageBus.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Audio/Audio.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Core/Core.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Input/Input.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Loader/Loader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/Render/Render.cpp
+    ${PROJECT_NAME}/Engine.cpp
+    ${PROJECT_NAME}/Communication/SafeQueue.cpp
+    ${PROJECT_NAME}/Communication/Packet.cpp
+    ${PROJECT_NAME}/Communication/Message.cpp
+    ${PROJECT_NAME}/Communication/Node.cpp
+    ${PROJECT_NAME}/Communication/MessageBus.cpp
+    ${PROJECT_NAME}/Audio/Audio.cpp
+    ${PROJECT_NAME}/Core/Core.cpp
+    ${PROJECT_NAME}/Input/Input.cpp
+    ${PROJECT_NAME}/Loader/Loader.cpp
+    ${PROJECT_NAME}/Render/Render.cpp
 )
+
+find_package(OpenGL REQUIRED)
+find_package(GLFW3 REQUIRED)
 
 #set include paths
 include_directories(${INC})
@@ -56,7 +61,15 @@ include_directories(${INC})
 #set source files
 add_executable(${EXEC_NAME}
     ${SRC}
-    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/main.cpp
+    ${PROJECT_NAME}/main.cpp
+)
+
+target_link_libraries(${EXEC_NAME}
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${CMAKE_THREAD_LIBS_REQUIRED}
+    ${OpenGL_LIBRARIES}
+    glfw
+    ${GLFW3_LIBRARIES}
 )
 
 if(WIN32)
