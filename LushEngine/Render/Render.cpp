@@ -17,10 +17,13 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
         this->_messageBus->sendMessage(Message(Packet(), BaseCommand::QUIT, Module::BROADCAST));
     }
     glfwMakeContextCurrent(this->_window);
+
+    this->_camera = std::make_unique<Camera>();
 }
 
 Render::~Render()
 {
+    glfwDestroyWindow(this->_window);
     glfwTerminate();
 }
 

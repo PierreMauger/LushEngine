@@ -50,11 +50,12 @@ set(SRC
     ${PROJECT_NAME}/Input/Input.cpp
     ${PROJECT_NAME}/Loader/Loader.cpp
     ${PROJECT_NAME}/Render/Render.cpp
+    ${PROJECT_NAME}/Render/Camera.cpp
+    ${PROJECT_NAME}/Render/Shader.cpp
 )
 
 find_package(OpenGL REQUIRED)
 find_package(GLFW3 REQUIRED)
-# add glew to the list of packages to be found
 find_package(GLEW REQUIRED)
 
 #set source files
@@ -77,6 +78,7 @@ target_link_libraries(${EXEC_NAME}
     ${GLFW3_LIBRARIES}
     glfw
     ${GLEW_LIBRARIES}
+    glew
 )
 
 if(WIN32)
