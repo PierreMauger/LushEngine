@@ -54,9 +54,8 @@ set(SRC
 
 find_package(OpenGL REQUIRED)
 find_package(GLFW3 REQUIRED)
-
-#set include paths
-include_directories(${INC})
+# add glew to the list of packages to be found
+find_package(GLEW REQUIRED)
 
 #set source files
 add_executable(${EXEC_NAME}
@@ -64,12 +63,20 @@ add_executable(${EXEC_NAME}
     ${PROJECT_NAME}/main.cpp
 )
 
+#set include paths
+include_directories(${INC}
+    ${OpenGL_INCLUDE_DIRS}
+    ${GLFW3_INCLUDE_DIRS}
+    ${GLEW_INCLUDE_DIRS}
+)
+
 target_link_libraries(${EXEC_NAME}
     ${CMAKE_THREAD_LIBS_INIT}
     ${CMAKE_THREAD_LIBS_REQUIRED}
-    ${OpenGL_LIBRARIES}
-    glfw
+    ${OPENGL_LIBRARIES}
     ${GLFW3_LIBRARIES}
+    glfw
+    ${GLEW_LIBRARIES}
 )
 
 if(WIN32)
