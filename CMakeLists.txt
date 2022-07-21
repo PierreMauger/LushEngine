@@ -7,7 +7,7 @@ project(LushEngine LANGUAGES CXX VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wextra -Werror -pedantic -g")
+set(CMAKE_CXX_FLAGS "-std=c++17 -pedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/")
 
@@ -16,11 +16,15 @@ set(CMAKE_THREAD_LIBS_INIT "-lpthread")
 set(CMAKE_HAVE_THREADS_LIBRARY true)
 set(CMAKE_USE_WIN32F_THREADS_INIT OFF)
 set(CMAKE_USE_PTHREADS_INIT true)
+set(ASSIMP_BUILD_ASSIMP_VIEW OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
 
 if(UNIX)
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
 else()
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /Ox")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /Ox")
 endif()
 
 #set binary/executable name
@@ -52,11 +56,13 @@ set(SRC
     ${PROJECT_NAME}/Render/Render.cpp
     ${PROJECT_NAME}/Render/Camera.cpp
     ${PROJECT_NAME}/Render/Shader.cpp
+    ${PROJECT_NAME}/Render/RenderObject.cpp
 )
 
 find_package(OpenGL REQUIRED)
 find_package(GLFW3 REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(ASSIMP REQUIRED)
 
 #set source files
 add_executable(${EXEC_NAME}
@@ -64,11 +70,14 @@ add_executable(${EXEC_NAME}
     ${PROJECT_NAME}/main.cpp
 )
 
+target_compile_options(${EXEC_NAME} PRIVATE  -Wall -Wextra -Werror -g)
+
 #set include paths
 include_directories(${INC}
     ${OpenGL_INCLUDE_DIRS}
     ${GLFW3_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
+    ${ASSIMP_INCLUDE_DIRS}
 )
 
 target_link_libraries(${EXEC_NAME}
@@ -79,6 +88,7 @@ target_link_libraries(${EXEC_NAME}
     glfw
     ${GLEW_LIBRARIES}
     glew
+    ${ASSIMP_LIBRARIES}
 )
 
 if(WIN32)

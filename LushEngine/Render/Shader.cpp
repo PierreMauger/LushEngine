@@ -9,12 +9,6 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath)
     std::ifstream vShaderFile;
     std::ifstream fShaderFile;
 
-    GLenum err = glewInit();
-    if (err != GLEW_OK)
-        exit(3);
-    if (!GLEW_VERSION_2_1)
-        exit(2);
-
     vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     try {
@@ -28,7 +22,7 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath)
         vertexCode = vShaderStream.str();
         fragmentCode = fShaderStream.str();
     } catch (std::ifstream::failure &e) {
-        std::cerr << "Shader loading error: " << e.what() << std::endl;
+        throw std::runtime_error("Shader file loading error");
     }
     const char *vShaderCode = vertexCode.c_str();
     const char *fShaderCode = fragmentCode.c_str();
@@ -125,13 +119,13 @@ void Shader::checkCompileErrors(GLuint shader, std::string type)
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-            std::cerr << "Shader compilation error: " << type << "\n" << infoLog << std::endl;
+            throw std::runtime_error(std::string("Shader compilation error:\n") + infoLog);
         }
     } else {
         glGetProgramiv(shader, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-            std::cerr << "Shader linking error: " << type << "\n" << infoLog << std::endl;
+            throw std::runtime_error(std::string("Shader linking error:\n") + infoLog);
         }
     }
 }
