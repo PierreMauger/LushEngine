@@ -9,7 +9,7 @@ namespace Lush
 {
     class RenderObject
     {
-        private:
+        protected:
             int _type;
             std::string _name;
             glm::vec3 _position;

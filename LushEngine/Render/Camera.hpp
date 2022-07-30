@@ -25,7 +25,10 @@ namespace Lush
 
         public:
             Camera();
-            ~Camera();
+            ~Camera() = default;
+            Shader &getShader();
+            void setShader(float time);
+            void setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
     };
 }
 

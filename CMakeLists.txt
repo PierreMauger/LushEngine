@@ -1,7 +1,7 @@
 #init Cmake
 cmake_minimum_required(VERSION 3.16)
 
-project(LushEngine LANGUAGES CXX VERSION 1.0)
+project(LushEngine LANGUAGES C CXX VERSION 1.0)
 
 #set standard flags
 set(CMAKE_CXX_STANDARD 17)
@@ -43,6 +43,7 @@ set(INC
     ${PROJECT_NAME}/Input/
     ${PROJECT_NAME}/Loader/
     ${PROJECT_NAME}/Render/
+    ${PROJECT_NAME}/Render/Objects
 )
 
 #fetch source files
@@ -62,6 +63,11 @@ set(SRC
     ${PROJECT_NAME}/Render/Camera.cpp
     ${PROJECT_NAME}/Render/Shader.cpp
     ${PROJECT_NAME}/Render/RenderObject.cpp
+    ${PROJECT_NAME}/Render/Mesh.cpp
+    ${PROJECT_NAME}/Render/Bone.cpp
+    ${PROJECT_NAME}/Render/Model.cpp
+    ${PROJECT_NAME}/Render/Objects/AnimatedModel.cpp
+    ${PROJECT_NAME}/Render/Objects/StaticModel.cpp
 )
 
 find_package(OpenGL REQUIRED)
@@ -94,6 +100,7 @@ target_link_libraries(${EXEC_NAME}
     ${GLEW_LIBRARIES}
     glew
     ${ASSIMP_LIBRARIES}
+    assimp
 )
 
 if(WIN32)
