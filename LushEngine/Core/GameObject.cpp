@@ -21,7 +21,7 @@ std::string GameObject::getName() const
     return this->_name;
 }
 
-glm::vec3 GameObject::getPos() const
+glm::vec3 GameObject::getPosition() const
 {
     return this->_position;
 }
@@ -46,9 +46,9 @@ void GameObject::setName(std::string name)
     this->_name = name;
 }
 
-void GameObject::setPos(glm::vec3 pos)
+void GameObject::setPosition(glm::vec3 position)
 {
-    this->_position = pos;
+    this->_position = position;
 }
 
 void GameObject::setScale(glm::vec3 scale)

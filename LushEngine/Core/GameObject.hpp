@@ -25,13 +25,13 @@ namespace Lush
 
             int getType() const;
             std::string getName() const;
-            glm::vec3 getPos() const;
+            glm::vec3 getPosition() const;
             glm::vec3 getScale() const;
             glm::vec3 getRotation() const;
 
             void setType(int type);
             void setName(std::string name);
-            void setPos(glm::vec3 pos);
+            void setPosition(glm::vec3 position);
             void setScale(glm::vec3 scale);
             void setRotation(glm::vec3 rotation);
 

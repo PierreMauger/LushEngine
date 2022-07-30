@@ -42,4 +42,5 @@
   SpacesInCStyleCastParentheses: false,
   SpaceInEmptyParentheses: false,
   CommentPragmas: '^\* .*',
+  SeparateDefinitionBlocks : Always,
 }
