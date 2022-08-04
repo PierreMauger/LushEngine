@@ -3,7 +3,6 @@
 
 #include "Includes.hpp"
 #include "Node.hpp"
-#include "NodeInfo.hpp"
 
 namespace Lush
 {

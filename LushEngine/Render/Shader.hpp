@@ -11,10 +11,13 @@ namespace Lush
 {
     class Shader
     {
+        private:
+            unsigned int _ID;
+
         public:
             Shader(const char *vertexPath, const char *fragmentPath);
-            unsigned int ID;
             void use() const;
+            unsigned int getID() const;
             void setBool(const std::string &name, bool value) const;
             void setInt(const std::string &name, int value) const;
             void setFloat(const std::string &name, float value) const;

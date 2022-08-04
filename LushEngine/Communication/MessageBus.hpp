@@ -10,13 +10,12 @@ namespace Lush
     class MessageBus
     {
         private:
-            std::vector<std::function<void(Message)>> _functionList;
             std::vector<SafeQueue<Message>> _queues;
             std::mutex _copyLock;
 
         public:
-            void addReceiver(std::function<void(Message)> function);
-            void notify(Module module);
+            void addReceiver();
+            void notify(Module module, std::vector<std::function<void(Packet)>> functionList);
             void sendMessage(Message message);
     };
 }

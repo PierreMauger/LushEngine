@@ -13,23 +13,17 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 
     this->_window = glfwCreateWindow(800, 600, "Lush Engine", NULL, NULL);
 
-    if (this->_window == NULL) {
-        std::cerr << "Failed to create GLFW window" << std::endl;
-        this->_messageBus->sendMessage(Message(Packet(), BaseCommand::QUIT, Module::BROADCAST));
-    }
+    if (this->_window == NULL)
+        std::runtime_error("Failed to create GLFW window");
+
     glfwMakeContextCurrent(this->_window);
 
     if (glewInit() != GLEW_OK)
-        throw std::runtime_error("GLEW failed to initialize");
+        std::runtime_error("GLEW failed to initialize");
     if (!GLEW_VERSION_2_1)
         throw std::runtime_error("GLEW does not support OpenGL 2.1");
+    this->_camera = std::make_unique<Camera>();
 
-    try {
-        this->_camera = std::make_unique<Camera>();
-    } catch (std::exception &e) {
-        std::cerr << "ERROR " << e.what() << std::endl;
-        this->_messageBus->sendMessage(Message(Packet(), BaseCommand::QUIT, Module::BROADCAST));
-    }
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
@@ -40,7 +34,8 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 
 Render::~Render()
 {
-    glfwDestroyWindow(this->_window);
+    if (this->_window != NULL)
+        glfwDestroyWindow(this->_window);
     glfwTerminate();
 }
 
@@ -51,9 +46,9 @@ void Render::run()
         this->draw();
         if (glfwWindowShouldClose(this->_window)) {
             this->_running = false; // because it can sometimes send the quit message twice
-            this->_messageBus->sendMessage(Message(Packet(), BaseCommand::QUIT, Module::BROADCAST));
+            this->sendMessage(Message(Packet(), BaseCommand::QUIT, Module::BROADCAST));
         }
-        this->_messageBus->notify(Module::RENDER);
+        this->_messageBus->notify(Module::RENDER, this->_functionList);
     }
 }
 
@@ -64,4 +59,7 @@ void Render::draw()
 
     glfwPollEvents();
     glfwSwapBuffers(this->_window);
+    this->_camera->getShader().use();
+    for (auto &[key, object] : this->_objects)
+        object->draw(*this->_camera);
 }

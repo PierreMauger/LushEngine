@@ -25,6 +25,7 @@ namespace Lush
                 this->append(&data, sizeof(T));
                 return *this;
             }
+
             Packet &operator<<(const std::string &data);
 
             template <typename T> Packet &operator>>(T &data)
@@ -36,6 +37,7 @@ namespace Lush
                 this->_data.erase(this->_data.begin(), this->_data.begin() + sizeof(T));
                 return *this;
             }
+
             Packet &operator>>(std::string &data);
     };
 }

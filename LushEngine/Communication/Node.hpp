@@ -15,9 +15,7 @@ namespace Lush
             std::vector<std::function<void(Packet)>> _functionList;
             bool _running;
 
-            std::function<void(Message)> getNotify();
             void sendMessage(Message);
-            void onNotify(Message);
             virtual void run() = 0;
 
             void receiveQuit(Packet);

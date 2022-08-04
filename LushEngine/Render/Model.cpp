@@ -69,7 +69,7 @@ void Model::setVertexBoneData(Vertex &vertex, int boneID, float weight)
     }
 }
 
-void Model::extractBoneWeightForVertices(std::vector<Vertex> &vertices, aiMesh &mesh, [[maybe_unused]] const aiScene &scene)
+void Model::extractBoneWeightForVertices(std::vector<Vertex> &vertices, aiMesh &mesh)
 {
     auto &boneInfoMap = this->_boneInfoMap;
     int &boneCount = this->_boneCounter;
@@ -113,14 +113,10 @@ Mesh Model::processMesh(aiMesh &mesh, const aiScene &scene)
         vertex.position = glm::vec3(mesh.mVertices[i].x, mesh.mVertices[i].y, mesh.mVertices[i].z);
         vertex.normal = glm::vec3(mesh.mNormals[i].x, mesh.mNormals[i].y, mesh.mNormals[i].z);
 
-        if (mesh.mTextureCoords[0]) {
-            glm::vec2 vec;
-            vec.x = mesh.mTextureCoords[0][i].x;
-            vec.y = mesh.mTextureCoords[0][i].y;
-            vertex.texCoords = vec;
-        } else {
+        if (mesh.mTextureCoords[0])
+            vertex.texCoords = glm::vec2(mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y);
+        else
             vertex.texCoords = glm::vec2(0.0f, 0.0f);
-        }
         vertices.push_back(vertex);
     }
 
@@ -132,7 +128,7 @@ Mesh Model::processMesh(aiMesh &mesh, const aiScene &scene)
 
     aiMaterial *materialLoaded = scene.mMaterials[mesh.mMaterialIndex];
     aiColor3D color(0.0f, 0.0f, 0.0f);
-    float shininess;
+    float shininess = 0.0f;
 
     Material material;
 
@@ -145,15 +141,19 @@ Mesh Model::processMesh(aiMesh &mesh, const aiScene &scene)
     materialLoaded->Get(AI_MATKEY_SHININESS, shininess);
     material.shininess = shininess;
 
-    this->extractBoneWeightForVertices(vertices, mesh, scene);
+    this->extractBoneWeightForVertices(vertices, mesh);
 
-    std::vector<Texture> diffuseMaps = loadMaterialTextures(materialLoaded, aiTextureType_DIFFUSE, "texture_diffuse");
+    std::vector<Texture> diffuseMaps =
+        this->loadMaterialTextures(materialLoaded, aiTextureType_DIFFUSE, "texture_diffuse");
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-    std::vector<Texture> specularMaps = loadMaterialTextures(materialLoaded, aiTextureType_SPECULAR, "texture_specular");
+    std::vector<Texture> specularMaps =
+        this->loadMaterialTextures(materialLoaded, aiTextureType_SPECULAR, "texture_specular");
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    std::vector<Texture> normalMaps = loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "texture_normal");
+    std::vector<Texture> normalMaps =
+        this->loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "texture_normal");
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-    std::vector<Texture> heightMaps = loadMaterialTextures(materialLoaded, aiTextureType_AMBIENT, "texture_height");
+    std::vector<Texture> heightMaps =
+        this->loadMaterialTextures(materialLoaded, aiTextureType_AMBIENT, "texture_height");
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     if (textures.size()) {

@@ -13,8 +13,8 @@
 namespace Lush
 {
     typedef struct {
-        int id;
-        glm::mat4 offset;
+            int id;
+            glm::mat4 offset;
     } BoneInfo;
 
     class Model
@@ -29,6 +29,10 @@ namespace Lush
             Model(std::string const &filename);
             ~Model() = default;
 
+            void load(std::string const &filename);
+            void draw(Shader &shader);
+
+        private:
             std::map<std::string, BoneInfo> &getBoneInfoMap();
             int &getBoneCount();
 
@@ -39,10 +43,7 @@ namespace Lush
 
             void setVertexBoneDataToDefault(Vertex &vertex);
             void setVertexBoneData(Vertex &vertex, int boneID, float weight);
-            void extractBoneWeightForVertices(std::vector<Vertex> &vertices, aiMesh &mesh, const aiScene &scene);
-
-            void load(std::string const &filename);
-            void draw(Shader &shader);
+            void extractBoneWeightForVertices(std::vector<Vertex> &vertices, aiMesh &mesh);
     };
 }
 

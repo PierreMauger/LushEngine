@@ -14,6 +14,6 @@ void Audio::run()
 {
     while (this->_running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
-        this->_messageBus->notify(Module::AUDIO);
+        this->_messageBus->notify(Module::AUDIO, this->_functionList);
     }
 }

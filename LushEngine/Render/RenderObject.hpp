@@ -1,8 +1,8 @@
 #ifndef RENDER_OBJECT_HPP
 #define RENDER_OBJECT_HPP
 
-#include "GameObject.hpp"
 #include "Camera.hpp"
+#include "GameObject.hpp"
 #include "Includes.hpp"
 
 namespace Lush

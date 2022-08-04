@@ -43,10 +43,11 @@ namespace Lush
                        << gameObject._rotation;
                 return packet;
             }
+
             friend Packet &operator>>(Packet &packet, GameObject &gameObject)
             {
-                packet >> gameObject._type >> gameObject._name >> gameObject._position >> gameObject._scale
-                       >> gameObject._rotation;
+                packet >> gameObject._type >> gameObject._name >> gameObject._position >> gameObject._scale >>
+                    gameObject._rotation;
                 return packet;
             }
     };
