@@ -15,8 +15,9 @@ namespace Lush
             glm::mat4 _view;
             glm::mat4 _projection;
             glm::vec3 _position;
-            glm::vec3 _rotation;
+            glm::vec3 _front;
             glm::vec3 _up;
+            glm::vec3 _rotation;
             float _fov;
             float _aspectRatio;
             float _near;
@@ -24,7 +25,7 @@ namespace Lush
             Shader _shader;
 
         public:
-            Camera();
+            Camera(float width, float height);
             ~Camera() = default;
             Shader &getShader();
             void setShader(float time);

@@ -8,6 +8,8 @@
 #include "Includes.hpp"
 #include "Node.hpp"
 #include "RenderObject.hpp"
+#include "StaticModel.hpp"
+#include "AnimatedModel.hpp"
 
 namespace Lush
 {

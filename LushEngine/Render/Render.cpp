@@ -22,7 +22,7 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
         std::runtime_error("GLEW failed to initialize");
     if (!GLEW_VERSION_2_1)
         throw std::runtime_error("GLEW does not support OpenGL 2.1");
-    this->_camera = std::make_unique<Camera>();
+    this->_camera = std::make_unique<Camera>(800.0f, 600.0f);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
@@ -30,6 +30,9 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+
+    std::shared_ptr<Model> model = std::make_shared<Model>("resources/models/Cube.dae");
+    this->_objects[0] = std::unique_ptr<RenderObject>(new StaticModel(GameObject(0, "Cube", glm::vec3(0.0f)), model));
 }
 
 Render::~Render()
@@ -54,12 +57,13 @@ void Render::run()
 
 void Render::draw()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glfwPollEvents();
-    glfwSwapBuffers(this->_window);
     this->_camera->getShader().use();
+    this->_camera->setShader(0.0f);
     for (auto &[key, object] : this->_objects)
         object->draw(*this->_camera);
+    glfwPollEvents();
+    glfwSwapBuffers(this->_window);
 }

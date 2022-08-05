@@ -2,17 +2,19 @@
 
 using namespace Lush;
 
-Camera::Camera() : _shader("resources/shaders/camera.vs", "resources/shaders/camera.fs")
+Camera::Camera(float width, float height) : _shader("resources/shaders/camera.vs", "resources/shaders/camera.fs")
 {
     this->_view = glm::mat4(1.0f);
     this->_projection = glm::mat4(1.0f);
-    this->_position = glm::vec3(0.0f);
+    this->_position = glm::vec3(10.0f, 0.0f, 0.0f);
+    this->_front = glm::vec3(0.0f, 0.0f, 0.0f);
     this->_rotation = glm::vec3(0.0f);
     this->_up = glm::vec3(0.0f, 1.0f, 0.0f);
     this->_fov = 45.0f;
-    this->_aspectRatio = 1.0f;
+    this->_aspectRatio = width / height;
     this->_near = 0.1f;
     this->_far = 100.0f;
+    this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 }
 
 Shader &Camera::getShader()
@@ -22,6 +24,14 @@ Shader &Camera::getShader()
 
 void Camera::setShader(float time)
 {
+    this->_front = -this->_position;
+    this->_view = glm::lookAt(this->_position, glm::vec3(0.0f), this->_up);
+
+    this->_shader.setVec3("viewPos", this->_position);
+    this->_shader.setVec3("lightPos", this->_position);
+    this->_shader.setVec3("lightColor", glm::vec3(1.0f));
+    this->_shader.setMat4("view", this->_view);
+    this->_shader.setMat4("projection", this->_projection);
     this->_shader.setFloat("time", time);
 }
 
