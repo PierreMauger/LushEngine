@@ -31,12 +31,23 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(this->_window, true);
+    ImGui_ImplOpenGL3_Init("#version 130");
+
     std::shared_ptr<Model> model = std::make_shared<Model>("resources/models/Cube.dae");
     this->_objects[0] = std::unique_ptr<RenderObject>(new StaticModel(GameObject(0, "Cube", glm::vec3(0.0f)), model));
 }
 
 Render::~Render()
 {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     if (this->_window != NULL)
         glfwDestroyWindow(this->_window);
     glfwTerminate();
@@ -57,6 +68,17 @@ void Render::run()
 
 void Render::draw()
 {
+    glfwPollEvents();
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::Begin("Another Window");
+    ImGui::Text("Hello from another window!");
+    ImGui::End();
+
+    ImGui::Render();
+
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -64,6 +86,7 @@ void Render::draw()
     this->_camera->setShader(0.0f);
     for (auto &[key, object] : this->_objects)
         object->draw(*this->_camera);
-    glfwPollEvents();
+
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(this->_window);
 }

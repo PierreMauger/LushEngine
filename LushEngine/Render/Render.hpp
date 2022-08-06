@@ -3,13 +3,16 @@
 
 #include <GL/glew.h>
 
+#include "AnimatedModel.hpp"
 #include "Camera.hpp"
 #include "GLFW/glfw3.h"
 #include "Includes.hpp"
 #include "Node.hpp"
 #include "RenderObject.hpp"
 #include "StaticModel.hpp"
-#include "AnimatedModel.hpp"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 namespace Lush
 {

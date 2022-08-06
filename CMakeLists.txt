@@ -13,9 +13,9 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/")
 
 #set thread flags
 set(CMAKE_THREAD_LIBS_INIT "-lpthread")
-set(CMAKE_HAVE_THREADS_LIBRARY true)
+set(CMAKE_HAVE_THREADS_LIBRARY ON)
 set(CMAKE_USE_WIN32F_THREADS_INIT OFF)
-set(CMAKE_USE_PTHREADS_INIT true)
+set(CMAKE_USE_PTHREADS_INIT ON)
 set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 set(ASSIMP_BUILD_SAMPLES OFF)
@@ -26,9 +26,9 @@ set(ASSIMP_BUILD_COLLADA_IMPORTER ON)
 set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
 
 if(UNIX)
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
 else()
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /Ox")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /Ox")
 endif()
 
 #set binary/executable name
@@ -44,6 +44,7 @@ set(INC
     ${PROJECT_NAME}/Loader/
     ${PROJECT_NAME}/Render/
     ${PROJECT_NAME}/Render/Objects
+    ${PROJECT_NAME}/IMGUI
 )
 
 #fetch source files
@@ -68,6 +69,12 @@ set(SRC
     ${PROJECT_NAME}/Render/Model.cpp
     ${PROJECT_NAME}/Render/Objects/AnimatedModel.cpp
     ${PROJECT_NAME}/Render/Objects/StaticModel.cpp
+    ${PROJECT_NAME}/IMGUI/imgui_draw.cpp
+    ${PROJECT_NAME}/IMGUI/imgui_tables.cpp
+    ${PROJECT_NAME}/IMGUI/imgui_widgets.cpp
+    ${PROJECT_NAME}/IMGUI/imgui.cpp
+    ${PROJECT_NAME}/IMGUI/imgui_impl_glfw.cpp
+    ${PROJECT_NAME}/IMGUI/imgui_impl_opengl3.cpp
 )
 
 find_package(OpenGL REQUIRED)
