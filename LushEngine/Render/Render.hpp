@@ -21,6 +21,7 @@ namespace Lush
         private:
             GLFWwindow *_window;
             std::unique_ptr<Camera> _camera;
+            bool showImGuiCamera;
             std::map<int, std::unique_ptr<RenderObject>> _objects;
 
         public:

@@ -6,6 +6,7 @@
 
 #include "Includes.hpp"
 #include "Shader.hpp"
+#include "imgui.h"
 
 namespace Lush
 {
@@ -30,6 +31,7 @@ namespace Lush
             Shader &getShader();
             void setShader(float time);
             void setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
+            void showImGui(bool *open);
     };
 }
 

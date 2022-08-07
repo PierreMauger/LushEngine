@@ -23,6 +23,7 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     if (!GLEW_VERSION_2_1)
         throw std::runtime_error("GLEW does not support OpenGL 2.1");
     this->_camera = std::make_unique<Camera>(800.0f, 600.0f);
+    this->showImGuiCamera = true;
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
@@ -73,9 +74,8 @@ void Render::draw()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::Begin("Another Window");
-    ImGui::Text("Hello from another window!");
-    ImGui::End();
+    if (this->showImGuiCamera)
+        this->_camera->showImGui(&this->showImGuiCamera);
 
     ImGui::Render();
 

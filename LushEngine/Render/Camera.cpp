@@ -6,7 +6,7 @@ Camera::Camera(float width, float height) : _shader("resources/shaders/camera.vs
 {
     this->_view = glm::mat4(1.0f);
     this->_projection = glm::mat4(1.0f);
-    this->_position = glm::vec3(10.0f, 0.0f, 0.0f);
+    this->_position = glm::vec3(10.0f, 0.0f, 5.0f);
     this->_front = glm::vec3(0.0f, 0.0f, 0.0f);
     this->_rotation = glm::vec3(0.0f);
     this->_up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -26,6 +26,7 @@ void Camera::setShader(float time)
 {
     this->_front = -this->_position;
     this->_view = glm::lookAt(this->_position, glm::vec3(0.0f), this->_up);
+    this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 
     this->_shader.setVec3("viewPos", this->_position);
     this->_shader.setVec3("lightPos", this->_position);
@@ -46,4 +47,19 @@ void Camera::setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation)
 
     for (std::size_t i = 0; i < 100; i++)
         this->_shader.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", glm::mat4(1.0f));
+}
+
+void Camera::showImGui(bool *open)
+{
+    if (ImGui::Begin("Camera", open)) {
+        ImGui::SliderFloat("FOV", &this->_fov, 30.0f, 90.0f);
+        ImGui::SliderFloat("Aspect Ratio", &this->_aspectRatio, 0.1f, 10.0f);
+        ImGui::SliderFloat("Near", &this->_near, 0.1f, 10.0f);
+        ImGui::SliderFloat("Far", &this->_far, 0.1f, 100.0f);
+        ImGui::Text(" ");
+        ImGui::SliderFloat("PosX", &this->_position.x, -20.0f, 20.0f);
+        ImGui::SliderFloat("PosY", &this->_position.y, -20.0f, 20.0f);
+        ImGui::SliderFloat("PosZ", &this->_position.z, -20.0f, 20.0f);
+    }
+    ImGui::End();
 }
