@@ -32,6 +32,7 @@ namespace Lush
             void setShader(float time);
             void setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
             void showImGui(bool *open);
+            glm::mat4 getView() const;
     };
 }
 

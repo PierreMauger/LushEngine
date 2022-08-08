@@ -63,3 +63,8 @@ void Camera::showImGui(bool *open)
     }
     ImGui::End();
 }
+
+glm::mat4 Camera::getView() const
+{
+    return this->_view;
+}
