@@ -156,9 +156,6 @@ Mesh Model::processMesh(aiMesh &mesh, const aiScene &scene)
         this->loadMaterialTextures(materialLoaded, aiTextureType_AMBIENT, "texture_height");
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-    if (textures.size()) {
-    }
-
     return Mesh(vertices, indices, textures, material);
 }
 

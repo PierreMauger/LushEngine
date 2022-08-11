@@ -2,7 +2,9 @@
 
 using namespace Lush;
 
-Camera::Camera(float width, float height) : _shader("resources/shaders/camera.vs", "resources/shaders/camera.fs")
+Camera::Camera(float width, float height)
+    : _shader("resources/shaders/camera.vs", "resources/shaders/camera.fs"),
+      _picking("resources/shaders/camera.vs", "resources/shaders/picking.fs")
 {
     this->_view = glm::mat4(1.0f);
     this->_projection = glm::mat4(1.0f);
@@ -22,6 +24,11 @@ Shader &Camera::getShader()
     return this->_shader;
 }
 
+Shader &Camera::getPicking()
+{
+    return this->_picking;
+}
+
 void Camera::setShader(float time)
 {
     this->_front = -this->_position;
@@ -34,6 +41,14 @@ void Camera::setShader(float time)
     this->_shader.setMat4("view", this->_view);
     this->_shader.setMat4("projection", this->_projection);
     this->_shader.setFloat("time", time);
+}
+
+void Camera::setPicking()
+{
+    // assume setShader has been called, so _view and _projection are set
+    this->_shader.setVec3("viewPos", this->_position);
+    this->_shader.setMat4("view", this->_view);
+    this->_shader.setMat4("projection", this->_projection);
 }
 
 void Camera::setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation)

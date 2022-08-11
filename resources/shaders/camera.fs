@@ -10,7 +10,7 @@ uniform vec3 viewPos;
 
 uniform vec3 lightColor;
 uniform vec3 objectColor;
-uniform bool isTexture = false;
+uniform bool hasTexture = false;
 
 uniform sampler2D textureDiffuse;
 
@@ -33,7 +33,7 @@ void main()
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);
     vec3 specular = specularStrength * spec * lightColor;
 
-    if (isTexture) {
+    if (hasTexture) {
         vec3 textureColor = texture(textureDiffuse, TexCoords).rgb;
         vec3 result = (ambient + diffuse + specular) * textureColor;
         FragColor = vec4(result, 1.0f);

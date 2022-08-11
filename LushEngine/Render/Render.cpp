@@ -25,8 +25,21 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_camera = std::make_unique<Camera>(800.0f, 600.0f);
     this->showImGuiCamera = true;
 
+    glGenFramebuffers(1, &this->_framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_framebuffer);
+    glGenTextures(1, &this->_texture);
+    glBindTexture(GL_TEXTURE_2D, this->_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32I, 800, 600, 0, GL_RED_INTEGER, GL_INT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glGenRenderbuffers(1, &this->_depthbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, this->_depthbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 800, 600);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_depthbuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->_texture, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_STENCIL_TEST);
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -42,6 +55,7 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 
     std::shared_ptr<Model> model = std::make_shared<Model>("resources/models/Cube.dae");
     this->_objects[0] = std::unique_ptr<RenderObject>(new StaticModel(GameObject(0, "Cube", glm::vec3(0.0f)), model));
+    this->_objects[1] = std::unique_ptr<RenderObject>(new StaticModel(GameObject(0, "Cube", glm::vec3(2.0f, 0.0f, 0.5f)), model));
 }
 
 Render::~Render()
@@ -81,25 +95,35 @@ void Render::draw()
     ImGui::Render();
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glStencilMask(0xFFFFFFFF);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     this->_camera->getShader().use();
     this->_camera->setShader(0.0f);
+    for (auto &[key, object] : this->_objects)
+        object->draw(*this->_camera);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_framebuffer);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    this->_camera->getPicking().use();
+    this->_camera->setShader(0.0f);
+    this->_camera->setPicking();
     for (auto &[key, object] : this->_objects) {
-        glStencilFunc(GL_ALWAYS, key + 1, 0xFFFFFFFF);
+        this->_camera->getPicking().setInt("id", key + 1);
         object->draw(*this->_camera);
     }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(this->_window);
 
     if (glfwGetMouseButton(this->_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
         double x, y;
         glfwGetCursorPos(this->_window, &x, &y);
-        int id = -1;
 
-        glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_INT, &id);
-
-        std::cout << "Clicked on object " << id << std::endl;
+        int color = -1;
+        glBindFramebuffer(GL_FRAMEBUFFER, this->_framebuffer);
+        glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &color);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        std::cout << "Color: " << color << std::endl;
     }
 }
