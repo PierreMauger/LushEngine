@@ -45,6 +45,9 @@ void Mesh::setupMesh()
 
 void Mesh::draw(Shader &shader)
 {
+    if (this->_textures.size() > 0)
+        shader.setBool("isTexture", true);
+
     shader.setVec3("objectColor", this->_material.diffuse);
 
     unsigned int diffuseNr = 1;

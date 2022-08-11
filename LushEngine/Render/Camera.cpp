@@ -53,7 +53,7 @@ void Camera::showImGui(bool *open)
 {
     if (ImGui::Begin("Camera", open)) {
         ImGui::SliderFloat("FOV", &this->_fov, 30.0f, 90.0f);
-        ImGui::SliderFloat("Aspect Ratio", &this->_aspectRatio, 0.1f, 10.0f);
+        ImGui::SliderFloat("Aspect Ratio", &this->_aspectRatio, 0.5f, 2.0f);
         ImGui::SliderFloat("Near", &this->_near, 0.1f, 10.0f);
         ImGui::SliderFloat("Far", &this->_far, 0.1f, 100.0f);
         ImGui::Text(" ");

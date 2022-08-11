@@ -42,7 +42,6 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 
     std::shared_ptr<Model> model = std::make_shared<Model>("resources/models/Cube.dae");
     this->_objects[0] = std::unique_ptr<RenderObject>(new StaticModel(GameObject(0, "Cube", glm::vec3(0.0f)), model));
-    this->_objects[1] = std::unique_ptr<RenderObject>(new StaticModel(GameObject(0, "Cube", glm::vec3(3.0f, 0.0f, 2.0f)), model));
 }
 
 Render::~Render()
@@ -83,7 +82,6 @@ void Render::draw()
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    // glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glStencilMask(0xFFFFFFFF);
     this->_camera->getShader().use();
@@ -92,7 +90,6 @@ void Render::draw()
         glStencilFunc(GL_ALWAYS, key + 1, 0xFFFFFFFF);
         object->draw(*this->_camera);
     }
-    // glDisable(GL_STENCIL_TEST);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(this->_window);
 
