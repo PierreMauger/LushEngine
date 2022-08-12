@@ -25,6 +25,7 @@ namespace Lush
             GLuint _framebuffer;
             GLuint _texture;
             GLuint _depthbuffer;
+            int _hover;
             std::map<int, std::unique_ptr<RenderObject>> _objects;
 
         public:
@@ -32,6 +33,12 @@ namespace Lush
             ~Render();
             void run();
             void draw();
+            void handleMouse();
+
+        private:
+            void drawImGui();
+            void drawScene();
+            void drawPicking();
     };
 }
 

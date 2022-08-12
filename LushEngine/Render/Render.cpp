@@ -53,6 +53,7 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     ImGui_ImplGlfw_InitForOpenGL(this->_window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
+    this->_hover = 0;
     std::shared_ptr<Model> model = std::make_shared<Model>("resources/models/Cube.dae");
     this->_objects[0] = std::unique_ptr<RenderObject>(new StaticModel(GameObject(0, "Cube", glm::vec3(0.0f)), model));
     this->_objects[1] = std::unique_ptr<RenderObject>(new StaticModel(GameObject(0, "Cube", glm::vec3(2.0f, 0.0f, 0.5f)), model));
@@ -74,6 +75,7 @@ void Render::run()
     while (this->_running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
         this->draw();
+        this->handleMouse();
         if (glfwWindowShouldClose(this->_window)) {
             this->_running = false; // because it can sometimes send the quit message twice
             this->sendMessage(Message(Packet(), BaseCommand::QUIT, Module::BROADCAST));
@@ -84,46 +86,68 @@ void Render::run()
 
 void Render::draw()
 {
+    this->drawImGui();
+    this->drawScene();
+    this->drawPicking();
+
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    glfwSwapBuffers(this->_window);
+}
+
+void Render::handleMouse()
+{
     glfwPollEvents();
+
+    double x, y;
+    glfwGetCursorPos(this->_window, &x, &y);
+
+    this->_hover = -1;
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_framebuffer);
+    glReadPixels(x, 600 - y, 1, 1, GL_RED_INTEGER, GL_INT, &this->_hover);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    if (glfwGetMouseButton(this->_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        if (this->_hover > 0 && this->_objects.find(this->_hover - 1) != this->_objects.end())
+            this->_objects[this->_hover - 1]->setSelected(true);
+}
+
+void Render::drawImGui()
+{
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
     if (this->showImGuiCamera)
         this->_camera->showImGui(&this->showImGuiCamera);
+    for (auto &[key, object] : this->_objects)
+        if (object->isSelected())
+            object->showImGui(key);
 
     ImGui::Render();
+}
 
+void Render::drawScene()
+{
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     this->_camera->getShader().use();
     this->_camera->setShader(0.0f);
-    for (auto &[key, object] : this->_objects)
+    for (auto &[key, object] : this->_objects) {
+        object->setHovered(this->_hover - 1 == key);
         object->draw(*this->_camera);
+    }
+}
 
+void Render::drawPicking()
+{
     glBindFramebuffer(GL_FRAMEBUFFER, this->_framebuffer);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     this->_camera->getPicking().use();
-    this->_camera->setShader(0.0f);
     this->_camera->setPicking();
     for (auto &[key, object] : this->_objects) {
         this->_camera->getPicking().setInt("id", key + 1);
         object->draw(*this->_camera);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    glfwSwapBuffers(this->_window);
-
-    if (glfwGetMouseButton(this->_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-        double x, y;
-        glfwGetCursorPos(this->_window, &x, &y);
-
-        int color = -1;
-        glBindFramebuffer(GL_FRAMEBUFFER, this->_framebuffer);
-        glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &color);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        std::cout << "Color: " << color << std::endl;
-    }
 }

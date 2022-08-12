@@ -15,6 +15,9 @@ namespace Lush
             glm::vec3 _position;
             glm::vec3 _scale;
             glm::vec3 _rotation;
+            bool _isHovered;
+            bool _isSelected;
+            bool _polygonMode;
 
         public:
             RenderObject(GameObject obj);
@@ -23,11 +26,15 @@ namespace Lush
             glm::vec3 getPosition() const;
             glm::vec3 getScale() const;
             glm::vec3 getRotation() const;
+            bool isSelected() const;
 
             void setPosition(glm::vec3 position);
             void setScale(glm::vec3 scale);
             void setRotation(glm::vec3 rotation);
+            void setHovered(bool isHovered);
+            void setSelected(bool isSelected);
             virtual void draw(Camera &camera) = 0;
+            virtual void showImGui(int id) = 0;
     };
 }
 

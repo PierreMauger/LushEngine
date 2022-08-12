@@ -11,3 +11,7 @@ AnimatedModel::AnimatedModel(GameObject obj, std::shared_ptr<Model> model) : Ren
 void AnimatedModel::draw([[maybe_unused]] Camera &camera)
 {
 }
+
+void AnimatedModel::showImGui([[maybe_unused]] int id)
+{
+}

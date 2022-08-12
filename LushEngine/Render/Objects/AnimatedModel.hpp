@@ -17,6 +17,7 @@ namespace Lush
             ~AnimatedModel() = default;
 
             void draw(Camera &camera);
+            void showImGui(int id);
     };
 }
 

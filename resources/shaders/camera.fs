@@ -11,11 +11,18 @@ uniform vec3 viewPos;
 uniform vec3 lightColor;
 uniform vec3 objectColor;
 uniform bool hasTexture = false;
+uniform bool outline = false;
+uniform bool isSelected = false;
 
 uniform sampler2D textureDiffuse;
 
 void main()
 {
+    if (outline) {
+        FragColor = vec4(1.0f, 1.0f, 1.0f, 0.5f);
+        return;
+    }
+
     // ambient
     float ambientStrength = 0.1f;
     vec3 ambient = ambientStrength * lightColor;
@@ -35,10 +42,10 @@ void main()
 
     if (hasTexture) {
         vec3 textureColor = texture(textureDiffuse, TexCoords).rgb;
-        vec3 result = (ambient + diffuse + specular) * textureColor;
+        vec3 result = (ambient + diffuse + specular) * textureColor * (isSelected ? 1.5f : 1.0f);
         FragColor = vec4(result, 1.0f);
     } else {
-        vec3 result = (ambient + diffuse + specular) * objectColor;
+        vec3 result = (ambient + diffuse + specular) * objectColor * (isSelected ? 1.5f : 1.0f);
         FragColor = vec4(result, 1.0f);
     }
 }
