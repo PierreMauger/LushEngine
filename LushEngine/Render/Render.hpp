@@ -20,6 +20,10 @@ namespace Lush
     {
         private:
             GLFWwindow *_window;
+            double _mouseX;
+            double _mouseY;
+            double _windowWidth;
+            double _windowHeight;
             std::unique_ptr<Camera> _camera;
             bool showImGuiCamera;
             GLuint _framebuffer;
