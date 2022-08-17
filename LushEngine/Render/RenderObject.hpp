@@ -34,7 +34,7 @@ namespace Lush
             void setHovered(bool isHovered);
             void setSelected(bool isSelected);
             virtual void draw(Camera &camera) = 0;
-            virtual void showImGui(int id) = 0;
+            virtual bool showImGui(int id) = 0;
     };
 }
 

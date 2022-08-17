@@ -12,6 +12,7 @@ void AnimatedModel::draw([[maybe_unused]] Camera &camera)
 {
 }
 
-void AnimatedModel::showImGui([[maybe_unused]] int id)
+bool AnimatedModel::showImGui([[maybe_unused]] int id)
 {
+    return false;
 }

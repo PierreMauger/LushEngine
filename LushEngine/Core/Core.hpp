@@ -16,6 +16,8 @@ namespace Lush
             Core(std::shared_ptr<MessageBus> messageBus);
             ~Core();
             void run();
+
+            void receiveObjectMove(Packet);
     };
 }
 

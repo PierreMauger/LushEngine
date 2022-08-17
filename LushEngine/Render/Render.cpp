@@ -129,8 +129,13 @@ void Render::drawImGui()
     if (this->showImGuiCamera)
         this->_camera->showImGui(&this->showImGuiCamera);
     for (auto &[key, object] : this->_objects)
-        if (object->isSelected())
-            object->showImGui(key);
+        if (object->isSelected()) {
+            if (object->showImGui(key)) {
+                Packet packet;
+                packet << key << object->getPosition();
+                this->sendMessage(Message(packet, CoreCommand::OBJECT_MOVE, Module::CORE));
+            }
+        }
 
     ImGui::Render();
 }

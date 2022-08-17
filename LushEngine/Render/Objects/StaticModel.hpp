@@ -17,7 +17,7 @@ namespace Lush
             ~StaticModel() = default;
 
             void draw(Camera &camera);
-            void showImGui(int id);
+            bool showImGui(int id);
     };
 }
 

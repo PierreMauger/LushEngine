@@ -35,7 +35,7 @@ namespace Lush
     {
         public:
             enum {
-                LAST = BaseCommand::LAST,
+                OBJECT_MOVE = BaseCommand::LAST,
             };
     };
 
