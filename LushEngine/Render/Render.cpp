@@ -4,6 +4,8 @@ using namespace Lush;
 
 Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 {
+    this->_functionList.push_back(std::bind(&Render::receiveLoadShader, this, std::placeholders::_1));
+
     if (!glfwInit())
         throw std::runtime_error("GLFW failed to initialize");
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -16,15 +18,14 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_window = glfwCreateWindow(this->_windowWidth, this->_windowHeight, "Lush Engine", nullptr, nullptr);
 
     if (this->_window == NULL)
-        std::runtime_error("Failed to create GLFW window");
+        throw std::runtime_error("Failed to create GLFW window");
 
     glfwMakeContextCurrent(this->_window);
 
     if (glewInit() != GLEW_OK)
-        std::runtime_error("GLEW failed to initialize");
+        throw std::runtime_error("GLEW failed to initialize");
     if (!GLEW_VERSION_2_1)
         throw std::runtime_error("GLEW does not support OpenGL 2.1");
-    this->_camera = std::make_unique<Camera>(this->_windowWidth, this->_windowHeight);
     this->showImGuiCamera = true;
 
     glGenFramebuffers(1, &this->_framebuffer);
@@ -83,13 +84,16 @@ void Render::run()
 {
     while (this->_running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
-        this->draw();
-        this->handleMouse();
+        this->_messageBus->notify(Module::RENDER, this->_functionList);
+        glfwPollEvents();
         if (glfwWindowShouldClose(this->_window)) {
             this->_running = false; // because it can sometimes send the quit message twice
             this->sendMessage(Message(Packet(), BaseCommand::QUIT, Module::BROADCAST));
         }
-        this->_messageBus->notify(Module::RENDER, this->_functionList);
+        if (!this->_launched)
+            continue;
+        this->draw();
+        this->handleMouse();
     }
 }
 
@@ -105,7 +109,6 @@ void Render::draw()
 
 void Render::handleMouse()
 {
-    glfwPollEvents();
     this->_hover = -1;
 
     if (ImGui::GetIO().WantCaptureMouse)
@@ -145,7 +148,7 @@ void Render::drawScene()
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    this->_camera->getShader().use();
+    this->_camera->getShader()->use();
     this->_camera->setShader(0.0f);
     for (auto &[key, object] : this->_objects) {
         object->setHovered(this->_hover - 1 == key);
@@ -158,11 +161,24 @@ void Render::drawPicking()
     glBindFramebuffer(GL_FRAMEBUFFER, this->_framebuffer);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    this->_camera->getPicking().use();
+    this->_camera->getPicking()->use();
     this->_camera->setPicking();
     for (auto &[key, object] : this->_objects) {
-        this->_camera->getPicking().setInt("id", key + 1);
+        this->_camera->getPicking()->setInt("id", key + 1);
         object->draw(*this->_camera);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Render::receiveLoadShader(Packet packet)
+{
+    std::string name;
+    std::string vertexCode;
+    std::string fragmentCode;
+
+    while (!packet.empty()) {
+        packet >> name >> vertexCode >> fragmentCode;
+        this->_shaders[name] = std::make_shared<Shader>(vertexCode, fragmentCode);
+    }
+    this->_camera = std::make_unique<Camera>(this->_windowWidth, this->_windowHeight, this->_shaders["Camera"], this->_shaders["Picking"]);
 }

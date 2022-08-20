@@ -23,14 +23,14 @@ namespace Lush
             float _aspectRatio;
             float _near;
             float _far;
-            Shader _shader;
-            Shader _picking;
+            std::shared_ptr<Shader> _camera;
+            std::shared_ptr<Shader> _picking;
 
         public:
-            Camera(float width, float height);
+            Camera(float width, float height, std::shared_ptr<Shader> camera, std::shared_ptr<Shader> picking);
             ~Camera() = default;
-            Shader &getShader();
-            Shader &getPicking();
+            std::shared_ptr<Shader> getShader();
+            std::shared_ptr<Shader> getPicking();
             void setShader(float time);
             void setPicking();
             void setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);

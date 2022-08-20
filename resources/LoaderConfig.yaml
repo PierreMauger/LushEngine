@@ -1,0 +1,11 @@
+_Shader:
+  Camera:
+    camera.vs
+    camera.fs
+  Picking:
+    camera.vs
+    picking.fs
+
+_Camera:
+  Camera
+  Picking

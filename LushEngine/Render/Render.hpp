@@ -24,12 +24,15 @@ namespace Lush
             double _mouseY;
             double _windowWidth;
             double _windowHeight;
-            std::unique_ptr<Camera> _camera;
-            bool showImGuiCamera;
             GLuint _framebuffer;
             GLuint _texture;
             GLuint _depthbuffer;
             int _hover;
+
+            std::map<std::string, std::shared_ptr<Shader>> _shaders;
+            std::unique_ptr<Camera> _camera;
+            bool showImGuiCamera;
+
             std::map<int, std::unique_ptr<RenderObject>> _objects;
 
         public:
@@ -38,6 +41,8 @@ namespace Lush
             void run();
             void draw();
             void handleMouse();
+
+            void receiveLoadShader(Packet);
 
         private:
             void drawImGui();

@@ -15,7 +15,7 @@ namespace Lush
             unsigned int _ID;
 
         public:
-            Shader(const char *vertexPath, const char *fragmentPath);
+            Shader(const std::string vertexCode, const std::string fragmentCode);
             void use() const;
             unsigned int getID() const;
             void setBool(const std::string &name, bool value) const;

@@ -19,6 +19,7 @@ namespace Lush
             enum {
                 QUIT,
                 SLEEP_FOR,
+                LAUNCH,
                 LAST
             };
     };
@@ -59,7 +60,7 @@ namespace Lush
     {
         public:
             enum {
-                LAST = BaseCommand::LAST,
+                LOAD_SHADER = BaseCommand::LAST,
             };
     };
 }

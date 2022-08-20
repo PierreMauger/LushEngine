@@ -16,6 +16,8 @@ namespace Lush
     {
         private:
             std::shared_ptr<MessageBus> _messageBus;
+            std::condition_variable cv;
+            std::mutex mutex;
 
         public:
             Engine();
@@ -27,6 +29,12 @@ namespace Lush
             {
                 try {
                     T node(this->_messageBus);
+                    if (this->_messageBus->getQueuesSize() >= 5) {
+                        cv.notify_all();
+                    } else {
+                        std::unique_lock<std::mutex> lock(mutex);
+                        cv.wait(lock);
+                    }
                     node.run();
                 } catch (const std::exception &e) {
                     this->_messageBus->sendMessage(Message(Packet(), BaseCommand::QUIT, Module::BROADCAST));
