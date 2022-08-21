@@ -4,7 +4,8 @@ using namespace Lush;
 
 Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 {
-    this->_functionList.push_back(std::bind(&Render::receiveLoadShader, this, std::placeholders::_1));
+    this->_functionList.push_back(std::bind(&Render::receiveCompileShader, this, std::placeholders::_1));
+    this->_functionList.push_back(std::bind(&Render::receiveAddObject, this, std::placeholders::_1));
 
     if (!glfwInit())
         throw std::runtime_error("GLFW failed to initialize");
@@ -64,10 +65,9 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_mouseX = 0;
     this->_mouseY = 0;
     this->_hover = 0;
-    std::shared_ptr<Model> model = std::make_shared<Model>("resources/models/Cube.dae");
-    this->_objects[0] = std::unique_ptr<RenderObject>(new StaticModel(GameObject(0, "Cube", glm::vec3(0.0f)), model));
-    this->_objects[1] =
-        std::unique_ptr<RenderObject>(new StaticModel(GameObject(0, "Cube", glm::vec3(2.0f, 0.0f, 0.5f)), model));
+
+    // TODO replace with function from loader
+    this->model = std::make_shared<Model>("resources/models/Cube.dae");
 }
 
 Render::~Render()
@@ -112,9 +112,8 @@ void Render::draw()
 void Render::update()
 {
     for (auto &[key, object] : this->_objects)
-        object->setHovered(this->_hover - 1 == key);
+        object->setHovered(this->_hover - 1 == static_cast<int>(key));
 }
-
 
 void Render::handleMouse()
 {
@@ -145,7 +144,7 @@ void Render::drawImGui()
             if (object->showImGui(key)) {
                 Packet packet;
                 packet << key << object->getPosition();
-                this->sendMessage(Message(packet, CoreCommand::OBJECT_MOVE, Module::CORE));
+                this->sendMessage(Message(packet, CoreCommand::MOVE_OBJECT, Module::CORE));
             }
         }
 
@@ -184,7 +183,7 @@ void Render::drawPicking()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Render::receiveLoadShader(Packet packet)
+void Render::receiveCompileShader(Packet packet)
 {
     std::string name;
     std::string vertexCode;
@@ -195,4 +194,15 @@ void Render::receiveLoadShader(Packet packet)
         this->_shaders[name] = std::make_shared<Shader>(vertexCode, fragmentCode);
     }
     this->_camera = std::make_unique<Camera>(this->_windowWidth, this->_windowHeight, this->_shaders);
+}
+
+void Render::receiveAddObject(Packet packet)
+{
+    while (!packet.empty()) {
+        GameObject object;
+        std::size_t key;
+
+        packet >> key >> object;
+        this->_objects[key] = std::make_unique<StaticModel>(object, this->model);
+    }
 }

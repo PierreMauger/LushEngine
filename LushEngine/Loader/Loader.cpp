@@ -7,7 +7,7 @@ Loader::Loader(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_launched = true; // loader always launched first, to launch others
     this->_loaderConfig = this->loadFile("resources/LoaderConfig.yaml");
 
-    this->sendMessage(Message(this->loadShaders(), RenderCommand::LOAD_SHADER, Module::RENDER));
+    this->sendShaders();
 }
 
 Loader::~Loader()
@@ -69,7 +69,7 @@ std::string Loader::searchInLoaderConfig(std::string section)
     return result;
 }
 
-Packet Loader::loadShaders()
+void Loader::sendShaders()
 {
     Packet packet;
     std::vector<std::string> files = this->getFilesFromDir("resources/shaders/", false);
@@ -90,5 +90,13 @@ Packet Loader::loadShaders()
                << this->loadFile("resources/shaders/" + match[3].str());
         shaderConfig = match.suffix().str();
     }
-    return packet;
+    this->sendMessage(Message(packet, RenderCommand::COMPILE_SHADER, Module::RENDER));
+}
+
+void Loader::sendScenes()
+{
+    Packet packet;
+
+    // TODO load scenes and send them to Core
+    this->sendMessage(Message(packet, CoreCommand::SCENES, Module::CORE));
 }

@@ -23,7 +23,7 @@ namespace Lush
             float _aspectRatio;
             float _near;
             float _far;
-            std::map<std::string, std::shared_ptr<Shader>> _shaderMap;
+            std::map<std::string, std::shared_ptr<Shader>> _shaders;
             std::shared_ptr<Shader> _actShader;
 
         public:

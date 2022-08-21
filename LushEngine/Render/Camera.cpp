@@ -16,14 +16,14 @@ Camera::Camera(float width, float height, std::map<std::string, std::shared_ptr<
     this->_far = 100.0f;
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 
-    this->_shaderMap = shaderMap;
+    this->_shaders = shaderMap;
     this->_actShader = nullptr;
 }
 
 void Camera::use(std::string shaderName)
 {
-    this->_shaderMap[shaderName]->use();
-    this->_actShader = this->_shaderMap[shaderName];
+    this->_shaders[shaderName]->use();
+    this->_actShader = this->_shaders[shaderName];
 }
 
 std::shared_ptr<Shader> Camera::getShader()
@@ -33,9 +33,9 @@ std::shared_ptr<Shader> Camera::getShader()
 
 std::shared_ptr<Shader> Camera::getShader(std::string shaderName)
 {
-    if (this->_shaderMap.find(shaderName) == this->_shaderMap.end())
+    if (this->_shaders.find(shaderName) == this->_shaders.end())
         throw std::runtime_error("Getting a shader not loaded: " + shaderName);
-    return this->_shaderMap[shaderName];
+    return this->_shaders[shaderName];
 }
 
 void Camera::setShader(float time)

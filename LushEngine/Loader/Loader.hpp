@@ -24,7 +24,8 @@ namespace Lush
             std::string searchInLoaderConfig(std::string section);
 
         private:
-            Packet loadShaders();
+            void sendShaders();
+            void sendScenes();
     };
 }
 

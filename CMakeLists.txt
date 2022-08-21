@@ -57,6 +57,7 @@ set(SRC
     ${PROJECT_NAME}/Communication/MessageBus.cpp
     ${PROJECT_NAME}/Audio/Audio.cpp
     ${PROJECT_NAME}/Core/Core.cpp
+    ${PROJECT_NAME}/Core/Scene.cpp
     ${PROJECT_NAME}/Core/GameObject.cpp
     ${PROJECT_NAME}/Input/Input.cpp
     ${PROJECT_NAME}/Loader/Loader.cpp

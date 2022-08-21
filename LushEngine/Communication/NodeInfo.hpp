@@ -36,7 +36,8 @@ namespace Lush
     {
         public:
             enum {
-                OBJECT_MOVE = BaseCommand::LAST,
+                SCENES = BaseCommand::LAST,
+                MOVE_OBJECT,
             };
     };
 
@@ -60,7 +61,8 @@ namespace Lush
     {
         public:
             enum {
-                LOAD_SHADER = BaseCommand::LAST,
+                COMPILE_SHADER = BaseCommand::LAST,
+                ADD_OBJECTS,
             };
     };
 }

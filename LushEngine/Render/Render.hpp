@@ -33,7 +33,9 @@ namespace Lush
             std::unique_ptr<Camera> _camera;
             bool showImGuiCamera;
 
-            std::map<int, std::unique_ptr<RenderObject>> _objects;
+            // TODO replace with vector, and load with Loader
+            std::shared_ptr<Model> model;
+            std::map<std::size_t, std::unique_ptr<RenderObject>> _objects;
 
         public:
             Render(std::shared_ptr<MessageBus> messageBus);
@@ -43,7 +45,8 @@ namespace Lush
             void draw();
             void handleMouse();
 
-            void receiveLoadShader(Packet);
+            void receiveCompileShader(Packet);
+            void receiveAddObject(Packet);
 
         private:
             void drawImGui();
