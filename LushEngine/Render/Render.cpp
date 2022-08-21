@@ -66,7 +66,8 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_hover = 0;
     std::shared_ptr<Model> model = std::make_shared<Model>("resources/models/Cube.dae");
     this->_objects[0] = std::unique_ptr<RenderObject>(new StaticModel(GameObject(0, "Cube", glm::vec3(0.0f)), model));
-    this->_objects[1] = std::unique_ptr<RenderObject>(new StaticModel(GameObject(0, "Cube", glm::vec3(2.0f, 0.0f, 0.5f)), model));
+    this->_objects[1] =
+        std::unique_ptr<RenderObject>(new StaticModel(GameObject(0, "Cube", glm::vec3(2.0f, 0.0f, 0.5f)), model));
 }
 
 Render::~Render()
@@ -92,6 +93,7 @@ void Render::run()
         }
         if (!this->_launched)
             continue;
+        this->update();
         this->draw();
         this->handleMouse();
     }
@@ -107,12 +109,19 @@ void Render::draw()
     glfwSwapBuffers(this->_window);
 }
 
+void Render::update()
+{
+    for (auto &[key, object] : this->_objects)
+        object->setHovered(this->_hover - 1 == key);
+}
+
+
 void Render::handleMouse()
 {
-    this->_hover = -1;
-
-    if (ImGui::GetIO().WantCaptureMouse)
+    if (ImGui::GetIO().WantCaptureMouse) {
+        this->_hover = -1;
         return;
+    }
     glfwGetCursorPos(this->_window, &this->_mouseX, &this->_mouseY);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_framebuffer);
     glReadPixels(this->_mouseX, this->_windowHeight - this->_mouseY, 1, 1, GL_RED_INTEGER, GL_INT, &this->_hover);
@@ -148,12 +157,17 @@ void Render::drawScene()
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    this->_camera->getShader()->use();
-    this->_camera->setShader(0.0f);
-    for (auto &[key, object] : this->_objects) {
-        object->setHovered(this->_hover - 1 == key);
-        object->draw(*this->_camera);
-    }
+    this->_camera->use("Camera");
+    this->_camera->setShader(glfwGetTime());
+    for (auto &[key, object] : this->_objects)
+        if (!object->isSelected())
+            object->draw(*this->_camera);
+
+    this->_camera->use("Selection");
+    this->_camera->setShader(glfwGetTime());
+    for (auto &[key, object] : this->_objects)
+        if (object->isSelected())
+            object->draw(*this->_camera);
 }
 
 void Render::drawPicking()
@@ -161,10 +175,10 @@ void Render::drawPicking()
     glBindFramebuffer(GL_FRAMEBUFFER, this->_framebuffer);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    this->_camera->getPicking()->use();
+    this->_camera->use("Picking");
     this->_camera->setPicking();
     for (auto &[key, object] : this->_objects) {
-        this->_camera->getPicking()->setInt("id", key + 1);
+        this->_camera->getShader()->setInt("id", key + 1);
         object->draw(*this->_camera);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -180,5 +194,5 @@ void Render::receiveLoadShader(Packet packet)
         packet >> name >> vertexCode >> fragmentCode;
         this->_shaders[name] = std::make_shared<Shader>(vertexCode, fragmentCode);
     }
-    this->_camera = std::make_unique<Camera>(this->_windowWidth, this->_windowHeight, this->_shaders["Camera"], this->_shaders["Picking"]);
+    this->_camera = std::make_unique<Camera>(this->_windowWidth, this->_windowHeight, this->_shaders);
 }

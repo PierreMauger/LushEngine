@@ -5,7 +5,6 @@ _Shader:
   Picking:
     camera.vs
     picking.fs
-
-_Camera:
-  Camera
-  Picking
+  Selection:
+    camera.vs
+    selection.fs

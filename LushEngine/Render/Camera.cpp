@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-Camera::Camera(float width, float height, std::shared_ptr<Shader> camera, std::shared_ptr<Shader> picking)
+Camera::Camera(float width, float height, std::map<std::string, std::shared_ptr<Shader>> shaderMap)
 {
     this->_view = glm::mat4(1.0f);
     this->_projection = glm::mat4(1.0f);
@@ -16,18 +16,26 @@ Camera::Camera(float width, float height, std::shared_ptr<Shader> camera, std::s
     this->_far = 100.0f;
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 
-    this->_camera = camera;
-    this->_picking = picking;
+    this->_shaderMap = shaderMap;
+    this->_actShader = nullptr;
+}
+
+void Camera::use(std::string shaderName)
+{
+    this->_shaderMap[shaderName]->use();
+    this->_actShader = this->_shaderMap[shaderName];
 }
 
 std::shared_ptr<Shader> Camera::getShader()
 {
-    return this->_camera;
+    return this->_actShader;
 }
 
-std::shared_ptr<Shader> Camera::getPicking()
+std::shared_ptr<Shader> Camera::getShader(std::string shaderName)
 {
-    return this->_picking;
+    if (this->_shaderMap.find(shaderName) == this->_shaderMap.end())
+        throw std::runtime_error("Getting a shader not loaded: " + shaderName);
+    return this->_shaderMap[shaderName];
 }
 
 void Camera::setShader(float time)
@@ -36,20 +44,20 @@ void Camera::setShader(float time)
     this->_view = glm::lookAt(this->_position, glm::vec3(0.0f), this->_up);
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 
-    this->_camera->setVec3("viewPos", this->_position);
-    this->_camera->setVec3("lightPos", this->_position);
-    this->_camera->setVec3("lightColor", glm::vec3(1.0f));
-    this->_camera->setMat4("view", this->_view);
-    this->_camera->setMat4("projection", this->_projection);
-    this->_camera->setFloat("time", time);
+    this->_actShader->setVec3("viewPos", this->_position);
+    this->_actShader->setVec3("lightPos", this->_position);
+    this->_actShader->setVec3("lightColor", glm::vec3(1.0f));
+    this->_actShader->setMat4("view", this->_view);
+    this->_actShader->setMat4("projection", this->_projection);
+    this->_actShader->setFloat("time", time);
 }
 
 void Camera::setPicking()
 {
     // assume setShader has been called, so _view and _projection are set
-    this->_camera->setVec3("viewPos", this->_position);
-    this->_camera->setMat4("view", this->_view);
-    this->_camera->setMat4("projection", this->_projection);
+    this->_actShader->setVec3("viewPos", this->_position);
+    this->_actShader->setMat4("view", this->_view);
+    this->_actShader->setMat4("projection", this->_projection);
 }
 
 void Camera::setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation)
@@ -59,10 +67,10 @@ void Camera::setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation)
     model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    this->_camera->setMat4("model", model);
+    this->_actShader->setMat4("model", model);
 
     for (std::size_t i = 0; i < 100; i++)
-        this->_camera->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", glm::mat4(1.0f));
+        this->_actShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", glm::mat4(1.0f));
 }
 
 void Camera::showImGui(bool *open)

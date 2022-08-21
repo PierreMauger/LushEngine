@@ -12,6 +12,7 @@ uniform vec3 lightColor;
 uniform vec3 objectColor;
 uniform bool hasTexture = false;
 uniform bool outline = false;
+uniform float time;
 
 uniform sampler2D textureDiffuse;
 
@@ -47,4 +48,7 @@ void main()
         vec3 result = (ambient + diffuse + specular) * objectColor;
         FragColor = vec4(result, 1.0f);
     }
+
+    float mixing = 0.1f;
+    FragColor.rgb = mix(FragColor.rgb, vec3(mixing), 0.25f - cos(time * 2.0f) * 0.25f); // mix between 0.0f and 0.5f
 }

@@ -39,6 +39,7 @@ namespace Lush
             Render(std::shared_ptr<MessageBus> messageBus);
             ~Render();
             void run();
+            void update();
             void draw();
             void handleMouse();
 

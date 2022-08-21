@@ -19,12 +19,11 @@ void StaticModel::draw(Camera &camera)
     else
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     camera.getShader()->setBool("outline", false);
-    camera.getShader()->setBool("isSelected", this->_isSelected);
     camera.setOnModel(this->_position, this->_scale, this->_rotation);
     this->_model->draw(*camera.getShader());
 
     if (this->_isHovered) {
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // enable writing outside of stencil
         glStencilMask(0x00);
         camera.getShader()->setBool("outline", true);
         camera.setOnModel(this->_position, this->_scale * glm::vec3(1.05f), this->_rotation);
