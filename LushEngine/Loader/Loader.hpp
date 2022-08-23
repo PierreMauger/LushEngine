@@ -5,6 +5,7 @@
 #include <regex>
 
 #include "Includes.hpp"
+#include "GameObject.hpp"
 #include "Node.hpp"
 
 namespace Lush

@@ -4,11 +4,10 @@ using namespace Lush;
 
 Core::Core(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 {
-    this->_functionList.push_back(std::bind(&Core::receiveMoveObject, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Core::receiveScenes, this, std::placeholders::_1));
+    this->_functionList.push_back(std::bind(&Core::receiveMoveObject, this, std::placeholders::_1));
 
-    this->_objects[0] = std::unique_ptr<GameObject>(new GameObject(0, "Cube", glm::vec3(0.0f)));
-    this->_objects[1] = std::unique_ptr<GameObject>(new GameObject(0, "Cube", glm::vec3(2.0f, 0.0f, 0.5f)));
+    this->_actScene = 0;
 }
 
 Core::~Core()
@@ -17,8 +16,6 @@ Core::~Core()
 
 void Core::run()
 {
-    this->loadScene();
-
     while (this->_running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
         this->_messageBus->notify(Module::CORE, this->_functionList);
@@ -31,8 +28,8 @@ void Core::loadScene()
 {
     Packet packet;
 
-    for (auto &[key, object] : this->_objects)
-        packet << key << *object;
+    for (auto &[key, object] : this->_scenes["scene1"].getObjects())
+        packet << key << object;
     this->sendMessage(Message(packet, RenderCommand::ADD_OBJECTS, Module::RENDER));
 }
 
@@ -40,16 +37,24 @@ void Core::receiveMoveObject(Packet packet)
 {
     int id = 0;
     glm::vec3 newPosition(0.0f);
+    auto &objects = this->_scenes["scene1"].getObjects();
 
     packet >> id >> newPosition;
-    if (this->_objects.find(id) != this->_objects.end())
-        this->_objects[id]->setPosition(newPosition);
+    if (objects.find(id) != objects.end())
+        objects[id].setPosition(newPosition);
 }
 
 void Core::receiveScenes(Packet packet)
 {
-    int temp;
+    while (!packet.empty()) {
+        std::string sceneName;
+        std::size_t size;
+        std::map<std::size_t, GameObject> objects;
 
-    packet >> temp;
-    // TODO receive scenes from packet
+        packet >> sceneName >> size;
+        for (std::size_t i = 0; i < size; i++)
+            packet >> objects[i];
+        this->_scenes[sceneName] = Scene(objects);
+    }
+    this->loadScene();
 }

@@ -11,8 +11,8 @@ namespace Lush
     class Core : public virtual Node
     {
         private:
-            std::map<std::size_t, std::unique_ptr<GameObject>> _objects;
-            std::map<std::size_t, Scene> _scenes;
+            std::map<std::string, Scene> _scenes;
+            std::size_t _actScene;
 
         public:
             Core(std::shared_ptr<MessageBus> messageBus);

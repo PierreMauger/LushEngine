@@ -55,7 +55,8 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    IMGUI_CHECKVERSION();
+    if (!IMGUI_CHECKVERSION())
+        throw std::runtime_error("IMGUI version is invalid");
     ImGui::CreateContext();
 
     ImGui::StyleColorsDark();

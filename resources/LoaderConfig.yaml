@@ -8,3 +8,7 @@ _Shader:
   Selection:
     camera.vs
     selection.fs
+
+_Scene:
+  Default:
+    scene1

@@ -8,6 +8,7 @@ Loader::Loader(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_loaderConfig = this->loadFile("resources/LoaderConfig.yaml");
 
     this->sendShaders();
+    this->sendScenes();
 }
 
 Loader::~Loader()
@@ -60,11 +61,12 @@ std::string Loader::searchInLoaderConfig(std::string section)
 {
     std::regex regex("(" + section + ":\n)([^_]*)");
     std::smatch match;
+    std::string copy = this->_loaderConfig;
     std::string result;
 
-    while (std::regex_search(this->_loaderConfig, match, regex)) {
+    while (std::regex_search(copy, match, regex)) {
         result += match[2];
-        this->_loaderConfig = match.suffix().str();
+        copy = match.suffix().str();
     }
     return result;
 }
@@ -96,7 +98,40 @@ void Loader::sendShaders()
 void Loader::sendScenes()
 {
     Packet packet;
+    std::vector<std::string> files = this->getFilesFromDir("resources/scenes/", false);
+    std::string sceneConfig = this->searchInLoaderConfig("_Scene");
 
-    // TODO load scenes and send them to Core
+    if (sceneConfig.empty())
+        throw std::runtime_error("Couldn't load Scene config.");
+
+    // std::regex regex("\\s*(Default):\n*\\s*(.+\\b)");
+    // std::smatch match;
+    // bool defaultFound = false;
+    // while (std::regex_search(sceneConfig, match, regex)) {
+    //     if (match[1] == "Default") {
+    //         if (std::find(files.begin(), files.end(), match[2]) == files.end())
+    //             throw std::runtime_error("Scene not found: " + match[2].str());
+    //         defaultFound = true;
+    //     }
+    //     sceneConfig = match.suffix().str();
+    // }
+    // if (!defaultFound)
+    //     throw std::runtime_error("Default scene not found in config");
+
+    for (auto &file : files) {
+        std::regex regex("(\\d+)\\s*(\\S+)\\s*([+-]?[0-9]*[.]?[0-9]*)\\s*([+-]?[0-9]*[.]?[0-9]*)\\s*([+-]?[0-9]*[.]?[0-9]*)");
+        std::smatch match;
+        std::string fileContent = this->loadFile("resources/scenes/" + file);
+        std::vector<GameObject> temp;
+
+        while (std::regex_search(fileContent, match, regex)) {
+            temp.push_back(GameObject(std::stoi(match[1]), match[2].str(),
+                                      glm::vec3(std::stof(match[3]), std::stof(match[4]), std::stof(match[5]))));
+            fileContent = match.suffix().str();
+        }
+        packet << file << temp.size();
+        for (auto &object : temp)
+            packet << object;
+    }
     this->sendMessage(Message(packet, CoreCommand::SCENES, Module::CORE));
 }
