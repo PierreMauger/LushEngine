@@ -5,9 +5,10 @@ using namespace Lush;
 Core::Core(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 {
     this->_functionList.push_back(std::bind(&Core::receiveScenes, this, std::placeholders::_1));
+    this->_functionList.push_back(std::bind(&Core::receiveLoadScene, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Core::receiveMoveObject, this, std::placeholders::_1));
 
-    this->_actScene = 0;
+    this->_actScene = "scene1";
 }
 
 Core::~Core()
@@ -28,8 +29,9 @@ void Core::loadScene()
 {
     Packet packet;
 
-    for (auto &[key, object] : this->_scenes["scene1"].getObjects())
+    for (auto &[key, object] : this->_scenes[this->_actScene].getObjects())
         packet << key << object;
+    this->sendMessage(Message(Packet(), RenderCommand::CLEAR_OBJECTS, Module::RENDER));
     this->sendMessage(Message(packet, RenderCommand::ADD_OBJECTS, Module::RENDER));
 }
 
@@ -37,7 +39,7 @@ void Core::receiveMoveObject(Packet packet)
 {
     int id = 0;
     glm::vec3 newPosition(0.0f);
-    auto &objects = this->_scenes["scene1"].getObjects();
+    auto &objects = this->_scenes[this->_actScene].getObjects();
 
     packet >> id >> newPosition;
     if (objects.find(id) != objects.end())
@@ -57,4 +59,20 @@ void Core::receiveScenes(Packet packet)
         this->_scenes[sceneName] = Scene(objects);
     }
     this->loadScene();
+
+    Packet data;
+    for (auto &[key, scene] : this->_scenes)
+        data << key;
+    this->sendMessage(Message(data, RenderCommand::SCENES_NAME, Module::RENDER));
+}
+
+void Core::receiveLoadScene(Packet packet)
+{
+    std::string sceneName;
+
+    packet >> sceneName;
+    if (this->_actScene != sceneName) {
+        this->_actScene = sceneName;
+        this->loadScene();
+    }
 }

@@ -31,7 +31,10 @@ namespace Lush
 
             std::map<std::string, std::shared_ptr<Shader>> _shaders;
             std::unique_ptr<Camera> _camera;
-            bool showImGuiCamera;
+            bool _showCameraImGui;
+            bool _showWindowImGui;
+            int _selectionImGui;
+            std::vector<std::string> _scenes;
 
             // TODO replace with vector, and load with Loader
             std::shared_ptr<Model> model;
@@ -47,8 +50,11 @@ namespace Lush
 
             void receiveCompileShader(Packet);
             void receiveAddObject(Packet);
+            void receiveClearObject(Packet);
+            void receiveScenesName(Packet);
 
         private:
+            bool showImGui(bool *open);
             void drawImGui();
             void drawScene();
             void drawPicking();

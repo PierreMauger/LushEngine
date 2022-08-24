@@ -12,7 +12,7 @@ namespace Lush
     {
         private:
             std::map<std::string, Scene> _scenes;
-            std::size_t _actScene;
+            std::string _actScene;
 
         public:
             Core(std::shared_ptr<MessageBus> messageBus);
@@ -22,6 +22,7 @@ namespace Lush
 
             void receiveMoveObject(Packet);
             void receiveScenes(Packet);
+            void receiveLoadScene(Packet);
     };
 }
 

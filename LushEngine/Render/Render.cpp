@@ -6,6 +6,8 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 {
     this->_functionList.push_back(std::bind(&Render::receiveCompileShader, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveAddObject, this, std::placeholders::_1));
+    this->_functionList.push_back(std::bind(&Render::receiveClearObject, this, std::placeholders::_1));
+    this->_functionList.push_back(std::bind(&Render::receiveScenesName, this, std::placeholders::_1));
 
     if (!glfwInit())
         throw std::runtime_error("GLFW failed to initialize");
@@ -27,7 +29,9 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
         throw std::runtime_error("GLEW failed to initialize");
     if (!GLEW_VERSION_2_1)
         throw std::runtime_error("GLEW does not support OpenGL 2.1");
-    this->showImGuiCamera = true;
+    this->_showCameraImGui = true;
+    this->_showWindowImGui = true;
+    this->_selectionImGui = 0;
 
     glGenFramebuffers(1, &this->_framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_framebuffer);
@@ -132,14 +136,43 @@ void Render::handleMouse()
             this->_objects[this->_hover - 1]->setSelected(true);
 }
 
+bool Render::showImGui(bool *open)
+{
+    bool changed = false;
+
+    if (ImGui::Begin("Window", open)) {
+        if (ImGui::BeginListBox("Scenes")) {
+            for (int i = 0; i < static_cast<int>(this->_scenes.size()); i++) {
+                bool selected = (this->_selectionImGui == i);
+
+                if (ImGui::Selectable(this->_scenes[i].c_str(), selected)) {
+                    this->_selectionImGui = i;
+                    changed = true;
+                }
+                if (selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndListBox();
+    }
+    ImGui::End();
+    return changed;
+}
+
 void Render::drawImGui()
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    if (this->showImGuiCamera)
-        this->_camera->showImGui(&this->showImGuiCamera);
+    if (this->_showWindowImGui)
+        if (this->showImGui(&this->_showWindowImGui)) {
+            Packet data;
+            data << this->_scenes[this->_selectionImGui];
+            this->sendMessage(Message(data, CoreCommand::LOAD_SCENE, Module::CORE));
+        }
+    if (this->_showCameraImGui)
+        this->_camera->showImGui(&this->_showCameraImGui);
     for (auto &[key, object] : this->_objects)
         if (object->isSelected()) {
             if (object->showImGui(key)) {
@@ -200,10 +233,27 @@ void Render::receiveCompileShader(Packet packet)
 void Render::receiveAddObject(Packet packet)
 {
     while (!packet.empty()) {
-        GameObject object;
         std::size_t key;
+        GameObject object;
 
         packet >> key >> object;
         this->_objects[key] = std::make_unique<StaticModel>(object, this->model);
+    }
+}
+
+void Render::receiveClearObject([[maybe_unused]] Packet packet)
+{
+    for (auto &[key, object] : this->_objects)
+        object.reset();
+    this->_objects.clear();
+}
+
+void Render::receiveScenesName(Packet packet)
+{
+    while (!packet.empty()) {
+        std::string sceneName;
+
+        packet >> sceneName;
+        this->_scenes.push_back(sceneName);
     }
 }
