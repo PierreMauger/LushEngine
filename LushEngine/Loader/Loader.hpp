@@ -8,6 +8,8 @@
 #include "GameObject.hpp"
 #include "Node.hpp"
 
+#define REGEX_VEC3 "\\(([+-]?[0-9]*[.]?[0-9]*)\\s*([+-]?[0-9]*[.]?[0-9]*)\\s*([+-]?[0-9]*[.]?[0-9]*)\\)"
+
 namespace Lush
 {
     class Loader : public virtual Node
@@ -27,6 +29,7 @@ namespace Lush
         private:
             void sendShaders();
             void sendScenes();
+            void sendModels();
     };
 }
 

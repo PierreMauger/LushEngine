@@ -4,7 +4,8 @@ using namespace Lush;
 
 Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 {
-    this->_functionList.push_back(std::bind(&Render::receiveCompileShader, this, std::placeholders::_1));
+    this->_functionList.push_back(std::bind(&Render::receiveLoadShaders, this, std::placeholders::_1));
+    this->_functionList.push_back(std::bind(&Render::receiveLoadModels, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveAddObject, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveClearObject, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveScenesName, this, std::placeholders::_1));
@@ -70,9 +71,6 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_mouseX = 0;
     this->_mouseY = 0;
     this->_hover = 0;
-
-    // TODO replace with function from loader
-    this->model = std::make_shared<Model>("resources/models/Cube.dae");
 }
 
 Render::~Render()
@@ -217,7 +215,7 @@ void Render::drawPicking()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Render::receiveCompileShader(Packet packet)
+void Render::receiveLoadShaders(Packet packet)
 {
     std::string name;
     std::string vertexCode;
@@ -230,6 +228,17 @@ void Render::receiveCompileShader(Packet packet)
     this->_camera = std::make_unique<Camera>(this->_windowWidth, this->_windowHeight, this->_shaders);
 }
 
+void Render::receiveLoadModels(Packet packet)
+{
+    std::string name;
+    std::string modelContent;
+
+    while (!packet.empty()) {
+        packet >> name >> modelContent;
+        this->_models[name] = std::make_shared<Model>(modelContent);
+    }
+}
+
 void Render::receiveAddObject(Packet packet)
 {
     while (!packet.empty()) {
@@ -237,7 +246,9 @@ void Render::receiveAddObject(Packet packet)
         GameObject object;
 
         packet >> key >> object;
-        this->_objects[key] = std::make_unique<StaticModel>(object, this->model);
+        if (this->_models.find(object.getName()) == this->_models.end())
+            throw std::runtime_error("Create object, model not loaded: " + object.getName());
+        this->_objects[key] = std::make_unique<StaticModel>(object, this->_models[object.getName()]);
     }
 }
 

@@ -8,6 +8,7 @@ Loader::Loader(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_loaderConfig = this->loadFile("resources/LoaderConfig.yaml");
 
     this->sendShaders();
+    this->sendModels();
     this->sendScenes();
 }
 
@@ -32,10 +33,7 @@ std::vector<std::string> Loader::getFilesFromDir(std::string dir, bool withPath)
     std::vector<std::string> files;
 
     for (auto &file : std::filesystem::directory_iterator(dir))
-        if (withPath)
-            files.push_back(file.path().string());
-        else
-            files.push_back(file.path().filename().string());
+        files.push_back(withPath ? file.path().string() : file.path().filename().string());
     return files;
 }
 
@@ -59,7 +57,7 @@ std::string Loader::loadFile(std::string fileName)
 
 std::string Loader::searchInLoaderConfig(std::string section)
 {
-    std::regex regex("(" + section + ":\n)([^_]*)");
+    std::regex regex("(" + section + ":\\s*)([^_]*)");
     std::smatch match;
     std::string copy = this->_loaderConfig;
     std::string result;
@@ -68,6 +66,8 @@ std::string Loader::searchInLoaderConfig(std::string section)
         result += match[2];
         copy = match.suffix().str();
     }
+    if (result.empty())
+        throw std::runtime_error("Couldn't load config: " + section);
     return result;
 }
 
@@ -76,9 +76,6 @@ void Loader::sendShaders()
     Packet packet;
     std::vector<std::string> files = this->getFilesFromDir("resources/shaders/", false);
     std::string shaderConfig = this->searchInLoaderConfig("_Shader");
-
-    if (shaderConfig.empty())
-        throw std::runtime_error("Couldn't load Shader config.");
 
     std::regex regex("\\s*(.+):\n*\\s*(.+\\.vs\\b)\n*\\s*(.+\\.fs\\b)");
     std::smatch match;
@@ -92,18 +89,15 @@ void Loader::sendShaders()
                << this->loadFile("resources/shaders/" + match[3].str());
         shaderConfig = match.suffix().str();
     }
-    this->sendMessage(Message(packet, RenderCommand::COMPILE_SHADER, Module::RENDER));
+    this->sendMessage(Message(packet, RenderCommand::LOAD_SHADERS, Module::RENDER));
 }
 
 void Loader::sendScenes()
 {
     Packet packet;
     std::vector<std::string> files = this->getFilesFromDir("resources/scenes/", false);
-    std::string sceneConfig = this->searchInLoaderConfig("_Scene");
 
-    if (sceneConfig.empty())
-        throw std::runtime_error("Couldn't load Scene config.");
-
+    // std::string sceneConfig = this->searchInLoaderConfig("_Scene");
     // std::regex regex("\\s*(Default):\n*\\s*(.+\\b)");
     // std::smatch match;
     // bool defaultFound = false;
@@ -119,19 +113,30 @@ void Loader::sendScenes()
     //     throw std::runtime_error("Default scene not found in config");
 
     for (auto &file : files) {
-        std::regex regex("(\\d+)\\s*(\\S+)\\s*([+-]?[0-9]*[.]?[0-9]*)\\s*([+-]?[0-9]*[.]?[0-9]*)\\s*([+-]?[0-9]*[.]?[0-9]*)");
+        std::regex regex("(\\d+)\\s*(\\S+)\\s*" + std::string(REGEX_VEC3));
         std::smatch match;
         std::string fileContent = this->loadFile("resources/scenes/" + file);
-        std::vector<GameObject> temp;
+        std::vector<GameObject> objetcs;
 
         while (std::regex_search(fileContent, match, regex)) {
-            temp.push_back(GameObject(std::stoi(match[1]), match[2].str(),
-                                      glm::vec3(std::stof(match[3]), std::stof(match[4]), std::stof(match[5]))));
+            GameObject obj(std::stoi(match[1]), match[2].str(),
+                           glm::vec3(std::stof(match[3]), std::stof(match[4]), std::stof(match[5])));
+            objetcs.push_back(obj);
             fileContent = match.suffix().str();
         }
-        packet << file << temp.size();
-        for (auto &object : temp)
+        packet << file << objetcs.size();
+        for (auto &object : objetcs)
             packet << object;
     }
     this->sendMessage(Message(packet, CoreCommand::SCENES, Module::CORE));
+}
+
+void Loader::sendModels()
+{
+    Packet packet;
+    std::vector<std::string> files = this->getFilesFromDir("resources/models/", false);
+
+    for (auto &file : files)
+        packet << file.substr(0, file.find_last_of('.')) << this->loadFile("resources/models/" + file);
+    this->sendMessage(Message(packet, RenderCommand::LOAD_MODELS, Module::RENDER));
 }

@@ -62,7 +62,8 @@ namespace Lush
     {
         public:
             enum {
-                COMPILE_SHADER = BaseCommand::LAST,
+                LOAD_SHADERS = BaseCommand::LAST,
+                LOAD_MODELS,
                 ADD_OBJECTS,
                 CLEAR_OBJECTS,
                 SCENES_NAME,

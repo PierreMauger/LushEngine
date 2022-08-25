@@ -36,8 +36,7 @@ namespace Lush
             int _selectionImGui;
             std::vector<std::string> _scenes;
 
-            // TODO replace with vector, and load with Loader
-            std::shared_ptr<Model> model;
+            std::map<std::string, std::shared_ptr<Model>> _models;
             std::map<std::size_t, std::unique_ptr<RenderObject>> _objects;
 
         public:
@@ -48,7 +47,8 @@ namespace Lush
             void draw();
             void handleMouse();
 
-            void receiveCompileShader(Packet);
+            void receiveLoadShaders(Packet);
+            void receiveLoadModels(Packet);
             void receiveAddObject(Packet);
             void receiveClearObject(Packet);
             void receiveScenesName(Packet);

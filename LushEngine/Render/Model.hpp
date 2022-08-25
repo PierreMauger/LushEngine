@@ -13,8 +13,8 @@
 namespace Lush
 {
     typedef struct {
-            int id;
-            glm::mat4 offset;
+        int id;
+        glm::mat4 offset;
     } BoneInfo;
 
     class Model
@@ -26,10 +26,10 @@ namespace Lush
             int _boneCounter = 0;
 
         public:
-            Model(std::string const &filename);
+            Model(std::string const &file);
             ~Model() = default;
 
-            void load(std::string const &filename);
+            void load(std::string const &file);
             void draw(Shader &shader);
 
         private:
