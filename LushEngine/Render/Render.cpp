@@ -262,8 +262,6 @@ void Render::receiveLoadTextures(Packet packet)
             this->_textures[name] = textureID;
         }
     }
-    for (auto &[key, text] : this->_textures)
-        std::cout << key << " " << text << std::endl;
 }
 
 void Render::receiveLoadModels(Packet packet)
