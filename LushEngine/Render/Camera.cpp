@@ -45,8 +45,10 @@ void Camera::setShader(float time)
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 
     this->_actShader->setVec3("viewPos", this->_position);
-    this->_actShader->setVec3("lightPos", this->_position);
-    this->_actShader->setVec3("lightColor", glm::vec3(1.0f));
+    this->_actShader->setVec3("light.position", this->_position);
+    this->_actShader->setVec3("light.ambient", glm::vec3(1.0f));
+    this->_actShader->setVec3("light.diffuse", glm::vec3(1.0f));
+    this->_actShader->setVec3("light.specular", glm::vec3(1.0f));
     this->_actShader->setMat4("view", this->_view);
     this->_actShader->setMat4("projection", this->_projection);
     this->_actShader->setFloat("time", time);

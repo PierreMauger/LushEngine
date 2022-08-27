@@ -44,7 +44,10 @@ void Mesh::setupMesh()
 void Mesh::draw(Shader &shader)
 {
     shader.setBool("hasTexture", this->_textures.size() > 0);
-    shader.setVec3("objectColor", this->_material.diffuse);
+    shader.setVec3("material.ambient", this->_material.ambient);
+    shader.setVec3("material.diffuse", this->_material.diffuse);
+    shader.setVec3("material.specular", this->_material.specular);
+    shader.setFloat("material.shininess", this->_material.shininess);
 
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
