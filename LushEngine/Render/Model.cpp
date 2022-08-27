@@ -26,9 +26,9 @@ static glm::mat4 ConvertMatrixToGLMFormat(const aiMatrix4x4 &from)
     return to;
 }
 
-Model::Model(std::string const &file)
+Model::Model(std::string const &file, std::map<std::string, unsigned int> texturesLoaded)
 {
-    this->load(file);
+    this->load(file, texturesLoaded);
 }
 
 std::map<std::string, BoneInfo> &Model::getBoneInfoMap()
@@ -41,26 +41,25 @@ int &Model::getBoneCount()
     return this->_boneCounter;
 }
 
-void Model::load(std::string const &file)
+void Model::load(std::string const &file, std::map<std::string, unsigned int> texturesLoaded)
 {
     Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFileFromMemory(file.c_str(), file.size(),
-                                                       aiProcess_Triangulate | aiProcess_GenSmoothNormals |
-                                                           aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene *scene =
+        importer.ReadFileFromMemory(file.c_str(), file.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
     if (!scene)
         throw std::runtime_error(importer.GetErrorString());
-    this->processNode(*scene->mRootNode, *scene);
+    this->processNode(*scene->mRootNode, *scene, texturesLoaded);
 }
 
-void Model::processNode(aiNode &node, const aiScene &scene)
+void Model::processNode(aiNode &node, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded)
 {
     for (unsigned int i = 0; i < node.mNumMeshes; i++) {
         aiMesh *mesh = scene.mMeshes[node.mMeshes[i]];
-        this->_meshes.push_back(this->processMesh(*mesh, scene));
+        this->_meshes.push_back(this->processMesh(*mesh, scene, texturesLoaded));
     }
     for (unsigned int i = 0; i < node.mNumChildren; i++)
-        this->processNode(*node.mChildren[i], scene);
+        this->processNode(*node.mChildren[i], scene, texturesLoaded);
 }
 
 void Model::setVertexBoneDataToDefault(Vertex &vertex)
@@ -114,7 +113,7 @@ void Model::extractBoneWeightForVertices(std::vector<Vertex> &vertices, aiMesh &
     }
 }
 
-Mesh Model::processMesh(aiMesh &mesh, const aiScene &scene)
+Mesh Model::processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded)
 {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
@@ -156,63 +155,63 @@ Mesh Model::processMesh(aiMesh &mesh, const aiScene &scene)
 
     this->extractBoneWeightForVertices(vertices, mesh);
 
-    std::vector<Texture> diffuseMaps =
-        this->loadMaterialTextures(materialLoaded, aiTextureType_DIFFUSE, "texture_diffuse");
+    std::vector<Texture> diffuseMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_DIFFUSE, "texture_diffuse", texturesLoaded);
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-    std::vector<Texture> specularMaps =
-        this->loadMaterialTextures(materialLoaded, aiTextureType_SPECULAR, "texture_specular");
+    std::vector<Texture> specularMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_SPECULAR, "texture_specular", texturesLoaded);
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    std::vector<Texture> normalMaps =
-        this->loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "texture_normal");
+    std::vector<Texture> normalMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "texture_normal", texturesLoaded);
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-    std::vector<Texture> heightMaps =
-        this->loadMaterialTextures(materialLoaded, aiTextureType_AMBIENT, "texture_height");
+    std::vector<Texture> heightMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_AMBIENT, "texture_height", texturesLoaded);
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     return Mesh(vertices, indices, textures, material);
 }
 
-std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName)
+std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::map<std::string, unsigned int> texturesLoaded)
 {
     std::vector<Texture> textures;
 
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
         aiString str;
         mat->GetTexture(type, i, &str);
-        bool skip = false;
-        for (unsigned int j = 0; j < this->_texturesLoaded.size(); j++) {
-            if (std::strcmp(this->_texturesLoaded[j].path.data(), str.C_Str()) == 0) {
-                textures.push_back(this->_texturesLoaded[j]);
-                skip = true;
-                break;
-            }
-        }
-        if (!skip) {
-            Texture texture;
-            texture.id = textureFromFile(str.C_Str(), "resources/textures/");
-            texture.type = typeName;
-            texture.path = str.C_Str();
-            textures.push_back(texture);
-            this->_texturesLoaded.push_back(texture);
-        }
+        if (texturesLoaded.find(str.C_Str()) == texturesLoaded.end())
+            throw std::runtime_error("Couldn't find texture: " + std::string(str.C_Str()));
+        textures.push_back({texturesLoaded[str.C_Str()], typeName});
     }
     return textures;
 }
 
-unsigned int Model::textureFromFile(const char *path, const std::string &directory, [[maybe_unused]] bool gamma)
+unsigned int Model::textureFromFile(std::string textureContent)
 {
-    std::string filename = std::string(path);
-    filename = directory + filename;
-
     unsigned int textureID;
     glGenTextures(1, &textureID);
 
-    // int width, height, nrComponents;
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load_from_memory((const stbi_uc *)textureContent.c_str(), static_cast<int>(textureContent.size()), &width, &height, &nrComponents, 0);
+    if (data) {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
 
-    // Image image = LoadImage(filename.c_str());
-    // Texture2D texture = LoadTextureFromImage(image);
-    // return texture.id;
-    return 0;
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    } else {
+        stbi_image_free(data);
+    }
+
+    return textureID;
 }
 
 void Model::draw(Shader &shader)

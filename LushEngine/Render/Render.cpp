@@ -5,6 +5,7 @@ using namespace Lush;
 Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 {
     this->_functionList.push_back(std::bind(&Render::receiveLoadShaders, this, std::placeholders::_1));
+    this->_functionList.push_back(std::bind(&Render::receiveLoadTextures, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveLoadModels, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveAddObject, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveClearObject, this, std::placeholders::_1));
@@ -34,18 +35,18 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_showWindowImGui = true;
     this->_selectionImGui = 0;
 
-    glGenFramebuffers(1, &this->_framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_framebuffer);
-    glGenTextures(1, &this->_texture);
-    glBindTexture(GL_TEXTURE_2D, this->_texture);
+    glGenFramebuffers(1, &this->_hoverBuffer.framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_hoverBuffer.framebuffer);
+    glGenTextures(1, &this->_hoverBuffer.texture);
+    glBindTexture(GL_TEXTURE_2D, this->_hoverBuffer.texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32I, this->_windowWidth, this->_windowHeight, 0, GL_RED_INTEGER, GL_INT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenRenderbuffers(1, &this->_depthbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, this->_depthbuffer);
+    glGenRenderbuffers(1, &this->_hoverBuffer.depthbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, this->_hoverBuffer.depthbuffer);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->_windowWidth, this->_windowHeight);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_depthbuffer);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->_texture, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_hoverBuffer.depthbuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->_hoverBuffer.texture, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glEnable(GL_DEPTH_TEST);
@@ -125,7 +126,7 @@ void Render::handleMouse()
         return;
     }
     glfwGetCursorPos(this->_window, &this->_mouseX, &this->_mouseY);
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_hoverBuffer.framebuffer);
     glReadPixels(this->_mouseX, this->_windowHeight - this->_mouseY, 1, 1, GL_RED_INTEGER, GL_INT, &this->_hover);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -203,7 +204,7 @@ void Render::drawScene()
 
 void Render::drawPicking()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_hoverBuffer.framebuffer);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     this->_camera->use("Picking");
@@ -228,6 +229,43 @@ void Render::receiveLoadShaders(Packet packet)
     this->_camera = std::make_unique<Camera>(this->_windowWidth, this->_windowHeight, this->_shaders);
 }
 
+void Render::receiveLoadTextures(Packet packet)
+{
+    std::string name;
+    std::string textureContent;
+
+    while (!packet.empty()) {
+        packet >> name >> textureContent;
+        unsigned int textureID;
+        glGenTextures(1, &textureID);
+
+        int width, height, nrComponents;
+        unsigned char *data = stbi_load_from_memory((const stbi_uc *)textureContent.c_str(), static_cast<int>(textureContent.size()), &width, &height, &nrComponents, 0);
+        if (data) {
+            GLenum format;
+            if (nrComponents == 1)
+                format = GL_RED;
+            else if (nrComponents == 3)
+                format = GL_RGB;
+            else if (nrComponents == 4)
+                format = GL_RGBA;
+
+            glBindTexture(GL_TEXTURE_2D, textureID);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            stbi_image_free(data);
+            this->_textures[name] = textureID;
+        }
+    }
+    for (auto &[key, text] : this->_textures)
+        std::cout << key << " " << text << std::endl;
+}
+
 void Render::receiveLoadModels(Packet packet)
 {
     std::string name;
@@ -235,7 +273,7 @@ void Render::receiveLoadModels(Packet packet)
 
     while (!packet.empty()) {
         packet >> name >> modelContent;
-        this->_models[name] = std::make_shared<Model>(modelContent);
+        this->_models[name] = std::make_shared<Model>(modelContent, this->_textures);
     }
 }
 

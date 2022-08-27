@@ -43,8 +43,9 @@ set(INC
     ${PROJECT_NAME}/Input/
     ${PROJECT_NAME}/Loader/
     ${PROJECT_NAME}/Render/
-    ${PROJECT_NAME}/Render/Objects
-    ${PROJECT_NAME}/IMGUI
+    ${PROJECT_NAME}/Render/Objects/
+    ${PROJECT_NAME}/IMGUI/
+    ${PROJECT_NAME}/STB/
 )
 
 #fetch source files
@@ -76,6 +77,7 @@ set(SRC
     ${PROJECT_NAME}/IMGUI/imgui.cpp
     ${PROJECT_NAME}/IMGUI/imgui_impl_glfw.cpp
     ${PROJECT_NAME}/IMGUI/imgui_impl_opengl3.cpp
+    ${PROJECT_NAME}/STB/stb.cpp
 )
 
 find_package(OpenGL REQUIRED)

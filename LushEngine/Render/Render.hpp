@@ -16,6 +16,12 @@
 
 namespace Lush
 {
+    typedef struct {
+            GLuint framebuffer;
+            GLuint texture;
+            GLuint depthbuffer;
+    } FrameBuffer;
+
     class Render : public virtual Node
     {
         private:
@@ -24,9 +30,7 @@ namespace Lush
             double _mouseY;
             double _windowWidth;
             double _windowHeight;
-            GLuint _framebuffer;
-            GLuint _texture;
-            GLuint _depthbuffer;
+            FrameBuffer _hoverBuffer;
             int _hover;
 
             std::map<std::string, std::shared_ptr<Shader>> _shaders;
@@ -36,6 +40,7 @@ namespace Lush
             int _selectionImGui;
             std::vector<std::string> _scenes;
 
+            std::map<std::string, unsigned int> _textures;
             std::map<std::string, std::shared_ptr<Model>> _models;
             std::map<std::size_t, std::unique_ptr<RenderObject>> _objects;
 
@@ -48,6 +53,7 @@ namespace Lush
             void handleMouse();
 
             void receiveLoadShaders(Packet);
+            void receiveLoadTextures(Packet);
             void receiveLoadModels(Packet);
             void receiveAddObject(Packet);
             void receiveClearObject(Packet);

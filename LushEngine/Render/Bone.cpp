@@ -11,8 +11,7 @@ Bone::Bone(const std::string &name, int ID, const aiNodeAnim &channel)
     this->_numPositions = channel.mNumPositionKeys;
     for (int i = 0; i < this->_numPositions; i++) {
         KeyPosition key;
-        key.position = glm::vec3(channel.mPositionKeys[i].mValue.x, channel.mPositionKeys[i].mValue.y,
-                                 channel.mPositionKeys[i].mValue.z);
+        key.position = glm::vec3(channel.mPositionKeys[i].mValue.x, channel.mPositionKeys[i].mValue.y, channel.mPositionKeys[i].mValue.z);
         key.timeStamp = channel.mPositionKeys[i].mTime;
         this->_positions.push_back(key);
     }
@@ -20,8 +19,7 @@ Bone::Bone(const std::string &name, int ID, const aiNodeAnim &channel)
     this->_numRotations = channel.mNumRotationKeys;
     for (int i = 0; i < this->_numRotations; i++) {
         KeyRotation key;
-        key.orientation = glm::quat(channel.mRotationKeys[i].mValue.w, channel.mRotationKeys[i].mValue.x,
-                                    channel.mRotationKeys[i].mValue.y, channel.mRotationKeys[i].mValue.z);
+        key.orientation = glm::quat(channel.mRotationKeys[i].mValue.w, channel.mRotationKeys[i].mValue.x, channel.mRotationKeys[i].mValue.y, channel.mRotationKeys[i].mValue.z);
         key.timeStamp = channel.mRotationKeys[i].mTime;
         this->_rotations.push_back(key);
     }
@@ -29,8 +27,7 @@ Bone::Bone(const std::string &name, int ID, const aiNodeAnim &channel)
     this->_numScalings = channel.mNumScalingKeys;
     for (int i = 0; i < this->_numScalings; i++) {
         KeyScale key;
-        key.scale = glm::vec3(channel.mScalingKeys[i].mValue.x, channel.mScalingKeys[i].mValue.y,
-                              channel.mScalingKeys[i].mValue.z);
+        key.scale = glm::vec3(channel.mScalingKeys[i].mValue.x, channel.mScalingKeys[i].mValue.y, channel.mScalingKeys[i].mValue.z);
         key.timeStamp = channel.mScalingKeys[i].mTime;
         this->_scales.push_back(key);
     }
@@ -97,10 +94,8 @@ glm::mat4 Bone::InterpolatePosition(float animationTime) const
 
     int positionIndex = this->getPosIndex(animationTime);
     int nextPositionIndex = positionIndex + 1;
-    float factor = this->getScaleFactor(this->_positions[positionIndex].timeStamp,
-                                        this->_positions[nextPositionIndex].timeStamp, animationTime);
-    glm::vec3 position =
-        glm::mix(this->_positions[positionIndex].position, this->_positions[nextPositionIndex].position, factor);
+    float factor = this->getScaleFactor(this->_positions[positionIndex].timeStamp, this->_positions[nextPositionIndex].timeStamp, animationTime);
+    glm::vec3 position = glm::mix(this->_positions[positionIndex].position, this->_positions[nextPositionIndex].position, factor);
     return glm::translate(glm::mat4(1.0f), position);
 }
 
@@ -113,10 +108,8 @@ glm::mat4 Bone::InterpolateRotation(float animationTime) const
 
     int rotationIndex = this->getRotationIndex(animationTime);
     int nextRotationIndex = rotationIndex + 1;
-    float factor = this->getScaleFactor(this->_rotations[rotationIndex].timeStamp,
-                                        this->_rotations[nextRotationIndex].timeStamp, animationTime);
-    glm::quat rotation = glm::slerp(this->_rotations[rotationIndex].orientation,
-                                    this->_rotations[nextRotationIndex].orientation, factor);
+    float factor = this->getScaleFactor(this->_rotations[rotationIndex].timeStamp, this->_rotations[nextRotationIndex].timeStamp, animationTime);
+    glm::quat rotation = glm::slerp(this->_rotations[rotationIndex].orientation, this->_rotations[nextRotationIndex].orientation, factor);
     rotation = glm::normalize(rotation);
     return glm::mat4_cast(rotation);
 }
@@ -128,8 +121,7 @@ glm::mat4 Bone::InterpolateScale(float animationTime) const
 
     int scaleIndex = this->getScaleIndex(animationTime);
     int nextScaleIndex = scaleIndex + 1;
-    float factor = this->getScaleFactor(this->_scales[scaleIndex].timeStamp, this->_scales[nextScaleIndex].timeStamp,
-                                        animationTime);
+    float factor = this->getScaleFactor(this->_scales[scaleIndex].timeStamp, this->_scales[nextScaleIndex].timeStamp, animationTime);
     glm::vec3 scale = glm::mix(this->_scales[scaleIndex].scale, this->_scales[nextScaleIndex].scale, factor);
     return glm::scale(glm::mat4(1.0f), scale);
 }

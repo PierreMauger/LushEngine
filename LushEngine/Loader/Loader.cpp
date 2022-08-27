@@ -8,6 +8,7 @@ Loader::Loader(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_loaderConfig = this->loadFile("resources/LoaderConfig.yaml");
 
     this->sendShaders();
+    this->sendTextures();
     this->sendModels();
     this->sendScenes();
 }
@@ -85,11 +86,30 @@ void Loader::sendShaders()
         if (std::find(files.begin(), files.end(), match[3]) == files.end())
             throw std::runtime_error("Shader config fragment not found: " + match[3].str());
 
-        packet << match[1].str() << this->loadFile("resources/shaders/" + match[2].str())
-               << this->loadFile("resources/shaders/" + match[3].str());
+        packet << match[1].str() << this->loadFile("resources/shaders/" + match[2].str()) << this->loadFile("resources/shaders/" + match[3].str());
         shaderConfig = match.suffix().str();
     }
     this->sendMessage(Message(packet, RenderCommand::LOAD_SHADERS, Module::RENDER));
+}
+
+void Loader::sendTextures()
+{
+    Packet packet;
+    std::vector<std::string> files = this->getFilesFromDir("resources/textures/", false);
+
+    for (auto &file : files)
+        packet << file << this->loadFile("resources/textures/" + file);
+    this->sendMessage(Message(packet, RenderCommand::LOAD_TEXTURES, Module::RENDER));
+}
+
+void Loader::sendModels()
+{
+    Packet packet;
+    std::vector<std::string> files = this->getFilesFromDir("resources/models/", false);
+
+    for (auto &file : files)
+        packet << file.substr(0, file.find_last_of('.')) << this->loadFile("resources/models/" + file);
+    this->sendMessage(Message(packet, RenderCommand::LOAD_MODELS, Module::RENDER));
 }
 
 void Loader::sendScenes()
@@ -119,8 +139,7 @@ void Loader::sendScenes()
         std::vector<GameObject> objetcs;
 
         while (std::regex_search(fileContent, match, regex)) {
-            GameObject obj(std::stoi(match[1]), match[2].str(),
-                           glm::vec3(std::stof(match[3]), std::stof(match[4]), std::stof(match[5])));
+            GameObject obj(std::stoi(match[1]), match[2].str(), glm::vec3(std::stof(match[3]), std::stof(match[4]), std::stof(match[5])));
             objetcs.push_back(obj);
             fileContent = match.suffix().str();
         }
@@ -129,14 +148,4 @@ void Loader::sendScenes()
             packet << object;
     }
     this->sendMessage(Message(packet, CoreCommand::SCENES, Module::CORE));
-}
-
-void Loader::sendModels()
-{
-    Packet packet;
-    std::vector<std::string> files = this->getFilesFromDir("resources/models/", false);
-
-    for (auto &file : files)
-        packet << file.substr(0, file.find_last_of('.')) << this->loadFile("resources/models/" + file);
-    this->sendMessage(Message(packet, RenderCommand::LOAD_MODELS, Module::RENDER));
 }

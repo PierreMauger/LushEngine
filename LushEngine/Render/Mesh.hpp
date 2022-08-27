@@ -28,7 +28,6 @@ namespace Lush
     typedef struct {
         unsigned int id;
         std::string type;
-        std::string path;
     } Texture;
 
     class Mesh
@@ -43,8 +42,7 @@ namespace Lush
             unsigned int _EBO;
 
         public:
-            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures,
-                 Material material);
+            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, Material material);
             ~Mesh() = default;
             void draw(Shader &shader);
 

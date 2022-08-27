@@ -2,8 +2,7 @@
 
 using namespace Lush;
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures,
-           Material material)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, Material material)
 {
     this->_vertices = vertices;
     this->_indices = indices;
@@ -23,8 +22,7 @@ void Mesh::setupMesh()
     glBufferData(GL_ARRAY_BUFFER, this->_vertices.size() * sizeof(Vertex), &this->_vertices[0], GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->_indices.size() * sizeof(unsigned int), &this->_indices[0],
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->_indices.size() * sizeof(unsigned int), &this->_indices[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
@@ -45,9 +43,7 @@ void Mesh::setupMesh()
 
 void Mesh::draw(Shader &shader)
 {
-    if (this->_textures.size() > 0)
-        shader.setBool("hasTexture", true);
-
+    shader.setBool("hasTexture", this->_textures.size() > 0);
     shader.setVec3("objectColor", this->_material.diffuse);
 
     unsigned int diffuseNr = 1;

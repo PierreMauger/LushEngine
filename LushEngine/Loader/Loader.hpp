@@ -28,8 +28,9 @@ namespace Lush
 
         private:
             void sendShaders();
-            void sendScenes();
+            void sendTextures();
             void sendModels();
+            void sendScenes();
     };
 }
 

@@ -9,37 +9,37 @@
 
 #include "Includes.hpp"
 #include "Mesh.hpp"
+#include "stb_image.h"
 
 namespace Lush
 {
     typedef struct {
-        int id;
-        glm::mat4 offset;
+            int id;
+            glm::mat4 offset;
     } BoneInfo;
 
     class Model
     {
         private:
             std::vector<Mesh> _meshes;
-            std::vector<Texture> _texturesLoaded;
             std::map<std::string, BoneInfo> _boneInfoMap;
             int _boneCounter = 0;
 
         public:
-            Model(std::string const &file);
+            Model(std::string const &file, std::map<std::string, unsigned int> texturesLoaded);
             ~Model() = default;
 
-            void load(std::string const &file);
+            void load(std::string const &file, std::map<std::string, unsigned int> texturesLoaded);
             void draw(Shader &shader);
 
         private:
             std::map<std::string, BoneInfo> &getBoneInfoMap();
             int &getBoneCount();
 
-            void processNode(aiNode &node, const aiScene &scene);
-            Mesh processMesh(aiMesh &mesh, const aiScene &scene);
-            std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
-            unsigned int textureFromFile(const char *path, const std::string &directory, bool gamma = false);
+            void processNode(aiNode &node, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded);
+            Mesh processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded);
+            std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::map<std::string, unsigned int> texturesLoaded);
+            unsigned int textureFromFile(std::string textureContent);
 
             void setVertexBoneDataToDefault(Vertex &vertex);
             void setVertexBoneData(Vertex &vertex, int boneID, float weight);
