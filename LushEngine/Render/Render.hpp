@@ -32,6 +32,8 @@ namespace Lush
             double _windowHeight;
             FrameBuffer _hoverBuffer;
             int _hover;
+            unsigned int quadVAO;
+            unsigned int quadVBO;
 
             std::map<std::string, std::shared_ptr<Shader>> _shaders;
             std::unique_ptr<Camera> _camera;

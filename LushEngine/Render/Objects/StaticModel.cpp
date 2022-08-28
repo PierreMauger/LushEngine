@@ -9,28 +9,12 @@ StaticModel::StaticModel(GameObject obj, std::shared_ptr<Model> model) : RenderO
 
 void StaticModel::draw(Camera &camera)
 {
-    if (this->_isHovered) {
-        glStencilFunc(GL_ALWAYS, 1, 0xFF); // enable stencil writing
-        glStencilMask(0xFF);
-    }
-
     if (this->_polygonMode)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    camera.getShader()->setBool("outline", false);
     camera.setOnModel(this->_position, this->_scale, this->_rotation);
     this->_model->draw(*camera.getShader());
-
-    if (this->_isHovered) {
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // enable writing outside of stencil
-        glStencilMask(0x00);
-        camera.getShader()->setBool("outline", true);
-        camera.setOnModel(this->_position, this->_scale * glm::vec3(1.05f), this->_rotation);
-        this->_model->draw(*camera.getShader());
-        glStencilFunc(GL_ALWAYS, 0, 0xFF); // disable stencil writing
-        glStencilMask(0xFF);
-    }
 }
 
 bool StaticModel::showImGui(int id)

@@ -23,18 +23,12 @@ uniform vec3 viewPos;
 uniform Material material;
 uniform Light light;
 uniform bool hasTexture = false;
-uniform bool outline = false;
 uniform float time;
 
-uniform sampler2D textureDiffuse;
+uniform sampler2D texture_diffuse1;
 
 void main()
 {
-    if (outline) {
-        FragColor = vec4(1.0f, 1.0f, 1.0f, 0.5f);
-        return;
-    }
-
     // ambient
     vec3 ambient = light.ambient * material.ambient;
 
@@ -42,7 +36,7 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(light.position - FragPos);
     float diff = max(dot(norm, lightDir), 0.0f);
-    vec3 diffuse = light.diffuse * (diff * material.diffuse);
+    vec3 diffuse = light.diffuse * (diff * (hasTexture ? texture(texture_diffuse1, TexCoords).rgb : material.diffuse));
 
     // specular
     vec3 viewDir = normalize(viewPos - FragPos);

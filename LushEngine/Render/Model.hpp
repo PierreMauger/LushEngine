@@ -14,8 +14,8 @@
 namespace Lush
 {
     typedef struct {
-            int id;
-            glm::mat4 offset;
+        int id;
+        glm::mat4 offset;
     } BoneInfo;
 
     class Model
@@ -39,7 +39,6 @@ namespace Lush
             void processNode(aiNode &node, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded);
             Mesh processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded);
             std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::map<std::string, unsigned int> texturesLoaded);
-            unsigned int textureFromFile(std::string textureContent);
 
             void setVertexBoneDataToDefault(Vertex &vertex);
             void setVertexBoneData(Vertex &vertex, int boneID, float weight);

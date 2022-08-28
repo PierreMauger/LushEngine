@@ -8,6 +8,9 @@ _Shader:
   Selection:
     camera.vs
     selection.fs
+  Outline:
+    outline.vs
+    outline.fs
 
 _Scene:
   Default:

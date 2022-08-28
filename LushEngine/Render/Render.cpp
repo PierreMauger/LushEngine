@@ -39,15 +39,34 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     glBindFramebuffer(GL_FRAMEBUFFER, this->_hoverBuffer.framebuffer);
     glGenTextures(1, &this->_hoverBuffer.texture);
     glBindTexture(GL_TEXTURE_2D, this->_hoverBuffer.texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32I, this->_windowWidth, this->_windowHeight, 0, GL_RED_INTEGER, GL_INT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->_windowWidth, this->_windowHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->_hoverBuffer.texture, 0);
     glGenRenderbuffers(1, &this->_hoverBuffer.depthbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, this->_hoverBuffer.depthbuffer);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->_windowWidth, this->_windowHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_hoverBuffer.depthbuffer);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->_hoverBuffer.texture, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    float quadVertices[] = {
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
+    };
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
@@ -71,7 +90,7 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 
     this->_mouseX = 0;
     this->_mouseY = 0;
-    this->_hover = 0;
+    this->_hover = 2;
 }
 
 Render::~Render()
@@ -126,8 +145,15 @@ void Render::handleMouse()
         return;
     }
     glfwGetCursorPos(this->_window, &this->_mouseX, &this->_mouseY);
+    if (this->_mouseX < 0 || this->_mouseX > this->_windowWidth || this->_mouseY < 0 || this->_mouseY > this->_windowHeight) {
+        this->_hover = -1;
+        return;
+    }
     glBindFramebuffer(GL_FRAMEBUFFER, this->_hoverBuffer.framebuffer);
-    glReadPixels(this->_mouseX, this->_windowHeight - this->_mouseY, 1, 1, GL_RED_INTEGER, GL_INT, &this->_hover);
+    unsigned char pixel[4];
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glReadPixels(this->_mouseX, this->_windowHeight - this->_mouseY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
+    this->_hover = (pixel[0] << 16) + (pixel[1] << 8) + (pixel[2]);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     if (glfwGetMouseButton(this->_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
@@ -200,6 +226,13 @@ void Render::drawScene()
     for (auto &[key, object] : this->_objects)
         if (object->isSelected())
             object->draw(*this->_camera);
+
+    this->_camera->use("Outline");
+    glBindVertexArray(quadVAO);
+    this->_camera->getShader()->setInt("id", this->_hover);
+    glBindTexture(GL_TEXTURE_2D, this->_hoverBuffer.texture);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
 }
 
 void Render::drawPicking()
@@ -210,7 +243,12 @@ void Render::drawPicking()
     this->_camera->use("Picking");
     this->_camera->setPicking();
     for (auto &[key, object] : this->_objects) {
-        this->_camera->getShader()->setInt("id", key + 1);
+        glm::vec4 temp;
+        temp.r = (((key + 1) & 0x00FF0000) >> 16) / 255.0f;
+        temp.g = (((key + 1) & 0x0000FF00) >> 8) / 255.0f;
+        temp.b = (((key + 1) & 0x000000FF) >> 0) / 255.0f;
+        temp.a = 1.0f;
+        this->_camera->getShader()->setVec4("id", temp);
         object->draw(*this->_camera);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -261,6 +299,7 @@ void Render::receiveLoadTextures(Packet packet)
             stbi_image_free(data);
             this->_textures[name] = textureID;
         }
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
 

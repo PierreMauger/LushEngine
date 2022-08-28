@@ -1,10 +1,10 @@
 #version 330 core
-out int FragColor;
+out vec4 FragColor;
 
 in vec3 Normal;
 in vec3 FragPos;
 
-uniform int id;
+uniform vec4 id;
 
 void main()
 {
