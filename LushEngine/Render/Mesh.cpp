@@ -52,11 +52,7 @@ void Mesh::draw(Shader &shader)
     shader.setFloat("tex.shininess", 32.0f);
     for (unsigned int i = 0; i < this->_textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
-        std::string name = this->_textures[i].type;
-        if (name == "tex.diffuse")
-            shader.setInt("tex.diffuse", i);
-        else if (name == "tex.specular")
-            shader.setInt("tex.specular", i);
+        shader.setInt(this->_textures[i].type, i);
         glBindTexture(GL_TEXTURE_2D, this->_textures[i].id);
     }
 
