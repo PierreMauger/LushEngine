@@ -54,10 +54,8 @@ void Model::load(std::string const &file, std::map<std::string, unsigned int> te
 
 void Model::processNode(aiNode &node, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded)
 {
-    for (unsigned int i = 0; i < node.mNumMeshes; i++) {
-        aiMesh *mesh = scene.mMeshes[node.mMeshes[i]];
-        this->_meshes.push_back(this->processMesh(*mesh, scene, texturesLoaded));
-    }
+    for (unsigned int i = 0; i < node.mNumMeshes; i++)
+        this->_meshes.push_back(this->processMesh(*scene.mMeshes[node.mMeshes[i]], scene, texturesLoaded));
     for (unsigned int i = 0; i < node.mNumChildren; i++)
         this->processNode(*node.mChildren[i], scene, texturesLoaded);
 }
@@ -90,9 +88,7 @@ void Model::extractBoneWeightForVertices(std::vector<Vertex> &vertices, aiMesh &
         int boneID = -1;
         std::string boneName = mesh.mBones[boneIndex]->mName.C_Str();
         if (boneInfoMap.find(boneName) == boneInfoMap.end()) {
-            BoneInfo newBoneInfo;
-            newBoneInfo.id = boneCount;
-            newBoneInfo.offset = ConvertMatrixToGLMFormat(mesh.mBones[boneIndex]->mOffsetMatrix);
+            BoneInfo newBoneInfo = {boneCount, ConvertMatrixToGLMFormat(mesh.mBones[boneIndex]->mOffsetMatrix)};
             boneInfoMap[boneName] = newBoneInfo;
             boneID = boneCount;
             boneCount++;
@@ -155,13 +151,13 @@ Mesh Model::processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::string
 
     this->extractBoneWeightForVertices(vertices, mesh);
 
-    std::vector<Texture> diffuseMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_DIFFUSE, "texture_diffuse", texturesLoaded);
+    std::vector<Texture> diffuseMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_DIFFUSE, "tex.diffuse", texturesLoaded);
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-    std::vector<Texture> specularMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_SPECULAR, "texture_specular", texturesLoaded);
+    std::vector<Texture> specularMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_SPECULAR, "tex.specular", texturesLoaded);
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    std::vector<Texture> normalMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "texture_normal", texturesLoaded);
+    std::vector<Texture> normalMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "tex.normal", texturesLoaded);
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-    std::vector<Texture> heightMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_AMBIENT, "texture_height", texturesLoaded);
+    std::vector<Texture> heightMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_AMBIENT, "tex.height", texturesLoaded);
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     return Mesh(vertices, indices, textures, material);

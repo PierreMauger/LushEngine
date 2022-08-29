@@ -8,6 +8,12 @@ struct Material {
     float shininess;
 };
 
+struct MaterialTexture {
+    sampler2D diffuse;
+    sampler2D specular;
+    float shininess;
+};
+
 struct Light {
     vec3 position;
     vec3 ambient;
@@ -21,28 +27,32 @@ in vec2 TexCoords;
 
 uniform vec3 viewPos;
 uniform Material material;
+uniform MaterialTexture tex;
 uniform Light light;
 uniform bool hasTexture = false;
 uniform float time;
 
-uniform sampler2D texture_diffuse1;
-
 void main()
 {
+    vec3 originAmbient = hasTexture ? material.ambient : material.ambient;
+    vec3 originDiffuse = hasTexture ? texture(tex.diffuse, TexCoords).rgb : material.diffuse;
+    vec3 originSpecular = hasTexture ? texture(tex.specular, TexCoords).rgb : material.specular;
+    float shininess = hasTexture ? tex.shininess : material.shininess;
+
     // ambient
-    vec3 ambient = light.ambient * material.ambient;
+    vec3 ambient = light.ambient * originAmbient;
 
     // diffuse
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(light.position - FragPos);
     float diff = max(dot(norm, lightDir), 0.0f);
-    vec3 diffuse = light.diffuse * (diff * (hasTexture ? texture(texture_diffuse1, TexCoords).rgb : material.diffuse));
+    vec3 diffuse = light.diffuse * (diff * originDiffuse);
 
     // specular
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
-    vec3 specular = light.specular * (spec * material.specular);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0f), shininess);
+    vec3 specular = light.specular * (spec * originSpecular);
 
     vec3 result = ambient + diffuse + specular;
     FragColor = vec4(result, 1.0f);
