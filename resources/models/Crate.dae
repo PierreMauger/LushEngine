@@ -33,17 +33,27 @@
             <source>Crate_specular_png-surface</source>
           </sampler2D>
         </newparam>
+        <newparam sid="Crate_emission_png-surface">
+          <surface type="2D">
+            <init_from>Crate_emission_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Crate_emission_png-sampler">
+          <sampler2D>
+            <source>Crate_emission_png-surface</source>
+          </sampler2D>
+        </newparam>
         <technique sid="common">
           <lambert>
-            <emission>
-              <color sid="emission">0 0 0 1</color>
-            </emission>
             <diffuse>
               <texture texture="Crate_png-sampler" texcoord="UVMap"/>
             </diffuse>
             <specular>
               <texture texture="Crate_specular_png-sampler" texcoord="UVMap"/>
             </specular>
+            <emission>
+              <texture texture="Crate_emission_png-sampler" texcoord="UVMap"/>
+            </emission>
             <index_of_refraction>
               <float sid="ior">1.45</float>
             </index_of_refraction>
@@ -58,6 +68,9 @@
     </image>
     <image id="Crate_specular_png" name="Crate_png">
       <init_from>Crate_specular.png</init_from>
+    </image>
+    <image id="Crate_emission_png" name="Crate_png">
+      <init_from>Crate_emission.png</init_from>
     </image>
   </library_images>
   <library_materials>
