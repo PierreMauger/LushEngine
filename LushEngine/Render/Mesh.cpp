@@ -50,12 +50,20 @@ void Mesh::draw(Shader &shader)
     shader.setFloat("material.shininess", this->_material.shininess);
 
     shader.setFloat("tex.shininess", 32.0f);
+    bool specular = false;
     for (unsigned int i = 0; i < this->_textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         shader.setInt(this->_textures[i].type, i);
+        if (!specular && this->_textures[i].type == "tex.specular")
+            specular = true;
         glBindTexture(GL_TEXTURE_2D, this->_textures[i].id);
     }
 
+    if (!specular && this->_textures.size()) {
+        glActiveTexture(GL_TEXTURE0 + this->_textures.size());
+        shader.setInt("tex.specular", this->_textures.size());
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
     glBindVertexArray(this->_VAO);
     glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(this->_indices.size()), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);

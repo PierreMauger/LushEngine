@@ -155,9 +155,9 @@ Mesh Model::processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::string
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
     std::vector<Texture> specularMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_SPECULAR, "tex.specular", texturesLoaded);
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    std::vector<Texture> normalMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "tex.normal", texturesLoaded);
+    std::vector<Texture> normalMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_NORMALS, "tex.normal", texturesLoaded);
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-    std::vector<Texture> heightMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_AMBIENT, "tex.height", texturesLoaded);
+    std::vector<Texture> heightMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "tex.height", texturesLoaded);
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     return Mesh(vertices, indices, textures, material);
