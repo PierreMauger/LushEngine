@@ -18,14 +18,29 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    this->_windowWidth = 800;
-    this->_windowHeight = 600;
+    this->_windowWidth = 800.0f;
+    this->_windowHeight = 600.0f;
     this->_window = glfwCreateWindow(this->_windowWidth, this->_windowHeight, "Lush Engine", nullptr, nullptr);
+    this->_lastFrame = 0.0f;
+    this->_deltaTime = 0.0f;
+
+    this->_lastMouseX = this->_windowWidth / 2.0f;
+    this->_lastMouseY = this->_windowHeight / 2.0f;
+    this->_firstFrame = true;
 
     if (this->_window == NULL)
         throw std::runtime_error("Failed to create GLFW window");
 
     glfwMakeContextCurrent(this->_window);
+    // glfwSetWindowUserPointer(this->_window, this);
+    // auto mouseFunc = [](GLFWwindow *w, double xpos, double ypos) { static_cast<Render *>(glfwGetWindowUserPointer(w))->callbackMouseMovement(w, xpos, ypos); };
+    // glfwSetCursorPosCallback(this->_window, mouseFunc);
+    // auto clickFunc = [](GLFWwindow *w, int button, int action, int mods) { static_cast<Render *>(glfwGetWindowUserPointer(w))->callbackMouseClick(w, button, action, mods); };
+    // glfwSetMouseButtonCallback(this->_window, clickFunc);
+    // auto keyFunc = [](GLFWwindow *w, int key, int scan, int action, int mods) { static_cast<Render *>(glfwGetWindowUserPointer(w))->callbackKeyboard(w, key, scan, action, mods);
+    // }; glfwSetKeyCallback(this->_window, keyFunc); auto scrollFunc = [](GLFWwindow *w, double xoffset, double yoffset) { static_cast<Render
+    // *>(glfwGetWindowUserPointer(w))->callbackMouseMovement(w, xoffset, yoffset); }; glfwSetScrollCallback(this->_window, scrollFunc); glfwSetInputMode(this->_window,
+    // GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (glewInit() != GLEW_OK)
         throw std::runtime_error("GLEW failed to initialize");
@@ -49,24 +64,18 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_hoverBuffer.depthbuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    float quadVertices[] = {
-        -1.0f,  1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
+    float quadVertices[] = {-1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
 
-        -1.0f,  1.0f,  0.0f, 1.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f, 1.0f
-    };
-    glGenVertexArrays(1, &quadVAO);
-    glGenBuffers(1, &quadVBO);
-    glBindVertexArray(quadVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+                            -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};
+    glGenVertexArrays(1, &this->_quadVAO);
+    glGenBuffers(1, &this->_quadVBO);
+    glBindVertexArray(this->_quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_quadVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
@@ -88,9 +97,9 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     ImGui_ImplGlfw_InitForOpenGL(this->_window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
-    this->_mouseX = 0;
-    this->_mouseY = 0;
-    this->_hover = 2;
+    this->_mouseX = 0.0f;
+    this->_mouseY = 0.0f;
+    this->_hover = 0;
 }
 
 Render::~Render()
@@ -109,27 +118,20 @@ void Render::run()
     while (this->_running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
         this->_messageBus->notify(Module::RENDER, this->_functionList);
-        glfwPollEvents();
         if (glfwWindowShouldClose(this->_window)) {
             this->_running = false; // because it can sometimes send the quit message twice
             this->sendMessage(Message(Packet(), BaseCommand::QUIT, Module::BROADCAST));
         }
         if (!this->_launched)
             continue;
+        this->handleTime();
+        this->handleMouseMovement();
+        this->handleMouseClick();
+        this->handleKeyboard();
         this->update();
         this->draw();
-        this->handleMouse();
+        glfwPollEvents();
     }
-}
-
-void Render::draw()
-{
-    this->drawImGui();
-    this->drawScene();
-    this->drawPicking();
-
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    glfwSwapBuffers(this->_window);
 }
 
 void Render::update()
@@ -138,12 +140,33 @@ void Render::update()
         object->setHovered(this->_hover - 1 == static_cast<int>(key));
 }
 
-void Render::handleMouse()
+void Render::draw()
+{
+    this->drawImGui();
+    this->drawScene();
+    this->drawPicking();
+    this->drawOutline();
+
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    glfwSwapBuffers(this->_window);
+}
+
+void Render::handleTime()
+{
+    float currentFrame = static_cast<float>(glfwGetTime());
+
+    this->_deltaTime = currentFrame - this->_lastFrame;
+    this->_lastFrame = currentFrame;
+}
+
+void Render::handleMouseMovement()
 {
     if (ImGui::GetIO().WantCaptureMouse) {
         this->_hover = -1;
         return;
     }
+    this->_lastMouseX = this->_mouseX;
+    this->_lastMouseY = this->_mouseY;
     glfwGetCursorPos(this->_window, &this->_mouseX, &this->_mouseY);
     if (this->_mouseX < 0 || this->_mouseX > this->_windowWidth || this->_mouseY < 0 || this->_mouseY > this->_windowHeight) {
         this->_hover = -1;
@@ -156,9 +179,35 @@ void Render::handleMouse()
     this->_hover = (pixel[0] << 16) + (pixel[1] << 8) + (pixel[2]);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    if (this->_firstFrame) {
+        this->_lastMouseX = this->_mouseX;
+        this->_lastMouseY = this->_windowHeight - this->_mouseY;
+        this->_firstFrame = false;
+    }
+    this->_camera->processMouseMovement(this->_mouseX - this->_lastMouseX, this->_lastMouseY - this->_mouseY);
+}
+
+void Render::handleMouseClick()
+{
     if (glfwGetMouseButton(this->_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         if (this->_hover > 0 && this->_objects.find(this->_hover - 1) != this->_objects.end())
             this->_objects[this->_hover - 1]->setSelected(true);
+}
+
+void Render::handleKeyboard()
+{
+    if (glfwGetKey(this->_window, GLFW_KEY_W) == GLFW_PRESS)
+        this->_camera->processKeyboard(FRONT, this->_deltaTime);
+    if (glfwGetKey(this->_window, GLFW_KEY_S) == GLFW_PRESS)
+        this->_camera->processKeyboard(BACK, this->_deltaTime);
+    if (glfwGetKey(this->_window, GLFW_KEY_A) == GLFW_PRESS)
+        this->_camera->processKeyboard(LEFT, this->_deltaTime);
+    if (glfwGetKey(this->_window, GLFW_KEY_D) == GLFW_PRESS)
+        this->_camera->processKeyboard(RIGHT, this->_deltaTime);
+    if (glfwGetKey(this->_window, GLFW_KEY_Q) == GLFW_PRESS)
+        this->_camera->processKeyboard(UP, this->_deltaTime);
+    if (glfwGetKey(this->_window, GLFW_KEY_E) == GLFW_PRESS)
+        this->_camera->processKeyboard(DOWN, this->_deltaTime);
 }
 
 bool Render::showImGui(bool *open)
@@ -177,8 +226,8 @@ bool Render::showImGui(bool *open)
                 if (selected)
                     ImGui::SetItemDefaultFocus();
             }
+            ImGui::EndListBox();
         }
-        ImGui::EndListBox();
     }
     ImGui::End();
     return changed;
@@ -226,13 +275,6 @@ void Render::drawScene()
     for (auto &[key, object] : this->_objects)
         if (object->isSelected())
             object->draw(*this->_camera);
-
-    this->_camera->use("Outline");
-    glBindVertexArray(quadVAO);
-    this->_camera->getShader()->setInt("id", this->_hover);
-    glBindTexture(GL_TEXTURE_2D, this->_hoverBuffer.texture);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
 }
 
 void Render::drawPicking()
@@ -252,6 +294,16 @@ void Render::drawPicking()
         object->draw(*this->_camera);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Render::drawOutline()
+{
+    this->_camera->use("Outline");
+    glBindVertexArray(this->_quadVAO);
+    this->_camera->getShader()->setInt("id", this->_hover);
+    glBindTexture(GL_TEXTURE_2D, this->_hoverBuffer.texture);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
 }
 
 void Render::receiveLoadShaders(Packet packet)

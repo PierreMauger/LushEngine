@@ -35,13 +35,13 @@ uniform float time;
 
 void main()
 {
-    vec3 originAmbient = hasTexture ? material.ambient : material.ambient;
     vec3 originDiffuse = hasTexture ? texture(tex.diffuse, TexCoords).rgb : material.diffuse;
     vec3 originSpecular = hasTexture ? texture(tex.specular, TexCoords).rgb : material.specular;
     float shininess = hasTexture ? tex.shininess : material.shininess;
     vec3 emission = hasTexture ? texture(tex.emission, TexCoords).rgb : vec3(0.0f);
+
     // ambient
-    vec3 ambient = light.ambient * originAmbient;
+    vec3 ambient = light.ambient * material.ambient;
 
     // diffuse
     vec3 norm = normalize(Normal);

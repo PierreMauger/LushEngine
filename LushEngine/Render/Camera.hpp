@@ -10,6 +10,15 @@
 
 namespace Lush
 {
+    enum Direction {
+        FRONT,
+        BACK,
+        LEFT,
+        RIGHT,
+        UP,
+        DOWN,
+    };
+
     class Camera
     {
         private:
@@ -18,7 +27,8 @@ namespace Lush
             glm::vec3 _position;
             glm::vec3 _front;
             glm::vec3 _up;
-            glm::vec3 _rotation;
+            float _yaw;
+            float _pitch;
             float _fov;
             float _aspectRatio;
             float _near;
@@ -27,8 +37,11 @@ namespace Lush
             std::shared_ptr<Shader> _actShader;
 
         public:
-            Camera(float width, float height, std::map<std::string, std::shared_ptr<Shader>> shaderMap);
+            Camera(float width, float height, std::map<std::string, std::shared_ptr<Shader>> shaders);
             ~Camera() = default;
+
+            void processMouseMovement(float xoffset, float yoffset);
+            void processKeyboard(Direction dir, float deltaTime);
 
             void use(std::string shaderName);
             std::shared_ptr<Shader> getShader();
