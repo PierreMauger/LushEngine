@@ -17,9 +17,9 @@
 namespace Lush
 {
     typedef struct {
-        GLuint framebuffer;
-        GLuint texture;
-        GLuint depthbuffer;
+            GLuint framebuffer;
+            GLuint texture;
+            GLuint depthbuffer;
     } FrameBuffer;
 
     class Render : public virtual Node
@@ -28,6 +28,9 @@ namespace Lush
             GLFWwindow *_window;
             double _mouseX;
             double _mouseY;
+            float _lastMouseX;
+            float _lastMouseY;
+            bool _freeCamera;
             double _windowWidth;
             double _windowHeight;
             FrameBuffer _hoverBuffer;
@@ -37,10 +40,6 @@ namespace Lush
 
             float _deltaTime;
             float _lastFrame;
-
-            float _lastMouseX;
-            float _lastMouseY;
-            bool _firstFrame;
 
             std::map<std::string, std::shared_ptr<Shader>> _shaders;
             std::unique_ptr<Camera> _camera;
@@ -64,7 +63,9 @@ namespace Lush
             void handleMouseMovement();
             void handleMouseClick();
             void handleKeyboard();
+            void handleKeyboardPress(int key, int scancode, int action, int mods);
 
+            void receiveLoadIcon(Packet);
             void receiveLoadShaders(Packet);
             void receiveLoadTextures(Packet);
             void receiveLoadModels(Packet);

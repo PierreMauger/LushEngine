@@ -6,8 +6,8 @@ Camera::Camera(float width, float height, std::map<std::string, std::shared_ptr<
 {
     this->_view = glm::mat4(1.0f);
     this->_projection = glm::mat4(1.0f);
-    this->_position = glm::vec3(-10.0f, 0.0f, 5.0f);
-    this->_front = glm::vec3(1.0f, 0.0f, 0.0f);
+    this->_position = glm::vec3(0.0f, 0.0f, 10.0f);
+    this->_front = glm::vec3(0.0f, 0.0f, -1.0f);
     this->_up = glm::vec3(0.0f, 1.0f, 0.0f);
     this->_yaw = -90.0f;
     this->_pitch = 0.0f;
@@ -16,6 +16,7 @@ Camera::Camera(float width, float height, std::map<std::string, std::shared_ptr<
     this->_near = 0.1f;
     this->_far = 100.0f;
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
+    this->_sensitivity = 0.2f;
 
     this->_shaders = shaders;
     this->_actShader = nullptr;
@@ -23,13 +24,13 @@ Camera::Camera(float width, float height, std::map<std::string, std::shared_ptr<
 
 void Camera::processMouseMovement(float xoffset, float yoffset)
 {
-    this->_yaw += xoffset * 0.1f;
-    this->_pitch += yoffset * 0.1f;
+    this->_yaw += xoffset * this->_sensitivity;
+    this->_pitch += yoffset * this->_sensitivity;
 
-    // if (this->_pitch > 89.0f)
-    //     this->_pitch = 89.0f;
-    // if (this->_pitch < 0.0f)
-    //     this->_pitch = 0.0f;
+    if (this->_pitch > 89.0f)
+        this->_pitch = 89.0f;
+    if (this->_pitch < -89.0f)
+        this->_pitch = -89.0f;
 
     glm::vec3 tempFront;
     tempFront.x = cos(glm::radians(this->_yaw)) * cos(glm::radians(this->_pitch));
@@ -116,7 +117,9 @@ void Camera::showImGui(bool *open)
         ImGui::SliderFloat("Aspect Ratio", &this->_aspectRatio, 0.5f, 2.0f);
         ImGui::SliderFloat("Near", &this->_near, 0.1f, 10.0f);
         ImGui::SliderFloat("Far", &this->_far, 0.1f, 100.0f);
+        ImGui::SliderFloat("Sensitivity", &this->_sensitivity, 0.1f, 1.0f);
         ImGui::Text(" ");
+        ImGui::Text("Front: %.2f %.2f %.2f", this->_front.x, this->_front.y, this->_front.z);
         ImGui::SliderFloat("PosX", &this->_position.x, -20.0f, 20.0f);
         ImGui::SliderFloat("PosY", &this->_position.y, -20.0f, 20.0f);
         ImGui::SliderFloat("PosZ", &this->_position.z, -20.0f, 20.0f);

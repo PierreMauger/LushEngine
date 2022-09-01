@@ -4,6 +4,7 @@ using namespace Lush;
 
 Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 {
+    this->_functionList.push_back(std::bind(&Render::receiveLoadIcon, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveLoadShaders, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveLoadTextures, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveLoadModels, this, std::placeholders::_1));
@@ -23,24 +24,21 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_window = glfwCreateWindow(this->_windowWidth, this->_windowHeight, "Lush Engine", nullptr, nullptr);
     this->_lastFrame = 0.0f;
     this->_deltaTime = 0.0f;
-
-    this->_lastMouseX = this->_windowWidth / 2.0f;
-    this->_lastMouseY = this->_windowHeight / 2.0f;
-    this->_firstFrame = true;
+    this->_mouseX = this->_windowWidth / 2.0f;
+    this->_mouseY = this->_windowHeight / 2.0f;
+    this->_lastMouseX = this->_mouseX;
+    this->_lastMouseY = this->_mouseY;
+    this->_freeCamera = false;
 
     if (this->_window == NULL)
         throw std::runtime_error("Failed to create GLFW window");
 
     glfwMakeContextCurrent(this->_window);
-    // glfwSetWindowUserPointer(this->_window, this);
-    // auto mouseFunc = [](GLFWwindow *w, double xpos, double ypos) { static_cast<Render *>(glfwGetWindowUserPointer(w))->callbackMouseMovement(w, xpos, ypos); };
-    // glfwSetCursorPosCallback(this->_window, mouseFunc);
-    // auto clickFunc = [](GLFWwindow *w, int button, int action, int mods) { static_cast<Render *>(glfwGetWindowUserPointer(w))->callbackMouseClick(w, button, action, mods); };
-    // glfwSetMouseButtonCallback(this->_window, clickFunc);
-    // auto keyFunc = [](GLFWwindow *w, int key, int scan, int action, int mods) { static_cast<Render *>(glfwGetWindowUserPointer(w))->callbackKeyboard(w, key, scan, action, mods);
-    // }; glfwSetKeyCallback(this->_window, keyFunc); auto scrollFunc = [](GLFWwindow *w, double xoffset, double yoffset) { static_cast<Render
-    // *>(glfwGetWindowUserPointer(w))->callbackMouseMovement(w, xoffset, yoffset); }; glfwSetScrollCallback(this->_window, scrollFunc); glfwSetInputMode(this->_window,
-    // GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetWindowUserPointer(this->_window, this);
+    auto keyboardPressCallback = [](GLFWwindow *w, int key, int scan, int action, int mods) {
+        static_cast<Render *>(glfwGetWindowUserPointer(w))->handleKeyboardPress(key, scan, action, mods);
+    };
+    glfwSetKeyCallback(this->_window, keyboardPressCallback);
 
     if (glewInit() != GLEW_OK)
         throw std::runtime_error("GLEW failed to initialize");
@@ -97,8 +95,6 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     ImGui_ImplGlfw_InitForOpenGL(this->_window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
-    this->_mouseX = 0.0f;
-    this->_mouseY = 0.0f;
     this->_hover = 0;
 }
 
@@ -161,30 +157,31 @@ void Render::handleTime()
 
 void Render::handleMouseMovement()
 {
-    if (ImGui::GetIO().WantCaptureMouse) {
-        this->_hover = -1;
-        return;
-    }
+    glm::vec2 pos(0.0f);
+
     this->_lastMouseX = this->_mouseX;
     this->_lastMouseY = this->_mouseY;
     glfwGetCursorPos(this->_window, &this->_mouseX, &this->_mouseY);
-    if (this->_mouseX < 0 || this->_mouseX > this->_windowWidth || this->_mouseY < 0 || this->_mouseY > this->_windowHeight) {
-        this->_hover = -1;
-        return;
+    if (this->_freeCamera) {
+        this->_camera->processMouseMovement(this->_mouseX - this->_lastMouseX, this->_lastMouseY - this->_mouseY);
+        pos = {this->_windowWidth / 2.0f, this->_windowHeight / 2.0f};
+    } else {
+        if (ImGui::GetIO().WantCaptureMouse) {
+            this->_hover = -1;
+            return;
+        }
+        if (this->_mouseX < 0 || this->_mouseX > this->_windowWidth || this->_mouseY < 0 || this->_mouseY > this->_windowHeight) {
+            this->_hover = -1;
+            return;
+        }
+        pos = {this->_mouseX, this->_mouseY};
     }
     glBindFramebuffer(GL_FRAMEBUFFER, this->_hoverBuffer.framebuffer);
     unsigned char pixel[4];
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glReadPixels(this->_mouseX, this->_windowHeight - this->_mouseY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
+    glReadPixels(pos.x, this->_windowHeight - pos.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
     this->_hover = (pixel[0] << 16) + (pixel[1] << 8) + (pixel[2]);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    if (this->_firstFrame) {
-        this->_lastMouseX = this->_mouseX;
-        this->_lastMouseY = this->_windowHeight - this->_mouseY;
-        this->_firstFrame = false;
-    }
-    this->_camera->processMouseMovement(this->_mouseX - this->_lastMouseX, this->_lastMouseY - this->_mouseY);
 }
 
 void Render::handleMouseClick()
@@ -208,6 +205,14 @@ void Render::handleKeyboard()
         this->_camera->processKeyboard(UP, this->_deltaTime);
     if (glfwGetKey(this->_window, GLFW_KEY_E) == GLFW_PRESS)
         this->_camera->processKeyboard(DOWN, this->_deltaTime);
+}
+
+void Render::handleKeyboardPress(int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
+{
+    if (key == GLFW_KEY_TAB && action == GLFW_PRESS) {
+        this->_freeCamera = !this->_freeCamera;
+        glfwSetInputMode(this->_window, GLFW_CURSOR, this->_freeCamera ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    }
 }
 
 bool Render::showImGui(bool *open)
@@ -304,6 +309,18 @@ void Render::drawOutline()
     glBindTexture(GL_TEXTURE_2D, this->_hoverBuffer.texture);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
+}
+
+void Render::receiveLoadIcon(Packet packet)
+{
+    std::string textureContent;
+    packet >> textureContent;
+
+    GLFWimage images[1];
+    images[0].pixels =
+        stbi_load_from_memory((const stbi_uc *)textureContent.c_str(), static_cast<int>(textureContent.size()), &images[0].width, &images[0].height, 0, 4); // rgba channels
+    glfwSetWindowIcon(this->_window, 1, images);
+    stbi_image_free(images[0].pixels);
 }
 
 void Render::receiveLoadShaders(Packet packet)

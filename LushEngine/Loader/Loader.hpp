@@ -31,6 +31,7 @@ namespace Lush
             void sendTextures();
             void sendModels();
             void sendScenes();
+            void sendIcon();
     };
 }
 

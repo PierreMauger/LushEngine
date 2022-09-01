@@ -62,7 +62,8 @@ namespace Lush
     {
         public:
             enum {
-                LOAD_SHADERS = BaseCommand::LAST,
+                LOAD_ICON = BaseCommand::LAST,
+                LOAD_SHADERS,
                 LOAD_TEXTURES,
                 LOAD_MODELS,
                 ADD_OBJECTS,

@@ -11,6 +11,7 @@ Loader::Loader(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->sendTextures();
     this->sendModels();
     this->sendScenes();
+    this->sendIcon();
 }
 
 Loader::~Loader()
@@ -58,7 +59,7 @@ std::string Loader::loadFile(std::string fileName)
 
 std::string Loader::searchInLoaderConfig(std::string section)
 {
-    std::regex regex("(" + section + ":\\s*)([^_]*)");
+    std::regex regex("(" + section + ":\\s*)([^_]*)\\s+");
     std::smatch match;
     std::string copy = this->_loaderConfig;
     std::string result;
@@ -148,4 +149,17 @@ void Loader::sendScenes()
             packet << object;
     }
     this->sendMessage(Message(packet, CoreCommand::SCENES, Module::CORE));
+}
+
+void Loader::sendIcon()
+{
+    Packet packet;
+    std::vector<std::string> files = this->getFilesFromDir("resources/icons/", false);
+    std::string iconConfig = this->searchInLoaderConfig("_Icon");
+
+    if (std::find(files.begin(), files.end(), iconConfig) == files.end())
+        throw std::runtime_error("Icon not found: " + iconConfig);
+
+    packet << this->loadFile("resources/icons/" + iconConfig);
+    this->sendMessage(Message(packet, RenderCommand::LOAD_ICON, Module::RENDER));
 }
