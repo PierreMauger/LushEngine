@@ -7,6 +7,7 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_functionList.push_back(std::bind(&Render::receiveLoadIcon, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveLoadShaders, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveLoadTextures, this, std::placeholders::_1));
+    this->_functionList.push_back(std::bind(&Render::receiveLoadSkyBox, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveLoadModels, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveAddObject, this, std::placeholders::_1));
     this->_functionList.push_back(std::bind(&Render::receiveClearObject, this, std::placeholders::_1));
@@ -65,22 +66,69 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     float quadVertices[] = {-1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
 
                             -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};
-    glGenVertexArrays(1, &this->_quadVAO);
-    glGenBuffers(1, &this->_quadVBO);
-    glBindVertexArray(this->_quadVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_quadVBO);
+    glGenVertexArrays(1, &this->_planeVAO);
+    glGenBuffers(1, &this->_planeVBO);
+    glBindVertexArray(this->_planeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_planeVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
+    float skyboxVertices[] = {
+        // positions
+        -1.0f,  1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+        -1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f
+    };
+    glGenVertexArrays(1, &this->_skyBoxVAO);
+    glGenBuffers(1, &this->_skyBoxVBO);
+    glBindVertexArray(this->_skyBoxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_skyBoxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask(0x00); // disable stencil writing
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -140,6 +188,7 @@ void Render::draw()
 {
     this->drawImGui();
     this->drawScene();
+    this->drawSkyBox();
     this->drawPicking();
     this->drawOutline();
 
@@ -172,7 +221,7 @@ void Render::handleMouseMovement()
         }
         if (this->_mouseX < 0 || this->_mouseX > this->_windowWidth || this->_mouseY < 0 || this->_mouseY > this->_windowHeight) {
             this->_hover = -1;
-            return;
+            // return;
         }
         pos = {this->_mouseX, this->_mouseY};
     }
@@ -267,7 +316,7 @@ void Render::drawImGui()
 void Render::drawScene()
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     this->_camera->use("Camera");
     this->_camera->setShader(glfwGetTime());
@@ -304,21 +353,36 @@ void Render::drawPicking()
 void Render::drawOutline()
 {
     this->_camera->use("Outline");
-    glBindVertexArray(this->_quadVAO);
     this->_camera->getShader()->setInt("id", this->_hover);
+
+    glBindVertexArray(this->_planeVAO);
     glBindTexture(GL_TEXTURE_2D, this->_hoverBuffer.texture);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
 
+void Render::drawSkyBox()
+{
+    glDepthFunc(GL_LEQUAL);
+    this->_camera->use("SkyBox");
+    this->_camera->setSkyBox();
+    this->_camera->getShader()->setInt("skybox", 0);
+
+    glBindVertexArray(this->_skyBoxVAO);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, this->_skyBoxTexture);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+    glDepthFunc(GL_LESS);
+}
+
 void Render::receiveLoadIcon(Packet packet)
 {
-    std::string textureContent;
-    packet >> textureContent;
+    std::string texture;
+    packet >> texture;
 
     GLFWimage images[1];
-    images[0].pixels =
-        stbi_load_from_memory((const stbi_uc *)textureContent.c_str(), static_cast<int>(textureContent.size()), &images[0].width, &images[0].height, 0, 4); // rgba channels
+    images[0].pixels = stbi_load_from_memory((const stbi_uc *)texture.c_str(), static_cast<int>(texture.size()), &images[0].width, &images[0].height, 0, 4); // rgba channels
     glfwSetWindowIcon(this->_window, 1, images);
     stbi_image_free(images[0].pixels);
 }
@@ -339,15 +403,15 @@ void Render::receiveLoadShaders(Packet packet)
 void Render::receiveLoadTextures(Packet packet)
 {
     std::string name;
-    std::string textureContent;
+    std::string texture;
 
     while (!packet.empty()) {
-        packet >> name >> textureContent;
+        packet >> name >> texture;
         unsigned int textureID;
         glGenTextures(1, &textureID);
 
         int width, height, nrComponents;
-        unsigned char *data = stbi_load_from_memory((const stbi_uc *)textureContent.c_str(), static_cast<int>(textureContent.size()), &width, &height, &nrComponents, 0);
+        unsigned char *data = stbi_load_from_memory((const stbi_uc *)texture.c_str(), static_cast<int>(texture.size()), &width, &height, &nrComponents, 0);
         if (data) {
             GLenum format;
             if (nrComponents == 1)
@@ -367,9 +431,38 @@ void Render::receiveLoadTextures(Packet packet)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             stbi_image_free(data);
             this->_textures[name] = textureID;
+        } else {
+            stbi_image_free(data);
         }
         glBindTexture(GL_TEXTURE_2D, 0);
     }
+}
+
+void Render::receiveLoadSkyBox(Packet packet)
+{
+    std::vector<std::string> faces(6);
+    for (int i = 0; i < 6; i++)
+        packet >> faces[i];
+
+    glGenTextures(1, &this->_skyBoxTexture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, this->_skyBoxTexture);
+
+    int width, height, nrChannels;
+    for (unsigned int i = 0; i < faces.size(); i++) {
+        unsigned char *data = stbi_load_from_memory((const stbi_uc *)faces[i].c_str(), static_cast<int>(faces[i].size()), &width, &height, &nrChannels, 0);
+        // unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        if (data) {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            stbi_image_free(data);
+        } else {
+            stbi_image_free(data);
+        }
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
 void Render::receiveLoadModels(Packet packet)

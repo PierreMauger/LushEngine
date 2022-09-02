@@ -12,6 +12,7 @@ Loader::Loader(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->sendModels();
     this->sendScenes();
     this->sendIcon();
+    this->sendSkyBox();
 }
 
 Loader::~Loader()
@@ -59,7 +60,7 @@ std::string Loader::loadFile(std::string fileName)
 
 std::string Loader::searchInLoaderConfig(std::string section)
 {
-    std::regex regex("(" + section + ":\\s*)([^_]*)\\s+");
+    std::regex regex("(" + section + ":\\s*)([^_]*)");
     std::smatch match;
     std::string copy = this->_loaderConfig;
     std::string result;
@@ -157,9 +158,35 @@ void Loader::sendIcon()
     std::vector<std::string> files = this->getFilesFromDir("resources/icons/", false);
     std::string iconConfig = this->searchInLoaderConfig("_Icon");
 
-    if (std::find(files.begin(), files.end(), iconConfig) == files.end())
-        throw std::runtime_error("Icon not found: " + iconConfig);
+    std::vector<std::string> tokens;
 
-    packet << this->loadFile("resources/icons/" + iconConfig);
+    std::stringstream ss(iconConfig);
+    std::string token;
+    while (std::getline(ss, token, '\n'))
+        if (token.length() > 1)
+            tokens.push_back(token);
+
+    for (auto &token : tokens) {
+        if (std::find(files.begin(), files.end(), token) == files.end())
+            throw std::runtime_error("Icon not found: " + token);
+        packet << this->loadFile("resources/icons/" + token);
+    }
     this->sendMessage(Message(packet, RenderCommand::LOAD_ICON, Module::RENDER));
+}
+
+void Loader::sendSkyBox()
+{
+    Packet packet;
+    std::vector<std::string> files = this->getFilesFromDir("resources/skybox/", false);
+    std::string skyboxConfig = this->searchInLoaderConfig("_Skybox");
+
+    std::regex regex("\\s*([\\S]*)\n");
+    std::smatch match;
+    while (std::regex_search(skyboxConfig, match, regex)) {
+        if (std::find(files.begin(), files.end(), match[1]) == files.end())
+            throw std::runtime_error("Skybox face not found: " + match[1].str());
+        packet << this->loadFile("resources/skybox/" + match[1].str());
+        skyboxConfig = match.suffix().str();
+    }
+    this->sendMessage(Message(packet, RenderCommand::LOAD_SKYBOX, Module::RENDER));
 }

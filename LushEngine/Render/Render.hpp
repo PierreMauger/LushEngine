@@ -17,9 +17,9 @@
 namespace Lush
 {
     typedef struct {
-            GLuint framebuffer;
-            GLuint texture;
-            GLuint depthbuffer;
+        GLuint framebuffer;
+        GLuint texture;
+        GLuint depthbuffer;
     } FrameBuffer;
 
     class Render : public virtual Node
@@ -35,8 +35,11 @@ namespace Lush
             double _windowHeight;
             FrameBuffer _hoverBuffer;
             int _hover;
-            unsigned int _quadVAO;
-            unsigned int _quadVBO;
+            unsigned int _planeVAO;
+            unsigned int _planeVBO;
+            unsigned int _skyBoxVAO;
+            unsigned int _skyBoxVBO;
+            unsigned int _skyBoxTexture;
 
             float _deltaTime;
             float _lastFrame;
@@ -68,6 +71,7 @@ namespace Lush
             void receiveLoadIcon(Packet);
             void receiveLoadShaders(Packet);
             void receiveLoadTextures(Packet);
+            void receiveLoadSkyBox(Packet);
             void receiveLoadModels(Packet);
             void receiveAddObject(Packet);
             void receiveClearObject(Packet);
@@ -79,6 +83,7 @@ namespace Lush
             void drawScene();
             void drawPicking();
             void drawOutline();
+            void drawSkyBox();
     };
 }
 

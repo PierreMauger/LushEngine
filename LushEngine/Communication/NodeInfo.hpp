@@ -65,6 +65,7 @@ namespace Lush
                 LOAD_ICON = BaseCommand::LAST,
                 LOAD_SHADERS,
                 LOAD_TEXTURES,
+                LOAD_SKYBOX,
                 LOAD_MODELS,
                 ADD_OBJECTS,
                 CLEAR_OBJECTS,

@@ -32,6 +32,7 @@ namespace Lush
             void sendModels();
             void sendScenes();
             void sendIcon();
+            void sendSkyBox();
     };
 }
 

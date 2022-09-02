@@ -9,12 +9,11 @@ StaticModel::StaticModel(GameObject obj, std::shared_ptr<Model> model) : RenderO
 
 void StaticModel::draw(Camera &camera)
 {
-    if (this->_polygonMode)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    else
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL - this->_polygonMode);
     camera.setOnModel(this->_position, this->_scale, this->_rotation);
     this->_model->draw(*camera.getShader());
+    if (this->_polygonMode)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 bool StaticModel::showImGui(int id)

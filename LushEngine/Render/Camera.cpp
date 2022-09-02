@@ -41,7 +41,6 @@ void Camera::processMouseMovement(float xoffset, float yoffset)
 
 void Camera::processKeyboard(Direction dir, float deltaTime)
 {
-    // std::cout << static_cast<int>(dir) << " " << deltaTime << std::endl;
     float speed = deltaTime * 3.0f;
 
     if (dir == FRONT)
@@ -58,6 +57,8 @@ void Camera::processKeyboard(Direction dir, float deltaTime)
 
 void Camera::use(std::string shaderName)
 {
+    if (this->_shaders.find(shaderName) == this->_shaders.end())
+        throw std::runtime_error("Using unknown shader: " + shaderName);
     this->_shaders[shaderName]->use();
     this->_actShader = this->_shaders[shaderName];
 }
@@ -94,6 +95,12 @@ void Camera::setPicking()
     // assume setShader has been called, so _view and _projection are set
     this->_actShader->setVec3("viewPos", this->_position);
     this->_actShader->setMat4("view", this->_view);
+    this->_actShader->setMat4("projection", this->_projection);
+}
+
+void Camera::setSkyBox()
+{
+    this->_actShader->setMat4("view", glm::mat4(glm::mat3(this->_view)));
     this->_actShader->setMat4("projection", this->_projection);
 }
 

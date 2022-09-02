@@ -50,6 +50,7 @@ namespace Lush
 
             void setShader(float time);
             void setPicking();
+            void setSkyBox();
             void setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
             void showImGui(bool *open);
     };
