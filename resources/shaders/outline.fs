@@ -1,6 +1,8 @@
 #version 330 core
 out vec4 FragColor;
 
+#define WIDTH 3
+
 in vec2 TexCoords;
 
 uniform int id;
@@ -13,7 +15,7 @@ void main()
     FragColor = vec4(0.0f);
 
     if (id != 0 && colorId == id) {
-        int w = 3;
+        int w = WIDTH;
 
         // if the pixel isn't white, we are on the object silhouette
         if (obj != vec3(0.0f)) {

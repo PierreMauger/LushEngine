@@ -450,7 +450,6 @@ void Render::receiveLoadSkyBox(Packet packet)
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++) {
         unsigned char *data = stbi_load_from_memory((const stbi_uc *)faces[i].c_str(), static_cast<int>(faces[i].size()), &width, &height, &nrChannels, 0);
-        // unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
         if (data) {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);

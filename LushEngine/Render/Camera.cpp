@@ -81,10 +81,19 @@ void Camera::setShader(float time)
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 
     this->_actShader->setVec3("viewPos", this->_position);
-    this->_actShader->setVec3("light.position", this->_position);
-    this->_actShader->setVec3("light.ambient", glm::vec3(1.0f));
-    this->_actShader->setVec3("light.diffuse", glm::vec3(1.0f));
-    this->_actShader->setVec3("light.specular", glm::vec3(1.0f));
+    this->_actShader->setVec3("dirLight.direction", glm::vec3(0.0f, 0.0f, -1.0f));
+    this->_actShader->setVec3("dirLight.ambient", glm::vec3(1.0f));
+    this->_actShader->setVec3("dirLight.diffuse", glm::vec3(1.0f));
+    this->_actShader->setVec3("dirLight.specular", glm::vec3(1.0f));
+
+    this->_actShader->setVec3("pointLights[0].position", this->_position);
+    this->_actShader->setVec3("pointLights[0].ambient", glm::vec3(1.0f));
+    this->_actShader->setVec3("pointLights[0].diffuse", glm::vec3(1.0f));
+    this->_actShader->setVec3("pointLights[0].specular", glm::vec3(1.0f));
+    this->_actShader->setFloat("pointLights[0].constant", 1.0f);
+    this->_actShader->setFloat("pointLights[0].linear", 0.09f);
+    this->_actShader->setFloat("pointLights[0].quadratic", 0.032f);
+
     this->_actShader->setMat4("view", this->_view);
     this->_actShader->setMat4("projection", this->_projection);
     this->_actShader->setFloat("time", time);
