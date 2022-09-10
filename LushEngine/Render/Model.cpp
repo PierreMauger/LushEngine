@@ -48,7 +48,7 @@ void Model::load(std::string const &file, std::map<std::string, unsigned int> te
         importer.ReadFileFromMemory(file.c_str(), file.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
     if (!scene)
-        throw std::runtime_error(importer.GetErrorString());
+        throw std::runtime_error(std::string("Model loading: ") + importer.GetErrorString());
     this->processNode(*scene->mRootNode, *scene, texturesLoaded);
 }
 
@@ -146,6 +146,8 @@ Mesh Model::processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::string
     material.ambient = glm::vec3(color.r, color.g, color.b);
     materialLoaded->Get(AI_MATKEY_COLOR_SPECULAR, color);
     material.specular = glm::vec3(color.r, color.g, color.b);
+    materialLoaded->Get(AI_MATKEY_COLOR_EMISSIVE, color);
+    material.emission = glm::vec3(color.r, color.g, color.b);
     materialLoaded->Get(AI_MATKEY_SHININESS, shininess);
     material.shininess = shininess;
 

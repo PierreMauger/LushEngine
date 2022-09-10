@@ -30,6 +30,7 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_lastMouseX = this->_mouseX;
     this->_lastMouseY = this->_mouseY;
     this->_freeCamera = false;
+    this->_dirLightAngle = glm::pi<float>() / 2.0f;
 
     if (this->_window == NULL)
         throw std::runtime_error("Failed to create GLFW window");
@@ -48,7 +49,6 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     this->_showCameraImGui = true;
     this->_showWindowImGui = true;
     this->_selectionImGui = 0;
-
     glGenFramebuffers(1, &this->_hoverBuffer.framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_hoverBuffer.framebuffer);
     glGenTextures(1, &this->_hoverBuffer.texture);
@@ -75,50 +75,18 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
-    float skyboxVertices[] = {
-        // positions
-        -1.0f,  1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
+    float skyboxVertices[] = {// positions
+                              -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f,
 
-        -1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
+                              -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,
 
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
+                              1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f,
 
-        -1.0f, -1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
+                              -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,
 
-        -1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f, -1.0f,
+                              -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f,
 
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f
-    };
+                              -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f};
     glGenVertexArrays(1, &this->_skyBoxVAO);
     glGenBuffers(1, &this->_skyBoxVBO);
     glBindVertexArray(this->_skyBoxVAO);
@@ -180,6 +148,11 @@ void Render::run()
 
 void Render::update()
 {
+    this->_camera->update();
+    this->_pointLights.clear();
+    for (auto &[key, object] : this->_objects)
+        if (object->isLightSource())
+            this->_pointLights.push_back(object->getPosition());
     for (auto &[key, object] : this->_objects)
         object->setHovered(this->_hover - 1 == static_cast<int>(key));
 }
@@ -219,10 +192,8 @@ void Render::handleMouseMovement()
             this->_hover = -1;
             return;
         }
-        if (this->_mouseX < 0 || this->_mouseX > this->_windowWidth || this->_mouseY < 0 || this->_mouseY > this->_windowHeight) {
+        if (this->_mouseX < 0 || this->_mouseX > this->_windowWidth || this->_mouseY < 0 || this->_mouseY > this->_windowHeight)
             this->_hover = -1;
-            // return;
-        }
         pos = {this->_mouseX, this->_mouseY};
     }
     glBindFramebuffer(GL_FRAMEBUFFER, this->_hoverBuffer.framebuffer);
@@ -269,18 +240,29 @@ bool Render::showImGui(bool *open)
     bool changed = false;
 
     if (ImGui::Begin("Window", open)) {
-        if (ImGui::BeginListBox("Scenes")) {
-            for (int i = 0; i < static_cast<int>(this->_scenes.size()); i++) {
-                bool selected = (this->_selectionImGui == i);
+        if (ImGui::BeginTabBar("First")) {
+            if (ImGui::BeginTabItem("Scenes")) {
+                if (ImGui::BeginListBox("")) {
+                    for (int i = 0; i < static_cast<int>(this->_scenes.size()); i++) {
+                        bool selected = (this->_selectionImGui == i);
 
-                if (ImGui::Selectable(this->_scenes[i].c_str(), selected)) {
-                    this->_selectionImGui = i;
-                    changed = true;
+                        if (ImGui::Selectable(this->_scenes[i].c_str(), selected)) {
+                            this->_selectionImGui = i;
+                            changed = true;
+                        }
+                        if (selected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndListBox();
                 }
-                if (selected)
-                    ImGui::SetItemDefaultFocus();
+                ImGui::EndTabItem();
             }
-            ImGui::EndListBox();
+
+            if (ImGui::BeginTabItem("Light")) {
+                ImGui::SliderAngle("Angle", &this->_dirLightAngle, 0.0f, 180.0f);
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
         }
     }
     ImGui::End();
@@ -294,13 +276,12 @@ void Render::drawImGui()
     ImGui::NewFrame();
 
     if (this->_showWindowImGui)
-        if (this->showImGui(&this->_showWindowImGui)) {
-            Packet data;
-            data << this->_scenes[this->_selectionImGui];
-            this->sendMessage(Message(data, CoreCommand::LOAD_SCENE, Module::CORE));
-        }
+        if (this->showImGui(&this->_showWindowImGui))
+            this->sendMessage(Message(Packet(this->_scenes[this->_selectionImGui]), CoreCommand::LOAD_SCENE, Module::CORE));
+
     if (this->_showCameraImGui)
         this->_camera->showImGui(&this->_showCameraImGui);
+
     for (auto &[key, object] : this->_objects)
         if (object->isSelected()) {
             if (object->showImGui(key)) {
@@ -319,13 +300,18 @@ void Render::drawScene()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     this->_camera->use("Camera");
-    this->_camera->setShader(glfwGetTime());
+    this->_camera->setView(glfwGetTime());
+    this->_camera->setDirLight(glm::vec3(0.0f, -glm::sin(this->_dirLightAngle), glm::cos(this->_dirLightAngle)));
+    this->_camera->setPointLights(this->_pointLights);
+
     for (auto &[key, object] : this->_objects)
         if (!object->isSelected())
             object->draw(*this->_camera);
 
     this->_camera->use("Selection");
-    this->_camera->setShader(glfwGetTime());
+    this->_camera->setView(glfwGetTime());
+    this->_camera->setDirLight(glm::vec3(0.0f, -glm::sin(this->_dirLightAngle), glm::cos(this->_dirLightAngle)));
+    this->_camera->setPointLights(this->_pointLights);
     for (auto &[key, object] : this->_objects)
         if (object->isSelected())
             object->draw(*this->_camera);
@@ -337,7 +323,7 @@ void Render::drawPicking()
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     this->_camera->use("Picking");
-    this->_camera->setPicking();
+    this->_camera->setView(glfwGetTime());
     for (auto &[key, object] : this->_objects) {
         glm::vec4 temp;
         temp.r = (((key + 1) & 0x00FF0000) >> 16) / 255.0f;

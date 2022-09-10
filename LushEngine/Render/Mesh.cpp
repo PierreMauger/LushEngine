@@ -47,6 +47,7 @@ void Mesh::draw(Shader &shader)
     shader.setVec3("material.ambient", this->_material.ambient);
     shader.setVec3("material.diffuse", this->_material.diffuse);
     shader.setVec3("material.specular", this->_material.specular);
+    shader.setVec3("material.emission", this->_material.emission);
     shader.setFloat("material.shininess", this->_material.shininess);
 
     shader.setFloat("tex.shininess", 32.0f);

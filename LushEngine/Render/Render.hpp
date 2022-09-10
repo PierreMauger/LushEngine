@@ -50,6 +50,8 @@ namespace Lush
             bool _showWindowImGui;
             int _selectionImGui;
             std::vector<std::string> _scenes;
+            std::vector<glm::vec3> _pointLights;
+            float _dirLightAngle;
 
             std::map<std::string, unsigned int> _textures;
             std::map<std::string, std::shared_ptr<Model>> _models;

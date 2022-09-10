@@ -12,6 +12,7 @@ RenderObject::RenderObject(GameObject obj)
     this->_isHovered = false;
     this->_isSelected = false;
     this->_polygonMode = false;
+    this->_lightSource = false;
 }
 
 glm::vec3 RenderObject::getPosition() const
@@ -32,6 +33,11 @@ glm::vec3 RenderObject::getRotation() const
 bool RenderObject::isSelected() const
 {
     return this->_isSelected;
+}
+
+bool RenderObject::isLightSource() const
+{
+    return this->_lightSource;
 }
 
 void RenderObject::setPosition(glm::vec3 position)

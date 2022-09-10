@@ -5,6 +5,7 @@ struct Material {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+    vec3 emission;
     float shininess;
 };
 
@@ -49,7 +50,7 @@ struct PointLight {
     vec3 specular;
 };
 
-#define NR_POINT_LIGHTS 1
+#define NB_POINT_LIGHTS 1
 
 in vec3 Normal;
 in vec3 FragPos;
@@ -59,7 +60,8 @@ uniform vec3 viewPos;
 uniform Material material;
 uniform Texture tex;
 uniform DirLight dirLight;
-uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform PointLight pointLights[NB_POINT_LIGHTS];
+uniform int pointLightCount;
 uniform bool hasTexture = false;
 uniform float time;
 
@@ -100,7 +102,7 @@ void main()
     object.ambient = hasTexture ? vec3(0.0f) : material.ambient;
     object.diffuse = hasTexture ? texture(tex.diffuse, TexCoords).rgb : material.diffuse;
     object.specular = hasTexture ? texture(tex.specular, TexCoords).rgb : material.specular;
-    object.emission = hasTexture ? texture(tex.emission, TexCoords).rgb : vec3(0.0f);
+    object.emission = hasTexture ? texture(tex.emission, TexCoords).rgb : material.emission;
     object.shininess = hasTexture ? tex.shininess : material.shininess;
 
     vec3 norm = normalize(Normal);
@@ -108,7 +110,7 @@ void main()
 
     vec3 result = calcDirLight(object, dirLight, norm, viewDir);
 
-    for (int i = 0; i < NR_POINT_LIGHTS; i++)
+    for (int i = 0; i < pointLightCount && i < NB_POINT_LIGHTS; i++)
         result += calcPointLight(object, pointLights[i], norm, FragPos, viewDir);
 
     FragColor = vec4(result + object.emission, 1.0f);

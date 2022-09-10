@@ -18,6 +18,7 @@ namespace Lush
             bool _isHovered;
             bool _isSelected;
             bool _polygonMode;
+            bool _lightSource;
 
         public:
             RenderObject(GameObject obj);
@@ -27,6 +28,7 @@ namespace Lush
             glm::vec3 getScale() const;
             glm::vec3 getRotation() const;
             bool isSelected() const;
+            bool isLightSource() const;
 
             void setPosition(glm::vec3 position);
             void setScale(glm::vec3 scale);

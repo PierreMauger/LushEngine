@@ -48,8 +48,10 @@ namespace Lush
             std::shared_ptr<Shader> getShader();
             std::shared_ptr<Shader> getShader(std::string shaderName);
 
-            void setShader(float time);
-            void setPicking();
+            void update();
+            void setView(float time);
+            void setDirLight(glm::vec3 dir);
+            void setPointLights(std::vector<glm::vec3> pointLights);
             void setSkyBox();
             void setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
             void showImGui(bool *open);

@@ -24,11 +24,12 @@ bool StaticModel::showImGui(int id)
         ImGui::Text("Position: %.2f, %.2f, %.2f", this->_position.x, this->_position.y, this->_position.z);
         ImGui::Text("Scale: %.2f, %.2f, %.2f", this->_scale.x, this->_scale.y, this->_scale.z);
         ImGui::Text("Rotation: %.2f, %.2f, %.2f", this->_rotation.x, this->_rotation.y, this->_rotation.z);
-        ImGui::Text(" ");
+        ImGui::Separator();
         ImGui::Checkbox("Is Hovered", &this->_isHovered);
         ImGui::Checkbox("Is Selected", &this->_isSelected);
         ImGui::Checkbox("Polygon Mode", &this->_polygonMode);
-        ImGui::Text(" ");
+        ImGui::Checkbox("Light Source", &this->_lightSource);
+        ImGui::Separator();
         if (ImGui::SliderFloat("PosX", &this->_position.x, -5.0f, 5.0f))
             positionChanged = true;
         if (ImGui::SliderFloat("PosY", &this->_position.y, -5.0f, 5.0f))

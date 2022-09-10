@@ -51,8 +51,10 @@ void Camera::processKeyboard(Direction dir, float deltaTime)
         this->_position -= glm::normalize(glm::cross(this->_front, this->_up)) * speed;
     if (dir == RIGHT)
         this->_position += glm::normalize(glm::cross(this->_front, this->_up)) * speed;
-    // if (dir == UP)
-    // if (dir == DOWN)
+    if (dir == UP)
+        this->_position += this->_up * speed;
+    if (dir == DOWN)
+        this->_position -= this->_up * speed;
 }
 
 void Camera::use(std::string shaderName)
@@ -75,36 +77,40 @@ std::shared_ptr<Shader> Camera::getShader(std::string shaderName)
     return this->_shaders[shaderName];
 }
 
-void Camera::setShader(float time)
+void Camera::update()
 {
     this->_view = glm::lookAt(this->_position, this->_position + this->_front, this->_up);
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
+}
 
+void Camera::setView(float time)
+{
     this->_actShader->setVec3("viewPos", this->_position);
-    this->_actShader->setVec3("dirLight.direction", glm::vec3(0.0f, 0.0f, -1.0f));
-    this->_actShader->setVec3("dirLight.ambient", glm::vec3(1.0f));
-    this->_actShader->setVec3("dirLight.diffuse", glm::vec3(1.0f));
-    this->_actShader->setVec3("dirLight.specular", glm::vec3(1.0f));
-
-    this->_actShader->setVec3("pointLights[0].position", this->_position);
-    this->_actShader->setVec3("pointLights[0].ambient", glm::vec3(1.0f));
-    this->_actShader->setVec3("pointLights[0].diffuse", glm::vec3(1.0f));
-    this->_actShader->setVec3("pointLights[0].specular", glm::vec3(1.0f));
-    this->_actShader->setFloat("pointLights[0].constant", 1.0f);
-    this->_actShader->setFloat("pointLights[0].linear", 0.09f);
-    this->_actShader->setFloat("pointLights[0].quadratic", 0.032f);
-
     this->_actShader->setMat4("view", this->_view);
     this->_actShader->setMat4("projection", this->_projection);
     this->_actShader->setFloat("time", time);
 }
 
-void Camera::setPicking()
+void Camera::setDirLight(glm::vec3 direction)
 {
-    // assume setShader has been called, so _view and _projection are set
-    this->_actShader->setVec3("viewPos", this->_position);
-    this->_actShader->setMat4("view", this->_view);
-    this->_actShader->setMat4("projection", this->_projection);
+    this->_actShader->setVec3("dirLight.direction", direction);
+    this->_actShader->setVec3("dirLight.ambient", glm::vec3(1.0f));
+    this->_actShader->setVec3("dirLight.diffuse", glm::vec3(1.0f));
+    this->_actShader->setVec3("dirLight.specular", glm::vec3(1.0f));
+}
+
+void Camera::setPointLights(std::vector<glm::vec3> positions)
+{
+    this->_actShader->setInt("pointLightCount", positions.size());
+    for (int i = 0; i < static_cast<int>(positions.size()) && i < 4; i++) {
+        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].position", positions[i]);
+        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].ambient", glm::vec3(1.0f));
+        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].diffuse", glm::vec3(1.0f));
+        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].specular", glm::vec3(1.0f));
+        this->_actShader->setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
+        this->_actShader->setFloat("pointLights[" + std::to_string(i) + "].linear", 0.09f);
+        this->_actShader->setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.032f);
+    }
 }
 
 void Camera::setSkyBox()
@@ -134,7 +140,7 @@ void Camera::showImGui(bool *open)
         ImGui::SliderFloat("Near", &this->_near, 0.1f, 10.0f);
         ImGui::SliderFloat("Far", &this->_far, 0.1f, 100.0f);
         ImGui::SliderFloat("Sensitivity", &this->_sensitivity, 0.1f, 1.0f);
-        ImGui::Text(" ");
+        ImGui::Separator();
         ImGui::Text("Front: %.2f %.2f %.2f", this->_front.x, this->_front.y, this->_front.z);
         ImGui::SliderFloat("PosX", &this->_position.x, -20.0f, 20.0f);
         ImGui::SliderFloat("PosY", &this->_position.y, -20.0f, 20.0f);

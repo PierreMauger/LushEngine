@@ -4,10 +4,7 @@ using namespace Lush;
 
 Engine::Engine() : _messageBus(std::make_shared<MessageBus>())
 {
-}
-
-Engine::~Engine()
-{
+    this->_count = 0;
 }
 
 void Engine::run()

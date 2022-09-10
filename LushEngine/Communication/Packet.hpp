@@ -13,6 +13,12 @@ namespace Lush
         public:
             Packet() = default;
             Packet(const Packet &other) = default;
+
+            template <typename T> Packet(const T &data)
+            {
+                *this << data;
+            }
+
             ~Packet() = default;
 
             std::vector<std::byte> &getData();

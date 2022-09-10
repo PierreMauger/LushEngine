@@ -17,7 +17,6 @@ namespace Lush
             void addReceiver();
             void notify(Module module, std::vector<std::function<void(Packet)>> functionList);
             void sendMessage(Message message);
-            std::size_t getQueuesSize();
     };
 }
 

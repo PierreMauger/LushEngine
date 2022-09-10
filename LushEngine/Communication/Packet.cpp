@@ -19,8 +19,7 @@ void Packet::clear()
 
 void Packet::append(const void *data, std::size_t size)
 {
-    this->_data.insert(this->_data.end(), static_cast<const std::byte *>(data),
-                       static_cast<const std::byte *>(data) + size);
+    this->_data.insert(this->_data.end(), static_cast<const std::byte *>(data), static_cast<const std::byte *>(data) + size);
 }
 
 Packet &Packet::operator<<(const std::string &data)

@@ -1,4 +1,4 @@
 // Type     Name    Pos
-0 Red (0 0 0)
-0 Crate (2 0 0.5)
-0 Asteroid (0 -1 0)
+0 Fox (0 0 0)
+0 Asteroid (2 0 0)
+0 Light (1 5 2)

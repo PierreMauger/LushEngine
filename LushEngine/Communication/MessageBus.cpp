@@ -34,9 +34,3 @@ void MessageBus::sendMessage(Message message)
     else
         throw std::runtime_error("Sending to invalid target: " + std::to_string(static_cast<int>(message.getTarget())));
 }
-
-std::size_t MessageBus::getQueuesSize()
-{
-    std::unique_lock<std::mutex> lock(this->_copyLock);
-    return this->_queues.size();
-}
