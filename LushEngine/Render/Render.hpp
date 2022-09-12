@@ -2,11 +2,12 @@
 #define RENDER_HPP
 
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 #include "AnimatedModel.hpp"
 #include "Camera.hpp"
-#include "GLFW/glfw3.h"
 #include "Includes.hpp"
+#include "Map.hpp"
 #include "Node.hpp"
 #include "RenderObject.hpp"
 #include "StaticModel.hpp"
@@ -52,6 +53,7 @@ namespace Lush
             std::vector<std::string> _scenes;
             std::vector<glm::vec3> _pointLights;
             float _dirLightAngle;
+            std::unique_ptr<Map> _map;
 
             std::map<std::string, unsigned int> _textures;
             std::map<std::string, std::shared_ptr<Model>> _models;
@@ -83,6 +85,7 @@ namespace Lush
             bool showImGui(bool *open);
             void drawImGui();
             void drawScene();
+            void drawMap();
             void drawPicking();
             void drawOutline();
             void drawSkyBox();

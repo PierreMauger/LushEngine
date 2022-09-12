@@ -14,7 +14,7 @@ Camera::Camera(float width, float height, std::map<std::string, std::shared_ptr<
     this->_fov = 45.0f;
     this->_aspectRatio = width / height;
     this->_near = 0.1f;
-    this->_far = 100.0f;
+    this->_far = 10000.0f;
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
     this->_sensitivity = 0.2f;
 
@@ -41,7 +41,7 @@ void Camera::processMouseMovement(float xoffset, float yoffset)
 
 void Camera::processKeyboard(Direction dir, float deltaTime)
 {
-    float speed = deltaTime * 3.0f;
+    float speed = deltaTime * 15.0f;
 
     if (dir == FRONT)
         this->_position += this->_front * speed;

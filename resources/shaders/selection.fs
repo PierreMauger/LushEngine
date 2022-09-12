@@ -24,13 +24,6 @@ struct Base {
     float shininess;
 };
 
-struct Light {
-    vec3 position;
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-};
-
 struct DirLight {
     vec3 direction;
     vec3 ambient;

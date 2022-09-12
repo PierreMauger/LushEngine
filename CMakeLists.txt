@@ -65,6 +65,7 @@ set(SRC
     ${PROJECT_NAME}/Render/Render.cpp
     ${PROJECT_NAME}/Render/Camera.cpp
     ${PROJECT_NAME}/Render/Shader.cpp
+    ${PROJECT_NAME}/Render/Map.cpp
     ${PROJECT_NAME}/Render/RenderObject.cpp
     ${PROJECT_NAME}/Render/Mesh.cpp
     ${PROJECT_NAME}/Render/Bone.cpp

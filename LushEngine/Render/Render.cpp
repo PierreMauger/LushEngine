@@ -20,8 +20,8 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    this->_windowWidth = 800.0f;
-    this->_windowHeight = 600.0f;
+    this->_windowWidth = 1920.0f;
+    this->_windowHeight = 1080.0f;
     this->_window = glfwCreateWindow(this->_windowWidth, this->_windowHeight, "Lush Engine", nullptr, nullptr);
     this->_lastFrame = 0.0f;
     this->_deltaTime = 0.0f;
@@ -112,6 +112,13 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     ImGui_ImplOpenGL3_Init("#version 130");
 
     this->_hover = 0;
+
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("iceland_heightmap.png", &width, &height, &nrChannels, 0);
+    if (!data)
+        throw std::runtime_error("Failed to load texture");
+    this->_map = std::make_unique<Map>(data, width, height, nrChannels);
+    stbi_image_free(data);
 }
 
 Render::~Render()
@@ -128,14 +135,15 @@ Render::~Render()
 void Render::run()
 {
     while (this->_running) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));
         this->_messageBus->notify(Module::RENDER, this->_functionList);
         if (glfwWindowShouldClose(this->_window)) {
             this->_running = false; // because it can sometimes send the quit message twice
             this->sendMessage(Message(Packet(), BaseCommand::QUIT, Module::BROADCAST));
         }
-        if (!this->_launched)
+        if (!this->_launched) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(16));
             continue;
+        }
         this->handleTime();
         this->handleMouseMovement();
         this->handleMouseClick();
@@ -161,6 +169,7 @@ void Render::draw()
 {
     this->drawImGui();
     this->drawScene();
+    this->drawMap();
     this->drawSkyBox();
     this->drawPicking();
     this->drawOutline();
@@ -264,6 +273,8 @@ bool Render::showImGui(bool *open)
             }
             ImGui::EndTabBar();
         }
+        ImGui::Separator();
+        ImGui::Text("Frames: %.1f FPS", 1.0f / this->_deltaTime);
     }
     ImGui::End();
     return changed;
@@ -315,6 +326,17 @@ void Render::drawScene()
     for (auto &[key, object] : this->_objects)
         if (object->isSelected())
             object->draw(*this->_camera);
+}
+
+void Render::drawMap()
+{
+    this->_camera->use("Map");
+    this->_camera->setView(glfwGetTime());
+    this->_camera->getShader()->setMat4("model", glm::mat4(1.0f));
+    this->_camera->setDirLight(glm::vec3(0.0f, -glm::sin(this->_dirLightAngle), glm::cos(this->_dirLightAngle)));
+    // this->_camera->setPointLights(this->_pointLights);
+    if (this->_map != nullptr)
+        this->_map->draw(*this->_camera->getShader());
 }
 
 void Render::drawPicking()
