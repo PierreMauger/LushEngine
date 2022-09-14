@@ -15,8 +15,8 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
 
     if (!glfwInit())
         throw std::runtime_error("GLFW failed to initialize");
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
@@ -95,6 +95,9 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
 
+    GLint maxTessLevel;
+    glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);
+
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_MULTISAMPLE);
@@ -112,13 +115,7 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     ImGui_ImplOpenGL3_Init("#version 130");
 
     this->_hover = 0;
-
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("iceland_heightmap.png", &width, &height, &nrChannels, 0);
-    if (!data)
-        throw std::runtime_error("Failed to load texture");
-    this->_map = std::make_unique<Map>(data, width, height, nrChannels);
-    stbi_image_free(data);
+    this->_map = std::make_unique<Map>(2624, 1756);
 }
 
 Render::~Render()
@@ -333,8 +330,11 @@ void Render::drawMap()
     this->_camera->use("Map");
     this->_camera->setView(glfwGetTime());
     this->_camera->getShader()->setMat4("model", glm::mat4(1.0f));
-    this->_camera->setDirLight(glm::vec3(0.0f, -glm::sin(this->_dirLightAngle), glm::cos(this->_dirLightAngle)));
+    // this->_camera->setDirLight(glm::vec3(0.0f, -glm::sin(this->_dirLightAngle), glm::cos(this->_dirLightAngle)));
     // this->_camera->setPointLights(this->_pointLights);
+    // this->_camera->getShader()->setInt("heightMap", 0);
+    glBindTexture(GL_TEXTURE_2D, this->_textures["heightMap.png"]);
+
     if (this->_map != nullptr)
         this->_map->draw(*this->_camera->getShader());
 }
@@ -400,10 +400,13 @@ void Render::receiveLoadShaders(Packet packet)
     std::string name;
     std::string vertexCode;
     std::string fragmentCode;
+    std::string geometryCode;
+    std::string tessControlCode;
+    std::string tessEvalCode;
 
     while (!packet.empty()) {
-        packet >> name >> vertexCode >> fragmentCode;
-        this->_shaders[name] = std::make_shared<Shader>(vertexCode, fragmentCode);
+        packet >> name >> vertexCode >> fragmentCode >> geometryCode >> tessControlCode >> tessEvalCode;
+        this->_shaders[name] = std::make_shared<Shader>(vertexCode, fragmentCode, geometryCode, tessControlCode, tessEvalCode);
     }
     this->_camera = std::make_unique<Camera>(this->_windowWidth, this->_windowHeight, this->_shaders);
 }

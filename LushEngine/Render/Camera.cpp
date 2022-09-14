@@ -44,9 +44,9 @@ void Camera::processKeyboard(Direction dir, float deltaTime)
     float speed = deltaTime * 15.0f;
 
     if (dir == FRONT)
-        this->_position += this->_front * speed;
+        this->_position += this->_front * speed * 3.0f;
     if (dir == BACK)
-        this->_position -= this->_front * speed;
+        this->_position -= this->_front * speed * 3.0f;
     if (dir == LEFT)
         this->_position -= glm::normalize(glm::cross(this->_front, this->_up)) * speed;
     if (dir == RIGHT)

@@ -80,7 +80,7 @@ void Loader::sendShaders()
     std::vector<std::string> files = this->getFilesFromDir("resources/shaders/", false);
     std::string shaderConfig = this->searchInLoaderConfig("_Shader");
 
-    std::regex regex("\\s*(.+):\n*\\s*(.+\\.vs\\b)\n*\\s*(.+\\.fs\\b)");
+    std::regex regex("\\s*(.+):\n*\\s*(.+\\.vs\\b)\n*\\s*(.+\\.fs\\b)\n*\\s*(.+\\.gs\\b)?\n*\\s*(.+\\.tcs\\b)?\n*\\s*(.+\\.tes\\b)?");
     std::smatch match;
     while (std::regex_search(shaderConfig, match, regex)) {
         if (std::find(files.begin(), files.end(), match[2]) == files.end())
@@ -89,6 +89,8 @@ void Loader::sendShaders()
             throw std::runtime_error("Shader config fragment not found: " + match[3].str());
 
         packet << match[1].str() << this->loadFile("resources/shaders/" + match[2].str()) << this->loadFile("resources/shaders/" + match[3].str());
+        for (int i = 4; i < 7; i++)
+            packet << (match[i].length() > 0 ? this->loadFile("resources/shaders/" + match[i].str()) : "");
         shaderConfig = match.suffix().str();
     }
     this->sendMessage(Message(packet, RenderCommand::LOAD_SHADERS, Module::RENDER));

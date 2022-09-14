@@ -11,16 +11,13 @@ namespace Lush
         private:
             unsigned int _VAO;
             unsigned int _VBO;
-            unsigned int _EBO;
 
             int _width;
             int _height;
-            int _nrChannels;
-            int _numStrips;
-            int _numTrisPerStrip;
+            unsigned int _rez;
 
         public:
-            Map(unsigned char *map, int width, int height, int nrChannels);
+            Map(int width, int height);
             ~Map() = default;
             void draw(Shader &shader);
     };

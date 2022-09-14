@@ -17,6 +17,8 @@ _Shader:
   Map:
     map.vs
     map.fs
+    map.tcs
+    map.tes
 
 _Scene:
   Default:
