@@ -53,12 +53,10 @@ Map::Map(int width, int height)
     glPatchParameteri(GL_PATCH_VERTICES, 4);
 }
 
-void Map::draw([[maybe_unused]] Shader &shader)
+void Map::draw()
 {
     glBindVertexArray(this->_VAO);
-    glCullFace(GL_FRONT);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glDrawArrays(GL_PATCHES, 0, 4 * this->_rez * this->_rez);
+    glDrawArrays(GL_PATCHES, 0, this->_rez * this->_rez * 4);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glCullFace(GL_BACK);
 }

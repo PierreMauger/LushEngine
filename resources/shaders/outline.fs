@@ -1,7 +1,8 @@
 #version 330 core
-out vec4 FragColor;
 
 #define WIDTH 3
+
+out vec4 FragColor;
 
 in vec2 TexCoords;
 

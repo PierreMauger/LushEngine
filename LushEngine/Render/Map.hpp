@@ -19,7 +19,7 @@ namespace Lush
         public:
             Map(int width, int height);
             ~Map() = default;
-            void draw(Shader &shader);
+            void draw();
     };
 }
 

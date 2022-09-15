@@ -1,5 +1,4 @@
 #version 330 core
-out vec4 FragColor;
 
 struct Material {
     vec3 ambient;
@@ -44,6 +43,8 @@ struct PointLight {
 };
 
 #define NB_POINT_LIGHTS 4
+
+out vec4 FragColor;
 
 in vec3 Normal;
 in vec3 FragPos;

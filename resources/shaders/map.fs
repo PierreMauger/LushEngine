@@ -1,8 +1,8 @@
 #version 410 core
 
-in float Height;
-
 out vec4 FragColor;
+
+in float Height;
 
 void main()
 {

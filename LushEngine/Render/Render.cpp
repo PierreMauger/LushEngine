@@ -115,7 +115,7 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     ImGui_ImplOpenGL3_Init("#version 130");
 
     this->_hover = 0;
-    this->_map = std::make_unique<Map>(2624, 1756);
+    this->_map = std::make_unique<Map>(512, 512);
 }
 
 Render::~Render()
@@ -333,10 +333,10 @@ void Render::drawMap()
     // this->_camera->setDirLight(glm::vec3(0.0f, -glm::sin(this->_dirLightAngle), glm::cos(this->_dirLightAngle)));
     // this->_camera->setPointLights(this->_pointLights);
     // this->_camera->getShader()->setInt("heightMap", 0);
-    glBindTexture(GL_TEXTURE_2D, this->_textures["heightMap.png"]);
+    glBindTexture(GL_TEXTURE_2D, this->_textures["Asteroid.png"]);
 
-    if (this->_map != nullptr)
-        this->_map->draw(*this->_camera->getShader());
+    if (this->_map)
+        this->_map->draw();
 }
 
 void Render::drawPicking()

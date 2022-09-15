@@ -1,14 +1,15 @@
 #version 410 core
-layout (quads, fractional_odd_spacing, ccw) in;
+
+layout (quads, fractional_odd_spacing, cw) in;
+
+out float Height;
+
+in vec2 TextureCoord[];
 
 uniform sampler2D heightMap;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-
-in vec2 TextureCoord[];
-
-out float Height;
 
 void main()
 {
