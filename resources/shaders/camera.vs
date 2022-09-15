@@ -6,8 +6,8 @@ layout (location = 2) in vec2 aTexCoords;
 layout (location = 5) in ivec4 boneIds;
 layout (location = 6) in vec4 weights;
 
-#define MAX_BONES = 100;
-#define MAX_BONE_INFLUENCE = 4;
+#define MAX_BONES 100
+#define MAX_BONE_INFLUENCE 4
 
 out vec3 Normal;
 out vec3 FragPos;
