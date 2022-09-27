@@ -115,7 +115,7 @@ Render::Render(std::shared_ptr<MessageBus> messageBus) : Node(messageBus)
     ImGui_ImplOpenGL3_Init("#version 130");
 
     this->_hover = 0;
-    this->_map = std::make_unique<Map>(512, 512);
+    this->_map = std::make_unique<Map>(2624, 1756);
 }
 
 Render::~Render()
@@ -330,10 +330,19 @@ void Render::drawMap()
     this->_camera->use("Map");
     this->_camera->setView(glfwGetTime());
     this->_camera->getShader()->setMat4("model", glm::mat4(1.0f));
-    // this->_camera->setDirLight(glm::vec3(0.0f, -glm::sin(this->_dirLightAngle), glm::cos(this->_dirLightAngle)));
+    this->_camera->setDirLight(glm::vec3(0.0f, -glm::sin(this->_dirLightAngle), glm::cos(this->_dirLightAngle)));
     // this->_camera->setPointLights(this->_pointLights);
-    // this->_camera->getShader()->setInt("heightMap", 0);
-    glBindTexture(GL_TEXTURE_2D, this->_textures["Asteroid.png"]);
+
+    // bind texture on heihtmap
+    glActiveTexture(GL_TEXTURE0);
+    this->_camera->getShader()->setInt("heightMap", 0);
+    glBindTexture(GL_TEXTURE_2D, this->_textures["heightMap.png"]);
+
+    // bind texture on texturemap
+    glActiveTexture(GL_TEXTURE1);
+    this->_camera->getShader()->setInt("textureMap", 1);
+    this->_camera->getShader()->setVec2("TexCoord2", glm::vec2(636.0f, 500.0f));
+    glBindTexture(GL_TEXTURE_2D, this->_textures["Grass.jpg"]);
 
     if (this->_map)
         this->_map->draw();

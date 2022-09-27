@@ -14,7 +14,7 @@ Camera::Camera(float width, float height, std::map<std::string, std::shared_ptr<
     this->_fov = 45.0f;
     this->_aspectRatio = width / height;
     this->_near = 0.1f;
-    this->_far = 10000.0f;
+    this->_far = 1000.0f;
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
     this->_sensitivity = 0.2f;
 
@@ -138,7 +138,7 @@ void Camera::showImGui(bool *open)
         ImGui::SliderFloat("FOV", &this->_fov, 30.0f, 90.0f);
         ImGui::SliderFloat("Aspect Ratio", &this->_aspectRatio, 0.5f, 2.0f);
         ImGui::SliderFloat("Near", &this->_near, 0.1f, 10.0f);
-        ImGui::SliderFloat("Far", &this->_far, 0.1f, 100.0f);
+        ImGui::SliderFloat("Far", &this->_far, 0.1f, 1000.0f);
         ImGui::SliderFloat("Sensitivity", &this->_sensitivity, 0.1f, 1.0f);
         ImGui::Separator();
         ImGui::Text("Front: %.2f %.2f %.2f", this->_front.x, this->_front.y, this->_front.z);

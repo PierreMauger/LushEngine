@@ -34,9 +34,8 @@ void main()
 
         vec4 localPosition = finalBonesMatrices[boneIds[i]] * vec4(aPos, 1.0f);
         totalPosition += localPosition * weights[i];
-        vec3 localNormal = mat3(finalBonesMatrices[boneIds[i]]) * aNormal;
+        // vec3 localNormal = mat3(finalBonesMatrices[boneIds[i]]) * aNormal;
     }
-    mat4 viewModel = view * model;
 
     TexCoords = aTexCoords;
     FragPos = vec3(model * totalPosition);

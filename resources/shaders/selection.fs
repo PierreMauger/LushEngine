@@ -62,9 +62,9 @@ uniform float time;
 vec3 calcDirLight(Base object, DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
-    float diff = max(dot(normal, lightDir), 0.0);
+    float diff = max(dot(normal, lightDir), 0.0f);
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), object.shininess);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0f), object.shininess);
     vec3 ambient = light.ambient * object.ambient;
     vec3 diffuse = light.diffuse * (diff * object.diffuse);
     vec3 specular = light.specular * (spec * object.specular);
