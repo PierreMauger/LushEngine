@@ -1,49 +1,36 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
-#include "Audio.hpp"
-#include "Core.hpp"
+#include <GL/glew.h>
+
+#include "Component/ComponentManager.hpp"
+#include "Entity/EntityManager.hpp"
+#include "GLFW/glfw3.h"
 #include "Includes.hpp"
-#include "Input.hpp"
-#include "Loader.hpp"
-#include "MessageBus.hpp"
-#include "Node.hpp"
-#include "Render.hpp"
+#include "System/Control/ControlSystem.hpp"
+#include "System/GUI/GUISystem.hpp"
+#include "System/Render/RenderSystem.hpp"
+#include "System/SystemManager.hpp"
 
 namespace Lush
 {
     class Engine
     {
         private:
-            std::shared_ptr<MessageBus> _messageBus;
-            std::condition_variable _cv;
-            std::mutex _mutex;
-            int _count;
+            EntityManager _entityManager;
+            ComponentManager _componentManager;
+            SystemManager _systemManager;
+
+            std::shared_ptr<GLFWwindow> _window;
 
         public:
             Engine();
             ~Engine() = default;
 
+            void initWindow();
             void run();
-
-            template <typename T> void launchModule()
-            {
-                try {
-                    T node(this->_messageBus);
-
-                    if (this->_count == 4) {
-                        this->_cv.notify_all();
-                    } else {
-                        std::unique_lock<std::mutex> lock(this->_mutex);
-                        this->_count++;
-                        this->_cv.wait(lock);
-                    }
-                    node.run();
-                } catch (const std::exception &e) {
-                    this->_messageBus->sendMessage(Message(Packet(), BaseCommand::QUIT, Module::BROADCAST));
-                    std::cerr << "Thread aborted: " << e.what() << std::endl;
-                }
-            }
+            void clear();
+            void draw();
     };
 }
 

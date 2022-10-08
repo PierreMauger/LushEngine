@@ -1,21 +1,29 @@
-#init Cmake
-cmake_minimum_required(VERSION 3.16)
+################# CONFIG ##################
 
+#init Cmake
+cmake_minimum_required(VERSION 3.24)
 project(LushEngine LANGUAGES C CXX VERSION 1.0)
 
-#set standard flags
-set(CMAKE_CXX_STANDARD 17)
+#set flags
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "-std=c++17 -pedantic")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g")
+if(UNIX)
+    set(CMAKE_CXX_FLAGS "-std=c++20 -O3 -Wall -Wextra")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Werror")
+else()
+    set(CMAKE_CXX_FLAGS "/std:c++20 /Ox /Wall /EHsc")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} /DEBUG:FULL")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /WX")
+endif()
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/")
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+set(CMAKE_THREADS_LIBS_INIT Threads::Threads)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+set(DBUILD_SHARED_LIBS TRUE)
 
-#set thread flags
-set(CMAKE_THREAD_LIBS_INIT "-lpthread")
-set(CMAKE_HAVE_THREADS_LIBRARY ON)
-set(CMAKE_USE_WIN32F_THREADS_INIT OFF)
-set(CMAKE_USE_PTHREADS_INIT ON)
 set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 set(ASSIMP_BUILD_SAMPLES OFF)
@@ -25,25 +33,25 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
 set(ASSIMP_BUILD_COLLADA_IMPORTER ON)
 set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
 
-if(UNIX)
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
-else()
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /Ox")
-endif()
-
 #set binary/executable name
 set(EXEC_NAME lush)
 
 #fetch include paths
 set(INC
     ${PROJECT_NAME}/
-    ${PROJECT_NAME}/Communication/
-    ${PROJECT_NAME}/Audio/
-    ${PROJECT_NAME}/Core/
-    ${PROJECT_NAME}/Input/
-    ${PROJECT_NAME}/Loader/
-    ${PROJECT_NAME}/Render/
-    ${PROJECT_NAME}/Render/Objects/
+    ${PROJECT_NAME}/Entity/
+    ${PROJECT_NAME}/Component/
+    ${PROJECT_NAME}/System/
+    ${PROJECT_NAME}/System/Render/
+    ${PROJECT_NAME}/System/Control/
+    ${PROJECT_NAME}/System/GUI/
+    # ${PROJECT_NAME}/Communication/
+    # ${PROJECT_NAME}/Audio/
+    # ${PROJECT_NAME}/Core/
+    # ${PROJECT_NAME}/Input/
+    # ${PROJECT_NAME}/Loader/
+    # ${PROJECT_NAME}/Render/
+    # ${PROJECT_NAME}/Render/Objects/
     ${PROJECT_NAME}/IMGUI/
     ${PROJECT_NAME}/STB/
 )
@@ -51,26 +59,34 @@ set(INC
 #fetch source files
 set(SRC
     ${PROJECT_NAME}/Engine.cpp
-    ${PROJECT_NAME}/Communication/SafeQueue.cpp
-    ${PROJECT_NAME}/Communication/Packet.cpp
-    ${PROJECT_NAME}/Communication/Message.cpp
-    ${PROJECT_NAME}/Communication/Node.cpp
-    ${PROJECT_NAME}/Communication/MessageBus.cpp
-    ${PROJECT_NAME}/Audio/Audio.cpp
-    ${PROJECT_NAME}/Core/Core.cpp
-    ${PROJECT_NAME}/Core/Scene.cpp
-    ${PROJECT_NAME}/Core/GameObject.cpp
-    ${PROJECT_NAME}/Input/Input.cpp
-    ${PROJECT_NAME}/Loader/Loader.cpp
-    ${PROJECT_NAME}/Render/Render.cpp
-    ${PROJECT_NAME}/Render/Camera.cpp
-    ${PROJECT_NAME}/Render/Shader.cpp
-    ${PROJECT_NAME}/Render/RenderObject.cpp
-    ${PROJECT_NAME}/Render/Mesh.cpp
-    ${PROJECT_NAME}/Render/Bone.cpp
-    ${PROJECT_NAME}/Render/Model.cpp
-    ${PROJECT_NAME}/Render/Objects/AnimatedModel.cpp
-    ${PROJECT_NAME}/Render/Objects/StaticModel.cpp
+    ${PROJECT_NAME}/Entity/EntityManager.cpp
+    ${PROJECT_NAME}/Component/ComponentManager.cpp
+    ${PROJECT_NAME}/Component/Component.cpp
+    ${PROJECT_NAME}/System/SystemManager.cpp
+    ${PROJECT_NAME}/System/Render/RenderSystem.cpp
+    ${PROJECT_NAME}/System/Control/ControlSystem.cpp
+    ${PROJECT_NAME}/System/GUI/GUISystem.cpp
+
+    # ${PROJECT_NAME}/Communication/SafeQueue.cpp
+    # ${PROJECT_NAME}/Communication/Packet.cpp
+    # ${PROJECT_NAME}/Communication/Message.cpp
+    # ${PROJECT_NAME}/Communication/Node.cpp
+    # ${PROJECT_NAME}/Communication/MessageBus.cpp
+    # ${PROJECT_NAME}/Audio/Audio.cpp
+    # ${PROJECT_NAME}/Core/Core.cpp
+    # ${PROJECT_NAME}/Core/Scene.cpp
+    # ${PROJECT_NAME}/Core/GameObject.cpp
+    # ${PROJECT_NAME}/Input/Input.cpp
+    # ${PROJECT_NAME}/Loader/Loader.cpp
+    # ${PROJECT_NAME}/Render/Render.cpp
+    # ${PROJECT_NAME}/Render/Camera.cpp
+    # ${PROJECT_NAME}/Render/Shader.cpp
+    # ${PROJECT_NAME}/Render/RenderObject.cpp
+    # ${PROJECT_NAME}/Render/Mesh.cpp
+    # ${PROJECT_NAME}/Render/Bone.cpp
+    # ${PROJECT_NAME}/Render/Model.cpp
+    # ${PROJECT_NAME}/Render/Objects/AnimatedModel.cpp
+    # ${PROJECT_NAME}/Render/Objects/StaticModel.cpp
     ${PROJECT_NAME}/IMGUI/imgui_draw.cpp
     ${PROJECT_NAME}/IMGUI/imgui_tables.cpp
     ${PROJECT_NAME}/IMGUI/imgui_widgets.cpp
@@ -81,17 +97,9 @@ set(SRC
 )
 
 find_package(OpenGL REQUIRED)
-find_package(GLFW3 REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(ASSIMP REQUIRED)
-
-#set source files
-add_executable(${EXEC_NAME}
-    ${SRC}
-    ${PROJECT_NAME}/main.cpp
-)
-
-target_compile_options(${EXEC_NAME} PRIVATE  -Wall -Wextra -Werror -g)
+# LATER find_package(ASSIMP REQUIRED)
 
 #set include paths
 include_directories(${INC}
@@ -101,26 +109,21 @@ include_directories(${INC}
     ${ASSIMP_INCLUDE_DIRS}
 )
 
-target_link_libraries(${EXEC_NAME}
-    ${CMAKE_THREAD_LIBS_INIT}
-    ${CMAKE_THREAD_LIBS_REQUIRED}
-    ${OPENGL_LIBRARIES}
-    ${GLFW3_LIBRARIES}
-    glfw
-    ${GLEW_LIBRARIES}
-    glew
-    ${ASSIMP_LIBRARIES}
-    assimp
+#set source files
+add_executable(${EXEC_NAME}
+    ${SRC}
+    ${PROJECT_NAME}/main.cpp
 )
 
-if(WIN32)
-    add_custom_command(
-        TARGET ${EXEC_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${EXEC_NAME}.exe ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-else()
-    add_custom_command(
-        TARGET ${EXEC_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${EXEC_NAME} ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-endif()
+target_link_libraries(${EXEC_NAME} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${EXEC_NAME} PRIVATE ${OPENGL_LIBRARIES})
+target_link_libraries(${EXEC_NAME} PRIVATE glfw)
+target_link_libraries(${EXEC_NAME} PRIVATE ${GLEW_LIBRARY})
+# LATER target_link_libraries(${EXEC_NAME} PRIVATE assimp)
+set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
+set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
+
+#install target
+install(TARGETS ${EXEC_NAME})
+
+################## POST BUILD ##################
