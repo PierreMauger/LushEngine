@@ -8,6 +8,8 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#define FORMAT_NAME(name) name + std::strlen(name) / 10 + 1
+
 namespace Lush
 {
     class GUISystem : public ISystem

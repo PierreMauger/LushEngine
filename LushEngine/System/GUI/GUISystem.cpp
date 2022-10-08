@@ -40,9 +40,9 @@ void GUISystem::update(ComponentManager &componentManager, EntityManager &entity
 void GUISystem::drawEntityManager(ComponentManager &componentManager, EntityManager &entityManager)
 {
     std::size_t size = componentManager.getComponentArray().size();
-    ImGui::Begin("Entities", &this->_showEntityManager);
+    ImGui::Begin("Entities", &this->_showEntityManager, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
-    if (ImGui::BeginTable("Entities", 3)) {
+    if (ImGui::BeginTable("Entities", 3, ImGuiTableFlags_Resizable)) {
         ImGui::TableSetupColumn("ID");
         ImGui::TableSetupColumn("Mask");
         ImGui::TableSetupColumn("Actions");
@@ -84,17 +84,21 @@ void GUISystem::drawEntityManager(ComponentManager &componentManager, EntityMana
 
 void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityManager &entityManager)
 {
-    ImGui::Begin("Entity Details", &this->_showEntityDetails);
+    ImGui::Begin("Entity Details", &this->_showEntityDetails, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
     auto &masks = entityManager.getMasks();
 
     for (std::size_t i = 0; i < componentManager.getComponentArray().size(); i++) {
         if (masks[this->_selectedEntity].value() & (1 << i)) {
-            if (ImGui::CollapsingHeader(componentManager.getComponentType(i).name() + std::strlen(componentManager.getComponentType(i).name()) / 10 + 1)) {
+            if (ImGui::CollapsingHeader(FORMAT_NAME(componentManager.getComponentType(i).name()), ImGuiTreeNodeFlags_DefaultOpen)) {
                 // TODO: Add a way to draw and modify components
+                if (ImGui::Button(std::string("Remove##" + std::to_string(i)).c_str())) {
+                    entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() & ~(1 << i));
+                    componentManager.removeSingleComponent(this->_selectedEntity, componentManager.getComponentType(i));
+                }
             }
+            ImGui::Separator();
         }
     }
-
     const float footerReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerReserve), false, ImGuiWindowFlags_HorizontalScrollbar);
     ImGui::EndChild();
@@ -102,7 +106,7 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
     if (ImGui::CollapsingHeader("Add Component")) {
         for (std::size_t i = 0; i < componentManager.getComponentArray().size(); i++) {
             if (!(masks[this->_selectedEntity].value() & (1 << i))) {
-                if (ImGui::Selectable(componentManager.getComponentType(i).name() + std::strlen(componentManager.getComponentType(i).name()) / 10 + 1)) {
+                if (ImGui::Selectable(FORMAT_NAME(componentManager.getComponentType(i).name()))) {
                     entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() | (1 << i));
                     // TODO: fill component with default values
                 }
