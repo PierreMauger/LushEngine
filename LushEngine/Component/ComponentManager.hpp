@@ -26,10 +26,14 @@ namespace Lush
             {
                 this->_componentArray[std::type_index(typeid(T))] = Component();
                 this->_orderedMap.try_emplace(this->_orderedMap.size(), std::type_index(typeid(T)));
-                // this->_orderedMap[this->_componentArray.size() - 1] = std::type_index(typeid(T));
             }
 
-            void addComponent(std::size_t id);
+            template <typename T> void addComponent(std::size_t id)
+            {
+                this->_componentArray[std::type_index(typeid(T))].addValue(id, T());
+            }
+
+            void addEntity(std::size_t id);
             void removeSingleComponent(std::size_t id, std::type_index type);
             void removeAllComponents(std::size_t id);
             void updateComponent(std::size_t id);

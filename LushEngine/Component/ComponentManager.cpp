@@ -32,7 +32,7 @@ std::type_index ComponentManager::getComponentType(std::size_t index)
     return this->_orderedMap.at(index);
 }
 
-void ComponentManager::addComponent(std::size_t id)
+void ComponentManager::addEntity(std::size_t id)
 {
     for (auto &[type, component] : this->_componentArray)
         component.addValue(id, std::nullopt);
