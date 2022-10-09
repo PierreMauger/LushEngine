@@ -1,4 +1,4 @@
-#include "Component/ComponentManager.hpp"
+#include "ECS/Component/ComponentManager.hpp"
 
 using namespace Lush;
 

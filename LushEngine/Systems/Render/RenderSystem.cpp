@@ -1,4 +1,4 @@
-#include "System/Render/RenderSystem.hpp"
+#include "Systems/Render/RenderSystem.hpp"
 
 using namespace Lush;
 

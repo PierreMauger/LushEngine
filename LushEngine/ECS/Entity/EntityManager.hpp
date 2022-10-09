@@ -1,7 +1,7 @@
 #ifndef ENTITYMANAGER_HPP
 #define ENTITYMANAGER_HPP
 
-#include "Component/ComponentManager.hpp"
+#include "ECS/Component/ComponentManager.hpp"
 
 namespace Lush
 {

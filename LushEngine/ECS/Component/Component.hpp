@@ -1,7 +1,7 @@
 #ifndef COMPONENT_HPP
 #define COMPONENT_HPP
 
-#include "Component/ComponentTypes.hpp"
+#include "ECS/Component/ComponentTypes.hpp"
 #include "Includes.hpp"
 
 namespace Lush

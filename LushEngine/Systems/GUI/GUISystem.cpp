@@ -1,4 +1,4 @@
-#include "System/GUI/GUISystem.hpp"
+#include "Systems/GUI/GUISystem.hpp"
 
 using namespace Lush;
 

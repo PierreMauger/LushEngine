@@ -1,9 +1,9 @@
 #ifndef GUISYSTEM_HPP
 #define GUISYSTEM_HPP
 
+#include "ECS/System/ISystem.hpp"
 #include "GLFW/glfw3.h"
 #include "Includes.hpp"
-#include "System/ISystem.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"

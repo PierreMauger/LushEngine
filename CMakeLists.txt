@@ -1,4 +1,4 @@
-################# CONFIG ##################
+################## CONFIG ##################
 
 #init Cmake
 cmake_minimum_required(VERSION 3.24)
@@ -22,29 +22,53 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 set(CMAKE_THREADS_LIBS_INIT Threads::Threads)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-set(DBUILD_SHARED_LIBS TRUE)
+set(BUILD_SHARED_LIBS TRUE)
 
-set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
-set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
-set(ASSIMP_BUILD_SAMPLES OFF)
-set(ASSIMP_BUILD_TESTS OFF)
+# set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
+# set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+# set(ASSIMP_BUILD_SAMPLES OFF)
+# set(ASSIMP_BUILD_TESTS OFF)
 
-set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
-set(ASSIMP_BUILD_COLLADA_IMPORTER ON)
-set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
+# set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
+# set(ASSIMP_BUILD_COLLADA_IMPORTER ON)
+# set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
 
-#set binary/executable name
+################## BUILD ECS ##################
+
+set(ECS ECS)
+
+set(ECS_ROOT ${PROJECT_NAME}/ECS/)
+
+set(ECS_INC
+    ${ECS_ROOT}/
+    ${ECS_ROOT}/Component/
+    ${ECS_ROOT}/Entity/
+    ${ECS_ROOT}/System/
+)
+
+set(ECS_SRC
+    ${ECS_ROOT}/Component/Component.cpp
+    ${ECS_ROOT}/Component/ComponentManager.cpp
+    ${ECS_ROOT}/Entity/EntityManager.cpp
+    ${ECS_ROOT}/System/SystemManager.cpp
+)
+
+include_directories(${ECS_INC})
+
+add_library(${ECS} ${ECS_SRC})
+
+install(TARGETS ${ECS})
+
+################## BUILD GAME ##################
+
 set(EXEC_NAME lush)
 
-#fetch include paths
 set(INC
     ${PROJECT_NAME}/
-    ${PROJECT_NAME}/Entity/
-    ${PROJECT_NAME}/Component/
-    ${PROJECT_NAME}/System/
-    ${PROJECT_NAME}/System/Render/
-    ${PROJECT_NAME}/System/Control/
-    ${PROJECT_NAME}/System/GUI/
+    ${PROJECT_NAME}/Systems/Camera/
+    ${PROJECT_NAME}/Systems/Control/
+    ${PROJECT_NAME}/Systems/GUI/
+    ${PROJECT_NAME}/Systems/Render/
     # ${PROJECT_NAME}/Communication/
     # ${PROJECT_NAME}/Audio/
     # ${PROJECT_NAME}/Core/
@@ -56,16 +80,12 @@ set(INC
     ${PROJECT_NAME}/STB/
 )
 
-#fetch source files
 set(SRC
     ${PROJECT_NAME}/Engine.cpp
-    ${PROJECT_NAME}/Entity/EntityManager.cpp
-    ${PROJECT_NAME}/Component/ComponentManager.cpp
-    ${PROJECT_NAME}/Component/Component.cpp
-    ${PROJECT_NAME}/System/SystemManager.cpp
-    ${PROJECT_NAME}/System/Render/RenderSystem.cpp
-    ${PROJECT_NAME}/System/Control/ControlSystem.cpp
-    ${PROJECT_NAME}/System/GUI/GUISystem.cpp
+    ${PROJECT_NAME}/Systems/Camera/CameraSystem.cpp
+    ${PROJECT_NAME}/Systems/Control/ControlSystem.cpp
+    ${PROJECT_NAME}/Systems/GUI/GUISystem.cpp
+    ${PROJECT_NAME}/Systems/Render/RenderSystem.cpp
 
     # ${PROJECT_NAME}/Communication/SafeQueue.cpp
     # ${PROJECT_NAME}/Communication/Packet.cpp
@@ -119,6 +139,7 @@ target_link_libraries(${EXEC_NAME} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(${EXEC_NAME} PRIVATE ${OPENGL_LIBRARIES})
 target_link_libraries(${EXEC_NAME} PRIVATE glfw)
 target_link_libraries(${EXEC_NAME} PRIVATE ${GLEW_LIBRARY})
+target_link_libraries(${EXEC_NAME} PRIVATE ECS)
 # LATER target_link_libraries(${EXEC_NAME} PRIVATE assimp)
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})

@@ -3,14 +3,14 @@
 
 #include <GL/glew.h>
 
-#include "Component/ComponentManager.hpp"
-#include "Entity/EntityManager.hpp"
+#include "ECS/Component/ComponentManager.hpp"
+#include "ECS/Entity/EntityManager.hpp"
+#include "ECS/System/SystemManager.hpp"
 #include "GLFW/glfw3.h"
 #include "Includes.hpp"
-#include "System/Control/ControlSystem.hpp"
-#include "System/GUI/GUISystem.hpp"
-#include "System/Render/RenderSystem.hpp"
-#include "System/SystemManager.hpp"
+#include "Systems/Control/ControlSystem.hpp"
+#include "Systems/GUI/GUISystem.hpp"
+#include "Systems/Render/RenderSystem.hpp"
 
 namespace Lush
 {

@@ -1,8 +1,8 @@
 #ifndef COMPONENTMANAGER_HPP
 #define COMPONENTMANAGER_HPP
 
-#include "Component/Component.hpp"
-#include "Component/ComponentTypes.hpp"
+#include "ECS/Component/Component.hpp"
+#include "ECS/Component/ComponentTypes.hpp"
 #include "Includes.hpp"
 
 namespace Lush

@@ -1,4 +1,4 @@
-#include "System/Control/ControlSystem.hpp"
+#include "Systems/Control/ControlSystem.hpp"
 
 using namespace Lush;
 

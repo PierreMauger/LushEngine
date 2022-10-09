@@ -1,9 +1,9 @@
 #ifndef CONTROLSYSTEM_HPP
 #define CONTROLSYSTEM_HPP
 
+#include "ECS/System/ISystem.hpp"
 #include "GLFW/glfw3.h"
 #include "Includes.hpp"
-#include "System/ISystem.hpp"
 
 namespace Lush
 {

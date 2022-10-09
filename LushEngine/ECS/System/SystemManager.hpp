@@ -1,7 +1,7 @@
 #ifndef SYSTEMMANAGER_HPP
 #define SYSTEMMANAGER_HPP
 
-#include "System/ISystem.hpp"
+#include "ECS/System/ISystem.hpp"
 
 namespace Lush
 {

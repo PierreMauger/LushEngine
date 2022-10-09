@@ -1,4 +1,4 @@
-#include "Entity/EntityManager.hpp"
+#include "ECS/Entity/EntityManager.hpp"
 
 using namespace Lush;
 

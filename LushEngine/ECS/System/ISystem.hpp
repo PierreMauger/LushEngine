@@ -1,8 +1,8 @@
 #ifndef ISYSTEM_HPP
 #define ISYSTEM_HPP
 
-#include "Component/ComponentManager.hpp"
-#include "Entity/EntityManager.hpp"
+#include "ECS/Component/ComponentManager.hpp"
+#include "ECS/Entity/EntityManager.hpp"
 #include "Includes.hpp"
 
 namespace Lush
