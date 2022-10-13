@@ -26,23 +26,6 @@ void Camera::setShaders(std::map<std::string, std::shared_ptr<Shader>> &shaders)
     this->_shaders = shaders;
 }
 
-void Camera::processMouseMovement(float xoffset, float yoffset)
-{
-    this->_yaw += xoffset * this->_sensitivity;
-    this->_pitch += yoffset * this->_sensitivity;
-
-    if (this->_pitch > 89.0f)
-        this->_pitch = 89.0f;
-    if (this->_pitch < -89.0f)
-        this->_pitch = -89.0f;
-
-    glm::vec3 tempFront;
-    tempFront.x = cos(glm::radians(this->_yaw)) * cos(glm::radians(this->_pitch));
-    tempFront.y = sin(glm::radians(this->_pitch));
-    tempFront.z = sin(glm::radians(this->_yaw)) * cos(glm::radians(this->_pitch));
-    this->_front = glm::normalize(tempFront);
-}
-
 void Camera::use(std::string shaderName)
 {
     if (this->_shaders.find(shaderName) == this->_shaders.end())
@@ -63,8 +46,22 @@ std::shared_ptr<Shader> Camera::getShader(std::string shaderName)
     return this->_shaders[shaderName];
 }
 
-void Camera::update()
+void Camera::update(Transform transform, CameraComponent camera)
 {
+    this->_position = transform.position;
+
+    this->_yaw = transform.rotation.y;
+    this->_pitch = transform.rotation.x;
+
+    this->_front.x = cos(glm::radians(this->_yaw)) * cos(glm::radians(this->_pitch));
+    this->_front.y = sin(glm::radians(this->_pitch));
+    this->_front.z = sin(glm::radians(this->_yaw)) * cos(glm::radians(this->_pitch));
+
+    this->_fov = camera.fov;
+    this->_near = camera.near;
+    this->_far = camera.far;
+    this->_sensitivity = camera.sensitivity;
+
     this->_view = glm::lookAt(this->_position, this->_position + this->_front, this->_up);
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 }
@@ -105,7 +102,21 @@ void Camera::setSkyBox()
     this->_actShader->setMat4("projection", this->_projection);
 }
 
-void Camera::setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation)
+void Camera::setOnModel(Transform &transform)
+{
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), transform.position);
+    model = glm::scale(model, transform.scale);
+    model = glm::rotate(model, glm::radians(transform.rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(transform.rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(transform.rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    this->_actShader->setMat4("model", model);
+
+    for (std::size_t i = 0; i < 100; i++)
+        this->_actShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", glm::mat4(1.0f));
+    // TODO animator system ?
+}
+
+void Camera::setOnModel(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
 {
     glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
     model = glm::scale(model, scale);

@@ -6,6 +6,7 @@
 
 #include "Includes.hpp"
 #include "Systems/Render/Shader.hpp"
+#include "ComponentTypes.hpp"
 
 namespace Lush
 {
@@ -39,12 +40,13 @@ namespace Lush
             std::shared_ptr<Shader> getShader();
             std::shared_ptr<Shader> getShader(std::string shaderName);
 
-            void update();
+            void update(Transform transform, CameraComponent camera);
             void setView(float time);
             void setDirLight(glm::vec3 dir);
             void setPointLights(std::vector<glm::vec3> pointLights);
             void setSkyBox();
-            void setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
+            void setOnModel(Transform &transform);
+            void setOnModel(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
     };
 }
 

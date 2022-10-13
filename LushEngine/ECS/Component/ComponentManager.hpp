@@ -17,9 +17,12 @@ namespace Lush
             ~ComponentManager() = default;
 
             std::map<std::type_index, Component> &getComponentArray();
-            Component &getComponent(std::type_index type);
-            Component &getComponent(std::size_t index);
             std::type_index getComponentType(std::size_t index);
+
+            template <typename T> T &getComponent(std::size_t id)
+            {
+                return std::any_cast<T &>(this->_componentArray[typeid(T)].getValues(id).value());
+            }
 
             template <typename T> void bindComponent()
             {
@@ -30,11 +33,6 @@ namespace Lush
             template <typename T> void addComponent(std::size_t id)
             {
                 this->_componentArray[std::type_index(typeid(T))].addValue(id, T());
-            }
-
-            template <typename T> T &getSingleComponent(std::size_t id)
-            {
-                return std::any_cast<T &>(this->_componentArray[typeid(T)].getValues(id).value());
             }
 
             void addEntity(std::size_t id);

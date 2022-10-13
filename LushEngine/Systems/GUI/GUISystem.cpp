@@ -93,7 +93,7 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
             if (ImGui::CollapsingHeader(FORMAT_NAME(componentManager.getComponentType(i).name()), ImGuiTreeNodeFlags_DefaultOpen)) {
                 switch (i) {
                 case 0: {
-                    Transform &transform = std::any_cast<Transform &>(componentManager.getComponent(i).getValues(this->_selectedEntity).value());
+                    Transform &transform = componentManager.getComponent<Transform>(this->_selectedEntity);
                     ImGui::Text("Position:");
                     ImGui::DragFloat3("##pos", (float *)&transform.position, 0.1f, -FLT_MAX, +FLT_MAX);
                     ImGui::Text("Rotation:");
@@ -103,20 +103,20 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                     break;
                 }
                 case 1: {
-                    Velocity &velocity = std::any_cast<Velocity &>(componentManager.getComponent(i).getValues(this->_selectedEntity).value());
+                    Velocity &velocity = componentManager.getComponent<Velocity>(this->_selectedEntity);
                     ImGui::SliderFloat("X##vel", &velocity.x, -10, 10);
                     ImGui::SliderFloat("Y##vel", &velocity.y, -10, 10);
                     ImGui::SliderFloat("Z##vel", &velocity.z, -10, 10);
                     break;
                 }
                 case 2: {
-                    ModelID &modelID = std::any_cast<ModelID &>(componentManager.getComponent(i).getValues(this->_selectedEntity).value());
+                    ModelID &modelID = componentManager.getComponent<ModelID>(this->_selectedEntity);
                     const ImU64 increment = 1;
                     ImGui::InputScalar("Model ID", ImGuiDataType_U64, &modelID, &increment);
                     break;
                 }
                 case 3: {
-                    CameraComponent &camera = std::any_cast<CameraComponent &>(componentManager.getComponent(i).getValues(this->_selectedEntity).value());
+                    CameraComponent &camera = componentManager.getComponent<CameraComponent>(this->_selectedEntity);
                     ImGui::SliderFloat("FOV", &camera.fov, 0.0f, 180.0f);
                     ImGui::SliderFloat("Near", &camera.near, 0.0f, 100.0f);
                     ImGui::SliderFloat("Far", &camera.far, 0.0f, 1000.0f);
