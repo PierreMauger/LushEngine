@@ -5,20 +5,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Includes.hpp"
-#include "Shader.hpp"
-#include "imgui.h"
+#include "Systems/Render/Shader.hpp"
 
 namespace Lush
 {
-    enum Direction {
-        FRONT,
-        BACK,
-        LEFT,
-        RIGHT,
-        UP,
-        DOWN,
-    };
-
     class Camera
     {
         private:
@@ -38,11 +28,12 @@ namespace Lush
             std::shared_ptr<Shader> _actShader;
 
         public:
-            Camera(float width, float height, std::map<std::string, std::shared_ptr<Shader>> shaders);
+            Camera(float width, float height);
             ~Camera() = default;
 
+            void setShaders(std::map<std::string, std::shared_ptr<Shader>> &shaders);
+
             void processMouseMovement(float xoffset, float yoffset);
-            void processKeyboard(Direction dir, float deltaTime);
 
             void use(std::string shaderName);
             std::shared_ptr<Shader> getShader();
@@ -54,7 +45,6 @@ namespace Lush
             void setPointLights(std::vector<glm::vec3> pointLights);
             void setSkyBox();
             void setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
-            void showImGui(bool *open);
     };
 }
 

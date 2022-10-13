@@ -2,12 +2,12 @@
 #define ENGINE_HPP
 
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 #include "ComponentTypes.hpp"
 #include "ECS/Component/ComponentManager.hpp"
 #include "ECS/Entity/EntityManager.hpp"
 #include "ECS/System/SystemManager.hpp"
-#include "GLFW/glfw3.h"
 #include "Includes.hpp"
 #include "Systems/Control/ControlSystem.hpp"
 #include "Systems/GUI/GUISystem.hpp"

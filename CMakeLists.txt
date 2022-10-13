@@ -94,13 +94,6 @@ set(INC
     ${PROJECT_NAME}/Systems/Control/
     ${PROJECT_NAME}/Systems/GUI/
     ${PROJECT_NAME}/Systems/Render/
-    # ${PROJECT_NAME}/Communication/
-    # ${PROJECT_NAME}/Audio/
-    # ${PROJECT_NAME}/Core/
-    # ${PROJECT_NAME}/Input/
-    # ${PROJECT_NAME}/Loader/
-    # ${PROJECT_NAME}/Render/
-    # ${PROJECT_NAME}/Render/Objects/
     ${PROJECT_NAME}/IMGUI/
     ${PROJECT_NAME}/STB/
 )
@@ -111,27 +104,11 @@ set(SRC
     ${PROJECT_NAME}/Systems/Control/ControlSystem.cpp
     ${PROJECT_NAME}/Systems/GUI/GUISystem.cpp
     ${PROJECT_NAME}/Systems/Render/RenderSystem.cpp
+    ${PROJECT_NAME}/Systems/Render/Shader.cpp
+    ${PROJECT_NAME}/Systems/Render/Camera.cpp
+    ${PROJECT_NAME}/Systems/Render/Mesh.cpp
+    ${PROJECT_NAME}/Systems/Render/Model.cpp
 
-    # ${PROJECT_NAME}/Communication/SafeQueue.cpp
-    # ${PROJECT_NAME}/Communication/Packet.cpp
-    # ${PROJECT_NAME}/Communication/Message.cpp
-    # ${PROJECT_NAME}/Communication/Node.cpp
-    # ${PROJECT_NAME}/Communication/MessageBus.cpp
-    # ${PROJECT_NAME}/Audio/Audio.cpp
-    # ${PROJECT_NAME}/Core/Core.cpp
-    # ${PROJECT_NAME}/Core/Scene.cpp
-    # ${PROJECT_NAME}/Core/GameObject.cpp
-    # ${PROJECT_NAME}/Input/Input.cpp
-    # ${PROJECT_NAME}/Loader/Loader.cpp
-    # ${PROJECT_NAME}/Render/Render.cpp
-    # ${PROJECT_NAME}/Render/Camera.cpp
-    # ${PROJECT_NAME}/Render/Shader.cpp
-    # ${PROJECT_NAME}/Render/RenderObject.cpp
-    # ${PROJECT_NAME}/Render/Mesh.cpp
-    # ${PROJECT_NAME}/Render/Bone.cpp
-    # ${PROJECT_NAME}/Render/Model.cpp
-    # ${PROJECT_NAME}/Render/Objects/AnimatedModel.cpp
-    # ${PROJECT_NAME}/Render/Objects/StaticModel.cpp
     ${PROJECT_NAME}/STB/stb.cpp
 )
 
@@ -161,7 +138,7 @@ target_link_libraries(${EXEC_NAME} PRIVATE
     ${IMGUI}
 )
 
-# LATER target_link_libraries(${EXEC_NAME} PRIVATE assimp)
+target_link_libraries(${EXEC_NAME} PRIVATE assimp)
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
 

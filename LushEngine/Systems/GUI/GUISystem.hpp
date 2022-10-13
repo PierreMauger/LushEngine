@@ -3,7 +3,7 @@
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 #include "Includes.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"

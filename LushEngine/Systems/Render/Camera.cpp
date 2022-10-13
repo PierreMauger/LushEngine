@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-Camera::Camera(float width, float height, std::map<std::string, std::shared_ptr<Shader>> shaders)
+Camera::Camera(float width, float height)
 {
     this->_view = glm::mat4(1.0f);
     this->_projection = glm::mat4(1.0f);
@@ -18,8 +18,12 @@ Camera::Camera(float width, float height, std::map<std::string, std::shared_ptr<
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
     this->_sensitivity = 0.2f;
 
-    this->_shaders = shaders;
     this->_actShader = nullptr;
+}
+
+void Camera::setShaders(std::map<std::string, std::shared_ptr<Shader>> &shaders)
+{
+    this->_shaders = shaders;
 }
 
 void Camera::processMouseMovement(float xoffset, float yoffset)
@@ -37,24 +41,6 @@ void Camera::processMouseMovement(float xoffset, float yoffset)
     tempFront.y = sin(glm::radians(this->_pitch));
     tempFront.z = sin(glm::radians(this->_yaw)) * cos(glm::radians(this->_pitch));
     this->_front = glm::normalize(tempFront);
-}
-
-void Camera::processKeyboard(Direction dir, float deltaTime)
-{
-    float speed = deltaTime * 3.0f;
-
-    if (dir == FRONT)
-        this->_position += this->_front * speed;
-    if (dir == BACK)
-        this->_position -= this->_front * speed;
-    if (dir == LEFT)
-        this->_position -= glm::normalize(glm::cross(this->_front, this->_up)) * speed;
-    if (dir == RIGHT)
-        this->_position += glm::normalize(glm::cross(this->_front, this->_up)) * speed;
-    if (dir == UP)
-        this->_position += this->_up * speed;
-    if (dir == DOWN)
-        this->_position -= this->_up * speed;
 }
 
 void Camera::use(std::string shaderName)
@@ -130,21 +116,4 @@ void Camera::setOnModel(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation)
 
     for (std::size_t i = 0; i < 100; i++)
         this->_actShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", glm::mat4(1.0f));
-}
-
-void Camera::showImGui(bool *open)
-{
-    if (ImGui::Begin("Camera", open)) {
-        ImGui::SliderFloat("FOV", &this->_fov, 30.0f, 90.0f);
-        ImGui::SliderFloat("Aspect Ratio", &this->_aspectRatio, 0.5f, 2.0f);
-        ImGui::SliderFloat("Near", &this->_near, 0.1f, 10.0f);
-        ImGui::SliderFloat("Far", &this->_far, 0.1f, 100.0f);
-        ImGui::SliderFloat("Sensitivity", &this->_sensitivity, 0.1f, 1.0f);
-        ImGui::Separator();
-        ImGui::Text("Front: %.2f %.2f %.2f", this->_front.x, this->_front.y, this->_front.z);
-        ImGui::SliderFloat("PosX", &this->_position.x, -20.0f, 20.0f);
-        ImGui::SliderFloat("PosY", &this->_position.y, -20.0f, 20.0f);
-        ImGui::SliderFloat("PosZ", &this->_position.z, -20.0f, 20.0f);
-    }
-    ImGui::End();
 }

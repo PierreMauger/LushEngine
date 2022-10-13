@@ -115,6 +115,14 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                     ImGui::InputScalar("Model ID", ImGuiDataType_U64, &modelID, &increment);
                     break;
                 }
+                case 3: {
+                    CameraComponent &camera = std::any_cast<CameraComponent &>(componentManager.getComponent(i).getValues(this->_selectedEntity).value());
+                    ImGui::SliderFloat("FOV", &camera.fov, 0.0f, 180.0f);
+                    ImGui::SliderFloat("Near", &camera.near, 0.0f, 100.0f);
+                    ImGui::SliderFloat("Far", &camera.far, 0.0f, 1000.0f);
+                    ImGui::SliderFloat("Sensitivity", &camera.sensitivity, 0.0f, 1.0f);
+                    break;
+                }
                 default:
                     break;
                 }
@@ -145,6 +153,9 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                         break;
                     case 2:
                         componentManager.addComponent<ModelID>(this->_selectedEntity);
+                        break;
+                    case 3:
+                        componentManager.addComponent<CameraComponent>(this->_selectedEntity);
                         break;
                     default:
                         break;

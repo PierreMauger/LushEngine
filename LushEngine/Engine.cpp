@@ -17,6 +17,7 @@ Engine::Engine()
     this->_componentManager.bindComponent<Transform>();
     this->_componentManager.bindComponent<Velocity>();
     this->_componentManager.bindComponent<ModelID>();
+    this->_componentManager.bindComponent<CameraComponent>();
 }
 
 void Engine::initWindow()
@@ -33,7 +34,15 @@ void Engine::initWindow()
     if (glewInit() != GLEW_OK)
         throw std::runtime_error("Failed to initialize GLEW");
 
-    // glfwSwapInterval(1); // Enable vsync
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glEnable(GL_MULTISAMPLE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    glfwSwapInterval(1); // Enable vsync
 }
 
 void Engine::run()
