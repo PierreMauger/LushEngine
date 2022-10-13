@@ -3,6 +3,7 @@
 
 #include <GL/glew.h>
 
+#include "ComponentTypes.hpp"
 #include "ECS/Component/ComponentManager.hpp"
 #include "ECS/Entity/EntityManager.hpp"
 #include "ECS/System/SystemManager.hpp"

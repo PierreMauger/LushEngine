@@ -59,6 +59,31 @@ add_library(${ECS} ${ECS_SRC})
 
 install(TARGETS ${ECS})
 
+################## BUILD IMGUI ##################
+
+set(IMGUI IMGUI)
+
+set(IMGUI_ROOT ${PROJECT_NAME}/IMGUI/)
+
+set(IMGUI_INC
+    ${IMGUI_ROOT}/
+)
+
+set(IMGUI_SRC
+    ${IMGUI_ROOT}/imgui_draw.cpp
+    ${IMGUI_ROOT}/imgui_tables.cpp
+    ${IMGUI_ROOT}/imgui_widgets.cpp
+    ${IMGUI_ROOT}/imgui.cpp
+    ${IMGUI_ROOT}/imgui_impl_glfw.cpp
+    ${IMGUI_ROOT}/imgui_impl_opengl3.cpp
+)
+
+include_directories(${IMGUI_INC})
+
+add_library(${IMGUI} ${IMGUI_SRC})
+
+install(TARGETS ${IMGUI})
+
 ################## BUILD GAME ##################
 
 set(EXEC_NAME lush)
@@ -107,12 +132,6 @@ set(SRC
     # ${PROJECT_NAME}/Render/Model.cpp
     # ${PROJECT_NAME}/Render/Objects/AnimatedModel.cpp
     # ${PROJECT_NAME}/Render/Objects/StaticModel.cpp
-    ${PROJECT_NAME}/IMGUI/imgui_draw.cpp
-    ${PROJECT_NAME}/IMGUI/imgui_tables.cpp
-    ${PROJECT_NAME}/IMGUI/imgui_widgets.cpp
-    ${PROJECT_NAME}/IMGUI/imgui.cpp
-    ${PROJECT_NAME}/IMGUI/imgui_impl_glfw.cpp
-    ${PROJECT_NAME}/IMGUI/imgui_impl_opengl3.cpp
     ${PROJECT_NAME}/STB/stb.cpp
 )
 
@@ -121,7 +140,6 @@ find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 # LATER find_package(ASSIMP REQUIRED)
 
-#set include paths
 include_directories(${INC}
     ${OpenGL_INCLUDE_DIRS}
     ${GLFW3_INCLUDE_DIRS}
@@ -129,17 +147,20 @@ include_directories(${INC}
     ${ASSIMP_INCLUDE_DIRS}
 )
 
-#set source files
 add_executable(${EXEC_NAME}
     ${SRC}
     ${PROJECT_NAME}/main.cpp
 )
 
-target_link_libraries(${EXEC_NAME} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(${EXEC_NAME} PRIVATE ${OPENGL_LIBRARIES})
-target_link_libraries(${EXEC_NAME} PRIVATE glfw)
-target_link_libraries(${EXEC_NAME} PRIVATE ${GLEW_LIBRARY})
-target_link_libraries(${EXEC_NAME} PRIVATE ECS)
+target_link_libraries(${EXEC_NAME} PRIVATE
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${OPENGL_LIBRARIES}
+    glfw
+    ${GLEW_LIBRARY}
+    ${ECS}
+    ${IMGUI}
+)
+
 # LATER target_link_libraries(${EXEC_NAME} PRIVATE assimp)
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})

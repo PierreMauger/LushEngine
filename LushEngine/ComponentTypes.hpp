@@ -3,13 +3,13 @@
 
 #include "Includes.hpp"
 
-typedef struct Position {
-    float x;
-    float y;
-    float z;
+typedef struct Transform {
+    glm::vec3 position;
+    glm::vec3 rotation;
+    glm::vec3 scale;
 
-    Position() : x(10), y(0), z(0) {}
-} Position;
+    Transform() : position(0.0f), rotation(0.0f), scale(1.0f) {}
+} Transform;
 
 typedef struct Velocity {
     float x;

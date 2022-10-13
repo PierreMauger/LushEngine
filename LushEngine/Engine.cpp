@@ -14,7 +14,7 @@ Engine::Engine()
     this->_systemManager.bindSystem(std::make_shared<GUISystem>(this->_window));
     this->_systemManager.bindSystem(std::make_shared<ControlSystem>(this->_window));
 
-    this->_componentManager.bindComponent<Position>();
+    this->_componentManager.bindComponent<Transform>();
     this->_componentManager.bindComponent<Velocity>();
     this->_componentManager.bindComponent<ModelID>();
 }

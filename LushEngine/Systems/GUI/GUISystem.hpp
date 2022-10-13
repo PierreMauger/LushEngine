@@ -1,6 +1,7 @@
 #ifndef GUISYSTEM_HPP
 #define GUISYSTEM_HPP
 
+#include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
 #include "GLFW/glfw3.h"
 #include "Includes.hpp"
@@ -8,7 +9,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#define FORMAT_NAME(name) name + std::strlen(name) / 10 + 1
+#define FORMAT_NAME(name) name + std::to_string(std::stoi(name)).length()
 
 namespace Lush
 {
@@ -20,16 +21,15 @@ namespace Lush
             bool _showEntityDetails = false;
             std::size_t _selectedEntity = 0;
 
+            void drawEntityManager(ComponentManager &componentManager, EntityManager &entityManager);
+            void drawEntityDetails(ComponentManager &componentManager, EntityManager &entityManager);
+            std::string formatBool(std::size_t value, std::size_t size);
+
         public:
             GUISystem(std::shared_ptr<GLFWwindow> window);
             ~GUISystem();
 
             void update(ComponentManager &componentManager, EntityManager &entityManager);
-
-            void drawEntityManager(ComponentManager &componentManager, EntityManager &entityManager);
-            void drawEntityDetails(ComponentManager &componentManager, EntityManager &entityManager);
-
-            std::string formatBool(std::size_t value, std::size_t size);
     };
 }
 

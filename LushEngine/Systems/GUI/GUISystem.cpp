@@ -40,7 +40,7 @@ void GUISystem::update(ComponentManager &componentManager, EntityManager &entity
 void GUISystem::drawEntityManager(ComponentManager &componentManager, EntityManager &entityManager)
 {
     std::size_t size = componentManager.getComponentArray().size();
-    ImGui::Begin("Entities", &this->_showEntityManager, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+    ImGui::Begin("Entities", &this->_showEntityManager);
 
     if (ImGui::BeginTable("Entities", 3, ImGuiTableFlags_Resizable)) {
         ImGui::TableSetupColumn("ID");
@@ -84,7 +84,7 @@ void GUISystem::drawEntityManager(ComponentManager &componentManager, EntityMana
 
 void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityManager &entityManager)
 {
-    ImGui::Begin("Entity Details", &this->_showEntityDetails, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+    ImGui::Begin("Entity Details", &this->_showEntityDetails);
     auto &masks = entityManager.getMasks();
 
     ImGui::Text("ID: %lu", this->_selectedEntity);
@@ -93,10 +93,13 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
             if (ImGui::CollapsingHeader(FORMAT_NAME(componentManager.getComponentType(i).name()), ImGuiTreeNodeFlags_DefaultOpen)) {
                 switch (i) {
                 case 0: {
-                    Position &position = std::any_cast<Position &>(componentManager.getComponent(i).getValues(this->_selectedEntity).value());
-                    ImGui::SliderFloat("X##pos", &position.x, -10, 10);
-                    ImGui::SliderFloat("Y##pos", &position.y, -10, 10);
-                    ImGui::SliderFloat("Z##pos", &position.z, -10, 10);
+                    Transform &transform = std::any_cast<Transform &>(componentManager.getComponent(i).getValues(this->_selectedEntity).value());
+                    ImGui::Text("Position:");
+                    ImGui::DragFloat3("##pos", (float *)&transform.position, 0.1f, -FLT_MAX, +FLT_MAX);
+                    ImGui::Text("Rotation:");
+                    ImGui::DragFloat3("##rot", (float *)&transform.rotation, 1.0f, -FLT_MAX, +FLT_MAX);
+                    ImGui::Text("Scale:");
+                    ImGui::SliderFloat3("##scale", (float *)&transform.scale, 0.0f, 5.0f);
                     break;
                 }
                 case 1: {
@@ -104,6 +107,12 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                     ImGui::SliderFloat("X##vel", &velocity.x, -10, 10);
                     ImGui::SliderFloat("Y##vel", &velocity.y, -10, 10);
                     ImGui::SliderFloat("Z##vel", &velocity.z, -10, 10);
+                    break;
+                }
+                case 2: {
+                    ModelID &modelID = std::any_cast<ModelID &>(componentManager.getComponent(i).getValues(this->_selectedEntity).value());
+                    const ImU64 increment = 1;
+                    ImGui::InputScalar("Model ID", ImGuiDataType_U64, &modelID, &increment);
                     break;
                 }
                 default:
@@ -129,7 +138,7 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                     entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() | (1 << i));
                     switch (i) {
                     case 0:
-                        componentManager.addComponent<Position>(this->_selectedEntity);
+                        componentManager.addComponent<Transform>(this->_selectedEntity);
                         break;
                     case 1:
                         componentManager.addComponent<Velocity>(this->_selectedEntity);

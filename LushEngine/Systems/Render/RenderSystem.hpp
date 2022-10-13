@@ -1,6 +1,7 @@
 #ifndef RENDERSYSTEM_HPP
 #define RENDERSYSTEM_HPP
 
+#include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
 #include "GLFW/glfw3.h"
 #include "Includes.hpp"
