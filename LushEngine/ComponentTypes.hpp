@@ -8,6 +8,7 @@ enum InfoComp {
     VELOCITY = 0b10,
     MODELID = 0b100,
     CAMERA = 0b1000,
+    LIGHT = 0b10000,
 };
 
 typedef struct Transform {
@@ -40,5 +41,15 @@ typedef struct CameraComponent {
 
     CameraComponent() : fov(45.0f), near(0.1f), far(100.0f), sensitivity(1.0f) {}
 } CameraComponent;
+
+typedef struct Light {
+    int mod;
+    float intensity;
+    glm::vec3 color;
+    glm::vec3 direction;
+    float cutOff;
+
+    Light() : mod(0), intensity(1.0f), color(1.0f), direction(0.0f), cutOff(0.0f) {}
+} Light;
 
 #endif // COMPONENTTYPES_HPP

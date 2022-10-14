@@ -18,6 +18,7 @@ Engine::Engine()
     this->_componentManager.bindComponent<Velocity>();
     this->_componentManager.bindComponent<ModelID>();
     this->_componentManager.bindComponent<CameraComponent>();
+    this->_componentManager.bindComponent<Light>();
 }
 
 void Engine::initWindow()

@@ -112,7 +112,7 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                 case 2: {
                     ModelID &modelID = componentManager.getComponent<ModelID>(this->_selectedEntity);
                     const ImU64 increment = 1;
-                    ImGui::InputScalar("Model ID", ImGuiDataType_U64, &modelID, &increment);
+                    ImGui::InputScalar("Model ID", ImGuiDataType_U64, &modelID.id, &increment);
                     break;
                 }
                 case 3: {
@@ -121,6 +121,15 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                     ImGui::SliderFloat("Near", &camera.near, 0.0f, 100.0f);
                     ImGui::SliderFloat("Far", &camera.far, 0.0f, 1000.0f);
                     ImGui::SliderFloat("Sensitivity", &camera.sensitivity, 0.0f, 1.0f);
+                    break;
+                }
+                case 4: {
+                    Light &light = componentManager.getComponent<Light>(this->_selectedEntity);
+                    ImGui::InputInt("Mod", &light.mod);
+                    ImGui::SliderFloat("Intensity", &light.intensity, 0.0f, 1.0f);
+                    ImGui::ColorEdit3("Color", (float *)&light.color);
+                    ImGui::DragFloat3("Direction##dir", (float *)&light.direction, 0.5f, -FLT_MAX, +FLT_MAX);
+                    ImGui::SliderFloat("Cut Off", &light.cutOff, 0.0f, 90.0f);
                     break;
                 }
                 default:
@@ -156,6 +165,9 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                         break;
                     case 3:
                         componentManager.addComponent<CameraComponent>(this->_selectedEntity);
+                        break;
+                    case 4:
+                        componentManager.addComponent<Light>(this->_selectedEntity);
                         break;
                     default:
                         break;
