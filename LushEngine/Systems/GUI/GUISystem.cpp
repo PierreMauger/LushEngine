@@ -117,7 +117,7 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                 }
                 case 3: {
                     CameraComponent &camera = componentManager.getComponent<CameraComponent>(this->_selectedEntity);
-                    ImGui::SliderFloat("FOV", &camera.fov, 0.0f, 180.0f);
+                    ImGui::SliderFloat("FOV", &camera.fov, 30.0f, 90.0f);
                     ImGui::SliderFloat("Near", &camera.near, 0.0f, 100.0f);
                     ImGui::SliderFloat("Far", &camera.far, 0.0f, 1000.0f);
                     ImGui::SliderFloat("Sensitivity", &camera.sensitivity, 0.0f, 1.0f);
@@ -128,7 +128,6 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                     ImGui::InputInt("Mod", &light.mod);
                     ImGui::SliderFloat("Intensity", &light.intensity, 0.0f, 1.0f);
                     ImGui::ColorEdit3("Color", (float *)&light.color);
-                    ImGui::DragFloat3("Direction##dir", (float *)&light.direction, 0.5f, -FLT_MAX, +FLT_MAX);
                     ImGui::SliderFloat("Cut Off", &light.cutOff, 0.0f, 90.0f);
                     break;
                 }

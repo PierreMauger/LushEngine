@@ -42,8 +42,8 @@ namespace Lush
 
             void update(Transform transform, CameraComponent camera);
             void setView(float time);
-            void setDirLight(glm::vec3 dir);
-            void setPointLights(std::vector<glm::vec3> pointLights);
+            void setDirLight(std::pair<Transform, Light> dirLight);
+            void setPointLights(std::vector<std::pair<Transform, Light>> pointLights);
             void setSkyBox();
             void setOnModel(Transform &transform);
             void setOnModel(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);

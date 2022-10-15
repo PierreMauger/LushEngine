@@ -46,10 +46,9 @@ typedef struct Light {
     int mod;
     float intensity;
     glm::vec3 color;
-    glm::vec3 direction;
     float cutOff;
 
-    Light() : mod(0), intensity(1.0f), color(1.0f), direction(0.0f), cutOff(0.0f) {}
+    Light() : mod(0), intensity(1.0f), color(1.0f), cutOff(0.0f) {}
 } Light;
 
 #endif // COMPONENTTYPES_HPP

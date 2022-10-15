@@ -39,6 +39,21 @@ void RenderSystem::update(ComponentManager &componentManager, EntityManager &ent
     auto &masks = entityManager.getMasks();
     std::size_t cam = (InfoComp::TRANSFORM | InfoComp::CAMERA);
     std::size_t renderable = (InfoComp::TRANSFORM | InfoComp::MODELID);
+    std::size_t light = (InfoComp::TRANSFORM | InfoComp::LIGHT);
+
+    for (std::size_t i = 0; i < masks.size(); i++) {
+        if (masks[i].has_value() && (masks[i].value() & light) == light) {
+            Transform transform = componentManager.getComponent<Transform>(i);
+            Light light = componentManager.getComponent<Light>(i);
+
+            if (light.mod == 0)
+                this->_dirLights.push_back({transform, light});
+            else if (light.mod == 1)
+                this->_pointLights.push_back({transform, light});
+            else if (light.mod == 2)
+                this->_spotLights.push_back({transform, light});
+        }
+    }
 
     this->_camera.use("Camera");
     for (std::size_t i = 0; i < masks.size(); i++) {
@@ -48,11 +63,15 @@ void RenderSystem::update(ComponentManager &componentManager, EntityManager &ent
 
             this->_camera.update(transform, camera);
             this->_camera.setView(glfwGetTime());
-            this->_camera.setDirLight(glm::vec3(45.0f, 90.0f, 0.0f));
-            this->_camera.setPointLights(std::vector<glm::vec3>());
-            continue;
+
+            if (this->_dirLights.size() > 0)
+                this->_camera.setDirLight(this->_dirLights[0]);
+            this->_camera.setPointLights(this->_pointLights);
         }
     }
+    this->_dirLights.clear();
+    this->_pointLights.clear();
+    this->_spotLights.clear();
 
     for (std::size_t i = 0; i < masks.size(); i++) {
         if (masks[i].has_value() && (masks[i].value() & renderable) == renderable) {

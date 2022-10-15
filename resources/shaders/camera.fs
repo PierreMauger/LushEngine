@@ -24,13 +24,6 @@ struct Base {
     float shininess;
 };
 
-struct Light {
-    vec3 position;
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-};
-
 struct DirLight {
     vec3 direction;
     vec3 ambient;
@@ -68,24 +61,29 @@ uniform float time;
 vec3 calcDirLight(Base object, DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
-    float diff = max(dot(normal, lightDir), 0.0);
+    // diffuse shading
+    float diff = max(dot(normal, lightDir), 0.0f);
+    // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), object.shininess);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0f), object.shininess);
+    // combine results
     vec3 ambient = light.ambient * object.ambient;
-    vec3 diffuse = light.diffuse * (diff * object.diffuse);
-    vec3 specular = light.specular * (spec * object.specular);
+    vec3 diffuse = light.diffuse * diff * object.diffuse;
+    vec3 specular = light.specular * spec * object.specular;
     return ambient + diffuse + specular;
 }
 
 vec3 calcPointLight(Base object, PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
+    // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0f);
+    // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), object.shininess);
     // attenuation
     float distance = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     // combine results
     vec3 ambient = light.ambient * object.ambient;
     vec3 diffuse = light.diffuse * diff * object.diffuse;

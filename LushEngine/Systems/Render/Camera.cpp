@@ -74,22 +74,22 @@ void Camera::setView(float time)
     this->_actShader->setFloat("time", time);
 }
 
-void Camera::setDirLight(glm::vec3 direction)
+void Camera::setDirLight(std::pair<Transform, Light> dirLight)
 {
-    this->_actShader->setVec3("dirLight.direction", direction);
-    this->_actShader->setVec3("dirLight.ambient", glm::vec3(1.0f));
-    this->_actShader->setVec3("dirLight.diffuse", glm::vec3(1.0f));
-    this->_actShader->setVec3("dirLight.specular", glm::vec3(1.0f));
+    this->_actShader->setVec3("dirLight.direction", dirLight.first.rotation);
+    this->_actShader->setVec3("dirLight.ambient", dirLight.second.color);
+    this->_actShader->setVec3("dirLight.diffuse", dirLight.second.color);
+    this->_actShader->setVec3("dirLight.specular", dirLight.second.color);
 }
 
-void Camera::setPointLights(std::vector<glm::vec3> positions)
+void Camera::setPointLights(std::vector<std::pair<Transform, Light>> pointLights)
 {
-    this->_actShader->setInt("pointLightCount", positions.size());
-    for (int i = 0; i < static_cast<int>(positions.size()) && i < 4; i++) {
-        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].position", positions[i]);
-        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].ambient", glm::vec3(1.0f));
-        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].diffuse", glm::vec3(1.0f));
-        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].specular", glm::vec3(1.0f));
+    this->_actShader->setInt("pointLightCount", pointLights.size());
+    for (std::size_t i = 0; i < pointLights.size() && i < 4; i++) {
+        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].position", pointLights[i].first.position);
+        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].ambient", pointLights[i].second.color);
+        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].diffuse", pointLights[i].second.color);
+        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].specular", pointLights[i].second.color);
         this->_actShader->setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
         this->_actShader->setFloat("pointLights[" + std::to_string(i) + "].linear", 0.09f);
         this->_actShader->setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.032f);
