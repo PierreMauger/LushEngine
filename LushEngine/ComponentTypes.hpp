@@ -3,7 +3,7 @@
 
 #include "Includes.hpp"
 
-enum InfoComp {
+enum CompInfo {
     TRANSFORM = 0b1,
     VELOCITY = 0b10,
     MODELID = 0b100,
@@ -12,43 +12,33 @@ enum InfoComp {
 };
 
 typedef struct Transform {
-    glm::vec3 position;
-    glm::vec3 rotation;
-    glm::vec3 scale;
-
-    Transform() : position(0.0f), rotation(0.0f), scale(1.0f) {}
+    glm::vec3 position = glm::vec3(0.0f);
+    glm::vec3 rotation = glm::vec3(0.0f);
+    glm::vec3 scale = glm::vec3(1.0f);
 } Transform;
 
 typedef struct Velocity {
-    float x;
-    float y;
-    float z;
-
-    Velocity() : x(0), y(0), z(0) {}
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
 } Velocity;
 
 typedef struct ModelID {
-    std::size_t id;
-
-    ModelID() : id(0) {}
+    std::size_t id = 0;
 } ModelID;
 
 typedef struct CameraComponent {
-    float fov;
-    float near;
-    float far;
-    float sensitivity;
-
-    CameraComponent() : fov(45.0f), near(0.1f), far(100.0f), sensitivity(1.0f) {}
+    float fov = 45.0f;
+    float near = 0.1f;
+    float far = 100.0f;
+    float sensitivity = 0.1f;
 } CameraComponent;
 
 typedef struct Light {
-    int mod;
-    float intensity;
-    glm::vec3 color;
-    float cutOff;
-
-    Light() : mod(0), intensity(1.0f), color(1.0f), cutOff(0.0f) {}
+    int mod = 0;
+    float intensity = 1.0f;
+    glm::vec3 color = glm::vec3(1.0f);
+    float cutOff = 0.0f;
 } Light;
 
 #endif // COMPONENTTYPES_HPP

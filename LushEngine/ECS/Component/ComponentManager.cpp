@@ -6,7 +6,7 @@ ComponentManager::ComponentManager()
 {
 }
 
-std::map<std::type_index, Component> &ComponentManager::getComponentArray()
+std::map<std::type_index, SparseArray> &ComponentManager::getComponentArray()
 {
     return this->_componentArray;
 }

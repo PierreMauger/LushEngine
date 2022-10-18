@@ -1,18 +1,18 @@
-#ifndef COMPONENT_HPP
-#define COMPONENT_HPP
+#ifndef SPARSEARRAY_HPP
+#define SPARSEARRAY_HPP
 
 #include "Includes.hpp"
 
 namespace Lush
 {
-    class Component
+    class SparseArray
     {
         private:
             std::vector<std::optional<std::any>> _values;
 
         public:
-            Component();
-            ~Component() = default;
+            SparseArray();
+            ~SparseArray() = default;
 
             std::size_t getSize();
             std::optional<std::any> &getValues(std::size_t id);
@@ -22,4 +22,4 @@ namespace Lush
     };
 }
 
-#endif // COMPONENT_HPP
+#endif // SPARSEARRAY_HPP

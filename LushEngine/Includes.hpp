@@ -16,6 +16,7 @@
 #include <mutex>
 #include <optional>
 #include <queue>
+#include <regex>
 #include <sstream>
 #include <string>
 #include <thread>

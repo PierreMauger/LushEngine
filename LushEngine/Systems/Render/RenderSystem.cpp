@@ -2,23 +2,7 @@
 
 using namespace Lush;
 
-std::string loadFile(std::string fileName)
-{
-    std::ifstream file;
-    std::string buffer;
-    std::stringstream stream;
-
-    file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    try {
-        file.open(fileName);
-        stream << file.rdbuf();
-        file.close();
-        buffer = stream.str();
-    } catch (std::ifstream::failure &e) {
-        throw std::runtime_error("File loading error: " + fileName);
-    }
-    return buffer;
-}
+std::string loadFile(std::string fileName);
 
 RenderSystem::RenderSystem(std::shared_ptr<GLFWwindow> window) : _camera(1280, 720)
 {
@@ -37,9 +21,9 @@ RenderSystem::~RenderSystem()
 void RenderSystem::update(ComponentManager &componentManager, EntityManager &entityManager)
 {
     auto &masks = entityManager.getMasks();
-    std::size_t cam = (InfoComp::TRANSFORM | InfoComp::CAMERA);
-    std::size_t renderable = (InfoComp::TRANSFORM | InfoComp::MODELID);
-    std::size_t light = (InfoComp::TRANSFORM | InfoComp::LIGHT);
+    std::size_t cam = (CompInfo::TRANSFORM | CompInfo::CAMERA);
+    std::size_t renderable = (CompInfo::TRANSFORM | CompInfo::MODELID);
+    std::size_t light = (CompInfo::TRANSFORM | CompInfo::LIGHT);
 
     for (std::size_t i = 0; i < masks.size(); i++) {
         if (masks[i].has_value() && (masks[i].value() & light) == light) {

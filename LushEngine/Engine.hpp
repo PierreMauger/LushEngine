@@ -28,6 +28,7 @@ namespace Lush
             Engine();
             ~Engine() = default;
 
+            void loadScene();
             void initWindow();
             void run();
             void clear();
