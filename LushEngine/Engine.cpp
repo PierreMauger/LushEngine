@@ -38,6 +38,7 @@ Engine::Engine()
     this->_componentManager.bindComponent<ModelID>();
     this->_componentManager.bindComponent<Camera>();
     this->_componentManager.bindComponent<Light>();
+    this->_componentManager.bindComponent<Controllable>();
 
     this->loadScene();
 }
@@ -88,6 +89,9 @@ void Engine::loadScene()
                         break;
                     case 4:
                         this->_componentManager.addComponent<Light>(id);
+                        break;
+                    case 5:
+                        this->_componentManager.addComponent<Controllable>(id);
                         break;
                     default:
                         break;

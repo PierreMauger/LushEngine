@@ -3,12 +3,13 @@
 
 #include "Includes.hpp"
 
-enum CompInfo {
-    TRANSFORM = 0b1,
-    VELOCITY = 0b10,
-    MODELID = 0b100,
-    CAMERA = 0b1000,
-    LIGHT = 0b10000,
+enum ComponentType {
+    TRANSFORM = 1 << 0,
+    VELOCITY = 1 << 1,
+    MODELID = 1 << 2,
+    CAMERA = 1 << 3,
+    LIGHT = 1 << 4,
+    CONTROLLABLE = 1 << 5,
 };
 
 typedef struct {
@@ -40,5 +41,9 @@ typedef struct {
     glm::vec3 color = glm::vec3(1.0f);
     float cutOff = 0.0f;
 } Light;
+
+typedef struct {
+    bool controllable = true;
+} Controllable;
 
 #endif // COMPONENTTYPES_HPP

@@ -131,6 +131,11 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                     ImGui::SliderFloat("Cut Off", &light.cutOff, 0.0f, 90.0f);
                     break;
                 }
+                case 5: {
+                    Controllable &controllable = componentManager.getComponent<Controllable>(this->_selectedEntity);
+                    ImGui::Checkbox("", &controllable.controllable);
+                    break;
+                }
                 default:
                     break;
                 }
@@ -167,6 +172,9 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                         break;
                     case 4:
                         componentManager.addComponent<Light>(this->_selectedEntity);
+                        break;
+                    case 5:
+                        componentManager.addComponent<Controllable>(this->_selectedEntity);
                         break;
                     default:
                         break;

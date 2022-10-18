@@ -21,9 +21,9 @@ RenderSystem::~RenderSystem()
 void RenderSystem::update(ComponentManager &componentManager, EntityManager &entityManager)
 {
     auto &masks = entityManager.getMasks();
-    std::size_t cam = (CompInfo::TRANSFORM | CompInfo::CAMERA);
-    std::size_t renderable = (CompInfo::TRANSFORM | CompInfo::MODELID);
-    std::size_t light = (CompInfo::TRANSFORM | CompInfo::LIGHT);
+    std::size_t cam = (ComponentType::TRANSFORM | ComponentType::CAMERA);
+    std::size_t renderable = (ComponentType::TRANSFORM | ComponentType::MODELID);
+    std::size_t light = (ComponentType::TRANSFORM | ComponentType::LIGHT);
 
     for (std::size_t i = 0; i < masks.size(); i++) {
         if (masks[i].has_value() && (masks[i].value() & light) == light) {
