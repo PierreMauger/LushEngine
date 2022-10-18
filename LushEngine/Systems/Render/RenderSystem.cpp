@@ -8,8 +8,8 @@ RenderSystem::RenderSystem(std::shared_ptr<GLFWwindow> window) : _camera(1280, 7
 {
     this->_window = window;
 
-    this->_models[0] = std::make_shared<Model>(loadFile("resources/models/Cube.dae"), std::map<std::string, unsigned int>());
-    this->_shaders["Camera"] = std::make_shared<Shader>(loadFile("resources/shaders/camera.vs"), loadFile("resources/shaders/camera.fs"));
+    this->_models[0] = std::make_shared<Model>(loadFile("Resources/Models/Cube.dae"), std::map<std::string, unsigned int>());
+    this->_shaders["Camera"] = std::make_shared<Shader>(loadFile("Resources/Shaders/camera.vs"), loadFile("Resources/Shaders/camera.fs"));
 
     this->_camera.setShaders(this->_shaders);
 }
