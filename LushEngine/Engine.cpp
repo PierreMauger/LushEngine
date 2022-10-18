@@ -36,7 +36,7 @@ Engine::Engine()
     this->_componentManager.bindComponent<Transform>();
     this->_componentManager.bindComponent<Velocity>();
     this->_componentManager.bindComponent<ModelID>();
-    this->_componentManager.bindComponent<CameraComponent>();
+    this->_componentManager.bindComponent<Camera>();
     this->_componentManager.bindComponent<Light>();
 
     this->loadScene();
@@ -84,7 +84,7 @@ void Engine::loadScene()
                         this->_componentManager.addComponent<ModelID>(id);
                         break;
                     case 3:
-                        this->_componentManager.addComponent<CameraComponent>(id);
+                        this->_componentManager.addComponent<Camera>(id);
                         break;
                     case 4:
                         this->_componentManager.addComponent<Light>(id);

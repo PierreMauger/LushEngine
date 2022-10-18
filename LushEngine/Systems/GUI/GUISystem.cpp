@@ -116,7 +116,7 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                     break;
                 }
                 case 3: {
-                    CameraComponent &camera = componentManager.getComponent<CameraComponent>(this->_selectedEntity);
+                    Camera &camera = componentManager.getComponent<Camera>(this->_selectedEntity);
                     ImGui::SliderFloat("FOV", &camera.fov, 30.0f, 90.0f);
                     ImGui::SliderFloat("Near", &camera.near, 0.0f, 100.0f);
                     ImGui::SliderFloat("Far", &camera.far, 0.0f, 1000.0f);
@@ -163,7 +163,7 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                         componentManager.addComponent<ModelID>(this->_selectedEntity);
                         break;
                     case 3:
-                        componentManager.addComponent<CameraComponent>(this->_selectedEntity);
+                        componentManager.addComponent<Camera>(this->_selectedEntity);
                         break;
                     case 4:
                         componentManager.addComponent<Light>(this->_selectedEntity);

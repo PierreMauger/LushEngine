@@ -1,5 +1,5 @@
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#ifndef RENDERVIEW_HPP
+#define RENDERVIEW_HPP
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -10,7 +10,7 @@
 
 namespace Lush
 {
-    class Camera
+    class RenderView
     {
         private:
             glm::mat4 _view;
@@ -20,8 +20,8 @@ namespace Lush
             glm::vec3 _up;
             float _yaw;
             float _pitch;
-            float _fov;
             float _aspectRatio;
+            float _fov;
             float _near;
             float _far;
             float _sensitivity;
@@ -29,25 +29,21 @@ namespace Lush
             std::shared_ptr<Shader> _actShader;
 
         public:
-            Camera(float width, float height);
-            ~Camera() = default;
+            RenderView(float width, float height);
+            ~RenderView() = default;
 
             void setShaders(std::map<std::string, std::shared_ptr<Shader>> &shaders);
-
-            void processMouseMovement(float xoffset, float yoffset);
-
-            void use(std::string shaderName);
             std::shared_ptr<Shader> getShader();
             std::shared_ptr<Shader> getShader(std::string shaderName);
 
-            void update(Transform transform, CameraComponent camera);
+            void use(std::string shaderName);
+            void update(Transform transform, Camera camera);
             void setView(float time);
             void setDirLight(std::pair<Transform, Light> dirLight);
             void setPointLights(std::vector<std::pair<Transform, Light>> pointLights);
             void setSkyBox();
             void setOnModel(Transform &transform);
-            void setOnModel(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
     };
 }
 
-#endif // CAMERA_HPP
+#endif // RENDERVIEW_HPP

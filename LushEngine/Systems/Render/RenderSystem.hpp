@@ -7,8 +7,8 @@
 #include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
 #include "Includes.hpp"
-#include "Systems/Render/Camera.hpp"
 #include "Systems/Render/Model.hpp"
+#include "Systems/Render/RenderView.hpp"
 #include "Systems/Render/Shader.hpp"
 
 namespace Lush
@@ -19,7 +19,7 @@ namespace Lush
             std::shared_ptr<GLFWwindow> _window;
             std::map<std::string, std::shared_ptr<Shader>> _shaders;
             std::map<std::size_t, std::shared_ptr<Model>> _models;
-            Camera _camera;
+            RenderView _camera;
 
             std::vector<std::pair<Transform, Light>> _dirLights;
             std::vector<std::pair<Transform, Light>> _pointLights;

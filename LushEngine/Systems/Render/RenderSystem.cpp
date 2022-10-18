@@ -43,7 +43,7 @@ void RenderSystem::update(ComponentManager &componentManager, EntityManager &ent
     for (std::size_t i = 0; i < masks.size(); i++) {
         if (masks[i].has_value() && (masks[i].value() & cam) == cam) {
             Transform transform = componentManager.getComponent<Transform>(i);
-            CameraComponent camera = componentManager.getComponent<CameraComponent>(i);
+            Camera camera = componentManager.getComponent<Camera>(i);
 
             this->_camera.update(transform, camera);
             this->_camera.setView(glfwGetTime());

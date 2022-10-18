@@ -11,30 +11,30 @@ enum CompInfo {
     LIGHT = 0b10000,
 };
 
-typedef struct Transform {
+typedef struct {
     glm::vec3 position = glm::vec3(0.0f);
     glm::vec3 rotation = glm::vec3(0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
 } Transform;
 
-typedef struct Velocity {
+typedef struct {
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
 } Velocity;
 
-typedef struct ModelID {
+typedef struct {
     std::size_t id = 0;
 } ModelID;
 
-typedef struct CameraComponent {
+typedef struct {
     float fov = 45.0f;
     float near = 0.1f;
     float far = 100.0f;
     float sensitivity = 0.1f;
-} CameraComponent;
+} Camera;
 
-typedef struct Light {
+typedef struct {
     int mod = 0;
     float intensity = 1.0f;
     glm::vec3 color = glm::vec3(1.0f);

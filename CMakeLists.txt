@@ -105,7 +105,7 @@ set(SRC
     ${PROJECT_NAME}/Systems/GUI/GUISystem.cpp
     ${PROJECT_NAME}/Systems/Render/RenderSystem.cpp
     ${PROJECT_NAME}/Systems/Render/Shader.cpp
-    ${PROJECT_NAME}/Systems/Render/Camera.cpp
+    ${PROJECT_NAME}/Systems/Render/RenderView.cpp
     ${PROJECT_NAME}/Systems/Render/Mesh.cpp
     ${PROJECT_NAME}/Systems/Render/Model.cpp
 
