@@ -1,0 +1,31 @@
+_Shader:
+  Camera:
+    camera.vs
+    camera.fs
+  Picking:
+    camera.vs
+    picking.fs
+  Selection:
+    camera.vs
+    selection.fs
+  Outline:
+    outline.vs
+    outline.fs
+  SkyBox:
+    skybox.vs
+    skybox.fs
+
+_Scene:
+  Default:
+    scene1
+
+_Icon:
+  Lush.png
+
+_Skybox:
+  right.jpg
+  left.jpg
+  top.jpg
+  bottom.jpg
+  front.jpg
+  back.jpg
