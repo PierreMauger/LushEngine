@@ -11,6 +11,12 @@
 
 namespace Lush
 {
+    typedef struct {
+        GLuint framebuffer;
+        GLuint texture;
+        GLuint depthbuffer;
+    } FrameBuffer;
+
     class Graphic
     {
         private:

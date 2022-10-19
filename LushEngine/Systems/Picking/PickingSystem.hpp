@@ -12,6 +12,7 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
+            FrameBuffer _buffer;
 
         public:
             PickingSystem(std::shared_ptr<Graphic> graphic);

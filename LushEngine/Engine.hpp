@@ -12,6 +12,7 @@
 #include "Includes.hpp"
 #include "Systems/Control/ControlSystem.hpp"
 #include "Systems/GUI/GUISystem.hpp"
+#include "Systems/Picking/PickingSystem.hpp"
 #include "Systems/Render/RenderSystem.hpp"
 
 namespace Lush

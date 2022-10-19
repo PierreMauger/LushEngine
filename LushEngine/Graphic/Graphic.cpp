@@ -27,6 +27,7 @@ Graphic::Graphic() : _camera(1280, 720)
 
     this->_models[0] = Model(loadFile2("Resources/Models/Cube.dae"), std::map<std::string, unsigned int>());
     this->_shaders["Camera"] = Shader(loadFile2("Resources/Shaders/camera.vs"), loadFile2("Resources/Shaders/camera.fs"));
+    this->_shaders["Picking"] = Shader(loadFile2("Resources/Shaders/camera.vs"), loadFile2("Resources/Shaders/picking.fs"));
 
     this->_camera.setShaders(this->_shaders);
 }
