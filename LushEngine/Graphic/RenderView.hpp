@@ -4,9 +4,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Includes.hpp"
-#include "Systems/Render/Shader.hpp"
 #include "ComponentTypes.hpp"
+#include "Graphic/Shader.hpp"
+#include "Includes.hpp"
 
 namespace Lush
 {
@@ -25,16 +25,16 @@ namespace Lush
             float _near;
             float _far;
             float _sensitivity;
-            std::map<std::string, std::shared_ptr<Shader>> _shaders;
-            std::shared_ptr<Shader> _actShader;
+            std::map<std::string, Shader> _shaders;
+            std::string _actShader;
 
         public:
             RenderView(float width, float height);
             ~RenderView() = default;
 
-            void setShaders(std::map<std::string, std::shared_ptr<Shader>> &shaders);
-            std::shared_ptr<Shader> getShader();
-            std::shared_ptr<Shader> getShader(std::string shaderName);
+            void setShaders(std::map<std::string, Shader> &shaders);
+            Shader &getShader();
+            Shader &getShader(std::string shaderName);
 
             void use(std::string shaderName);
             void update(Transform transform, Camera camera);

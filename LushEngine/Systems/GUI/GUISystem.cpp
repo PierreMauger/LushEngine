@@ -2,16 +2,16 @@
 
 using namespace Lush;
 
-GUISystem::GUISystem(std::shared_ptr<GLFWwindow> window)
+GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
 {
-    this->_window = window;
+    this->_graphic = graphic;
 
     if (!IMGUI_CHECKVERSION())
         throw std::runtime_error("IMGUI version is invalid");
     ImGui::CreateContext();
 
     ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(this->_window.get(), true);
+    ImGui_ImplGlfw_InitForOpenGL(this->_graphic->getWindow().get(), true);
     ImGui_ImplOpenGL3_Init("#version 130");
 }
 
@@ -132,8 +132,8 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                     break;
                 }
                 case 5: {
-                    Controllable &controllable = componentManager.getComponent<Controllable>(this->_selectedEntity);
-                    ImGui::Checkbox("", &controllable.controllable);
+                    Control &control = componentManager.getComponent<Control>(this->_selectedEntity);
+                    ImGui::Checkbox("##", &control.control);
                     break;
                 }
                 default:
@@ -174,7 +174,7 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                         componentManager.addComponent<Light>(this->_selectedEntity);
                         break;
                     case 5:
-                        componentManager.addComponent<Controllable>(this->_selectedEntity);
+                        componentManager.addComponent<Control>(this->_selectedEntity);
                         break;
                     default:
                         break;

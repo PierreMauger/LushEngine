@@ -1,5 +1,5 @@
-#ifndef CONTROLSYSTEM_HPP
-#define CONTROLSYSTEM_HPP
+#ifndef PICKINGSYSTEM_HPP
+#define PICKINGSYSTEM_HPP
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
@@ -8,17 +8,17 @@
 
 namespace Lush
 {
-    class ControlSystem : public ISystem
+    class PickingSystem : public ISystem
     {
         private:
             std::shared_ptr<Graphic> _graphic;
 
         public:
-            ControlSystem(std::shared_ptr<Graphic> graphic);
-            ~ControlSystem() = default;
+            PickingSystem(std::shared_ptr<Graphic> graphic);
+            ~PickingSystem() = default;
 
             void update(ComponentManager &componentManager, EntityManager &entityManager);
     };
 }
 
-#endif // CONTROLSYSTEM_HPP
+#endif // PICKINGSYSTEM_HPP

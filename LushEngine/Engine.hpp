@@ -8,6 +8,7 @@
 #include "ECS/Component/ComponentManager.hpp"
 #include "ECS/Entity/EntityManager.hpp"
 #include "ECS/System/SystemManager.hpp"
+#include "Graphic/Graphic.hpp"
 #include "Includes.hpp"
 #include "Systems/Control/ControlSystem.hpp"
 #include "Systems/GUI/GUISystem.hpp"
@@ -22,14 +23,13 @@ namespace Lush
             ComponentManager _componentManager;
             SystemManager _systemManager;
 
-            std::shared_ptr<GLFWwindow> _window;
+            std::shared_ptr<Graphic> _graphic;
 
         public:
             Engine();
             ~Engine() = default;
 
             void loadScene();
-            void initWindow();
             void run();
             void clear();
             void draw();

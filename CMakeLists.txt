@@ -90,8 +90,10 @@ set(EXEC_NAME lush)
 
 set(INC
     ${PROJECT_NAME}/
+    ${PROJECT_NAME}/Graphic/
     ${PROJECT_NAME}/Systems/Camera/
     ${PROJECT_NAME}/Systems/Control/
+    ${PROJECT_NAME}/Systems/Picking/
     ${PROJECT_NAME}/Systems/GUI/
     ${PROJECT_NAME}/Systems/Render/
     ${PROJECT_NAME}/IMGUI/
@@ -100,14 +102,16 @@ set(INC
 
 set(SRC
     ${PROJECT_NAME}/Engine.cpp
+    ${PROJECT_NAME}/Graphic/Graphic.cpp
+    ${PROJECT_NAME}/Graphic/RenderView.cpp
+    ${PROJECT_NAME}/Graphic/Shader.cpp
+    ${PROJECT_NAME}/Graphic/Mesh.cpp
+    ${PROJECT_NAME}/Graphic/Model.cpp
     ${PROJECT_NAME}/Systems/Camera/CameraSystem.cpp
     ${PROJECT_NAME}/Systems/Control/ControlSystem.cpp
+    ${PROJECT_NAME}/Systems/Picking/PickingSystem.cpp
     ${PROJECT_NAME}/Systems/GUI/GUISystem.cpp
     ${PROJECT_NAME}/Systems/Render/RenderSystem.cpp
-    ${PROJECT_NAME}/Systems/Render/Shader.cpp
-    ${PROJECT_NAME}/Systems/Render/RenderView.cpp
-    ${PROJECT_NAME}/Systems/Render/Mesh.cpp
-    ${PROJECT_NAME}/Systems/Render/Model.cpp
 
     ${PROJECT_NAME}/STB/stb.cpp
 )

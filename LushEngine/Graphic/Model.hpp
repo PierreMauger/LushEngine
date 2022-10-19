@@ -7,9 +7,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Graphic/Mesh.hpp"
 #include "Includes.hpp"
-#include "Systems/Render/Mesh.hpp"
-#include "stb_image.h"
+#include "STB/stb_image.h"
 
 namespace Lush
 {
@@ -27,6 +27,7 @@ namespace Lush
 
         public:
             Model(std::string const &file, std::map<std::string, unsigned int> texturesLoaded);
+            Model() = default;
             ~Model() = default;
 
             void load(std::string const &file, std::map<std::string, unsigned int> texturesLoaded);

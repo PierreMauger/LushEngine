@@ -3,7 +3,7 @@
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
-#include <GLFW/glfw3.h>
+#include "Graphic/Graphic.hpp"
 #include "Includes.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -16,7 +16,7 @@ namespace Lush
     class GUISystem : public ISystem
     {
         private:
-            std::shared_ptr<GLFWwindow> _window;
+            std::shared_ptr<Graphic> _graphic;
             bool _showEntityManager = true;
             bool _showEntityDetails = false;
             std::size_t _selectedEntity = 0;
@@ -26,7 +26,7 @@ namespace Lush
             std::string formatBool(std::size_t value, std::size_t size);
 
         public:
-            GUISystem(std::shared_ptr<GLFWwindow> window);
+            GUISystem(std::shared_ptr<Graphic> graphic);
             ~GUISystem();
 
             void update(ComponentManager &componentManager, EntityManager &entityManager);

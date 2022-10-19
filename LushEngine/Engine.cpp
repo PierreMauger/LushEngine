@@ -3,6 +3,7 @@
 
 using namespace Lush;
 
+// TODO loader
 std::string loadFile(std::string fileName)
 {
     std::ifstream file;
@@ -27,18 +28,18 @@ Engine::Engine()
     this->_componentManager = ComponentManager();
     this->_systemManager = SystemManager();
 
-    this->initWindow();
+    this->_graphic = std::make_shared<Graphic>();
 
-    this->_systemManager.bindSystem(std::make_shared<RenderSystem>(this->_window));
-    this->_systemManager.bindSystem(std::make_shared<GUISystem>(this->_window));
-    this->_systemManager.bindSystem(std::make_shared<ControlSystem>(this->_window));
+    this->_systemManager.bindSystem(std::make_shared<ControlSystem>(this->_graphic));
+    this->_systemManager.bindSystem(std::make_shared<RenderSystem>(this->_graphic));
+    this->_systemManager.bindSystem(std::make_shared<GUISystem>(this->_graphic));
 
     this->_componentManager.bindComponent<Transform>();
     this->_componentManager.bindComponent<Velocity>();
     this->_componentManager.bindComponent<ModelID>();
     this->_componentManager.bindComponent<Camera>();
     this->_componentManager.bindComponent<Light>();
-    this->_componentManager.bindComponent<Controllable>();
+    this->_componentManager.bindComponent<Control>();
 
     this->loadScene();
 }
@@ -91,7 +92,7 @@ void Engine::loadScene()
                         this->_componentManager.addComponent<Light>(id);
                         break;
                     case 5:
-                        this->_componentManager.addComponent<Controllable>(id);
+                        this->_componentManager.addComponent<Control>(id);
                         break;
                     default:
                         break;
@@ -103,37 +104,12 @@ void Engine::loadScene()
     }
 }
 
-void Engine::initWindow()
-{
-    if (!glfwInit())
-        throw std::runtime_error("Failed to initialize GLFW");
-    this->_window = std::shared_ptr<GLFWwindow>(glfwCreateWindow(1280, 720, "Lush Engine", NULL, NULL), glfwDestroyWindow);
-    if (!this->_window) {
-        glfwTerminate();
-        throw std::runtime_error("Failed to create GLFW window");
-    }
-    glfwMakeContextCurrent(this->_window.get());
-
-    if (glewInit() != GLEW_OK)
-        throw std::runtime_error("Failed to initialize GLEW");
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glEnable(GL_MULTISAMPLE);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-
-    glfwSwapInterval(1); // Enable vsync
-}
-
 void Engine::run()
 {
-    while (!glfwWindowShouldClose(this->_window.get())) {
+    while (!glfwWindowShouldClose(this->_graphic->getWindow().get())) {
         this->clear();
         this->_systemManager.updateSystems(this->_componentManager, this->_entityManager);
-        glfwSwapBuffers(this->_window.get());
+        glfwSwapBuffers(this->_graphic->getWindow().get());
         this->draw();
     }
 }

@@ -15,23 +15,22 @@ RenderView::RenderView(float width, float height)
     this->_aspectRatio = width / height;
     this->_near = 0.1f;
     this->_far = 100.0f;
-    this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
     this->_sensitivity = 0.2f;
 
-    this->_actShader = nullptr;
+    this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 }
 
-void RenderView::setShaders(std::map<std::string, std::shared_ptr<Shader>> &shaders)
+void RenderView::setShaders(std::map<std::string, Shader> &shaders)
 {
     this->_shaders = shaders;
 }
 
-std::shared_ptr<Shader> RenderView::getShader()
+Shader &RenderView::getShader()
 {
-    return this->_actShader;
+    return this->_shaders[this->_actShader];
 }
 
-std::shared_ptr<Shader> RenderView::getShader(std::string shaderName)
+Shader &RenderView::getShader(std::string shaderName)
 {
     if (this->_shaders.find(shaderName) == this->_shaders.end())
         throw std::runtime_error("Getting a shader not loaded: " + shaderName);
@@ -42,8 +41,8 @@ void RenderView::use(std::string shaderName)
 {
     if (this->_shaders.find(shaderName) == this->_shaders.end())
         throw std::runtime_error("Using unknown shader: " + shaderName);
-    this->_shaders[shaderName]->use();
-    this->_actShader = this->_shaders[shaderName];
+    this->_shaders[shaderName].use();
+    this->_actShader = shaderName;
 }
 
 void RenderView::update(Transform transform, Camera camera)
@@ -68,38 +67,38 @@ void RenderView::update(Transform transform, Camera camera)
 
 void RenderView::setView(float time)
 {
-    this->_actShader->setVec3("viewPos", this->_position);
-    this->_actShader->setMat4("view", this->_view);
-    this->_actShader->setMat4("projection", this->_projection);
-    this->_actShader->setFloat("time", time);
+    this->_shaders[this->_actShader].setVec3("viewPos", this->_position);
+    this->_shaders[this->_actShader].setMat4("view", this->_view);
+    this->_shaders[this->_actShader].setMat4("projection", this->_projection);
+    this->_shaders[this->_actShader].setFloat("time", time);
 }
 
 void RenderView::setDirLight(std::pair<Transform, Light> dirLight)
 {
-    this->_actShader->setVec3("dirLight.direction", dirLight.first.rotation);
-    this->_actShader->setVec3("dirLight.ambient", dirLight.second.color);
-    this->_actShader->setVec3("dirLight.diffuse", dirLight.second.color);
-    this->_actShader->setVec3("dirLight.specular", dirLight.second.color);
+    this->_shaders[this->_actShader].setVec3("dirLight.direction", dirLight.first.rotation);
+    this->_shaders[this->_actShader].setVec3("dirLight.ambient", dirLight.second.color);
+    this->_shaders[this->_actShader].setVec3("dirLight.diffuse", dirLight.second.color);
+    this->_shaders[this->_actShader].setVec3("dirLight.specular", dirLight.second.color);
 }
 
 void RenderView::setPointLights(std::vector<std::pair<Transform, Light>> pointLights)
 {
-    this->_actShader->setInt("pointLightCount", pointLights.size());
+    this->_shaders[this->_actShader].setInt("pointLightCount", pointLights.size());
     for (std::size_t i = 0; i < pointLights.size() && i < 4; i++) {
-        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].position", pointLights[i].first.position);
-        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].ambient", pointLights[i].second.color);
-        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].diffuse", pointLights[i].second.color);
-        this->_actShader->setVec3("pointLights[" + std::to_string(i) + "].specular", pointLights[i].second.color);
-        this->_actShader->setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
-        this->_actShader->setFloat("pointLights[" + std::to_string(i) + "].linear", 0.09f);
-        this->_actShader->setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.032f);
+        this->_shaders[this->_actShader].setVec3("pointLights[" + std::to_string(i) + "].position", pointLights[i].first.position);
+        this->_shaders[this->_actShader].setVec3("pointLights[" + std::to_string(i) + "].ambient", pointLights[i].second.color);
+        this->_shaders[this->_actShader].setVec3("pointLights[" + std::to_string(i) + "].diffuse", pointLights[i].second.color);
+        this->_shaders[this->_actShader].setVec3("pointLights[" + std::to_string(i) + "].specular", pointLights[i].second.color);
+        this->_shaders[this->_actShader].setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
+        this->_shaders[this->_actShader].setFloat("pointLights[" + std::to_string(i) + "].linear", 0.09f);
+        this->_shaders[this->_actShader].setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.032f);
     }
 }
 
 void RenderView::setSkyBox()
 {
-    this->_actShader->setMat4("view", glm::mat4(glm::mat3(this->_view))); // remove translation from the view matrix
-    this->_actShader->setMat4("projection", this->_projection);
+    this->_shaders[this->_actShader].setMat4("view", glm::mat4(glm::mat3(this->_view))); // remove translation from the view matrix
+    this->_shaders[this->_actShader].setMat4("projection", this->_projection);
 }
 
 void RenderView::setOnModel(Transform &transform)
@@ -110,9 +109,9 @@ void RenderView::setOnModel(Transform &transform)
     model = glm::rotate(model, glm::radians(transform.rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, glm::radians(transform.rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::scale(model, transform.scale);
-    this->_actShader->setMat4("model", model);
+    this->_shaders[this->_actShader].setMat4("model", model);
 
     for (std::size_t i = 0; i < 100; i++)
-        this->_actShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", glm::mat4(1.0f));
+        this->_shaders[this->_actShader].setMat4("finalBonesMatrices[" + std::to_string(i) + "]", glm::mat4(1.0f));
     // TODO animator system ?
 }

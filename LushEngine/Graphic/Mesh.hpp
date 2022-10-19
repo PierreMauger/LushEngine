@@ -1,8 +1,8 @@
 #ifndef MESH_HPP
 #define MESH_HPP
 
+#include "Graphic/Shader.hpp"
 #include "Includes.hpp"
-#include "Systems/Render/Shader.hpp"
 
 #define MAX_BONE_INFLUENCE 4
 

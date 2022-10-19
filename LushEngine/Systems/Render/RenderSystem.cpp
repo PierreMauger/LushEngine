@@ -4,14 +4,9 @@ using namespace Lush;
 
 std::string loadFile(std::string fileName);
 
-RenderSystem::RenderSystem(std::shared_ptr<GLFWwindow> window) : _camera(1280, 720)
+RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic)
 {
-    this->_window = window;
-
-    this->_models[0] = std::make_shared<Model>(loadFile("Resources/Models/Cube.dae"), std::map<std::string, unsigned int>());
-    this->_shaders["Camera"] = std::make_shared<Shader>(loadFile("Resources/Shaders/camera.vs"), loadFile("Resources/Shaders/camera.fs"));
-
-    this->_camera.setShaders(this->_shaders);
+    this->_graphic = graphic;
 }
 
 RenderSystem::~RenderSystem()
@@ -39,18 +34,18 @@ void RenderSystem::update(ComponentManager &componentManager, EntityManager &ent
         }
     }
 
-    this->_camera.use("Camera");
+    this->_graphic->getCamera().use("Camera");
     for (std::size_t i = 0; i < masks.size(); i++) {
         if (masks[i].has_value() && (masks[i].value() & cam) == cam) {
             Transform transform = componentManager.getComponent<Transform>(i);
             Camera camera = componentManager.getComponent<Camera>(i);
 
-            this->_camera.update(transform, camera);
-            this->_camera.setView(glfwGetTime());
+            this->_graphic->getCamera().update(transform, camera);
+            this->_graphic->getCamera().setView(glfwGetTime());
 
             if (this->_dirLights.size() > 0)
-                this->_camera.setDirLight(this->_dirLights[0]);
-            this->_camera.setPointLights(this->_pointLights);
+                this->_graphic->getCamera().setDirLight(this->_dirLights[0]);
+            this->_graphic->getCamera().setPointLights(this->_pointLights);
         }
     }
     this->_dirLights.clear();
@@ -62,9 +57,9 @@ void RenderSystem::update(ComponentManager &componentManager, EntityManager &ent
             Transform transform = componentManager.getComponent<Transform>(i);
             ModelID modelID = componentManager.getComponent<ModelID>(i);
 
-            this->_camera.setOnModel(transform);
-            if (this->_models.find(modelID.id) != this->_models.end())
-                this->_models[modelID.id]->draw(*this->_camera.getShader());
+            this->_graphic->getCamera().setOnModel(transform);
+            if (this->_graphic->getModels().find(modelID.id) != this->_graphic->getModels().end())
+                this->_graphic->getModels()[modelID.id].draw(this->_graphic->getCamera().getShader());
         }
     }
 }

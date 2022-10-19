@@ -9,7 +9,7 @@ enum ComponentType {
     MODELID = 1 << 2,
     CAMERA = 1 << 3,
     LIGHT = 1 << 4,
-    CONTROLLABLE = 1 << 5,
+    CONTROL = 1 << 5,
 };
 
 typedef struct {
@@ -43,7 +43,7 @@ typedef struct {
 } Light;
 
 typedef struct {
-    bool controllable = true;
-} Controllable;
+    bool control = true;
+} Control;
 
 #endif // COMPONENTTYPES_HPP
