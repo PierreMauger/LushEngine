@@ -32,13 +32,14 @@ Engine::Engine()
     this->_graphic = std::make_shared<Graphic>();
 
     this->_systemManager.bindSystem(std::make_shared<ControlSystem>(this->_graphic));
+    this->_systemManager.bindSystem(std::make_shared<CameraSystem>(this->_graphic));
     this->_systemManager.bindSystem(std::make_shared<GUISystem>(this->_graphic));
     this->_systemManager.bindSystem(std::make_shared<PickingSystem>(this->_graphic));
     this->_systemManager.bindSystem(std::make_shared<RenderSystem>(this->_graphic));
 
     this->_componentManager.bindComponent<Transform>();
     this->_componentManager.bindComponent<Velocity>();
-    this->_componentManager.bindComponent<ModelID>();
+    this->_componentManager.bindComponent<Model>();
     this->_componentManager.bindComponent<Camera>();
     this->_componentManager.bindComponent<Light>();
     this->_componentManager.bindComponent<Control>();
@@ -85,7 +86,7 @@ void Engine::loadScene()
                         this->_componentManager.addComponent<Velocity>(id);
                         break;
                     case 2:
-                        this->_componentManager.addComponent<ModelID>(id);
+                        this->_componentManager.addComponent<Model>(id);
                         break;
                     case 3:
                         this->_componentManager.addComponent<Camera>(id);

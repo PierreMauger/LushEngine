@@ -22,7 +22,7 @@ namespace Lush
         private:
             std::shared_ptr<GLFWwindow> _window;
             std::map<std::string, Shader> _shaders;
-            std::map<std::size_t, Model> _models;
+            std::map<std::size_t, RenderModel> _models;
             RenderView _camera;
 
         public:
@@ -32,7 +32,7 @@ namespace Lush
 
             std::shared_ptr<GLFWwindow> getWindow();
             std::map<std::string, Shader> &getShaders();
-            std::map<std::size_t, Model> &getModels();
+            std::map<std::size_t, RenderModel> &getModels();
             RenderView &getCamera();
     };
 }

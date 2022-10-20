@@ -26,33 +26,33 @@ static glm::mat4 ConvertMatrixToGLMFormat(const aiMatrix4x4 &from)
     return to;
 }
 
-Model::Model(std::string const &file, std::map<std::string, unsigned int> texturesLoaded)
+RenderModel::RenderModel(std::string const &file, std::map<std::string, unsigned int> texturesLoaded)
 {
     this->load(file, texturesLoaded);
 }
 
-std::map<std::string, BoneInfo> &Model::getBoneInfoMap()
+std::map<std::string, BoneInfo> &RenderModel::getBoneInfoMap()
 {
     return this->_boneInfoMap;
 }
 
-int &Model::getBoneCount()
+int &RenderModel::getBoneCount()
 {
     return this->_boneCounter;
 }
 
-void Model::load(std::string const &file, std::map<std::string, unsigned int> texturesLoaded)
+void RenderModel::load(std::string const &file, std::map<std::string, unsigned int> texturesLoaded)
 {
     Assimp::Importer importer;
     const aiScene *scene =
         importer.ReadFileFromMemory(file.c_str(), file.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
     if (!scene)
-        throw std::runtime_error(std::string("Model loading: ") + importer.GetErrorString());
+        throw std::runtime_error(std::string("RenderModel loading: ") + importer.GetErrorString());
     this->processNode(*scene->mRootNode, *scene, texturesLoaded);
 }
 
-void Model::processNode(aiNode &node, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded)
+void RenderModel::processNode(aiNode &node, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded)
 {
     for (unsigned int i = 0; i < node.mNumMeshes; i++)
         this->_meshes.push_back(this->processMesh(*scene.mMeshes[node.mMeshes[i]], scene, texturesLoaded));
@@ -60,7 +60,7 @@ void Model::processNode(aiNode &node, const aiScene &scene, std::map<std::string
         this->processNode(*node.mChildren[i], scene, texturesLoaded);
 }
 
-void Model::setVertexBoneDataToDefault(Vertex &vertex)
+void RenderModel::setVertexBoneDataToDefault(Vertex &vertex)
 {
     for (int i = 0; i < MAX_BONE_INFLUENCE; i++) {
         vertex.boneIDs[i] = -1;
@@ -68,7 +68,7 @@ void Model::setVertexBoneDataToDefault(Vertex &vertex)
     }
 }
 
-void Model::setVertexBoneData(Vertex &vertex, int boneID, float weight)
+void RenderModel::setVertexBoneData(Vertex &vertex, int boneID, float weight)
 {
     for (int i = 0; i < MAX_BONE_INFLUENCE; ++i) {
         if (vertex.boneIDs[i] < 0) {
@@ -79,7 +79,7 @@ void Model::setVertexBoneData(Vertex &vertex, int boneID, float weight)
     }
 }
 
-void Model::extractBoneWeightForVertices(std::vector<Vertex> &vertices, aiMesh &mesh)
+void RenderModel::extractBoneWeightForVertices(std::vector<Vertex> &vertices, aiMesh &mesh)
 {
     auto &boneInfoMap = this->_boneInfoMap;
     int &boneCount = this->_boneCounter;
@@ -109,7 +109,7 @@ void Model::extractBoneWeightForVertices(std::vector<Vertex> &vertices, aiMesh &
     }
 }
 
-Mesh Model::processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded)
+Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded)
 {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
@@ -167,7 +167,7 @@ Mesh Model::processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::string
     return Mesh(vertices, indices, textures, material);
 }
 
-std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::map<std::string, unsigned int> texturesLoaded)
+std::vector<Texture> RenderModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::map<std::string, unsigned int> texturesLoaded)
 {
     std::vector<Texture> textures;
 
@@ -181,7 +181,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
     return textures;
 }
 
-void Model::draw(Shader &shader)
+void RenderModel::draw(Shader &shader)
 {
     for (unsigned int i = 0; i < this->_meshes.size(); i++)
         this->_meshes[i].draw(shader);

@@ -35,7 +35,7 @@ void PickingSystem::update(ComponentManager &componentManager, EntityManager &en
     for (std::size_t i = 0; i < masks.size(); i++) {
         if (masks[i].has_value() && (masks[i].value() & renderable) == renderable) {
             Transform transform = componentManager.getComponent<Transform>(i);
-            ModelID modelID = componentManager.getComponent<ModelID>(i);
+            Model model = componentManager.getComponent<Model>(i);
 
             glm::vec4 color;
             color.r = (((i + 1) & 0x000000FF) >> 0) / 255.0f;
@@ -45,8 +45,8 @@ void PickingSystem::update(ComponentManager &componentManager, EntityManager &en
 
             this->_graphic->getShaders()["Picking"].setVec4("id", color);
             this->_graphic->getCamera().setOnModel(transform);
-            if (this->_graphic->getModels().find(modelID.id) != this->_graphic->getModels().end())
-                this->_graphic->getModels()[modelID.id].draw(this->_graphic->getCamera().getShader());
+            if (this->_graphic->getModels().find(model.id) != this->_graphic->getModels().end())
+                this->_graphic->getModels()[model.id].draw(this->_graphic->getCamera().getShader());
         }
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -26,7 +26,7 @@ typedef struct {
 
 typedef struct {
     std::size_t id = 0;
-} ModelID;
+} Model;
 
 typedef struct {
     float fov = 45.0f;

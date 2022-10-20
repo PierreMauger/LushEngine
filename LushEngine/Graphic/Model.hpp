@@ -1,5 +1,5 @@
-#ifndef MODEL_HPP
-#define MODEL_HPP
+#ifndef RENDERMODEL_HPP
+#define RENDERMODEL_HPP
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -18,7 +18,7 @@ namespace Lush
             glm::mat4 offset;
     } BoneInfo;
 
-    class Model
+    class RenderModel
     {
         private:
             std::vector<Mesh> _meshes;
@@ -26,9 +26,9 @@ namespace Lush
             int _boneCounter = 0;
 
         public:
-            Model(std::string const &file, std::map<std::string, unsigned int> texturesLoaded);
-            Model() = default;
-            ~Model() = default;
+            RenderModel(std::string const &file, std::map<std::string, unsigned int> texturesLoaded);
+            RenderModel() = default;
+            ~RenderModel() = default;
 
             void load(std::string const &file, std::map<std::string, unsigned int> texturesLoaded);
             void draw(Shader &shader);
@@ -47,4 +47,4 @@ namespace Lush
     };
 }
 
-#endif // MODEL_HPP
+#endif // RENDERMODEL_HPP

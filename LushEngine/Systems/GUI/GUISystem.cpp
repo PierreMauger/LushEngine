@@ -110,9 +110,9 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                     break;
                 }
                 case 2: {
-                    ModelID &modelID = componentManager.getComponent<ModelID>(this->_selectedEntity);
+                    Model &model = componentManager.getComponent<Model>(this->_selectedEntity);
                     const ImU64 increment = 1;
-                    ImGui::InputScalar("Model ID", ImGuiDataType_U64, &modelID.id, &increment);
+                    ImGui::InputScalar("Model ID", ImGuiDataType_U64, &model.id, &increment);
                     break;
                 }
                 case 3: {
@@ -165,7 +165,7 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                         componentManager.addComponent<Velocity>(this->_selectedEntity);
                         break;
                     case 2:
-                        componentManager.addComponent<ModelID>(this->_selectedEntity);
+                        componentManager.addComponent<Model>(this->_selectedEntity);
                         break;
                     case 3:
                         componentManager.addComponent<Camera>(this->_selectedEntity);

@@ -11,6 +11,7 @@
 #include "Graphic/Graphic.hpp"
 #include "Includes.hpp"
 #include "Systems/Control/ControlSystem.hpp"
+#include "Systems/Camera/CameraSystem.hpp"
 #include "Systems/GUI/GUISystem.hpp"
 #include "Systems/Picking/PickingSystem.hpp"
 #include "Systems/Render/RenderSystem.hpp"

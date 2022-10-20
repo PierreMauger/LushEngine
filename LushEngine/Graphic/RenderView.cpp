@@ -41,8 +41,10 @@ void RenderView::use(std::string shaderName)
 {
     if (this->_shaders.find(shaderName) == this->_shaders.end())
         throw std::runtime_error("Using unknown shader: " + shaderName);
-    this->_shaders[shaderName].use();
-    this->_actShader = shaderName;
+    if (this->_actShader != shaderName) {
+        this->_actShader = shaderName;
+        this->_shaders[shaderName].use();
+    }
 }
 
 void RenderView::update(Transform transform, Camera camera)
