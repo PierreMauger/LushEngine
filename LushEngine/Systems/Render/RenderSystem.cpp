@@ -2,8 +2,6 @@
 
 using namespace Lush;
 
-std::string loadFile(std::string fileName);
-
 RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic)
 {
     this->_graphic = graphic;

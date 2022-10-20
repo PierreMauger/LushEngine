@@ -11,7 +11,7 @@ uniform sampler2D silhouette;
 void main()
 {
     vec3 obj = texture(silhouette, TexCoords).rgb;
-    float colorId = obj.r * 255.0f * 255.0f * 255.0f + obj.g * 255.0f * 255.0f + obj.b * 255.0f;
+    float colorId = obj.r * 255.0f + obj.g * 255.0f * 255.0f + obj.b * 255.0f * 255.0f * 255.0f;
     FragColor = vec4(0.0f);
 
     if (id != 0 && colorId == id) {

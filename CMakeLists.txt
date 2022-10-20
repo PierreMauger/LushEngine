@@ -106,7 +106,7 @@ set(SRC
     ${PROJECT_NAME}/Graphic/RenderView.cpp
     ${PROJECT_NAME}/Graphic/Shader.cpp
     ${PROJECT_NAME}/Graphic/Mesh.cpp
-    ${PROJECT_NAME}/Graphic/Model.cpp
+    ${PROJECT_NAME}/Graphic/RenderModel.cpp
     ${PROJECT_NAME}/Systems/Camera/CameraSystem.cpp
     ${PROJECT_NAME}/Systems/Control/ControlSystem.cpp
     ${PROJECT_NAME}/Systems/Picking/PickingSystem.cpp

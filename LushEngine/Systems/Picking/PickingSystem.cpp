@@ -19,6 +19,17 @@ PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic)
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1280, 720);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_buffer.depthbuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    float quadVertices[] = {-1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+    glGenVertexArrays(1, &this->_planeVAO);
+    glGenBuffers(1, &this->_planeVBO);
+    glBindVertexArray(this->_planeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_planeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 }
 
 void PickingSystem::update(ComponentManager &componentManager, EntityManager &entityManager)
@@ -51,15 +62,21 @@ void PickingSystem::update(ComponentManager &componentManager, EntityManager &en
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    double x = 0.0f;
-    double y = 0.0f;
+    glm::vec2 mousePosition = this->_graphic->getMousePosition();
+    double x = mousePosition.x;
+    double y = mousePosition.y;
     glfwGetCursorPos(this->_graphic->getWindow().get(), &x, &y);
+    this->_graphic->setMousePosition(glm::vec2{x, y});
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
     unsigned char pixel[4];
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glReadPixels(x, 720 - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
-    int hover = (pixel[0]) + (pixel[1] << 8) + (pixel[2] << 16);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    std::cout << hover << std::endl;
+    this->_graphic->getCamera().use("Outline");
+    this->_graphic->getShaders()["Outline"].setInt("id", (pixel[0]) + (pixel[1] << 8) + (pixel[2] << 16));
+    glBindVertexArray(this->_planeVAO);
+    glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
 }

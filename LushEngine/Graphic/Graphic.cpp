@@ -28,6 +28,7 @@ Graphic::Graphic() : _camera(1280, 720)
     this->_models[0] = RenderModel(loadFile2("Resources/Models/Cube.dae"), std::map<std::string, unsigned int>());
     this->_shaders["Camera"] = Shader(loadFile2("Resources/Shaders/camera.vs"), loadFile2("Resources/Shaders/camera.fs"));
     this->_shaders["Picking"] = Shader(loadFile2("Resources/Shaders/camera.vs"), loadFile2("Resources/Shaders/picking.fs"));
+    this->_shaders["Outline"] = Shader(loadFile2("Resources/Shaders/outline.vs"), loadFile2("Resources/Shaders/outline.fs"));
 
     this->_camera.setShaders(this->_shaders);
 }
@@ -75,4 +76,20 @@ std::map<std::size_t, RenderModel> &Graphic::getModels()
 RenderView &Graphic::getCamera()
 {
     return this->_camera;
+}
+
+void Graphic::setMousePosition(glm::vec2 mousePosition)
+{
+    this->_mouseOffset = mousePosition - this->_mousePosition;
+    this->_mousePosition = mousePosition;
+}
+
+glm::vec2 Graphic::getMousePosition()
+{
+    return this->_mousePosition;
+}
+
+glm::vec2 Graphic::getMouseOffset()
+{
+    return this->_mouseOffset;
 }

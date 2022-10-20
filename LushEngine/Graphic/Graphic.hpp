@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "Graphic/Model.hpp"
+#include "Graphic/RenderModel.hpp"
 #include "Graphic/RenderView.hpp"
 #include "Graphic/Shader.hpp"
 #include "Includes.hpp"
@@ -25,6 +25,9 @@ namespace Lush
             std::map<std::size_t, RenderModel> _models;
             RenderView _camera;
 
+            glm::vec2 _mousePosition;
+            glm::vec2 _mouseOffset;
+
         public:
             Graphic();
             ~Graphic() = default;
@@ -34,6 +37,10 @@ namespace Lush
             std::map<std::string, Shader> &getShaders();
             std::map<std::size_t, RenderModel> &getModels();
             RenderView &getCamera();
+
+            void setMousePosition(glm::vec2 mousePosition);
+            glm::vec2 getMousePosition();
+            glm::vec2 getMouseOffset();
     };
 }
 

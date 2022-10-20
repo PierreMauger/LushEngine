@@ -33,9 +33,9 @@ Engine::Engine()
 
     this->_systemManager.bindSystem(std::make_shared<ControlSystem>(this->_graphic));
     this->_systemManager.bindSystem(std::make_shared<CameraSystem>(this->_graphic));
-    this->_systemManager.bindSystem(std::make_shared<GUISystem>(this->_graphic));
-    this->_systemManager.bindSystem(std::make_shared<PickingSystem>(this->_graphic));
     this->_systemManager.bindSystem(std::make_shared<RenderSystem>(this->_graphic));
+    this->_systemManager.bindSystem(std::make_shared<PickingSystem>(this->_graphic));
+    this->_systemManager.bindSystem(std::make_shared<GUISystem>(this->_graphic));
 
     this->_componentManager.bindComponent<Transform>();
     this->_componentManager.bindComponent<Velocity>();

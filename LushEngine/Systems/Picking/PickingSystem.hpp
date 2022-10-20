@@ -14,6 +14,9 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
             FrameBuffer _buffer;
 
+            unsigned int _planeVAO;
+            unsigned int _planeVBO;
+
         public:
             PickingSystem(std::shared_ptr<Graphic> graphic);
             ~PickingSystem() = default;
