@@ -21,6 +21,31 @@ std::string loadFile2(std::string fileName)
     return buffer;
 }
 
+unsigned int loadCubemap(std::vector<std::string> faces)
+{
+    unsigned int textureID;
+
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+    int width, height, nrChannels;
+    for (unsigned int i = 0; i < faces.size(); i++) {
+        unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        if (data) {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            stbi_image_free(data);
+        } else {
+            stbi_image_free(data);
+        }
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    return textureID;
+}
+
 Graphic::Graphic() : _camera(1280, 720)
 {
     this->setupWindow();
@@ -29,8 +54,18 @@ Graphic::Graphic() : _camera(1280, 720)
     this->_shaders["Camera"] = Shader(loadFile2("Resources/Shaders/camera.vs"), loadFile2("Resources/Shaders/camera.fs"));
     this->_shaders["Picking"] = Shader(loadFile2("Resources/Shaders/camera.vs"), loadFile2("Resources/Shaders/picking.fs"));
     this->_shaders["Outline"] = Shader(loadFile2("Resources/Shaders/outline.vs"), loadFile2("Resources/Shaders/outline.fs"));
+    this->_shaders["Skybox"] = Shader(loadFile2("Resources/Shaders/skybox.vs"), loadFile2("Resources/Shaders/skybox.fs"));
 
     this->_camera.setShaders(this->_shaders);
+
+    this->_skyboxes[0] = loadCubemap({
+        "Resources/Skybox/right.jpg",
+        "Resources/Skybox/left.jpg",
+        "Resources/Skybox/top.jpg",
+        "Resources/Skybox/bottom.jpg",
+        "Resources/Skybox/front.jpg",
+        "Resources/Skybox/back.jpg"
+    });
 }
 
 void Graphic::setupWindow()
@@ -71,6 +106,11 @@ std::map<std::string, Shader> &Graphic::getShaders()
 std::map<std::size_t, RenderModel> &Graphic::getModels()
 {
     return this->_models;
+}
+
+std::map<std::size_t, unsigned int> &Graphic::getSkyboxes()
+{
+    return this->_skyboxes;
 }
 
 RenderView &Graphic::getCamera()
