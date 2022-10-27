@@ -120,7 +120,8 @@ RenderView &Graphic::getCamera()
 
 void Graphic::setMousePosition(glm::vec2 mousePosition)
 {
-    this->_mouseOffset = mousePosition - this->_mousePosition;
+    this->_mouseOffset.x = mousePosition.x - this->_mousePosition.x;
+    this->_mouseOffset.y = this->_mousePosition.y - mousePosition.y;
     this->_mousePosition = mousePosition;
 }
 
