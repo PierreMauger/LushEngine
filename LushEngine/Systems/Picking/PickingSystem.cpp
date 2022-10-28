@@ -65,8 +65,6 @@ void PickingSystem::update(ComponentManager &componentManager, EntityManager &en
     glm::vec2 mousePosition = this->_graphic->getMousePosition();
     double x = mousePosition.x;
     double y = mousePosition.y;
-    glfwGetCursorPos(this->_graphic->getWindow().get(), &x, &y);
-    this->_graphic->setMousePosition(glm::vec2{x, y});
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
     unsigned char pixel[4];
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

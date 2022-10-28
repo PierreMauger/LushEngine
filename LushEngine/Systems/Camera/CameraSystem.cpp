@@ -5,6 +5,7 @@ using namespace Lush;
 CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic)
 {
     this->_graphic = graphic;
+    this->_graphic->setMousePosition(glm::vec2(640, 360));
 
     glfwMakeContextCurrent(this->_graphic->getWindow().get());
     glfwSetWindowUserPointer(this->_graphic->getWindow().get(), this);
@@ -16,12 +17,9 @@ CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic)
 
 void CameraSystem::update(ComponentManager &componentManager, EntityManager &entityManager)
 {
-    if (this->_mouseMovement) {
-        double x, y;
-        glfwGetCursorPos(this->_graphic->getWindow().get(), &x, &y);
-        glfwSetCursorPos(this->_graphic->getWindow().get(), 640, 360);
-        this->_graphic->setMousePosition(glm::vec2(x, y));
-    }
+    double x, y;
+    glfwGetCursorPos(this->_graphic->getWindow().get(), &x, &y);
+    this->_graphic->setMousePosition(glm::vec2(x, y));
 
     auto &masks = entityManager.getMasks();
     std::size_t cam = (ComponentType::TRANSFORM | ComponentType::CAMERA);
@@ -69,5 +67,8 @@ void CameraSystem::handleKeyboardPress(int key, [[maybe_unused]] int scancode, i
     if (key == GLFW_KEY_TAB && action == GLFW_PRESS) {
         this->_mouseMovement = !this->_mouseMovement;
         glfwSetInputMode(this->_graphic->getWindow().get(), GLFW_CURSOR, this->_mouseMovement ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+        if (this->_mouseMovement)
+            this->_graphic->setMousePosition(glm::vec2(640, 360));
+        glfwSetCursorPos(this->_graphic->getWindow().get(), 640, 360);
     }
 }
