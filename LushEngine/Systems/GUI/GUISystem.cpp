@@ -125,7 +125,7 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                 }
                 case 4: {
                     Light &light = componentManager.getComponent<Light>(this->_selectedEntity);
-                    ImGui::InputInt("Mod", &light.mod);
+                    ImGui::InputInt("TYpe", &light.type);
                     ImGui::SliderFloat("Intensity", &light.intensity, 0.0f, 1.0f);
                     ImGui::ColorEdit3("Color", (float *)&light.color);
                     ImGui::SliderFloat("Cut Off", &light.cutOff, 0.0f, 90.0f);

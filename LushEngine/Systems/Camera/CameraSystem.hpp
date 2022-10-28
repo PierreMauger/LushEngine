@@ -18,7 +18,7 @@ namespace Lush
             std::vector<std::pair<Transform, Light>> _dirLights;
             std::vector<std::pair<Transform, Light>> _pointLights;
             std::vector<std::pair<Transform, Light>> _spotLights;
-            // std::vector<Light> _areaLights;
+            // std::vector<std::pair<Transform, Light>> _areaLights;
 
         public:
             CameraSystem(std::shared_ptr<Graphic> graphic);

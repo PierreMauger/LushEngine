@@ -80,12 +80,16 @@ void RenderView::setView(float time)
     this->_shaders[this->_actShader].setFloat("time", time);
 }
 
-void RenderView::setDirLight(std::pair<Transform, Light> dirLight)
+void RenderView::setDirLights(std::vector<std::pair<Transform, Light>> dirLights)
 {
-    this->_shaders[this->_actShader].setVec3("dirLight.direction", dirLight.first.rotation);
-    this->_shaders[this->_actShader].setVec3("dirLight.ambient", dirLight.second.color);
-    this->_shaders[this->_actShader].setVec3("dirLight.diffuse", dirLight.second.color);
-    this->_shaders[this->_actShader].setVec3("dirLight.specular", dirLight.second.color);
+    this->_shaders[this->_actShader].setInt("dirLightCount", dirLights.size());
+
+    for (std::size_t i = 0; i < dirLights.size() && i < 2; i++) {
+        this->_shaders[this->_actShader].setVec3("dirLights[" + std::to_string(i) + "].direction", dirLights[i].first.rotation);
+        this->_shaders[this->_actShader].setVec3("dirLights[" + std::to_string(i) + "].ambient", dirLights[i].second.color);
+        this->_shaders[this->_actShader].setVec3("dirLights[" + std::to_string(i) + "].diffuse", dirLights[i].second.color);
+        this->_shaders[this->_actShader].setVec3("dirLights[" + std::to_string(i) + "].specular", dirLights[i].second.color);
+    }
 }
 
 void RenderView::setPointLights(std::vector<std::pair<Transform, Light>> pointLights)

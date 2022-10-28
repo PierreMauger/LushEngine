@@ -14,8 +14,8 @@ void ControlSystem::update(ComponentManager &componentManager, EntityManager &en
 
     for (std::size_t i = 0; i < masks.size(); i++) {
         if (masks[i].has_value() && (masks[i].value() & controllable) == controllable) {
-            Transform &transform = componentManager.getComponent<Transform>(i);
-            Control control = componentManager.getComponent<Control>(i);
+            // Transform &transform = componentManager.getComponent<Transform>(i);
+            // Control control = componentManager.getComponent<Control>(i);
 
             // if (glfwGetKey(this->_window.get(), GLFW_KEY_W) == GLFW_PRESS)
             //     transform.position += transform.rotation;

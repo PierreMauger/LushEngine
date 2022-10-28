@@ -43,7 +43,8 @@ struct PointLight {
     vec3 specular;
 };
 
-#define NB_POINT_LIGHTS 1
+#define NB_DIR_LIGHTS 2
+#define NB_POINT_LIGHTS 4
 
 in vec3 Normal;
 in vec3 FragPos;
@@ -52,10 +53,13 @@ in vec2 TexCoords;
 uniform vec3 viewPos;
 uniform Material material;
 uniform Texture tex;
-uniform DirLight dirLight;
-uniform PointLight pointLights[NB_POINT_LIGHTS];
-uniform int pointLightCount;
 uniform bool hasTexture = false;
+
+uniform int dirLightCount;
+uniform DirLight dirLights[NB_DIR_LIGHTS];
+uniform int pointLightCount;
+uniform PointLight pointLights[NB_POINT_LIGHTS];
+
 uniform float time;
 
 vec3 calcDirLight(Base object, DirLight light, vec3 normal, vec3 viewDir)
@@ -105,8 +109,10 @@ void main()
 
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 result = vec3(0.0f);
 
-    vec3 result = calcDirLight(object, dirLight, norm, viewDir);
+    for (int i = 0; i < dirLightCount && i < NB_DIR_LIGHTS; i++)
+        result += calcDirLight(object, dirLights[i], norm, viewDir);
 
     for (int i = 0; i < pointLightCount && i < NB_POINT_LIGHTS; i++)
         result += calcPointLight(object, pointLights[i], norm, FragPos, viewDir);

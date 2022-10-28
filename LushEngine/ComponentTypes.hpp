@@ -37,7 +37,7 @@ typedef struct {
 } Camera;
 
 typedef struct {
-    int mod = 0;
+    int type = 0;
     float intensity = 1.0f;
     glm::vec3 color = glm::vec3(1.0f);
     float cutOff = 0.0f;
