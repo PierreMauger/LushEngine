@@ -18,8 +18,6 @@ namespace Lush
             glm::vec3 _position;
             glm::vec3 _front;
             glm::vec3 _up;
-            float _yaw;
-            float _pitch;
             float _aspectRatio;
             float _fov;
             float _near;
@@ -38,6 +36,7 @@ namespace Lush
 
             void use(std::string shaderName);
             void update(Transform transform, Camera camera);
+            void rotate(Transform &transform, glm::vec2 offset);
             void setView(float time);
             void setDirLight(std::pair<Transform, Light> dirLight);
             void setPointLights(std::vector<std::pair<Transform, Light>> pointLights);

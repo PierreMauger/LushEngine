@@ -136,6 +136,12 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                     ImGui::Checkbox("##", &control.control);
                     break;
                 }
+                case 6: {
+                    CubeMap &cubemap = componentManager.getComponent<CubeMap>(this->_selectedEntity);
+                    const ImU64 increment = 1;
+                    ImGui::InputScalar("CubeMap ID", ImGuiDataType_U64, &cubemap.id, &increment);
+                    break;
+                }
                 default:
                     break;
                 }
@@ -175,6 +181,9 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                         break;
                     case 5:
                         componentManager.addComponent<Control>(this->_selectedEntity);
+                        break;
+                    case 6:
+                        componentManager.addComponent<CubeMap>(this->_selectedEntity);
                         break;
                     default:
                         break;

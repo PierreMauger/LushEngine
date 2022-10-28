@@ -13,6 +13,10 @@ namespace Lush
         private:
             std::shared_ptr<Graphic> _graphic;
 
+            unsigned int _skyBoxVAO;
+            unsigned int _skyBoxVBO;
+            unsigned int _skyBoxTexture;
+
         public:
             RenderSystem(std::shared_ptr<Graphic> graphic);
             ~RenderSystem();

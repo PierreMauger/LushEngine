@@ -9,8 +9,6 @@ RenderView::RenderView(float width, float height)
     this->_position = glm::vec3(0.0f, 0.0f, 10.0f);
     this->_front = glm::vec3(0.0f, 0.0f, -1.0f);
     this->_up = glm::vec3(0.0f, 1.0f, 0.0f);
-    this->_yaw = -90.0f;
-    this->_pitch = 0.0f;
     this->_fov = 45.0f;
     this->_aspectRatio = width / height;
     this->_near = 0.1f;
@@ -51,12 +49,9 @@ void RenderView::update(Transform transform, Camera camera)
 {
     this->_position = transform.position;
 
-    this->_yaw = transform.rotation.y;
-    this->_pitch = transform.rotation.x;
-
-    this->_front.x = cos(glm::radians(this->_yaw)) * cos(glm::radians(this->_pitch));
-    this->_front.y = sin(glm::radians(this->_pitch));
-    this->_front.z = sin(glm::radians(this->_yaw)) * cos(glm::radians(this->_pitch));
+    this->_front.x = cos(glm::radians(transform.rotation.x)) * cos(glm::radians(transform.rotation.y));
+    this->_front.y = sin(glm::radians(transform.rotation.y));
+    this->_front.z = sin(glm::radians(transform.rotation.x)) * cos(glm::radians(transform.rotation.y));
 
     this->_fov = camera.fov;
     this->_near = camera.near;
@@ -65,6 +60,16 @@ void RenderView::update(Transform transform, Camera camera)
 
     this->_view = glm::lookAt(this->_position, this->_position + this->_front, this->_up);
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
+}
+
+void RenderView::rotate(Transform &transform, glm::vec2 offset)
+{
+    // x is yaw, y is pitch
+    transform.rotation.x += offset.x * this->_sensitivity;
+    transform.rotation.y += offset.y * this->_sensitivity;
+
+    transform.rotation.x = fmod(transform.rotation.x, 360.0f);
+    transform.rotation.y = glm::clamp(transform.rotation.y, -89.0f, 89.0f);
 }
 
 void RenderView::setView(float time)

@@ -10,6 +10,7 @@ enum ComponentType {
     CAMERA = 1 << 3,
     LIGHT = 1 << 4,
     CONTROL = 1 << 5,
+    CUBEMAP = 1 << 6,
 };
 
 typedef struct {
@@ -45,5 +46,10 @@ typedef struct {
 typedef struct {
     bool control = true;
 } Control;
+
+typedef struct {
+    std::size_t id = 0;
+    glm::vec3 color = glm::vec3(1.0f);
+} CubeMap;
 
 #endif // COMPONENTTYPES_HPP

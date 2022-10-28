@@ -23,6 +23,7 @@ namespace Lush
             std::shared_ptr<GLFWwindow> _window;
             std::map<std::string, Shader> _shaders;
             std::map<std::size_t, RenderModel> _models;
+            std::map<std::size_t, unsigned int> _skyboxes;
             RenderView _camera;
 
             glm::vec2 _mousePosition;
@@ -36,6 +37,7 @@ namespace Lush
             std::shared_ptr<GLFWwindow> getWindow();
             std::map<std::string, Shader> &getShaders();
             std::map<std::size_t, RenderModel> &getModels();
+            std::map<std::size_t, unsigned int> &getSkyboxes();
             RenderView &getCamera();
 
             void setMousePosition(glm::vec2 mousePosition);
