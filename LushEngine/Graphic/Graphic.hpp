@@ -27,6 +27,7 @@ namespace Lush
             RenderView _camera;
 
             glm::vec2 _mousePosition;
+            glm::vec2 _mouseLastPosition;
             glm::vec2 _mouseOffset;
 
         public:
@@ -41,6 +42,7 @@ namespace Lush
             RenderView &getCamera();
 
             void setMousePosition(glm::vec2 mousePosition);
+            void setMouseOffset(glm::vec2 mousePosition);
             glm::vec2 getMousePosition();
             glm::vec2 getMouseOffset();
     };
