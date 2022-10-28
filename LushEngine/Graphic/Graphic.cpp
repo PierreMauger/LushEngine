@@ -118,6 +118,16 @@ RenderView &Graphic::getCamera()
     return this->_camera;
 }
 
+void Graphic::setMouseMovement(bool mouseMovement)
+{
+    this->_mouseMovement = mouseMovement;
+}
+
+bool Graphic::getMouseMovement()
+{
+    return this->_mouseMovement;
+}
+
 void Graphic::setMousePosition(glm::vec2 mousePosition)
 {
     this->_mouseLastPosition = this->_mousePosition;

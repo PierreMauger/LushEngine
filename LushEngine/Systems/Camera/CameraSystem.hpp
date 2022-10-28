@@ -13,8 +13,6 @@ namespace Lush
         private:
             std::shared_ptr<Graphic> _graphic;
 
-            bool _mouseMovement = false;
-
             std::vector<std::pair<Transform, Light>> _dirLights;
             std::vector<std::pair<Transform, Light>> _pointLights;
             std::vector<std::pair<Transform, Light>> _spotLights;
@@ -25,7 +23,7 @@ namespace Lush
             ~CameraSystem() = default;
 
             void update(ComponentManager &componentManager, EntityManager &entityManager);
-            void handleKeyboardPress(int key, int scancode, int action, int mods);
+            // void handleKeyboardPress(int key, int scancode, int action, int mods);
     };
 }
 

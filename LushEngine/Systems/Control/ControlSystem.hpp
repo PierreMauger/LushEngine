@@ -18,6 +18,7 @@ namespace Lush
             ~ControlSystem() = default;
 
             void update(ComponentManager &componentManager, EntityManager &entityManager);
+            void handleKeyboardPress(int key, int scancode, int action, int mods);
     };
 }
 
