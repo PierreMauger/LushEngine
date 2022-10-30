@@ -20,7 +20,15 @@ PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic)
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_buffer.depthbuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    static const float quadVertices[] = {-1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+    static const float quadVertices[] = {
+        // vec2 vertexPos, vec2 texCoords
+        -1.0f,  1.0f, 0.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f,
+         1.0f, -1.0f, 1.0f, 0.0f,
+         1.0f, -1.0f, 1.0f, 0.0f,
+         1.0f,  1.0f, 1.0f, 1.0f,
+        -1.0f,  1.0f, 0.0f, 1.0f,
+    };
     glGenVertexArrays(1, &this->_planeVAO);
     glGenBuffers(1, &this->_planeVBO);
     glBindVertexArray(this->_planeVAO);

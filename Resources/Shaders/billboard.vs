@@ -1,5 +1,6 @@
 #version 330 core
-layout (location = 0) in vec3 aTexCoords;
+layout (location = 0) in vec2 aPos;
+layout (location = 1) in vec2 aTexCoords;
 
 out vec2 TexCoords;
 
@@ -9,16 +10,15 @@ uniform mat4 projection;
 
 void main()
 {
-    vec3 BillboardPos = vec3(model[3].x, model[3].y, model[3].z);
-    vec2 BillboardSize = vec2(model[0].x, model[1].y);
-    vec3 CameraRight = vec3(view[0][0], view[1][0], view[2][0]);
-    vec3 CameraUp = vec3(view[0][1], view[1][1], view[2][1]);
+    vec3 billboardPos = vec3(model[3].x, model[3].y, model[3].z);
+    vec2 billboardSize = vec2(model[0].x, model[1].y);
+    vec3 cameraRight = vec3(view[0][0], view[1][0], view[2][0]);
+    vec3 cameraUp = vec3(view[0][1], view[1][1], view[2][1]);
 
-    vec3 pos = BillboardPos
-     + CameraRight * aTexCoords.x * BillboardSize.x
-     + CameraUp * aTexCoords.y * BillboardSize.y;
+    vec3 pos = billboardPos
+     + cameraRight * aPos.x * billboardSize.x
+     + cameraUp * aPos.y * billboardSize.y;
 
     gl_Position = projection * view * vec4(pos, 1.0f);
-
-    TexCoords = aTexCoords.xy + vec2(0.5f, 0.5f);
+    TexCoords = aTexCoords;
 }

@@ -6,7 +6,8 @@ RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic)
 {
     this->_graphic = graphic;
 
-    static const float skyboxVertices[] = {// positions
+    static const float skyboxVertices[] = {
+        // vec3 vertexPos
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,
          1.0f, -1.0f, -1.0f,
@@ -47,7 +48,8 @@ RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic)
          1.0f, -1.0f, -1.0f,
          1.0f, -1.0f, -1.0f,
         -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f};
+         1.0f, -1.0f,  1.0f
+    };
     glGenVertexArrays(1, &this->_skyBoxVAO);
     glGenBuffers(1, &this->_skyBoxVBO);
     glBindVertexArray(this->_skyBoxVAO);
@@ -57,20 +59,23 @@ RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
 
 	static const float billboardVertices[] = {
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
+        // vec2 vertexPos, vec2 texCoords
+        -1.0f,  1.0f, 0.0f, 0.0f,
+        -1.0f, -1.0f, 0.0f, 1.0f,
+         1.0f, -1.0f, 1.0f, 1.0f,
+         1.0f, -1.0f, 1.0f, 1.0f,
+         1.0f,  1.0f, 1.0f, 0.0f,
+        -1.0f,  1.0f, 0.0f, 0.0f,
     };
     glGenVertexArrays(1, &this->_billVAO);
     glGenBuffers(1, &this->_billVBO);
     glBindVertexArray(this->_billVAO);
     glBindBuffer(GL_ARRAY_BUFFER, this->_billVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(billboardVertices), billboardVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(billboardVertices), &billboardVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 }
 
 RenderSystem::~RenderSystem()
