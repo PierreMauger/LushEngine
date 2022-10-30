@@ -123,6 +123,11 @@ void RenderSystem::update(ComponentManager &componentManager, EntityManager &ent
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubeMap.id]);
                 this->_graphic->getCamera().getShader().setInt("skybox", 0);
+                glm::mat4 model = glm::mat4(1.0f);
+                if (cubeMap.rotationSpeed != 0.0f)
+                    model = glm::rotate(model, glm::radians((float)glfwGetTime() * cubeMap.rotationSpeed), glm::vec3(0.0f, 1.0f, 0.0f));
+                this->_graphic->getCamera().getShader().setMat4("model", model);
+                this->_graphic->getCamera().getShader().setVec3("color", cubeMap.color);
                 glBindVertexArray(this->_skyBoxVAO);
                 glDrawArrays(GL_TRIANGLES, 0, 36);
                 glBindVertexArray(0);

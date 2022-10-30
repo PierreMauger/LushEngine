@@ -140,6 +140,8 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                     CubeMap &cubemap = componentManager.getComponent<CubeMap>(this->_selectedEntity);
                     const ImU64 increment = 1;
                     ImGui::InputScalar("CubeMap ID", ImGuiDataType_U64, &cubemap.id, &increment);
+                    ImGui::DragFloat("Rotation Speed", &cubemap.rotationSpeed, 0.1f, -FLT_MAX, +FLT_MAX);
+                    ImGui::ColorEdit3("Color", (float *)&cubemap.color);
                     break;
                 }
                 case 7: {

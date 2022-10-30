@@ -50,6 +50,7 @@ typedef struct {
 
 typedef struct {
     std::size_t id = 0;
+    float rotationSpeed = 0.0f;
     glm::vec3 color = glm::vec3(1.0f);
 } CubeMap;
 
