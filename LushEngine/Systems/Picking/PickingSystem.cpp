@@ -43,7 +43,7 @@ PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic)
 void PickingSystem::update(ComponentManager &componentManager, EntityManager &entityManager)
 {
     auto &masks = entityManager.getMasks();
-    std::size_t renderable = (ComponentType::TRANSFORM | ComponentType::MODELID);
+    std::size_t renderable = (ComponentType::TRANSFORM | ComponentType::MODEL);
 
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);

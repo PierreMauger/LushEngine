@@ -125,7 +125,9 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                 }
                 case 4: {
                     Light &light = componentManager.getComponent<Light>(this->_selectedEntity);
-                    ImGui::InputInt("TYpe", &light.type);
+                    const char* names[LightType::LIGHT_TYPE_COUNT] = { "Dir", "Point", "Spot", "Area" };
+
+                    ImGui::SliderInt("Type", (int *)&light.type, 0, LightType::LIGHT_TYPE_COUNT - 1, names[light.type]);
                     ImGui::SliderFloat("Intensity", &light.intensity, 0.0f, 1.0f);
                     ImGui::ColorEdit3("Color", (float *)&light.color);
                     ImGui::SliderFloat("Cut Off", &light.cutOff, 0.0f, 90.0f);

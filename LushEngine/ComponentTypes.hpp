@@ -6,7 +6,7 @@
 enum ComponentType {
     TRANSFORM = 1 << 0,
     VELOCITY = 1 << 1,
-    MODELID = 1 << 2,
+    MODEL = 1 << 2,
     CAMERA = 1 << 3,
     LIGHT = 1 << 4,
     CONTROL = 1 << 5,
@@ -37,8 +37,17 @@ typedef struct {
     float sensitivity = 0.1f;
 } Camera;
 
+enum LightType {
+    DIRECTIONAL,
+    POINT,
+    SPOT,
+    AREA,
+
+    LIGHT_TYPE_COUNT
+};
+
 typedef struct {
-    int type = 0;
+    LightType type = LightType::DIRECTIONAL;
     float intensity = 1.0f;
     glm::vec3 color = glm::vec3(1.0f);
     float cutOff = 0.0f;

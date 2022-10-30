@@ -85,7 +85,7 @@ RenderSystem::~RenderSystem()
 void RenderSystem::update(ComponentManager &componentManager, EntityManager &entityManager)
 {
     auto &masks = entityManager.getMasks();
-    std::size_t renderable = (ComponentType::TRANSFORM | ComponentType::MODELID);
+    std::size_t renderable = (ComponentType::TRANSFORM | ComponentType::MODEL);
     std::size_t skybox = (ComponentType::CUBEMAP);
     std::size_t bill = (ComponentType::TRANSFORM | ComponentType::BILLBOARD);
 
