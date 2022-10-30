@@ -142,6 +142,12 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                     ImGui::InputScalar("CubeMap ID", ImGuiDataType_U64, &cubemap.id, &increment);
                     break;
                 }
+                case 7: {
+                    BillBoard &bill = componentManager.getComponent<BillBoard>(this->_selectedEntity);
+                    const ImU64 increment = 1;
+                    ImGui::InputScalar("Texture ID", ImGuiDataType_U64, &bill.textureId, &increment);
+                    break;
+                }
                 default:
                     break;
                 }
@@ -184,6 +190,9 @@ void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityMana
                         break;
                     case 6:
                         componentManager.addComponent<CubeMap>(this->_selectedEntity);
+                        break;
+                    case 7:
+                        componentManager.addComponent<BillBoard>(this->_selectedEntity);
                         break;
                     default:
                         break;

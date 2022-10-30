@@ -11,6 +11,7 @@ enum ComponentType {
     LIGHT = 1 << 4,
     CONTROL = 1 << 5,
     CUBEMAP = 1 << 6,
+    BILLBOARD = 1 << 7,
 };
 
 typedef struct {
@@ -51,5 +52,9 @@ typedef struct {
     std::size_t id = 0;
     glm::vec3 color = glm::vec3(1.0f);
 } CubeMap;
+
+typedef struct {
+    std::size_t textureId = 0;
+} BillBoard;
 
 #endif // COMPONENTTYPES_HPP

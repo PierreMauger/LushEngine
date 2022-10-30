@@ -44,6 +44,7 @@ Engine::Engine()
     this->_componentManager.bindComponent<Light>();
     this->_componentManager.bindComponent<Control>();
     this->_componentManager.bindComponent<CubeMap>();
+    this->_componentManager.bindComponent<BillBoard>();
 
     this->loadScene();
 }
@@ -100,6 +101,9 @@ void Engine::loadScene()
                         break;
                     case 6:
                         this->_componentManager.addComponent<CubeMap>(id);
+                        break;
+                    case 7:
+                        this->_componentManager.addComponent<BillBoard>(id);
                         break;
                     default:
                         break;

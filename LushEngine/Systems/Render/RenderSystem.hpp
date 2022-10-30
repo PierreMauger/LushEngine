@@ -15,7 +15,10 @@ namespace Lush
 
             unsigned int _skyBoxVAO;
             unsigned int _skyBoxVBO;
-            unsigned int _skyBoxTexture;
+
+            unsigned int _billVAO;
+            unsigned int _billVBO;
+            GLuint billboard_vertex_buffer;
 
         public:
             RenderSystem(std::shared_ptr<Graphic> graphic);

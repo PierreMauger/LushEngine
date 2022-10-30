@@ -112,7 +112,7 @@ void RenderView::setSkyBox()
     this->_shaders[this->_actShader].setMat4("projection", this->_projection);
 }
 
-void RenderView::setOnModel(Transform &transform)
+void RenderView::setOnModel(Transform transform)
 {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, transform.position);
@@ -125,4 +125,14 @@ void RenderView::setOnModel(Transform &transform)
     for (std::size_t i = 0; i < 100; i++)
         this->_shaders[this->_actShader].setMat4("finalBonesMatrices[" + std::to_string(i) + "]", glm::mat4(1.0f));
     // TODO animator system ?
+}
+
+void RenderView::setOnBillboard(Transform transform)
+{
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, transform.position);
+    model = glm::scale(model, transform.scale);
+    this->_shaders[this->_actShader].setMat4("model", model);
+    this->_shaders[this->_actShader].setMat4("projection", this->_projection);
+    this->_shaders[this->_actShader].setMat4("view", this->_view);
 }

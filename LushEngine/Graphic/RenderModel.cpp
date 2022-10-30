@@ -44,8 +44,7 @@ int &RenderModel::getBoneCount()
 void RenderModel::load(std::string const &file, std::map<std::string, unsigned int> texturesLoaded)
 {
     Assimp::Importer importer;
-    const aiScene *scene =
-        importer.ReadFileFromMemory(file.c_str(), file.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene *scene = importer.ReadFileFromMemory(file.c_str(), file.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
     if (!scene)
         throw std::runtime_error(std::string("RenderModel loading: ") + importer.GetErrorString());

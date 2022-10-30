@@ -6,7 +6,7 @@ RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic)
 {
     this->_graphic = graphic;
 
-    float skyboxVertices[] = {// positions
+    static const float skyboxVertices[] = {// positions
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,
          1.0f, -1.0f, -1.0f,
@@ -55,6 +55,22 @@ RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic)
     glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+
+	static const float billboardVertices[] = {
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+    };
+    glGenVertexArrays(1, &this->_billVAO);
+    glGenBuffers(1, &this->_billVBO);
+    glBindVertexArray(this->_billVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_billVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(billboardVertices), billboardVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 }
 
 RenderSystem::~RenderSystem()
@@ -66,6 +82,7 @@ void RenderSystem::update(ComponentManager &componentManager, EntityManager &ent
     auto &masks = entityManager.getMasks();
     std::size_t renderable = (ComponentType::TRANSFORM | ComponentType::MODELID);
     std::size_t skybox = (ComponentType::CUBEMAP);
+    std::size_t bill = (ComponentType::TRANSFORM | ComponentType::BILLBOARD);
 
     this->_graphic->getCamera().use("Camera");
     for (std::size_t i = 0; i < masks.size(); i++) {
@@ -78,6 +95,22 @@ void RenderSystem::update(ComponentManager &componentManager, EntityManager &ent
                 this->_graphic->getModels()[model.id].draw(this->_graphic->getCamera().getShader());
         }
     }
+    this->_graphic->getCamera().use("Billboard");
+    for (std::size_t i = 0; i < masks.size(); i++) {
+        if (masks[i].has_value() && (masks[i].value() & bill) == bill) {
+            Transform transform = componentManager.getComponent<Transform>(i);
+            BillBoard billBoard = componentManager.getComponent<BillBoard>(i);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, billBoard.textureId);
+            this->_graphic->getCamera().getShader().setInt("myTextureSampler", 0);
+
+            this->_graphic->getCamera().setOnBillboard(transform);
+            glBindVertexArray(this->_billVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glBindVertexArray(0);
+        }
+    }
 
     glDepthFunc(GL_LEQUAL);
     this->_graphic->getCamera().use("Skybox");
@@ -87,10 +120,10 @@ void RenderSystem::update(ComponentManager &componentManager, EntityManager &ent
             CubeMap cubeMap = componentManager.getComponent<CubeMap>(i);
 
             if (this->_graphic->getSkyboxes().find(cubeMap.id) != this->_graphic->getSkyboxes().end()) {
-                this->_graphic->getCamera().getShader().setInt("skybox", 0);
-                glBindVertexArray(this->_skyBoxVAO);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubeMap.id]);
+                this->_graphic->getCamera().getShader().setInt("skybox", 0);
+                glBindVertexArray(this->_skyBoxVAO);
                 glDrawArrays(GL_TRIANGLES, 0, 36);
                 glBindVertexArray(0);
             }
