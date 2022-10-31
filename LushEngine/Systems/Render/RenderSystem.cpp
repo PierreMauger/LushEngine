@@ -82,61 +82,55 @@ RenderSystem::~RenderSystem()
 {
 }
 
-void RenderSystem::update(ComponentManager &componentManager, EntityManager &entityManager)
+void RenderSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    auto &masks = entityManager.getMasks();
     std::size_t renderable = (ComponentType::TRANSFORM | ComponentType::MODEL);
     std::size_t skybox = (ComponentType::CUBEMAP);
     std::size_t bill = (ComponentType::TRANSFORM | ComponentType::BILLBOARD);
 
     this->_graphic->getCamera().use("Camera");
-    for (std::size_t i = 0; i < masks.size(); i++) {
-        if (masks[i].has_value() && (masks[i].value() & renderable) == renderable) {
-            Transform transform = componentManager.getComponent<Transform>(i);
-            Model model = componentManager.getComponent<Model>(i);
+    for (auto &id : entityManager.getMaskCategory(renderable)) {
+        Transform transform = componentManager.getComponent<Transform>(id);
+        Model model = componentManager.getComponent<Model>(id);
 
-            this->_graphic->getCamera().setOnModel(transform);
-            if (this->_graphic->getModels().find(model.id) != this->_graphic->getModels().end())
-                this->_graphic->getModels()[model.id].draw(this->_graphic->getCamera().getShader());
-        }
+        this->_graphic->getCamera().setOnModel(transform);
+        if (this->_graphic->getModels().find(model.id) != this->_graphic->getModels().end())
+            this->_graphic->getModels()[model.id].draw(this->_graphic->getCamera().getShader());
     }
+
     this->_graphic->getCamera().use("Billboard");
-    for (std::size_t i = 0; i < masks.size(); i++) {
-        if (masks[i].has_value() && (masks[i].value() & bill) == bill) {
-            Transform transform = componentManager.getComponent<Transform>(i);
-            BillBoard billBoard = componentManager.getComponent<BillBoard>(i);
+    for (auto &id : entityManager.getMaskCategory(bill)) {
+        Transform transform = componentManager.getComponent<Transform>(id);
+        BillBoard billBoard = componentManager.getComponent<BillBoard>(id);
 
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, billBoard.textureId);
-            this->_graphic->getCamera().getShader().setInt("myTextureSampler", 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, billBoard.textureId);
+        this->_graphic->getCamera().getShader().setInt("myTextureSampler", 0);
 
-            this->_graphic->getCamera().setOnBillboard(transform);
-            glBindVertexArray(this->_billVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            glBindVertexArray(0);
-        }
+        this->_graphic->getCamera().setOnBillboard(transform);
+        glBindVertexArray(this->_billVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
     }
 
     glDepthFunc(GL_LEQUAL);
     this->_graphic->getCamera().use("Skybox");
     this->_graphic->getCamera().setSkyBox();
-    for (std::size_t i = 0; i < masks.size(); i++) {
-        if (masks[i].has_value() && (masks[i].value() & skybox) == skybox) {
-            CubeMap cubeMap = componentManager.getComponent<CubeMap>(i);
+    for (auto &id : entityManager.getMaskCategory(skybox)) {
+        CubeMap cubeMap = componentManager.getComponent<CubeMap>(id);
 
-            if (this->_graphic->getSkyboxes().find(cubeMap.id) != this->_graphic->getSkyboxes().end()) {
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubeMap.id]);
-                this->_graphic->getCamera().getShader().setInt("skybox", 0);
-                glm::mat4 model = glm::mat4(1.0f);
-                if (cubeMap.rotationSpeed != 0.0f)
-                    model = glm::rotate(model, glm::radians((float)glfwGetTime() * cubeMap.rotationSpeed), glm::vec3(0.0f, 1.0f, 0.0f));
-                this->_graphic->getCamera().getShader().setMat4("model", model);
-                this->_graphic->getCamera().getShader().setVec3("color", cubeMap.color);
-                glBindVertexArray(this->_skyBoxVAO);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-                glBindVertexArray(0);
-            }
+        if (this->_graphic->getSkyboxes().find(cubeMap.id) != this->_graphic->getSkyboxes().end()) {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubeMap.id]);
+            this->_graphic->getCamera().getShader().setInt("skybox", 0);
+            glm::mat4 model = glm::mat4(1.0f);
+            if (cubeMap.rotationSpeed != 0.0f)
+                model = glm::rotate(model, glm::radians((float)glfwGetTime() * cubeMap.rotationSpeed), glm::vec3(0.0f, 1.0f, 0.0f));
+            this->_graphic->getCamera().getShader().setMat4("model", model);
+            this->_graphic->getCamera().getShader().setVec3("color", cubeMap.color);
+            glBindVertexArray(this->_skyBoxVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            glBindVertexArray(0);
         }
     }
     glDepthFunc(GL_LESS);

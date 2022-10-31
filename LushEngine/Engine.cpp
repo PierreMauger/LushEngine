@@ -37,6 +37,13 @@ Engine::Engine()
     this->_systemManager.bindSystem(std::make_shared<PickingSystem>(this->_graphic));
     this->_systemManager.bindSystem(std::make_shared<GUISystem>(this->_graphic));
 
+    this->_entityManager.addMaskCategory(ComponentType::TRANSFORM | ComponentType::MODEL);
+    this->_entityManager.addMaskCategory(ComponentType::CUBEMAP);
+    this->_entityManager.addMaskCategory(ComponentType::TRANSFORM | ComponentType::BILLBOARD);
+    this->_entityManager.addMaskCategory(ComponentType::TRANSFORM | ComponentType::CONTROL);
+    this->_entityManager.addMaskCategory(ComponentType::TRANSFORM | ComponentType::CAMERA);
+    this->_entityManager.addMaskCategory(ComponentType::TRANSFORM | ComponentType::LIGHT);
+
     this->_componentManager.bindComponent<Transform>();
     this->_componentManager.bindComponent<Velocity>();
     this->_componentManager.bindComponent<Model>();
@@ -119,7 +126,7 @@ void Engine::run()
 {
     while (!glfwWindowShouldClose(this->_graphic->getWindow().get())) {
         this->clear();
-        this->_systemManager.updateSystems(this->_componentManager, this->_entityManager);
+        this->_systemManager.updateSystems(this->_entityManager, this->_componentManager);
         glfwSwapBuffers(this->_graphic->getWindow().get());
         this->draw();
     }

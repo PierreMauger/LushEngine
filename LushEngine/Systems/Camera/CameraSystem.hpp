@@ -22,8 +22,7 @@ namespace Lush
             CameraSystem(std::shared_ptr<Graphic> graphic);
             ~CameraSystem() = default;
 
-            void update(ComponentManager &componentManager, EntityManager &entityManager);
-            // void handleKeyboardPress(int key, int scancode, int action, int mods);
+            void update(EntityManager &entityManager, ComponentManager &componentManager);
     };
 }
 

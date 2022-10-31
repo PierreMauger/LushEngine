@@ -40,9 +40,8 @@ PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic)
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 }
 
-void PickingSystem::update(ComponentManager &componentManager, EntityManager &entityManager)
+void PickingSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    auto &masks = entityManager.getMasks();
     std::size_t renderable = (ComponentType::TRANSFORM | ComponentType::MODEL);
 
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
@@ -52,32 +51,28 @@ void PickingSystem::update(ComponentManager &componentManager, EntityManager &en
     this->_graphic->getCamera().use("Picking");
     this->_graphic->getCamera().setView(glfwGetTime());
 
-    for (std::size_t i = 0; i < masks.size(); i++) {
-        if (masks[i].has_value() && (masks[i].value() & renderable) == renderable) {
-            Transform transform = componentManager.getComponent<Transform>(i);
-            Model model = componentManager.getComponent<Model>(i);
+    for (auto &id : entityManager.getMaskCategory(renderable)) {
+        Transform transform = componentManager.getComponent<Transform>(id);
+        Model model = componentManager.getComponent<Model>(id);
 
-            glm::vec4 color;
-            color.r = (((i + 1) & 0x000000FF) >> 0) / 255.0f;
-            color.g = (((i + 1) & 0x0000FF00) >> 8) / 255.0f;
-            color.b = (((i + 1) & 0x00FF0000) >> 16) / 255.0f;
-            color.a = 1.0f;
+        glm::vec4 color;
+        color.r = (((id + 1) & 0x000000FF) >> 0) / 255.0f;
+        color.g = (((id + 1) & 0x0000FF00) >> 8) / 255.0f;
+        color.b = (((id + 1) & 0x00FF0000) >> 16) / 255.0f;
+        color.a = 1.0f;
 
-            this->_graphic->getShaders()["Picking"].setVec4("id", color);
-            this->_graphic->getCamera().setOnModel(transform);
-            if (this->_graphic->getModels().find(model.id) != this->_graphic->getModels().end())
-                this->_graphic->getModels()[model.id].draw(this->_graphic->getCamera().getShader());
-        }
+        this->_graphic->getShaders()["Picking"].setVec4("id", color);
+        this->_graphic->getCamera().setOnModel(transform);
+        if (this->_graphic->getModels().find(model.id) != this->_graphic->getModels().end())
+            this->_graphic->getModels()[model.id].draw(this->_graphic->getCamera().getShader());
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glm::vec2 mousePosition = this->_graphic->getMousePosition();
-    double x = mousePosition.x;
-    double y = mousePosition.y;
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
     unsigned char pixel[4];
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glReadPixels(x, 720 - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
+    glReadPixels(mousePosition.x, 720 - mousePosition.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     this->_graphic->getCamera().use("Outline");

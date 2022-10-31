@@ -21,7 +21,7 @@ namespace Lush
             PickingSystem(std::shared_ptr<Graphic> graphic);
             ~PickingSystem() = default;
 
-            void update(ComponentManager &componentManager, EntityManager &entityManager);
+            void update(EntityManager &entityManager, ComponentManager &componentManager);
     };
 }
 

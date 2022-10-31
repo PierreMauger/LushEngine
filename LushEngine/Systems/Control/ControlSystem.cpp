@@ -14,7 +14,7 @@ ControlSystem::ControlSystem(std::shared_ptr<Graphic> graphic)
     glfwSetKeyCallback(this->_graphic->getWindow().get(), keyboardPressCallback);
 }
 
-void ControlSystem::update(ComponentManager &componentManager, EntityManager &entityManager)
+void ControlSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
     double x, y;
     glfwGetCursorPos(this->_graphic->getWindow().get(), &x, &y);
@@ -23,29 +23,26 @@ void ControlSystem::update(ComponentManager &componentManager, EntityManager &en
     else
         this->_graphic->setMousePosition(glm::vec2(x, y));
 
-    auto &masks = entityManager.getMasks();
     std::size_t controllable = (ComponentType::TRANSFORM | ComponentType::CONTROL);
 
-    for (std::size_t i = 0; i < masks.size(); i++) {
-        if (masks[i].has_value() && (masks[i].value() & controllable) == controllable) {
-            Transform &transform = componentManager.getComponent<Transform>(i);
-            Control control = componentManager.getComponent<Control>(i);
+    for (auto &id : entityManager.getMaskCategory(controllable)) {
+        Transform &transform = componentManager.getComponent<Transform>(id);
+        Control control = componentManager.getComponent<Control>(id);
 
-            if (!control.control)
-                continue;
-            if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_W) == GLFW_PRESS)
-                transform.position.x += 1;
-            if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_S) == GLFW_PRESS)
-                transform.position.x -= 1;
-            if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_A) == GLFW_PRESS)
-                transform.position.z += 1;
-            if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_D) == GLFW_PRESS)
-                transform.position.z -= 1;
-            if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_SPACE) == GLFW_PRESS)
-                transform.position.y += 1;
-            if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-                transform.position.y -= 1;
-        }
+        if (!control.control)
+            continue;
+        if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_W) == GLFW_PRESS)
+            transform.position.x += 1;
+        if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_S) == GLFW_PRESS)
+            transform.position.x -= 1;
+        if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_A) == GLFW_PRESS)
+            transform.position.z += 1;
+        if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_D) == GLFW_PRESS)
+            transform.position.z -= 1;
+        if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_SPACE) == GLFW_PRESS)
+            transform.position.y += 1;
+        if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            transform.position.y -= 1;
     }
 }
 

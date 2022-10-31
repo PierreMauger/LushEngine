@@ -24,7 +24,7 @@ namespace Lush
             RenderSystem(std::shared_ptr<Graphic> graphic);
             ~RenderSystem();
 
-            void update(ComponentManager &componentManager, EntityManager &entityManager);
+            void update(EntityManager &entityManager, ComponentManager &componentManager);
     };
 }
 

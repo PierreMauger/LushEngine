@@ -11,7 +11,7 @@ namespace Lush
     {
         public:
             virtual ~ISystem() = default;
-            virtual void update(ComponentManager &componentManager, EntityManager &entityManager) = 0;
+            virtual void update(EntityManager &entityManager, ComponentManager &componentManager) = 0;
     };
 }
 

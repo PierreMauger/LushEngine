@@ -17,7 +17,7 @@ namespace Lush
             ControlSystem(std::shared_ptr<Graphic> graphic);
             ~ControlSystem() = default;
 
-            void update(ComponentManager &componentManager, EntityManager &entityManager);
+            void update(EntityManager &entityManager, ComponentManager &componentManager);
             void handleKeyboardPress(int key, int scancode, int action, int mods);
     };
 }

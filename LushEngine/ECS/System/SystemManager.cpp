@@ -22,8 +22,8 @@ void SystemManager::bindSystem(std::shared_ptr<ISystem> system)
     this->_systems.push_back(system);
 }
 
-void SystemManager::updateSystems(ComponentManager &componentManager, EntityManager &entityManager)
+void SystemManager::updateSystems(EntityManager &entityManager, ComponentManager &componentManager)
 {
     for (auto &system : this->_systems)
-        system->update(componentManager, entityManager);
+        system->update(entityManager, componentManager);
 }

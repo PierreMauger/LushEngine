@@ -21,15 +21,15 @@ namespace Lush
             bool _showEntityDetails = false;
             std::size_t _selectedEntity = 0;
 
-            void drawEntityManager(ComponentManager &componentManager, EntityManager &entityManager);
-            void drawEntityDetails(ComponentManager &componentManager, EntityManager &entityManager);
+            void drawEntityManager(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawEntityDetails(EntityManager &entityManager, ComponentManager &componentManager);
             std::string formatBool(std::size_t value, std::size_t size);
 
         public:
             GUISystem(std::shared_ptr<Graphic> graphic);
             ~GUISystem();
 
-            void update(ComponentManager &componentManager, EntityManager &entityManager);
+            void update(EntityManager &entityManager, ComponentManager &componentManager);
     };
 }
 

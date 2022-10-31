@@ -22,22 +22,22 @@ GUISystem::~GUISystem()
     ImGui::DestroyContext();
 }
 
-void GUISystem::update(ComponentManager &componentManager, EntityManager &entityManager)
+void GUISystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
     if (this->_showEntityManager)
-        this->drawEntityManager(componentManager, entityManager);
+        this->drawEntityManager(entityManager, componentManager);
     if (this->_showEntityDetails)
-        this->drawEntityDetails(componentManager, entityManager);
+        this->drawEntityDetails(entityManager, componentManager);
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void GUISystem::drawEntityManager(ComponentManager &componentManager, EntityManager &entityManager)
+void GUISystem::drawEntityManager(EntityManager &entityManager, ComponentManager &componentManager)
 {
     std::size_t size = componentManager.getComponentArray().size();
     ImGui::Begin("Entities", &this->_showEntityManager);
@@ -82,7 +82,7 @@ void GUISystem::drawEntityManager(ComponentManager &componentManager, EntityMana
     ImGui::End();
 }
 
-void GUISystem::drawEntityDetails(ComponentManager &componentManager, EntityManager &entityManager)
+void GUISystem::drawEntityDetails(EntityManager &entityManager, ComponentManager &componentManager)
 {
     ImGui::Begin("Entity Details", &this->_showEntityDetails);
     auto &masks = entityManager.getMasks();

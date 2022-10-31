@@ -16,7 +16,7 @@ namespace Lush
 
             std::vector<std::shared_ptr<ISystem>> &getSystems();
             void bindSystem(std::shared_ptr<ISystem> system);
-            void updateSystems(ComponentManager &componentManager, EntityManager &entityManager);
+            void updateSystems(EntityManager &entityManager, ComponentManager &componentManager);
     };
 }
 
