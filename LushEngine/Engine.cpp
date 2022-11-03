@@ -25,24 +25,13 @@ std::string loadFile(std::string fileName)
 
 Engine::Engine()
 {
-    this->_entityManager = EntityManager();
-    this->_componentManager = ComponentManager();
-    this->_systemManager = SystemManager();
-
     this->_graphic = std::make_shared<Graphic>();
 
-    this->_systemManager.bindSystem(std::make_shared<ControlSystem>(this->_graphic));
-    this->_systemManager.bindSystem(std::make_shared<CameraSystem>(this->_graphic));
-    this->_systemManager.bindSystem(std::make_shared<RenderSystem>(this->_graphic));
-    this->_systemManager.bindSystem(std::make_shared<PickingSystem>(this->_graphic));
+    this->_systemManager.bindSystem(std::make_shared<ControlSystem>(this->_graphic, this->_entityManager));
+    this->_systemManager.bindSystem(std::make_shared<CameraSystem>(this->_graphic, this->_entityManager));
+    this->_systemManager.bindSystem(std::make_shared<RenderSystem>(this->_graphic, this->_entityManager));
+    this->_systemManager.bindSystem(std::make_shared<PickingSystem>(this->_graphic, this->_entityManager));
     this->_systemManager.bindSystem(std::make_shared<GUISystem>(this->_graphic));
-
-    this->_entityManager.addMaskCategory(ComponentType::TRANSFORM | ComponentType::MODEL);
-    this->_entityManager.addMaskCategory(ComponentType::CUBEMAP);
-    this->_entityManager.addMaskCategory(ComponentType::TRANSFORM | ComponentType::BILLBOARD);
-    this->_entityManager.addMaskCategory(ComponentType::TRANSFORM | ComponentType::CONTROL);
-    this->_entityManager.addMaskCategory(ComponentType::TRANSFORM | ComponentType::CAMERA);
-    this->_entityManager.addMaskCategory(ComponentType::TRANSFORM | ComponentType::LIGHT);
 
     this->_componentManager.bindComponent<Transform>();
     this->_componentManager.bindComponent<Velocity>();

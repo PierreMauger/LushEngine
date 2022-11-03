@@ -2,9 +2,10 @@
 
 using namespace Lush;
 
-ControlSystem::ControlSystem(std::shared_ptr<Graphic> graphic)
+ControlSystem::ControlSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
 {
     this->_graphic = graphic;
+    entityManager.addMaskCategory(this->_controlTag);
 
     this->_graphic->setMousePosition(glm::vec2(640, 360));
     glfwSetWindowUserPointer(this->_graphic->getWindow().get(), this);
@@ -23,9 +24,7 @@ void ControlSystem::update(EntityManager &entityManager, ComponentManager &compo
     else
         this->_graphic->setMousePosition(glm::vec2(x, y));
 
-    std::size_t controllable = (ComponentType::TRANSFORM | ComponentType::CONTROL);
-
-    for (auto &id : entityManager.getMaskCategory(controllable)) {
+    for (auto &id : entityManager.getMaskCategory(this->_controlTag)) {
         Transform &transform = componentManager.getComponent<Transform>(id);
         Control control = componentManager.getComponent<Control>(id);
 

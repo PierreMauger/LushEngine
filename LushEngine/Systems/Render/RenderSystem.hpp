@@ -4,6 +4,7 @@
 #include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
 #include "Graphic/Graphic.hpp"
+#include "Graphic/Vertices.hpp"
 #include "Includes.hpp"
 
 namespace Lush
@@ -12,16 +13,18 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
+            std::size_t _modelTag = (ComponentType::TRANSFORM | ComponentType::MODEL);
+            std::size_t _billboardTag = (ComponentType::TRANSFORM | ComponentType::BILLBOARD);
+            std::size_t _skyboxTag = (ComponentType::CUBEMAP);
 
-            unsigned int _skyBoxVAO;
-            unsigned int _skyBoxVBO;
+            unsigned int _skyboxVAO;
+            unsigned int _skyboxVBO;
 
-            unsigned int _billVAO;
-            unsigned int _billVBO;
-            GLuint billboard_vertex_buffer;
+            unsigned int _billboardVAO;
+            unsigned int _billboardVBO;
 
         public:
-            RenderSystem(std::shared_ptr<Graphic> graphic);
+            RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
             ~RenderSystem();
 
             void update(EntityManager &entityManager, ComponentManager &componentManager);

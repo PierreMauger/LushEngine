@@ -2,9 +2,10 @@
 
 using namespace Lush;
 
-PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic)
+PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
 {
     this->_graphic = graphic;
+    entityManager.addMaskCategory(this->_modelTag);
 
     glGenFramebuffers(1, &this->_buffer.framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
@@ -20,15 +21,6 @@ PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic)
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_buffer.depthbuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    static const float quadVertices[] = {
-        // vec2 vertexPos, vec2 texCoords
-        -1.0f,  1.0f, 0.0f, 1.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f,
-         1.0f, -1.0f, 1.0f, 0.0f,
-         1.0f, -1.0f, 1.0f, 0.0f,
-         1.0f,  1.0f, 1.0f, 1.0f,
-        -1.0f,  1.0f, 0.0f, 1.0f,
-    };
     glGenVertexArrays(1, &this->_planeVAO);
     glGenBuffers(1, &this->_planeVBO);
     glBindVertexArray(this->_planeVAO);
@@ -42,16 +34,13 @@ PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic)
 
 void PickingSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    std::size_t renderable = (ComponentType::TRANSFORM | ComponentType::MODEL);
-
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     this->_graphic->getCamera().use("Picking");
-    this->_graphic->getCamera().setView(glfwGetTime());
-
-    for (auto &id : entityManager.getMaskCategory(renderable)) {
+    this->_graphic->getCamera().setView();
+    for (auto &id : entityManager.getMaskCategory(this->_modelTag)) {
         Transform transform = componentManager.getComponent<Transform>(id);
         Model model = componentManager.getComponent<Model>(id);
 
@@ -62,7 +51,7 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
         color.a = 1.0f;
 
         this->_graphic->getShaders()["Picking"].setVec4("id", color);
-        this->_graphic->getCamera().setOnModel(transform);
+        this->_graphic->getCamera().setModel(transform);
         if (this->_graphic->getModels().find(model.id) != this->_graphic->getModels().end())
             this->_graphic->getModels()[model.id].draw(this->_graphic->getCamera().getShader());
     }

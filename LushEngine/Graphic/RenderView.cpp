@@ -72,12 +72,17 @@ void RenderView::rotate(Transform &transform, glm::vec2 offset)
     transform.rotation.y = glm::clamp(transform.rotation.y, -89.0f, 89.0f);
 }
 
-void RenderView::setView(float time)
+void RenderView::setView()
 {
     this->_shaders[this->_actShader].setVec3("viewPos", this->_position);
     this->_shaders[this->_actShader].setMat4("view", this->_view);
     this->_shaders[this->_actShader].setMat4("projection", this->_projection);
-    this->_shaders[this->_actShader].setFloat("time", time);
+}
+
+void RenderView::setSkyBoxView()
+{
+    this->_shaders[this->_actShader].setMat4("view", glm::mat4(glm::mat3(this->_view))); // remove translation from the view matrix
+    this->_shaders[this->_actShader].setMat4("projection", this->_projection);
 }
 
 void RenderView::setDirLights(std::vector<std::pair<Transform, Light>> dirLights)
@@ -106,13 +111,7 @@ void RenderView::setPointLights(std::vector<std::pair<Transform, Light>> pointLi
     }
 }
 
-void RenderView::setSkyBox()
-{
-    this->_shaders[this->_actShader].setMat4("view", glm::mat4(glm::mat3(this->_view))); // remove translation from the view matrix
-    this->_shaders[this->_actShader].setMat4("projection", this->_projection);
-}
-
-void RenderView::setOnModel(Transform transform)
+void RenderView::setModel(Transform transform)
 {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, transform.position);
@@ -120,19 +119,25 @@ void RenderView::setOnModel(Transform transform)
     model = glm::rotate(model, glm::radians(transform.rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, glm::radians(transform.rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::scale(model, transform.scale);
-    this->_shaders[this->_actShader].setMat4("model", model);
 
-    for (std::size_t i = 0; i < 100; i++)
-        this->_shaders[this->_actShader].setMat4("finalBonesMatrices[" + std::to_string(i) + "]", glm::mat4(1.0f));
-    // TODO animator system ?
+    this->_shaders[this->_actShader].setMat4("model", model);
 }
 
-void RenderView::setOnBillboard(Transform transform)
+void RenderView::setBillboard(Transform transform)
 {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, transform.position);
     model = glm::scale(model, transform.scale);
+
     this->_shaders[this->_actShader].setMat4("model", model);
-    this->_shaders[this->_actShader].setMat4("projection", this->_projection);
-    this->_shaders[this->_actShader].setMat4("view", this->_view);
+}
+
+void RenderView::setSkyBox(CubeMap cubeMap)
+{
+    glm::mat4 model = glm::mat4(1.0f);
+    if (cubeMap.rotationSpeed != 0.0f)
+        model = glm::rotate(model, glm::radians((float)glfwGetTime() * cubeMap.rotationSpeed), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    this->_shaders[this->_actShader].setMat4("model", model);
+    this->_shaders[this->_actShader].setVec3("color", cubeMap.color);
 }

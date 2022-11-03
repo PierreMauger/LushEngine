@@ -37,12 +37,13 @@ namespace Lush
             void use(std::string shaderName);
             void update(Transform transform, Camera camera);
             void rotate(Transform &transform, glm::vec2 offset);
-            void setView(float time);
+            void setView();
+            void setSkyBoxView();
             void setDirLights(std::vector<std::pair<Transform, Light>> dirLights);
             void setPointLights(std::vector<std::pair<Transform, Light>> pointLights);
-            void setSkyBox();
-            void setOnModel(Transform transform);
-            void setOnBillboard(Transform transform);
+            void setModel(Transform transform);
+            void setBillboard(Transform transform);
+            void setSkyBox(CubeMap cubeMap);
     };
 }
 

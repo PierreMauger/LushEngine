@@ -12,6 +12,8 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
+            std::size_t _cameraTag = (ComponentType::TRANSFORM | ComponentType::CAMERA);
+            std::size_t _lightTag = (ComponentType::TRANSFORM | ComponentType::LIGHT);
 
             std::vector<std::pair<Transform, Light>> _dirLights;
             std::vector<std::pair<Transform, Light>> _pointLights;
@@ -19,7 +21,7 @@ namespace Lush
             // std::vector<std::pair<Transform, Light>> _areaLights;
 
         public:
-            CameraSystem(std::shared_ptr<Graphic> graphic);
+            CameraSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
             ~CameraSystem() = default;
 
             void update(EntityManager &entityManager, ComponentManager &componentManager);

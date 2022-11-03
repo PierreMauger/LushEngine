@@ -12,9 +12,10 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
+            std::size_t _controlTag = (ComponentType::TRANSFORM | ComponentType::CONTROL);
 
         public:
-            ControlSystem(std::shared_ptr<Graphic> graphic);
+            ControlSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
             ~ControlSystem() = default;
 
             void update(EntityManager &entityManager, ComponentManager &componentManager);
