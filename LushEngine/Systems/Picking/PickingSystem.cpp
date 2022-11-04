@@ -40,7 +40,7 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
 
     this->_graphic->getCamera().use("Picking");
     this->_graphic->getCamera().setView();
-    for (auto &id : entityManager.getMaskCategory(this->_modelTag)) {
+    for (auto id : entityManager.getMaskCategory(this->_modelTag)) {
         Transform transform = componentManager.getComponent<Transform>(id);
         Model model = componentManager.getComponent<Model>(id);
 

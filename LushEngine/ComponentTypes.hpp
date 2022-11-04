@@ -30,11 +30,27 @@ typedef struct {
     std::size_t id = 0;
 } Model;
 
+// enum CameraType {
+    // PERSPECTIVE,
+    // ORTHOGRAPHIC,
+// };
+
+enum CameraMod {
+    FIRST_PERSON,
+    THIRD_PERSON,
+
+    CAMERA_MOD_COUNT
+};
+
 typedef struct {
+    glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
     float fov = 45.0f;
     float near = 0.1f;
     float far = 100.0f;
     float sensitivity = 0.1f;
+    CameraMod mod = FIRST_PERSON;
+    float distance = 10.0f;
+    std::size_t target = 0;
 } Camera;
 
 enum LightType {

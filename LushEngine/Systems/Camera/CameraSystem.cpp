@@ -7,11 +7,12 @@ CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     this->_graphic = graphic;
     entityManager.addMaskCategory(this->_cameraTag);
     entityManager.addMaskCategory(this->_lightTag);
+    entityManager.addMaskCategory(this->_transformTag);
 }
 
 void CameraSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    for (auto &id : entityManager.getMaskCategory(this->_lightTag)) {
+    for (auto id : entityManager.getMaskCategory(this->_lightTag)) {
         Transform transform = componentManager.getComponent<Transform>(id);
         Light light = componentManager.getComponent<Light>(id);
 
@@ -24,12 +25,24 @@ void CameraSystem::update(EntityManager &entityManager, ComponentManager &compon
     }
 
     this->_graphic->getCamera().use("Camera");
-    for (auto &id : entityManager.getMaskCategory(this->_cameraTag)) {
+    for (auto id : entityManager.getMaskCategory(this->_cameraTag)) {
         Transform &transform = componentManager.getComponent<Transform>(id);
-        Camera camera = componentManager.getComponent<Camera>(id);
+        Camera &camera = componentManager.getComponent<Camera>(id);
 
         if (this->_graphic->getMouseMovement())
             this->_graphic->getCamera().rotate(transform, this->_graphic->getMouseOffset());
+        camera.forward.x = cos(glm::radians(transform.rotation.x)) * cos(glm::radians(transform.rotation.y));
+        camera.forward.y = sin(glm::radians(transform.rotation.y));
+        camera.forward.z = sin(glm::radians(transform.rotation.x)) * cos(glm::radians(transform.rotation.y));
+
+        if (camera.mod == CameraMod::THIRD_PERSON) {
+            auto transforms = entityManager.getMaskCategory(this->_transformTag);
+            if (camera.target != id && std::find(transforms.begin(), transforms.end(), camera.target) != transforms.end()) {
+                Transform target = componentManager.getComponent<Transform>(camera.target);
+
+                transform.position = target.position - camera.forward * camera.distance;
+            }
+        }
         this->_graphic->getCamera().update(transform, camera);
 
         this->_graphic->getCamera().setDirLights(this->_dirLights);

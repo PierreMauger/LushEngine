@@ -14,6 +14,7 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
             std::size_t _cameraTag = (ComponentType::TRANSFORM | ComponentType::CAMERA);
             std::size_t _lightTag = (ComponentType::TRANSFORM | ComponentType::LIGHT);
+            std::size_t _transformTag = (ComponentType::TRANSFORM);
 
             std::vector<std::pair<Transform, Light>> _dirLights;
             std::vector<std::pair<Transform, Light>> _pointLights;

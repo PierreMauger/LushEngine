@@ -48,10 +48,7 @@ void RenderView::use(std::string shaderName)
 void RenderView::update(Transform transform, Camera camera)
 {
     this->_position = transform.position;
-
-    this->_front.x = cos(glm::radians(transform.rotation.x)) * cos(glm::radians(transform.rotation.y));
-    this->_front.y = sin(glm::radians(transform.rotation.y));
-    this->_front.z = sin(glm::radians(transform.rotation.x)) * cos(glm::radians(transform.rotation.y));
+    this->_front = camera.forward;
 
     this->_fov = camera.fov;
     this->_near = camera.near;

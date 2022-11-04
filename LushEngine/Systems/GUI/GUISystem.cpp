@@ -117,15 +117,25 @@ void GUISystem::drawEntityDetails(EntityManager &entityManager, ComponentManager
                 }
                 case 3: {
                     Camera &camera = componentManager.getComponent<Camera>(this->_selectedEntity);
+                    const char *names[CameraMod::CAMERA_MOD_COUNT] = {"First", "Third"};
+
+                    ImGui::Text("Forward:");
+                    ImGui::DragFloat3("##forward", (float *)&camera.forward, 0.01f, -1.0f, 1.0f);
+                    ImGui::SliderInt("Mod", (int *)&camera.mod, 0, CameraMod::CAMERA_MOD_COUNT - 1, names[camera.mod]);
                     ImGui::SliderFloat("FOV", &camera.fov, 30.0f, 90.0f);
                     ImGui::SliderFloat("Near", &camera.near, 0.0f, 100.0f);
                     ImGui::SliderFloat("Far", &camera.far, 0.0f, 1000.0f);
                     ImGui::SliderFloat("Sensitivity", &camera.sensitivity, 0.0f, 1.0f);
+                    if (camera.mod == CameraMod::THIRD_PERSON) {
+                        ImGui::SliderFloat("Distance", &camera.distance, 0.0f, 100.0f);
+                        const ImU64 increment = 1;
+                        ImGui::InputScalar("Target ID", ImGuiDataType_U64, &camera.target, &increment);
+                    }
                     break;
                 }
                 case 4: {
                     Light &light = componentManager.getComponent<Light>(this->_selectedEntity);
-                    const char* names[LightType::LIGHT_TYPE_COUNT] = { "Dir", "Point", "Spot", "Area" };
+                    const char *names[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
 
                     ImGui::SliderInt("Type", (int *)&light.type, 0, LightType::LIGHT_TYPE_COUNT - 1, names[light.type]);
                     ImGui::SliderFloat("Intensity", &light.intensity, 0.0f, 1.0f);

@@ -24,7 +24,7 @@ void ControlSystem::update(EntityManager &entityManager, ComponentManager &compo
     else
         this->_graphic->setMousePosition(glm::vec2(x, y));
 
-    for (auto &id : entityManager.getMaskCategory(this->_controlTag)) {
+    for (auto id : entityManager.getMaskCategory(this->_controlTag)) {
         Transform &transform = componentManager.getComponent<Transform>(id);
         Control control = componentManager.getComponent<Control>(id);
 

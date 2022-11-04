@@ -36,7 +36,7 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
 {
     this->_graphic->getCamera().use("Camera");
     this->_graphic->getCamera().setView();
-    for (auto &id : entityManager.getMaskCategory(this->_modelTag)) {
+    for (auto id : entityManager.getMaskCategory(this->_modelTag)) {
         Transform transform = componentManager.getComponent<Transform>(id);
         Model model = componentManager.getComponent<Model>(id);
 
@@ -47,7 +47,7 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
 
     this->_graphic->getCamera().use("Billboard");
     this->_graphic->getCamera().setView();
-    for (auto &id : entityManager.getMaskCategory(this->_billboardTag)) {
+    for (auto id : entityManager.getMaskCategory(this->_billboardTag)) {
         Transform transform = componentManager.getComponent<Transform>(id);
         BillBoard billBoard = componentManager.getComponent<BillBoard>(id);
 
@@ -63,7 +63,7 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
     glDepthFunc(GL_LEQUAL);
     this->_graphic->getCamera().use("Skybox");
     this->_graphic->getCamera().setSkyBoxView();
-    for (auto &id : entityManager.getMaskCategory(this->_skyboxTag)) {
+    for (auto id : entityManager.getMaskCategory(this->_skyboxTag)) {
         CubeMap cubeMap = componentManager.getComponent<CubeMap>(id);
 
         if (this->_graphic->getSkyboxes().find(cubeMap.id) != this->_graphic->getSkyboxes().end()) {
