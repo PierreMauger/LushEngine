@@ -7,7 +7,6 @@ CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     this->_graphic = graphic;
     entityManager.addMaskCategory(this->_cameraTag);
     entityManager.addMaskCategory(this->_lightTag);
-    entityManager.addMaskCategory(this->_transformTag);
 }
 
 void CameraSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
@@ -36,8 +35,7 @@ void CameraSystem::update(EntityManager &entityManager, ComponentManager &compon
         camera.forward.z = sin(glm::radians(transform.rotation.x)) * cos(glm::radians(transform.rotation.y));
 
         if (camera.mod == CameraMod::THIRD_PERSON) {
-            auto transforms = entityManager.getMaskCategory(this->_transformTag);
-            if (camera.target != id && std::find(transforms.begin(), transforms.end(), camera.target) != transforms.end()) {
+            if (camera.target != id && entityManager.hasMask(camera.target, this->_transformTag)) {
                 Transform target = componentManager.getComponent<Transform>(camera.target);
 
                 transform.position = target.position - camera.forward * camera.distance;

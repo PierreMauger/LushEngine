@@ -54,3 +54,10 @@ void EntityManager::updateMask(std::size_t id, std::optional<std::size_t> mask)
             value.push_back(id);
     }
 }
+
+bool EntityManager::hasMask(std::size_t id, std::size_t mask)
+{
+    if (id >= this->_masks.size())
+        return false;
+    return this->_masks[id].has_value() && (this->_masks[id].value() & mask) == mask;
+}
