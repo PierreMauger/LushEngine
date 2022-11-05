@@ -6,12 +6,12 @@
 <details>
 <summary>Click to reveal</summary>
 
-- [About](#-about)
-- [Features](#-features)
-- [Requirements](#-requirements)
-- [Building](#-building)
-- [Code](#-code)
-- [Authors](#-authors)
+- [About](#🔍-about)
+- [Features](#📈-features)
+- [Requirements](#💻-requirements)
+- [Building](#🚧-building)
+- [Code](#📉-code)
+- [Authors](#📣-authors)
 
 </details>
 
@@ -19,33 +19,37 @@
 
 This project is about making a cross-platform 3D engine in C++, mainly as an excuse to work on cool 3D stuff on my free time.\
 It has an ECS and an implementation of ImGui for debuging.\
-The rendering is made in OpenGL with the intent of staying as low level as possible. Implementation of Vulkan is planned for MacOS users.
+The rendering is made in OpenGL with the intent of staying as low level as possible. Implementation of Vulkan is planned in the future.
 
 ## 📈 Features
 
 Most features are still under developpement. Here are the main ones:
 
 - Loading 3D models
-- Mouse picking on 3D objects
 - 3D skeletal animation
+- Mouse picking on 3D objects
+- 3D camera, first and third person
 - Tesselation of terrain (LOD)
 - Advanced lighting using shaders
+- Cubemaps
+- Billboards (LOD and UI)
 
-## 💻 Requirement
+## 💻 Requirements
 
-Libraries are handled by CMake, the required librairies are fetched from their Git Release.
+Libraries are handled by CMake, the required librairies are fetched from their Git Release.\
+Assimp is temporarily not fetched due to it's size. Install it on your machine or enable the script manually.
 
 List of external libraries used:
 - OpenGL
 - GLFW
 - GLEW
-- ASSIMP (for models and animations import only)
+- ASSIMP (for import, will be replaced)
 
 ## 🚧 Building
 
-The project provide two scripts.
+The project provide two scripts for building.\
+Use `build.sh` (Linux/MacOS) or `build.bat` (Windows) to start building the project.
 
-Use `build.sh` (Linux/MacOS) or `build.bat` (Windows) to start building the project.\
 It will automatically:
 - Fetch the dependancies
 - Build the internal dynamic libraries (.so/.dll)
@@ -55,8 +59,8 @@ It will automatically:
 ## 📉 Code
 
 The main code is inside the Systems.\
-To implement a new system, you just need to bind it to the SystemManager in the Engine.cpp (a system follows an interface ISystem).\
-To implement a new component, add it inside ComponentTypes.hpp, and bind it to the ComponentManager. You will then need to add it manually inside the GUI and the Component list, follow implementation of other components. Sorry and good luck :)\
+To implement a new system, bind it to the SystemManager in the Engine (a system follows an interface ISystem).\
+To implement a new component, add it inside ComponentTypes.hpp, and bind it to the ComponentManager. You will then need to add it manually inside the GUI and the Component list, follow implementation of other components. Sorry and good luck :)
 
 ## 📣 Authors
 
