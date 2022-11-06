@@ -6,6 +6,7 @@ ControlSystem::ControlSystem(std::shared_ptr<Graphic> graphic, EntityManager &en
 {
     this->_graphic = graphic;
     entityManager.addMaskCategory(this->_controlTag);
+    entityManager.addMaskCategory(this->_cameraTag);
 
     this->_graphic->setMousePosition(glm::vec2(640, 360));
     glfwSetWindowUserPointer(this->_graphic->getWindow().get(), this);
@@ -17,31 +18,25 @@ ControlSystem::ControlSystem(std::shared_ptr<Graphic> graphic, EntityManager &en
 
 void ControlSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    double x, y;
-    glfwGetCursorPos(this->_graphic->getWindow().get(), &x, &y);
-    if (this->_graphic->getMouseMovement())
-        this->_graphic->setMouseOffset(glm::vec2(x, y));
-    else
-        this->_graphic->setMousePosition(glm::vec2(x, y));
-
     for (auto id : entityManager.getMaskCategory(this->_controlTag)) {
         Transform &transform = componentManager.getComponent<Transform>(id);
-        Control control = componentManager.getComponent<Control>(id);
+        Control &control = componentManager.getComponent<Control>(id);
 
         if (!control.control)
             continue;
-        if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_W) == GLFW_PRESS)
-            transform.position.x += 1;
-        if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_S) == GLFW_PRESS)
-            transform.position.x -= 1;
-        if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_A) == GLFW_PRESS)
-            transform.position.z += 1;
-        if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_D) == GLFW_PRESS)
-            transform.position.z -= 1;
-        if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_SPACE) == GLFW_PRESS)
-            transform.position.y += 1;
-        if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            transform.position.y -= 1;
+        for (auto cameraId : entityManager.getMaskCategory(this->_cameraTag)) {
+            Camera camera = componentManager.getComponent<Camera>(cameraId);
+
+            if (camera.mod == CameraMod::THIRD_PERSON && camera.target == id) {
+                if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_W) == GLFW_PRESS) {
+                    transform.position.x += camera.forward.x * 0.3f;
+                    transform.position.z += camera.forward.z * 0.3f;
+                    control.forward = true;
+                } else {
+                    control.forward = false;
+                }
+            }
+        }
     }
 }
 

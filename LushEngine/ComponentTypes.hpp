@@ -51,6 +51,7 @@ typedef struct {
     CameraMod mod = FIRST_PERSON;
     float distance = 10.0f;
     std::size_t target = 0;
+    bool alignTarget = false;
 } Camera;
 
 enum LightType {
@@ -71,6 +72,7 @@ typedef struct {
 
 typedef struct {
     bool control = true;
+    bool forward = false;
 } Control;
 
 typedef struct {

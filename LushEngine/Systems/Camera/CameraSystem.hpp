@@ -15,6 +15,7 @@ namespace Lush
             std::size_t _cameraTag = (ComponentType::TRANSFORM | ComponentType::CAMERA);
             std::size_t _lightTag = (ComponentType::TRANSFORM | ComponentType::LIGHT);
             std::size_t _transformTag = (ComponentType::TRANSFORM);
+            std::size_t _controlTag = (ComponentType::CONTROL);
 
             std::vector<std::pair<Transform, Light>> _dirLights;
             std::vector<std::pair<Transform, Light>> _pointLights;

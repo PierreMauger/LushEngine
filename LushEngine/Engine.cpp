@@ -115,6 +115,12 @@ void Engine::run()
 {
     while (!glfwWindowShouldClose(this->_graphic->getWindow().get())) {
         this->clear();
+        double x, y;
+        glfwGetCursorPos(this->_graphic->getWindow().get(), &x, &y);
+        if (this->_graphic->getMouseMovement())
+            this->_graphic->setMouseOffset(glm::vec2(x, y));
+        else
+            this->_graphic->setMousePosition(glm::vec2(x, y));
         this->_systemManager.updateSystems(this->_entityManager, this->_componentManager);
         glfwSwapBuffers(this->_graphic->getWindow().get());
         this->draw();
