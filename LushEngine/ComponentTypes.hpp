@@ -72,7 +72,7 @@ typedef struct {
 
 typedef struct {
     bool control = true;
-    bool forward = false;
+    glm::vec3 forward = glm::vec3(0.0f, 0.0f, 0.0f);
 } Control;
 
 typedef struct {

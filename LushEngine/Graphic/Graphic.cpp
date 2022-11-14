@@ -87,8 +87,9 @@ Graphic::Graphic() : _camera(1280, 720)
     this->_textures["Crate_specular.png"] = loadTexture("Resources/Textures/Crate_specular.png");
     this->_textures["Crate_emission.png"] = loadTexture("Resources/Textures/Crate_emission.png");
 
-    this->_models[0] = RenderModel(loadFile2("Resources/Models/Cube.dae"), this->_textures);
+    this->_models[0] = RenderModel(loadFile2("Resources/Models/Fox.dae"), this->_textures);
     this->_models[1] = RenderModel(loadFile2("Resources/Models/Crate.dae"), this->_textures);
+    this->_models[2] = RenderModel(loadFile2("Resources/Models/Cube.dae"), this->_textures);
 
     this->_skyboxes[0] = loadCubemap({"Resources/Skybox/right.jpg", "Resources/Skybox/left.jpg", "Resources/Skybox/top.jpg", "Resources/Skybox/bottom.jpg",
                                       "Resources/Skybox/front.jpg", "Resources/Skybox/back.jpg"});

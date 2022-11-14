@@ -28,12 +28,29 @@ void ControlSystem::update(EntityManager &entityManager, ComponentManager &compo
             Camera camera = componentManager.getComponent<Camera>(cameraId);
 
             if (camera.mod == CameraMod::THIRD_PERSON && camera.target == id) {
+                // control.forward = glm::normalize(transform.position - camera.forward);
+                glm::vec3 temp = glm::normalize(glm::vec3(camera.forward.x, 0.0f, camera.forward.z));
+
+                control.forward = glm::vec3(0.0f);
+                if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_D) == GLFW_PRESS) {
+                    transform.position.x -= temp.z * 0.3f;
+                    transform.position.z += temp.x * 0.3f;
+                    control.forward = glm::vec3(-temp.z, 0.0f, temp.x);
+                }
+                if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_A) == GLFW_PRESS) {
+                    transform.position.x += temp.z * 0.3f;
+                    transform.position.z -= temp.x * 0.3f;
+                    control.forward = glm::vec3(temp.z, 0.0f, -temp.x);
+                }
                 if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_W) == GLFW_PRESS) {
-                    transform.position.x += camera.forward.x * 0.3f;
-                    transform.position.z += camera.forward.z * 0.3f;
-                    control.forward = true;
-                } else {
-                    control.forward = false;
+                    transform.position.x += temp.x * 0.3f;
+                    transform.position.z += temp.z * 0.3f;
+                    control.forward = glm::normalize(temp + control.forward);
+                }
+                if (glfwGetKey(this->_graphic->getWindow().get(), GLFW_KEY_S) == GLFW_PRESS) {
+                    transform.position.x -= temp.x * 0.3f;
+                    transform.position.z -= temp.z * 0.3f;
+                    control.forward = glm::normalize(-temp + control.forward);
                 }
             }
         }

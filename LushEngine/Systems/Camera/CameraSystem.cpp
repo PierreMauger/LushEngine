@@ -42,8 +42,8 @@ void CameraSystem::update(EntityManager &entityManager, ComponentManager &compon
                 if (camera.target != id && entityManager.hasMask(camera.target, this->_controlTag)) {
                     Control &control = componentManager.getComponent<Control>(camera.target);
 
-                    if (control.forward || camera.alignTarget)
-                        target.rotation.y = glm::degrees(-atan2(camera.forward.z, camera.forward.x));
+                    if (control.forward != glm::vec3(0.0f) || camera.alignTarget)
+                        target.rotation.y = glm::degrees(-atan2(control.forward.z, control.forward.x));
                 }
             }
         }
