@@ -76,6 +76,7 @@ set(IMGUI_SRC
     ${IMGUI_ROOT}/imgui.cpp
     ${IMGUI_ROOT}/imgui_impl_glfw.cpp
     ${IMGUI_ROOT}/imgui_impl_opengl3.cpp
+    ${IMGUI_ROOT}/ImGuizmo.cpp
 )
 
 include_directories(${IMGUI_INC})
@@ -119,6 +120,7 @@ set(SRC
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(LUA REQUIRED)
 # LATER find_package(ASSIMP REQUIRED)
 
 include_directories(${INC}
@@ -126,6 +128,7 @@ include_directories(${INC}
     ${GLFW3_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
     ${ASSIMP_INCLUDE_DIRS}
+    ${LUA_INCLUDE_DIR}
 )
 
 add_executable(${EXEC_NAME}
@@ -138,6 +141,7 @@ target_link_libraries(${EXEC_NAME} PRIVATE
     ${OPENGL_LIBRARIES}
     glfw
     ${GLEW_LIBRARY}
+    ${LUA_LIBRARIES}
     ${ECS}
     ${IMGUI}
 )

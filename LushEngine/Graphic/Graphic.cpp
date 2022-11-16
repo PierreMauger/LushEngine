@@ -79,7 +79,7 @@ unsigned int loadCubemap(std::vector<std::string> faces)
     return textureID;
 }
 
-Graphic::Graphic() : _camera(1280, 720)
+Graphic::Graphic() : _renderView(1280, 720)
 {
     this->setupWindow();
 
@@ -99,7 +99,7 @@ Graphic::Graphic() : _camera(1280, 720)
     this->_shaders["Outline"] = Shader(loadFile2("Resources/Shaders/outline.vs"), loadFile2("Resources/Shaders/outline.fs"));
     this->_shaders["Skybox"] = Shader(loadFile2("Resources/Shaders/skybox.vs"), loadFile2("Resources/Shaders/skybox.fs"));
     this->_shaders["Billboard"] = Shader(loadFile2("Resources/Shaders/billboard.vs"), loadFile2("Resources/Shaders/billboard.fs"));
-    this->_camera.setShaders(this->_shaders);
+    this->_renderView.setShaders(this->_shaders);
 }
 
 void Graphic::setupWindow()
@@ -152,9 +152,9 @@ std::map<std::size_t, unsigned int> &Graphic::getSkyboxes()
     return this->_skyboxes;
 }
 
-RenderView &Graphic::getCamera()
+RenderView &Graphic::getRenderView()
 {
-    return this->_camera;
+    return this->_renderView;
 }
 
 void Graphic::setMouseMovement(bool mouseMovement)

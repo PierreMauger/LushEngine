@@ -3,6 +3,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <lua.hpp>
 
 #include "ComponentTypes.hpp"
 #include "ECS/Component/ComponentManager.hpp"

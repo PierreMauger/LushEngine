@@ -38,8 +38,8 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    this->_graphic->getCamera().use("Picking");
-    this->_graphic->getCamera().setView();
+    this->_graphic->getRenderView().use("Picking");
+    this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(this->_modelTag)) {
         Transform transform = componentManager.getComponent<Transform>(id);
         Model model = componentManager.getComponent<Model>(id);
@@ -51,9 +51,9 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
         color.a = 1.0f;
 
         this->_graphic->getShaders()["Picking"].setVec4("id", color);
-        this->_graphic->getCamera().setModel(transform);
+        this->_graphic->getRenderView().setModel(transform);
         if (this->_graphic->getModels().find(model.id) != this->_graphic->getModels().end())
-            this->_graphic->getModels()[model.id].draw(this->_graphic->getCamera().getShader());
+            this->_graphic->getModels()[model.id].draw(this->_graphic->getRenderView().getShader());
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -64,7 +64,7 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
     glReadPixels(mousePosition.x, 720 - mousePosition.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    this->_graphic->getCamera().use("Outline");
+    this->_graphic->getRenderView().use("Outline");
     this->_graphic->getShaders()["Outline"].setInt("id", (pixel[0]) + (pixel[1] << 8) + (pixel[2] << 16));
     glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
     glBindVertexArray(this->_planeVAO);

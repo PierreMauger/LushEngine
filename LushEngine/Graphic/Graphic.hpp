@@ -25,7 +25,7 @@ namespace Lush
             std::map<std::string, unsigned int> _textures;
             std::map<std::size_t, RenderModel> _models;
             std::map<std::size_t, unsigned int> _skyboxes;
-            RenderView _camera;
+            RenderView _renderView;
 
             bool _mouseMovement = false;
             glm::vec2 _mousePosition;
@@ -42,7 +42,7 @@ namespace Lush
             std::map<std::string, unsigned int> &getTextures();
             std::map<std::size_t, RenderModel> &getModels();
             std::map<std::size_t, unsigned int> &getSkyboxes();
-            RenderView &getCamera();
+            RenderView &getRenderView();
 
             void setMouseMovement(bool mouseMovement);
             bool getMouseMovement();

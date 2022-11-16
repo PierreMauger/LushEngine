@@ -13,6 +13,7 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(this->_graphic->getWindow().get(), true);
     ImGui_ImplOpenGL3_Init("#version 130");
+    ImGuizmo::AllowAxisFlip(false); // doesn't work sadly
 }
 
 GUISystem::~GUISystem()
@@ -33,6 +34,8 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
     if (this->_showEntityDetails)
         this->drawEntityDetails(entityManager, componentManager);
 
+    if (this->_selectedEntity == 0)
+        this->drawGuizmo(entityManager, componentManager);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -218,6 +221,53 @@ void GUISystem::drawEntityDetails(EntityManager &entityManager, ComponentManager
         }
     }
     ImGui::End();
+}
+
+void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager)
+{
+    ImGuizmo::BeginFrame();
+
+    static ImGuizmo::OPERATION currentGizmoOperation = ImGuizmo::ROTATE;
+    static ImGuizmo::MODE currentGizmoMode = ImGuizmo::WORLD;
+
+    if (ImGui::IsKeyPressed(GLFW_KEY_1))
+        currentGizmoOperation = ImGuizmo::TRANSLATE;
+    if (ImGui::IsKeyPressed(GLFW_KEY_2))
+        currentGizmoOperation = ImGuizmo::ROTATE;
+    if (ImGui::IsKeyPressed(GLFW_KEY_3))
+        currentGizmoOperation = ImGuizmo::SCALE;
+    if (ImGui::RadioButton("Translate", currentGizmoOperation == ImGuizmo::TRANSLATE))
+        currentGizmoOperation = ImGuizmo::TRANSLATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Rotate", currentGizmoOperation == ImGuizmo::ROTATE))
+        currentGizmoOperation = ImGuizmo::ROTATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Scale", currentGizmoOperation == ImGuizmo::SCALE))
+        currentGizmoOperation = ImGuizmo::SCALE;
+
+    if (currentGizmoOperation != ImGuizmo::SCALE) {
+        if (ImGui::RadioButton("Local", currentGizmoMode == ImGuizmo::LOCAL))
+            currentGizmoMode = ImGuizmo::LOCAL;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("World", currentGizmoMode == ImGuizmo::WORLD))
+            currentGizmoMode = ImGuizmo::WORLD;
+    } else
+        currentGizmoMode = ImGuizmo::LOCAL;
+
+    glm::mat4 view = this->_graphic->getRenderView().getView();
+    glm::mat4 projection = this->_graphic->getRenderView().getProjection();
+    Transform &transform = componentManager.getComponent<Transform>(this->_selectedEntity);
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, transform.position);
+    model *= glm::toMat4(glm::quat(glm::radians(transform.rotation)));
+    model = glm::scale(model, transform.scale);
+
+    ImGuiIO &io = ImGui::GetIO();
+    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+    ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentGizmoOperation, currentGizmoMode, &model[0][0], nullptr, nullptr);
+
+    ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform.position[0], &transform.rotation[0], &transform.scale[0]);
 }
 
 std::string GUISystem::formatBool(std::size_t value, std::size_t size)

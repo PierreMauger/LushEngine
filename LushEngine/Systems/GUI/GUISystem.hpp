@@ -8,6 +8,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "ImGuizmo.h"
 
 #define FORMAT_NAME(name) name + std::to_string(std::stoi(name)).length()
 
@@ -23,6 +24,7 @@ namespace Lush
 
             void drawEntityManager(EntityManager &entityManager, ComponentManager &componentManager);
             void drawEntityDetails(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager);
             std::string formatBool(std::size_t value, std::size_t size);
 
         public:

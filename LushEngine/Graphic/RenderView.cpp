@@ -35,6 +35,16 @@ Shader &RenderView::getShader(std::string shaderName)
     return this->_shaders[shaderName];
 }
 
+glm::mat4 RenderView::getView()
+{
+    return this->_view;
+}
+
+glm::mat4 RenderView::getProjection()
+{
+    return this->_projection;
+}
+
 void RenderView::use(std::string shaderName)
 {
     if (this->_shaders.find(shaderName) == this->_shaders.end())

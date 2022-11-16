@@ -34,6 +34,9 @@ namespace Lush
             Shader &getShader();
             Shader &getShader(std::string shaderName);
 
+            glm::mat4 getView();
+            glm::mat4 getProjection();
+
             void use(std::string shaderName);
             void update(Transform transform, Camera camera);
             void rotate(Transform &transform, glm::vec2 offset);

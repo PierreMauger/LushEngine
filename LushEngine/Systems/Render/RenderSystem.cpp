@@ -34,43 +34,43 @@ RenderSystem::~RenderSystem()
 
 void RenderSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    this->_graphic->getCamera().use("Camera");
-    this->_graphic->getCamera().setView();
+    this->_graphic->getRenderView().use("Camera");
+    this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(this->_modelTag)) {
         Transform transform = componentManager.getComponent<Transform>(id);
         Model model = componentManager.getComponent<Model>(id);
 
-        this->_graphic->getCamera().setModel(transform);
+        this->_graphic->getRenderView().setModel(transform);
         if (this->_graphic->getModels().find(model.id) != this->_graphic->getModels().end())
-            this->_graphic->getModels()[model.id].draw(this->_graphic->getCamera().getShader());
+            this->_graphic->getModels()[model.id].draw(this->_graphic->getRenderView().getShader());
     }
 
-    this->_graphic->getCamera().use("Billboard");
-    this->_graphic->getCamera().setView();
+    this->_graphic->getRenderView().use("Billboard");
+    this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(this->_billboardTag)) {
         Transform transform = componentManager.getComponent<Transform>(id);
         BillBoard billBoard = componentManager.getComponent<BillBoard>(id);
 
-        this->_graphic->getCamera().setBillboard(transform);
+        this->_graphic->getRenderView().setBillboard(transform);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, billBoard.textureId);
-        this->_graphic->getCamera().getShader().setInt("tex", 0);
+        this->_graphic->getRenderView().getShader().setInt("tex", 0);
         glBindVertexArray(this->_billboardVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
     }
 
     glDepthFunc(GL_LEQUAL);
-    this->_graphic->getCamera().use("Skybox");
-    this->_graphic->getCamera().setSkyBoxView();
+    this->_graphic->getRenderView().use("Skybox");
+    this->_graphic->getRenderView().setSkyBoxView();
     for (auto id : entityManager.getMaskCategory(this->_skyboxTag)) {
         CubeMap cubeMap = componentManager.getComponent<CubeMap>(id);
 
         if (this->_graphic->getSkyboxes().find(cubeMap.id) != this->_graphic->getSkyboxes().end()) {
-            this->_graphic->getCamera().setSkyBox(cubeMap);
+            this->_graphic->getRenderView().setSkyBox(cubeMap);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubeMap.id]);
-            this->_graphic->getCamera().getShader().setInt("skybox", 0);
+            this->_graphic->getRenderView().getShader().setInt("skybox", 0);
             glBindVertexArray(this->_skyboxVAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
             glBindVertexArray(0);
