@@ -44,13 +44,12 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
     this->drawMenuBar();
     this->drawActionBar();
 
-    if (this->_showEntityManager)
-        this->drawEntityManager(entityManager, componentManager);
-    if (this->_showEntityDetails)
-        this->drawEntityDetails(entityManager, componentManager);
+    if (this->_showSceneHierarchy)
+        this->drawSceneHierarchy(entityManager, componentManager);
+    if (this->_showProperties)
+        this->drawProperties(entityManager, componentManager);
 
-    if (this->_selectedEntity == 0)
-        this->drawGuizmo(entityManager, componentManager);
+    this->drawGuizmo(entityManager, componentManager);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -61,7 +60,7 @@ void GUISystem::setDock()
                                    ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
 
     ImGuiViewport *viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos({viewport->Pos.x, viewport->Pos.y + 20});
+    ImGui::SetNextWindowPos({viewport->Pos.x, viewport->Pos.y + 20}); // 20 is the height of the action bar
     ImGui::SetNextWindowSize({viewport->Size.x, viewport->Size.y - 20});
     ImGui::SetNextWindowViewport(viewport->ID);
 
@@ -83,8 +82,8 @@ void GUISystem::drawMenuBar()
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("View")) {
-            ImGui::MenuItem("Entity Manager", NULL, &this->_showEntityManager);
-            ImGui::MenuItem("Entity Details", NULL, &this->_showEntityDetails);
+            ImGui::MenuItem("Scene Hierarchy", NULL, &this->_showSceneHierarchy);
+            ImGui::MenuItem("Properties", NULL, &this->_showProperties);
             ImGui::EndMenu();
         }
 
@@ -108,11 +107,11 @@ void GUISystem::drawActionBar()
     }
 }
 
-void GUISystem::drawEntityManager(EntityManager &entityManager, ComponentManager &componentManager)
+void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManager &componentManager)
 {
     std::size_t size = componentManager.getComponentArray().size();
-    ImGui::Begin("Entities", &this->_showEntityManager);
 
+    ImGui::Begin("Scene Hierarchy", &this->_showSceneHierarchy);
     if (ImGui::BeginTable("Entities", 3, ImGuiTableFlags_Resizable)) {
         ImGui::TableSetupColumn("ID");
         ImGui::TableSetupColumn("Mask");
@@ -130,21 +129,19 @@ void GUISystem::drawEntityManager(EntityManager &entityManager, ComponentManager
                 if (ImGui::Button(std::string("Remove##" + std::to_string(i)).c_str())) {
                     entityManager.removeMask(i);
                     componentManager.removeAllComponents(i);
-                    this->_showEntityDetails = false;
                 }
                 ImGui::SameLine();
-                if (ImGui::Button(std::string("Modify##" + std::to_string(i)).c_str())) {
-                    this->_showEntityDetails = true;
+                if (ImGui::Button(std::string("Modify##" + std::to_string(i)).c_str()))
                     this->_selectedEntity = i;
-                }
             } else {
                 if (ImGui::Button(std::string("Create##" + std::to_string(i)).c_str()))
                     entityManager.addMask(i, 0);
             }
         }
         ImGui::EndTable();
-        const float footerReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-        ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerReserve), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+        const float footerSize = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+        ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerSize), false, ImGuiWindowFlags_HorizontalScrollbar);
         ImGui::EndChild();
         ImGui::Separator();
         if (ImGui::Button("Add New Entity"))
@@ -153,55 +150,56 @@ void GUISystem::drawEntityManager(EntityManager &entityManager, ComponentManager
     ImGui::End();
 }
 
-void GUISystem::drawEntityDetails(EntityManager &entityManager, ComponentManager &componentManager)
+void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    ImGui::Begin("Entity Details", &this->_showEntityDetails);
+    ImGui::Begin("Properties", &this->_showProperties);
     auto &masks = entityManager.getMasks();
 
     ImGui::Text("ID: %lu", this->_selectedEntity);
+    if (!masks[this->_selectedEntity].has_value()) {
+        ImGui::Text("Entity does not exist");
+        ImGui::End();
+        return;
+    }
     for (std::size_t i = 0; i < componentManager.getComponentArray().size(); i++) {
         if (masks[this->_selectedEntity].value() & (1 << i)) {
             if (ImGui::CollapsingHeader(FORMAT_NAME(componentManager.getComponentType(i).name()), ImGuiTreeNodeFlags_DefaultOpen)) {
                 switch (i) {
                 case 0: {
                     Transform &transform = componentManager.getComponent<Transform>(this->_selectedEntity);
-                    ImGui::Text("Position:");
-                    ImGui::DragFloat3("##pos", (float *)&transform.position, 0.1f, -FLT_MAX, +FLT_MAX);
-                    ImGui::Text("Rotation:");
-                    ImGui::DragFloat3("##rot", (float *)&transform.rotation, 1.0f, -FLT_MAX, +FLT_MAX);
-                    ImGui::Text("Scale:");
-                    ImGui::SliderFloat3("##scale", (float *)&transform.scale, 0.0f, 5.0f);
+                    ImGui::DragFloat3("Position##Transform", (float *)&transform.position, 0.1f, -FLT_MAX, +FLT_MAX);
+                    ImGui::DragFloat3("Rotation##Transform", (float *)&transform.rotation, 1.0f, -FLT_MAX, +FLT_MAX);
+                    ImGui::SliderFloat3("Scale##Transform", (float *)&transform.scale, 0.0f, 5.0f);
                     break;
                 }
                 case 1: {
                     Velocity &velocity = componentManager.getComponent<Velocity>(this->_selectedEntity);
-                    ImGui::SliderFloat("X##vel", &velocity.x, -10, 10);
-                    ImGui::SliderFloat("Y##vel", &velocity.y, -10, 10);
-                    ImGui::SliderFloat("Z##vel", &velocity.z, -10, 10);
+                    ImGui::SliderFloat("X##Velocity", &velocity.x, -10, 10);
+                    ImGui::SliderFloat("Y##Velocity", &velocity.y, -10, 10);
+                    ImGui::SliderFloat("Z##Velocity", &velocity.z, -10, 10);
                     break;
                 }
                 case 2: {
                     Model &model = componentManager.getComponent<Model>(this->_selectedEntity);
                     const ImU64 increment = 1;
-                    ImGui::InputScalar("Model ID", ImGuiDataType_U64, &model.id, &increment);
+                    ImGui::InputScalar("ID##Model", ImGuiDataType_U64, &model.id, &increment);
                     break;
                 }
                 case 3: {
                     Camera &camera = componentManager.getComponent<Camera>(this->_selectedEntity);
                     const char *names[CameraMod::CAMERA_MOD_COUNT] = {"First", "Third"};
 
-                    ImGui::Text("Forward:");
-                    ImGui::DragFloat3("##forward", (float *)&camera.forward, 0.01f, -1.0f, 1.0f);
-                    ImGui::SliderInt("Mod", (int *)&camera.mod, 0, CameraMod::CAMERA_MOD_COUNT - 1, names[camera.mod]);
-                    ImGui::SliderFloat("FOV", &camera.fov, 30.0f, 90.0f);
-                    ImGui::SliderFloat("Near", &camera.near, 0.0f, 100.0f);
-                    ImGui::SliderFloat("Far", &camera.far, 0.0f, 1000.0f);
-                    ImGui::SliderFloat("Sensitivity", &camera.sensitivity, 0.0f, 1.0f);
+                    ImGui::DragFloat3("Forward##Camera", (float *)&camera.forward, 0.01f, -1.0f, 1.0f);
+                    ImGui::SliderInt("Mod##Camera", (int *)&camera.mod, 0, CameraMod::CAMERA_MOD_COUNT - 1, names[camera.mod]);
+                    ImGui::SliderFloat("FOV##Camera", &camera.fov, 30.0f, 90.0f);
+                    ImGui::SliderFloat("Near##Camera", &camera.near, 0.0f, 100.0f);
+                    ImGui::SliderFloat("Far##Camera", &camera.far, 0.0f, 1000.0f);
+                    ImGui::SliderFloat("Sensitivity##Camera", &camera.sensitivity, 0.0f, 1.0f);
                     if (camera.mod == CameraMod::THIRD_PERSON) {
-                        ImGui::SliderFloat("Distance", &camera.distance, 0.0f, 100.0f);
+                        ImGui::SliderFloat("Distance##Camera", &camera.distance, 0.0f, 100.0f);
                         const ImU64 increment = 1;
-                        ImGui::InputScalar("Target ID", ImGuiDataType_U64, &camera.target, &increment);
-                        ImGui::Checkbox("align target", &camera.alignTarget);
+                        ImGui::InputScalar("Target ID##Camera", ImGuiDataType_U64, &camera.target, &increment);
+                        ImGui::Checkbox("Align Target##Camera", &camera.alignTarget);
                     }
                     break;
                 }
@@ -209,29 +207,29 @@ void GUISystem::drawEntityDetails(EntityManager &entityManager, ComponentManager
                     Light &light = componentManager.getComponent<Light>(this->_selectedEntity);
                     const char *names[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
 
-                    ImGui::SliderInt("Type", (int *)&light.type, 0, LightType::LIGHT_TYPE_COUNT - 1, names[light.type]);
-                    ImGui::SliderFloat("Intensity", &light.intensity, 0.0f, 1.0f);
-                    ImGui::ColorEdit3("Color", (float *)&light.color);
-                    ImGui::SliderFloat("Cut Off", &light.cutOff, 0.0f, 90.0f);
+                    ImGui::SliderInt("Type##Light", (int *)&light.type, 0, LightType::LIGHT_TYPE_COUNT - 1, names[light.type]);
+                    ImGui::SliderFloat("Intensity##Light", &light.intensity, 0.0f, 1.0f);
+                    ImGui::ColorEdit3("Color##Light", (float *)&light.color);
+                    ImGui::SliderFloat("Cut Off##Light", &light.cutOff, 0.0f, 90.0f);
                     break;
                 }
                 case 5: {
                     Control &control = componentManager.getComponent<Control>(this->_selectedEntity);
-                    ImGui::Checkbox("##", &control.control);
+                    ImGui::Checkbox("##Control", &control.control);
                     break;
                 }
                 case 6: {
                     CubeMap &cubemap = componentManager.getComponent<CubeMap>(this->_selectedEntity);
                     const ImU64 increment = 1;
-                    ImGui::InputScalar("CubeMap ID", ImGuiDataType_U64, &cubemap.id, &increment);
-                    ImGui::DragFloat("Rotation Speed", &cubemap.rotationSpeed, 0.1f, -FLT_MAX, +FLT_MAX);
-                    ImGui::ColorEdit3("Color", (float *)&cubemap.color);
+                    ImGui::InputScalar("ID##CubeMap", ImGuiDataType_U64, &cubemap.id, &increment);
+                    ImGui::DragFloat("Rotation Speed##CubeMap", &cubemap.rotationSpeed, 0.1f, -FLT_MAX, +FLT_MAX);
+                    ImGui::ColorEdit3("Color##CubeMap", (float *)&cubemap.color);
                     break;
                 }
                 case 7: {
                     BillBoard &bill = componentManager.getComponent<BillBoard>(this->_selectedEntity);
                     const ImU64 increment = 1;
-                    ImGui::InputScalar("Texture ID", ImGuiDataType_U64, &bill.textureId, &increment);
+                    ImGui::InputScalar("Texture ID##BillBoard", ImGuiDataType_U64, &bill.textureId, &increment);
                     break;
                 }
                 default:
@@ -318,6 +316,8 @@ void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &compo
 
     glm::mat4 view = this->_graphic->getRenderView().getView();
     glm::mat4 projection = this->_graphic->getRenderView().getProjection();
+    if (!entityManager.hasMask(this->_selectedEntity, ComponentType::TRANSFORM))
+        return;
     Transform &transform = componentManager.getComponent<Transform>(this->_selectedEntity);
 
     glm::mat4 model = glm::mat4(1.0f);

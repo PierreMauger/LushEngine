@@ -5,12 +5,12 @@
 #include "ECS/System/ISystem.hpp"
 #include "Graphic/Graphic.hpp"
 #include "IconsFontAwesome5.h"
-#include "ImGuizmo.h"
 #include "Includes.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
+#include "ImGuizmo.h"
 
 #define FORMAT_NAME(name) name + std::to_string(std::stoi(name)).length()
 
@@ -20,16 +20,16 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
-            bool _showEntityManager = true;
-            bool _showEntityDetails = false;
+            bool _showSceneHierarchy = true;
+            bool _showProperties = true;
             std::size_t _selectedEntity = 0;
 
             void setDock();
             void drawMenuBar();
             void drawActionBar();
 
-            void drawEntityManager(EntityManager &entityManager, ComponentManager &componentManager);
-            void drawEntityDetails(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawSceneHierarchy(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawProperties(EntityManager &entityManager, ComponentManager &componentManager);
             void drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager);
             std::string formatBool(std::size_t value, std::size_t size);
 
