@@ -1,7 +1,5 @@
 #include "Systems/GUI/GUISystem.hpp"
 
-#include "IconsFontAwesome5.h"
-
 using namespace Lush;
 
 GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
@@ -14,10 +12,11 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
 
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(this->_graphic->getWindow().get(), true);
-    ImGui_ImplOpenGL3_Init("#version 130");
+    ImGui_ImplOpenGL3_Init("#version 410");
     ImGuizmo::AllowAxisFlip(false); // doesn't work sadly
 
     ImGuiIO &io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NavEnableKeyboard;
     io.Fonts->AddFontDefault();
 
     // merge in icons from Font Awesome
@@ -41,6 +40,7 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    this->setDock();
     this->drawMenuBar();
     this->drawActionBar();
 
@@ -53,6 +53,25 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
         this->drawGuizmo(entityManager, componentManager);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void GUISystem::setDock()
+{
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
+
+    ImGuiViewport *viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos({viewport->Pos.x, viewport->Pos.y + 20});
+    ImGui::SetNextWindowSize({viewport->Size.x, viewport->Size.y - 20});
+    ImGui::SetNextWindowViewport(viewport->ID);
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    ImGui::Begin("Space", nullptr, windowFlags);
+    ImGui::PopStyleVar(3);
+    ImGui::DockSpace(ImGui::GetID("DockSpace"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+    ImGui::End();
 }
 
 void GUISystem::drawMenuBar()
@@ -279,12 +298,6 @@ void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &compo
     static ImGuizmo::OPERATION currentGizmoOperation = ImGuizmo::ROTATE;
     static ImGuizmo::MODE currentGizmoMode = ImGuizmo::WORLD;
 
-    if (ImGui::IsKeyPressed(GLFW_KEY_1))
-        currentGizmoOperation = ImGuizmo::TRANSLATE;
-    if (ImGui::IsKeyPressed(GLFW_KEY_2))
-        currentGizmoOperation = ImGuizmo::ROTATE;
-    if (ImGui::IsKeyPressed(GLFW_KEY_3))
-        currentGizmoOperation = ImGuizmo::SCALE;
     if (ImGui::RadioButton("Translate", currentGizmoOperation == ImGuizmo::TRANSLATE))
         currentGizmoOperation = ImGuizmo::TRANSLATE;
     ImGui::SameLine();

@@ -70,6 +70,7 @@ set(IMGUI_INC
 )
 
 set(IMGUI_SRC
+    ${IMGUI_ROOT}/imgui_demo.cpp
     ${IMGUI_ROOT}/imgui_draw.cpp
     ${IMGUI_ROOT}/imgui_tables.cpp
     ${IMGUI_ROOT}/imgui_widgets.cpp

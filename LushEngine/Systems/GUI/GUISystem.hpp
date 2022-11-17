@@ -4,12 +4,13 @@
 #include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
 #include "Graphic/Graphic.hpp"
+#include "IconsFontAwesome5.h"
+#include "ImGuizmo.h"
 #include "Includes.hpp"
 #include "imgui.h"
-#include "imgui_internal.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "ImGuizmo.h"
+#include "imgui_internal.h"
 
 #define FORMAT_NAME(name) name + std::to_string(std::stoi(name)).length()
 
@@ -23,6 +24,7 @@ namespace Lush
             bool _showEntityDetails = false;
             std::size_t _selectedEntity = 0;
 
+            void setDock();
             void drawMenuBar();
             void drawActionBar();
 
