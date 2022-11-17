@@ -6,6 +6,7 @@
 #include "Graphic/Graphic.hpp"
 #include "Includes.hpp"
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "ImGuizmo.h"
@@ -21,6 +22,9 @@ namespace Lush
             bool _showEntityManager = true;
             bool _showEntityDetails = false;
             std::size_t _selectedEntity = 0;
+
+            void drawMenuBar();
+            void drawActionBar();
 
             void drawEntityManager(EntityManager &entityManager, ComponentManager &componentManager);
             void drawEntityDetails(EntityManager &entityManager, ComponentManager &componentManager);

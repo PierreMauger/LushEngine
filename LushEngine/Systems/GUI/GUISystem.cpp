@@ -1,5 +1,7 @@
 #include "Systems/GUI/GUISystem.hpp"
 
+#include "IconsFontAwesome5.h"
+
 using namespace Lush;
 
 GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
@@ -14,6 +16,16 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
     ImGui_ImplGlfw_InitForOpenGL(this->_graphic->getWindow().get(), true);
     ImGui_ImplOpenGL3_Init("#version 130");
     ImGuizmo::AllowAxisFlip(false); // doesn't work sadly
+
+    ImGuiIO &io = ImGui::GetIO();
+    io.Fonts->AddFontDefault();
+
+    // merge in icons from Font Awesome
+    static const ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
+    ImFontConfig icons_config;
+    icons_config.MergeMode = true;
+    icons_config.PixelSnapH = true;
+    io.Fonts->AddFontFromFileTTF("Resources/Fonts/" FONT_ICON_FILE_NAME_FAS, 12.0f, &icons_config, icons_ranges);
 }
 
 GUISystem::~GUISystem()
@@ -29,6 +41,9 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    this->drawMenuBar();
+    this->drawActionBar();
+
     if (this->_showEntityManager)
         this->drawEntityManager(entityManager, componentManager);
     if (this->_showEntityDetails)
@@ -38,6 +53,40 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
         this->drawGuizmo(entityManager, componentManager);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void GUISystem::drawMenuBar()
+{
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("Exit"))
+                glfwSetWindowShouldClose(this->_graphic->getWindow().get(), true);
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("View")) {
+            ImGui::MenuItem("Entity Manager", NULL, &this->_showEntityManager);
+            ImGui::MenuItem("Entity Details", NULL, &this->_showEntityDetails);
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
+}
+
+void GUISystem::drawActionBar()
+{
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
+
+    if (ImGui::BeginViewportSideBar("##ActionBar", ImGui::GetMainViewport(), ImGuiDir_Up, ImGui::GetFrameHeight(), window_flags)) {
+        if (ImGui::BeginMenuBar()) {
+            ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x / 2 - 50, 0));
+            ImGui::Button(ICON_FA_PLAY, ImVec2(45, 0));
+            ImGui::SameLine(0, 10);
+            ImGui::Button(ICON_FA_STOP, ImVec2(45, 0));
+            ImGui::EndMenuBar();
+        }
+        ImGui::End();
+    }
 }
 
 void GUISystem::drawEntityManager(EntityManager &entityManager, ComponentManager &componentManager)
