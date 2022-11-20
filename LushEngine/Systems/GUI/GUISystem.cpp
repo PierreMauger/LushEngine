@@ -299,7 +299,8 @@ void GUISystem::drawScene()
     ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
     ImGui::PopStyleVar(3);
 
-    this->_graphic->setViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
+    const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
+    this->_graphic->setViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
 
     GLuint texture = this->_graphic->getFrameBuffers()[0].texture;
     ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));

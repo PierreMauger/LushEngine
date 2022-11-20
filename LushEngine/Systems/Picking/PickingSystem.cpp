@@ -61,13 +61,14 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
     }
     glm::vec2 mousePosition = this->_graphic->getMousePosition();
     unsigned char pixel[4] = {0};
+    // convert from viewport coord to screen coord (picking buffer is drawn on whole screen and resize later to viewport)
+    mousePosition.x = (mousePosition.x - viewport.x) * windowSize.x / viewport.z;
+    mousePosition.y = (mousePosition.y - viewport.y) * windowSize.y / viewport.w;
 
-    glReadPixels(mousePosition.x, windowSize.y + viewport.y - mousePosition.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
+    glReadPixels(mousePosition.x, windowSize.y - mousePosition.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()[0].framebuffer);
-
-    // glViewport(0, 0, windowSize.x, windowSize.y);
     this->_graphic->getRenderView().use("Outline");
     this->_graphic->getShaders()["Outline"].setInt("id", (pixel[0]) + (pixel[1] << 8) + (pixel[2] << 16));
     glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);

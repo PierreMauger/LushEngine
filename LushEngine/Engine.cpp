@@ -124,7 +124,7 @@ void Engine::run()
         glfwSwapBuffers(this->_graphic->getWindow());
         glfwPollEvents();
 
-        this->_graphic->getRenderView().setAspectRatio(this->_graphic->getViewPort().z / this->_graphic->getViewPort().a);
+        this->_graphic->getRenderView().setAspectRatio(this->_graphic->getViewPort().z / this->_graphic->getViewPort().w);
     }
 }
 
