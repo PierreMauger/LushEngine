@@ -9,6 +9,21 @@ RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     entityManager.addMaskCategory(this->_billboardTag);
     entityManager.addMaskCategory(this->_skyboxTag);
 
+    glGenFramebuffers(1, &this->_buffer.framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
+    glGenTextures(1, &this->_buffer.texture);
+    glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->_buffer.texture, 0);
+    glGenRenderbuffers(1, &this->_buffer.depthbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, this->_buffer.depthbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1280, 720);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_buffer.depthbuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    this->_graphic->getFrameBuffers().push_back(this->_buffer);
+
     glGenVertexArrays(1, &this->_skyboxVAO);
     glGenBuffers(1, &this->_skyboxVBO);
     glBindVertexArray(this->_skyboxVAO);
@@ -34,6 +49,13 @@ RenderSystem::~RenderSystem()
 
 void RenderSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
+    glm::vec2 windowSize = this->_graphic->getWindowSize();
+
+    glViewport(0, 0, windowSize.x, windowSize.y);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     this->_graphic->getRenderView().use("Camera");
     this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(this->_modelTag)) {
@@ -77,4 +99,6 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
         }
     }
     glDepthFunc(GL_LESS);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

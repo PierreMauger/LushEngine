@@ -79,9 +79,14 @@ unsigned int loadCubemap(std::vector<std::string> faces)
     return textureID;
 }
 
-Graphic::Graphic() : _renderView(1280, 720)
+Graphic::Graphic() : _renderView(1280.0f / 720.0f)
 {
     this->setupWindow();
+
+    this->_mousePosition = glm::vec2(640, 360);
+    this->_viewPort = glm::vec4(0.0f, 0.0f, 1280.0f, 720.0f);
+    this->_windowSize = glm::vec2(1280.0f, 720.0f);
+    this->_frameBuffers.resize(0);
 
     this->_textures["Crate.png"] = loadTexture("Resources/Textures/Crate.png");
     this->_textures["Crate_specular.png"] = loadTexture("Resources/Textures/Crate_specular.png");
@@ -102,16 +107,30 @@ Graphic::Graphic() : _renderView(1280, 720)
     this->_renderView.setShaders(this->_shaders);
 }
 
+Graphic::~Graphic()
+{
+    glfwDestroyWindow(this->_window);
+}
+
 void Graphic::setupWindow()
 {
     if (!glfwInit())
         throw std::runtime_error("Failed to initialize GLFW");
-    this->_window = std::shared_ptr<GLFWwindow>(glfwCreateWindow(1280, 720, "Lush Engine", NULL, NULL), glfwDestroyWindow);
+    this->_window = glfwCreateWindow(1280, 720, "Lush Engine", NULL, NULL);
     if (!this->_window) {
         glfwTerminate();
         throw std::runtime_error("Failed to create GLFW window");
     }
-    glfwMakeContextCurrent(this->_window.get());
+    glfwMakeContextCurrent(this->_window);
+
+    glfwSetWindowUserPointer(this->_window, this);
+    auto keyboardPressCallback = [](GLFWwindow *w, int key, int scan, int action, int mods) {
+        static_cast<Graphic *>(glfwGetWindowUserPointer(w))->handleKeyboardPress(key, scan, action, mods);
+    };
+    glfwSetKeyCallback(this->_window, keyboardPressCallback);
+
+    auto resizeCallback = [](GLFWwindow *w, int width, int height) { static_cast<Graphic *>(glfwGetWindowUserPointer(w))->handleResizeFramebuffer(width, height); };
+    glfwSetFramebufferSizeCallback(this->_window, resizeCallback);
 
     if (glewInit() != GLEW_OK)
         throw std::runtime_error("Failed to initialize GLEW");
@@ -127,7 +146,7 @@ void Graphic::setupWindow()
     glfwSwapInterval(1); // Enable vsync
 }
 
-std::shared_ptr<GLFWwindow> Graphic::getWindow()
+GLFWwindow *Graphic::getWindow()
 {
     return this->_window;
 }
@@ -155,6 +174,11 @@ std::map<std::size_t, unsigned int> &Graphic::getSkyboxes()
 RenderView &Graphic::getRenderView()
 {
     return this->_renderView;
+}
+
+std::vector<FrameBuffer> &Graphic::getFrameBuffers()
+{
+    return this->_frameBuffers;
 }
 
 void Graphic::setMouseMovement(bool mouseMovement)
@@ -188,4 +212,54 @@ glm::vec2 Graphic::getMousePosition()
 glm::vec2 Graphic::getMouseOffset()
 {
     return this->_mouseOffset;
+}
+
+void Graphic::setViewPort(glm::vec4 viewPort)
+{
+    this->_viewPort = viewPort;
+}
+
+glm::vec4 Graphic::getViewPort()
+{
+    return this->_viewPort;
+}
+
+void Graphic::setWindowSize(glm::vec2 windowSize)
+{
+    this->_windowSize = windowSize;
+}
+
+glm::vec2 Graphic::getWindowSize()
+{
+    return this->_windowSize;
+}
+
+void Graphic::handleKeyboardPress(int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(this->_window, true);
+    if (key == GLFW_KEY_TAB && action == GLFW_PRESS) {
+        this->_mouseMovement = !this->_mouseMovement;
+        glfwSetInputMode(this->_window, GLFW_CURSOR, this->_mouseMovement ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+        if (this->_mouseMovement) {
+            this->setMousePosition(glm::vec2(640, 360));
+            this->setMouseOffset(glm::vec2(640, 360));
+        }
+        glfwSetCursorPos(this->_window, 640, 360);
+    }
+}
+
+void Graphic::handleResizeFramebuffer(int width, int height)
+{
+    this->_windowSize = glm::vec2(width, height);
+
+    for (auto fb : this->_frameBuffers) {
+        glBindTexture(GL_TEXTURE_2D, fb.texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindRenderbuffer(GL_RENDERBUFFER, fb.depthbuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fb.depthbuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 }

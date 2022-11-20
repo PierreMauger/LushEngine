@@ -34,8 +34,7 @@ namespace Lush
 
             void loadScene();
             void run();
-            void clear();
-            void draw();
+            void updateMouse();
     };
 }
 

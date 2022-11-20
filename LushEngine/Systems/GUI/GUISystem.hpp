@@ -30,6 +30,7 @@ namespace Lush
 
             void drawSceneHierarchy(EntityManager &entityManager, ComponentManager &componentManager);
             void drawProperties(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawScene();
             void drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager);
             std::string formatBool(std::size_t value, std::size_t size);
 

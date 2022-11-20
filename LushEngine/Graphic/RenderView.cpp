@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-RenderView::RenderView(float width, float height)
+RenderView::RenderView(float aspectRatio)
 {
     this->_view = glm::mat4(1.0f);
     this->_projection = glm::mat4(1.0f);
@@ -10,11 +10,17 @@ RenderView::RenderView(float width, float height)
     this->_front = glm::vec3(0.0f, 0.0f, -1.0f);
     this->_up = glm::vec3(0.0f, 1.0f, 0.0f);
     this->_fov = 45.0f;
-    this->_aspectRatio = width / height;
+    this->_aspectRatio = aspectRatio;
     this->_near = 0.1f;
     this->_far = 100.0f;
     this->_sensitivity = 0.2f;
 
+    this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
+}
+
+void RenderView::setAspectRatio(float aspectRatio)
+{
+    this->_aspectRatio = aspectRatio;
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 }
 

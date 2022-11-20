@@ -27,9 +27,10 @@ namespace Lush
             std::string _actShader;
 
         public:
-            RenderView(float width, float height);
+            RenderView(float aspectRatio);
             ~RenderView() = default;
 
+            void setAspectRatio(float aspectRatio);
             void setShaders(std::map<std::string, Shader> &shaders);
             Shader &getShader();
             Shader &getShader(std::string shaderName);

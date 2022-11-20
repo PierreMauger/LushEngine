@@ -17,6 +17,8 @@ namespace Lush
             std::size_t _billboardTag = (ComponentType::TRANSFORM | ComponentType::BILLBOARD);
             std::size_t _skyboxTag = (ComponentType::CUBEMAP);
 
+            FrameBuffer _buffer;
+
             unsigned int _skyboxVAO;
             unsigned int _skyboxVBO;
 

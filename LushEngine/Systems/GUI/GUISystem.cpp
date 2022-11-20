@@ -11,7 +11,7 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
     ImGui::CreateContext();
 
     ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(this->_graphic->getWindow().get(), true);
+    ImGui_ImplGlfw_InitForOpenGL(this->_graphic->getWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 410");
     ImGuizmo::AllowAxisFlip(false); // doesn't work sadly
 
@@ -20,11 +20,11 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
     io.Fonts->AddFontDefault();
 
     // merge in icons from Font Awesome
-    static const ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
-    ImFontConfig icons_config;
-    icons_config.MergeMode = true;
-    icons_config.PixelSnapH = true;
-    io.Fonts->AddFontFromFileTTF("Resources/Fonts/" FONT_ICON_FILE_NAME_FAS, 12.0f, &icons_config, icons_ranges);
+    static const ImWchar iconsRanges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
+    ImFontConfig iconsConfig;
+    iconsConfig.MergeMode = true;
+    iconsConfig.PixelSnapH = true;
+    io.Fonts->AddFontFromFileTTF("Resources/Fonts/" FONT_ICON_FILE_NAME_FAS, 12.0f, &iconsConfig, iconsRanges);
 }
 
 GUISystem::~GUISystem()
@@ -49,7 +49,9 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
     if (this->_showProperties)
         this->drawProperties(entityManager, componentManager);
 
-    this->drawGuizmo(entityManager, componentManager);
+    this->drawScene();
+
+    // this->drawGuizmo(entityManager, componentManager);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -78,7 +80,7 @@ void GUISystem::drawMenuBar()
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Exit"))
-                glfwSetWindowShouldClose(this->_graphic->getWindow().get(), true);
+                glfwSetWindowShouldClose(this->_graphic->getWindow(), true);
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("View")) {
@@ -286,6 +288,21 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
             }
         }
     }
+    ImGui::End();
+}
+
+void GUISystem::drawScene()
+{
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+    ImGui::PopStyleVar(3);
+
+    this->_graphic->setViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
+
+    GLuint texture = this->_graphic->getFrameBuffers()[0].texture;
+    ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
 }
 
