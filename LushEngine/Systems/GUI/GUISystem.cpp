@@ -48,10 +48,12 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
         this->drawSceneHierarchy(entityManager, componentManager);
     if (this->_showProperties)
         this->drawProperties(entityManager, componentManager);
+    if (this->_showTools)
+        this->drawTools();
 
-    this->drawScene();
+    this->drawScene(entityManager, componentManager);
+    this->drawGuizmo(entityManager, componentManager);
 
-    // this->drawGuizmo(entityManager, componentManager);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -86,6 +88,7 @@ void GUISystem::drawMenuBar()
         if (ImGui::BeginMenu("View")) {
             ImGui::MenuItem("Scene Hierarchy", NULL, &this->_showSceneHierarchy);
             ImGui::MenuItem("Properties", NULL, &this->_showProperties);
+            ImGui::MenuItem("Tools", NULL, &this->_showTools);
             ImGui::EndMenu();
         }
 
@@ -291,7 +294,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
     ImGui::End();
 }
 
-void GUISystem::drawScene()
+void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &componentManager)
 {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
@@ -307,30 +310,37 @@ void GUISystem::drawScene()
     ImGui::End();
 }
 
+void GUISystem::drawTools()
+{
+    if (ImGui::Begin("Tools", &this->_showTools)) {
+        if (ImGui::RadioButton("Translate", this->_currentOperation == ImGuizmo::TRANSLATE))
+            this->_currentOperation = ImGuizmo::TRANSLATE;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Rotate", this->_currentOperation == ImGuizmo::ROTATE))
+            this->_currentOperation = ImGuizmo::ROTATE;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Scale", this->_currentOperation == ImGuizmo::SCALE))
+            this->_currentOperation = ImGuizmo::SCALE;
+        ImGui::SameLine();
+        ImGui::Text("|");
+        ImGui::SameLine();
+        if (this->_currentOperation != ImGuizmo::SCALE) {
+            if (ImGui::RadioButton("Local", this->_currentMode == ImGuizmo::LOCAL))
+                this->_currentMode = ImGuizmo::LOCAL;
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Global", this->_currentMode == ImGuizmo::WORLD))
+                this->_currentMode = ImGuizmo::WORLD;
+        } else
+            this->_currentMode = ImGuizmo::LOCAL;
+        ImGui::End();
+    }
+}
+
 void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager)
 {
     ImGuizmo::BeginFrame();
+    ImGuiIO &io = ImGui::GetIO();
 
-    static ImGuizmo::OPERATION currentGizmoOperation = ImGuizmo::ROTATE;
-    static ImGuizmo::MODE currentGizmoMode = ImGuizmo::WORLD;
-
-    if (ImGui::RadioButton("Translate", currentGizmoOperation == ImGuizmo::TRANSLATE))
-        currentGizmoOperation = ImGuizmo::TRANSLATE;
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Rotate", currentGizmoOperation == ImGuizmo::ROTATE))
-        currentGizmoOperation = ImGuizmo::ROTATE;
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Scale", currentGizmoOperation == ImGuizmo::SCALE))
-        currentGizmoOperation = ImGuizmo::SCALE;
-
-    if (currentGizmoOperation != ImGuizmo::SCALE) {
-        if (ImGui::RadioButton("Local", currentGizmoMode == ImGuizmo::LOCAL))
-            currentGizmoMode = ImGuizmo::LOCAL;
-        ImGui::SameLine();
-        if (ImGui::RadioButton("World", currentGizmoMode == ImGuizmo::WORLD))
-            currentGizmoMode = ImGuizmo::WORLD;
-    } else
-        currentGizmoMode = ImGuizmo::LOCAL;
 
     glm::mat4 view = this->_graphic->getRenderView().getView();
     glm::mat4 projection = this->_graphic->getRenderView().getProjection();
@@ -343,9 +353,10 @@ void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &compo
     model *= glm::toMat4(glm::quat(glm::radians(transform.rotation)));
     model = glm::scale(model, transform.scale);
 
-    ImGuiIO &io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-    ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentGizmoOperation, currentGizmoMode, &model[0][0], nullptr, nullptr);
+    // glm::vec4 viewport = this->_graphic->getViewPort();
+    // ImGuizmo::SetRect(viewport.x, viewport.y - 200, viewport.z, viewport.w);
+    ImGuizmo::Manipulate(&view[0][0], &projection[0][0], this->_currentOperation, this->_currentMode, &model[0][0], nullptr, nullptr);
 
     ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform.position[0], &transform.rotation[0], &transform.scale[0]);
 }

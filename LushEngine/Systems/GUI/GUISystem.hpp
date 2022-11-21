@@ -22,7 +22,10 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
             bool _showSceneHierarchy = true;
             bool _showProperties = true;
+            bool _showTools = true;
             std::size_t _selectedEntity = 0;
+            ImGuizmo::OPERATION _currentOperation = ImGuizmo::OPERATION::TRANSLATE;
+            ImGuizmo::MODE _currentMode = ImGuizmo::MODE::LOCAL;
 
             void setDock();
             void drawMenuBar();
@@ -30,7 +33,8 @@ namespace Lush
 
             void drawSceneHierarchy(EntityManager &entityManager, ComponentManager &componentManager);
             void drawProperties(EntityManager &entityManager, ComponentManager &componentManager);
-            void drawScene();
+            void drawScene(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawTools();
             void drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager);
             std::string formatBool(std::size_t value, std::size_t size);
 
