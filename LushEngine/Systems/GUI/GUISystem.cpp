@@ -52,7 +52,6 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
         this->drawTools();
 
     this->drawScene(entityManager, componentManager);
-    this->drawGuizmo(entityManager, componentManager);
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -307,6 +306,7 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
 
     GLuint texture = this->_graphic->getFrameBuffers()[0].texture;
     ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
+    this->drawGuizmo(entityManager, componentManager);
     ImGui::End();
 }
 
@@ -339,11 +339,9 @@ void GUISystem::drawTools()
 void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager)
 {
     ImGuizmo::BeginFrame();
-    ImGuiIO &io = ImGui::GetIO();
-
-
     glm::mat4 view = this->_graphic->getRenderView().getView();
     glm::mat4 projection = this->_graphic->getRenderView().getProjection();
+
     if (!entityManager.hasMask(this->_selectedEntity, ComponentType::TRANSFORM))
         return;
     Transform &transform = componentManager.getComponent<Transform>(this->_selectedEntity);
@@ -353,9 +351,8 @@ void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &compo
     model *= glm::toMat4(glm::quat(glm::radians(transform.rotation)));
     model = glm::scale(model, transform.scale);
 
-    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-    // glm::vec4 viewport = this->_graphic->getViewPort();
-    // ImGuizmo::SetRect(viewport.x, viewport.y - 200, viewport.z, viewport.w);
+    ImGuizmo::SetDrawlist();
+    ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
     ImGuizmo::Manipulate(&view[0][0], &projection[0][0], this->_currentOperation, this->_currentMode, &model[0][0], nullptr, nullptr);
 
     ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform.position[0], &transform.rotation[0], &transform.scale[0]);
