@@ -50,8 +50,16 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
         this->drawProperties(entityManager, componentManager);
     if (this->_showTools)
         this->drawTools();
-
-    this->drawScene(entityManager, componentManager);
+    if (this->_showConsole)
+        this->drawConsole();
+    if (this->_showScene)
+        this->drawScene(entityManager, componentManager);
+    if (this->_showGame)
+        this->drawGame();
+    if (this->_showFiles)
+        this->drawFiles();
+    if (this->_showProfiler)
+        this->drawProfiler();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -88,6 +96,11 @@ void GUISystem::drawMenuBar()
             ImGui::MenuItem("Scene Hierarchy", NULL, &this->_showSceneHierarchy);
             ImGui::MenuItem("Properties", NULL, &this->_showProperties);
             ImGui::MenuItem("Tools", NULL, &this->_showTools);
+            ImGui::MenuItem("Console", NULL, &this->_showConsole);
+            ImGui::MenuItem("Scene", NULL, &this->_showScene);
+            ImGui::MenuItem("Game", NULL, &this->_showGame);
+            ImGui::MenuItem("Files", NULL, &this->_showFiles);
+            ImGui::MenuItem("Profiler", NULL, &this->_showProfiler);
             ImGui::EndMenu();
         }
 
@@ -293,6 +306,37 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
     ImGui::End();
 }
 
+void GUISystem::drawTools()
+{
+    ImGui::Begin("Tools", &this->_showTools);
+    if (ImGui::RadioButton("Translate", this->_currentOperation == ImGuizmo::TRANSLATE))
+        this->_currentOperation = ImGuizmo::TRANSLATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Rotate", this->_currentOperation == ImGuizmo::ROTATE))
+        this->_currentOperation = ImGuizmo::ROTATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Scale", this->_currentOperation == ImGuizmo::SCALE))
+        this->_currentOperation = ImGuizmo::SCALE;
+    ImGui::SameLine();
+    ImGui::Text("|");
+    ImGui::SameLine();
+    if (this->_currentOperation != ImGuizmo::SCALE) {
+        if (ImGui::RadioButton("Local", this->_currentMode == ImGuizmo::LOCAL))
+            this->_currentMode = ImGuizmo::LOCAL;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Global", this->_currentMode == ImGuizmo::WORLD))
+            this->_currentMode = ImGuizmo::WORLD;
+    } else
+        this->_currentMode = ImGuizmo::LOCAL;
+    ImGui::End();
+}
+
+void GUISystem::drawConsole()
+{
+    ImGui::Begin("Console", &this->_showConsole);
+    ImGui::End();
+}
+
 void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &componentManager)
 {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
@@ -308,32 +352,6 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
     ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
     this->drawGuizmo(entityManager, componentManager);
     ImGui::End();
-}
-
-void GUISystem::drawTools()
-{
-    if (ImGui::Begin("Tools", &this->_showTools)) {
-        if (ImGui::RadioButton("Translate", this->_currentOperation == ImGuizmo::TRANSLATE))
-            this->_currentOperation = ImGuizmo::TRANSLATE;
-        ImGui::SameLine();
-        if (ImGui::RadioButton("Rotate", this->_currentOperation == ImGuizmo::ROTATE))
-            this->_currentOperation = ImGuizmo::ROTATE;
-        ImGui::SameLine();
-        if (ImGui::RadioButton("Scale", this->_currentOperation == ImGuizmo::SCALE))
-            this->_currentOperation = ImGuizmo::SCALE;
-        ImGui::SameLine();
-        ImGui::Text("|");
-        ImGui::SameLine();
-        if (this->_currentOperation != ImGuizmo::SCALE) {
-            if (ImGui::RadioButton("Local", this->_currentMode == ImGuizmo::LOCAL))
-                this->_currentMode = ImGuizmo::LOCAL;
-            ImGui::SameLine();
-            if (ImGui::RadioButton("Global", this->_currentMode == ImGuizmo::WORLD))
-                this->_currentMode = ImGuizmo::WORLD;
-        } else
-            this->_currentMode = ImGuizmo::LOCAL;
-        ImGui::End();
-    }
 }
 
 void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager)
@@ -356,6 +374,24 @@ void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &compo
     ImGuizmo::Manipulate(&view[0][0], &projection[0][0], this->_currentOperation, this->_currentMode, &model[0][0], nullptr, nullptr);
 
     ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform.position[0], &transform.rotation[0], &transform.scale[0]);
+}
+
+void GUISystem::drawGame()
+{
+    ImGui::Begin("Game", &this->_showGame);
+    ImGui::End();
+}
+
+void GUISystem::drawFiles()
+{
+    ImGui::Begin("Files", &this->_showFiles);
+    ImGui::End();
+}
+
+void GUISystem::drawProfiler()
+{
+    ImGui::Begin("Profiler", &this->_showProfiler);
+    ImGui::End();
 }
 
 std::string GUISystem::formatBool(std::size_t value, std::size_t size)

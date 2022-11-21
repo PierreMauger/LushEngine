@@ -23,6 +23,11 @@ namespace Lush
             bool _showSceneHierarchy = true;
             bool _showProperties = true;
             bool _showTools = true;
+            bool _showConsole = true;
+            bool _showScene = true;
+            bool _showGame = true;
+            bool _showFiles = true;
+            bool _showProfiler = true;
             std::size_t _selectedEntity = 0;
             ImGuizmo::OPERATION _currentOperation = ImGuizmo::OPERATION::TRANSLATE;
             ImGuizmo::MODE _currentMode = ImGuizmo::MODE::LOCAL;
@@ -33,9 +38,13 @@ namespace Lush
 
             void drawSceneHierarchy(EntityManager &entityManager, ComponentManager &componentManager);
             void drawProperties(EntityManager &entityManager, ComponentManager &componentManager);
-            void drawScene(EntityManager &entityManager, ComponentManager &componentManager);
             void drawTools();
+            void drawConsole();
+            void drawScene(EntityManager &entityManager, ComponentManager &componentManager);
             void drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawGame();
+            void drawFiles();
+            void drawProfiler();
             std::string formatBool(std::size_t value, std::size_t size);
 
         public:
