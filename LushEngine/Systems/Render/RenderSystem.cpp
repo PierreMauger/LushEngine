@@ -8,18 +8,19 @@ RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     entityManager.addMaskCategory(this->_modelTag);
     entityManager.addMaskCategory(this->_billboardTag);
     entityManager.addMaskCategory(this->_skyboxTag);
+    glm::vec2 windowSize = this->_graphic->getWindowSize();
 
     glGenFramebuffers(1, &this->_buffer.framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
     glGenTextures(1, &this->_buffer.texture);
     glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, windowSize.x, windowSize.y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->_buffer.texture, 0);
     glGenRenderbuffers(1, &this->_buffer.depthbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, this->_buffer.depthbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1280, 720);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, windowSize.x, windowSize.y);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_buffer.depthbuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     this->_graphic->getFrameBuffers().push_back(this->_buffer);

@@ -79,13 +79,13 @@ unsigned int loadCubemap(std::vector<std::string> faces)
     return textureID;
 }
 
-Graphic::Graphic() : _renderView(1280.0f / 720.0f)
+Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / sizeY)
 {
-    this->setupWindow();
+    this->setGLFWContext(sizeX, sizeY, title);
 
-    this->_mousePosition = glm::vec2(640, 360);
-    this->_viewPort = glm::vec4(0.0f, 0.0f, 1280.0f, 720.0f);
-    this->_windowSize = glm::vec2(1280.0f, 720.0f);
+    this->_mousePosition = glm::vec2(sizeX / 2, sizeY / 2);
+    this->_viewPort = glm::vec4(0.0f, 0.0f, sizeX, sizeY);
+    this->_windowSize = glm::vec2(sizeX, sizeY);
     this->_frameBuffers.resize(0);
 
     this->_textures["Crate.png"] = loadTexture("Resources/Textures/Crate.png");
@@ -112,25 +112,18 @@ Graphic::~Graphic()
     glfwDestroyWindow(this->_window);
 }
 
-void Graphic::setupWindow()
+void Graphic::setGLFWContext(int sizeX, int sizeY, std::string title)
 {
     if (!glfwInit())
         throw std::runtime_error("Failed to initialize GLFW");
-    this->_window = glfwCreateWindow(1280, 720, "Lush Engine", NULL, NULL);
+    this->_window = glfwCreateWindow(sizeX, sizeY, title.c_str(), nullptr, nullptr);
     if (!this->_window) {
         glfwTerminate();
         throw std::runtime_error("Failed to create GLFW window");
     }
     glfwMakeContextCurrent(this->_window);
-
-    glfwSetWindowUserPointer(this->_window, this);
-    auto keyboardPressCallback = [](GLFWwindow *w, int key, int scan, int action, int mods) {
-        static_cast<Graphic *>(glfwGetWindowUserPointer(w))->handleKeyboardPress(key, scan, action, mods);
-    };
-    glfwSetKeyCallback(this->_window, keyboardPressCallback);
-
-    auto resizeCallback = [](GLFWwindow *w, int width, int height) { static_cast<Graphic *>(glfwGetWindowUserPointer(w))->handleResizeFramebuffer(width, height); };
-    glfwSetFramebufferSizeCallback(this->_window, resizeCallback);
+    this->setCallBacks();
+    glfwSwapInterval(1); // Enable vsync
 
     if (glewInit() != GLEW_OK)
         throw std::runtime_error("Failed to initialize GLEW");
@@ -142,8 +135,48 @@ void Graphic::setupWindow()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+}
 
-    glfwSwapInterval(1); // Enable vsync
+void Graphic::setCallBacks()
+{
+    glfwSetWindowUserPointer(this->_window, this);
+    auto keyboardPressCallback = [](GLFWwindow *w, int key, int scan, int action, int mods) {
+        static_cast<Graphic *>(glfwGetWindowUserPointer(w))->handleKeyboardPress(key, scan, action, mods);
+    };
+    glfwSetKeyCallback(this->_window, keyboardPressCallback);
+
+    auto resizeCallback = [](GLFWwindow *w, int width, int height) { static_cast<Graphic *>(glfwGetWindowUserPointer(w))->handleResizeFramebuffer(width, height); };
+    glfwSetFramebufferSizeCallback(this->_window, resizeCallback);
+}
+
+void Graphic::handleKeyboardPress(int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(this->_window, true);
+    if (key == GLFW_KEY_TAB && action == GLFW_PRESS) {
+        this->_mouseMovement = !this->_mouseMovement;
+        glfwSetInputMode(this->_window, GLFW_CURSOR, this->_mouseMovement ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+        if (this->_mouseMovement) {
+            this->setMousePosition(glm::vec2(this->_viewPort.z / 2 + this->_viewPort.x, this->_viewPort.w / 2 + this->_viewPort.y));
+            this->setMouseOffset(glm::vec2(this->_viewPort.z / 2 + this->_viewPort.x, this->_viewPort.w / 2 + this->_viewPort.y));
+        }
+        glfwSetCursorPos(this->_window, this->_viewPort.z / 2 + this->_viewPort.x, this->_viewPort.w / 2 + this->_viewPort.y);
+    }
+}
+
+void Graphic::handleResizeFramebuffer(int width, int height)
+{
+    this->_windowSize = glm::vec2(width, height);
+
+    for (auto fb : this->_frameBuffers) {
+        glBindTexture(GL_TEXTURE_2D, fb.texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindRenderbuffer(GL_RENDERBUFFER, fb.depthbuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fb.depthbuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 }
 
 GLFWwindow *Graphic::getWindow()
@@ -232,34 +265,4 @@ void Graphic::setWindowSize(glm::vec2 windowSize)
 glm::vec2 Graphic::getWindowSize()
 {
     return this->_windowSize;
-}
-
-void Graphic::handleKeyboardPress(int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(this->_window, true);
-    if (key == GLFW_KEY_TAB && action == GLFW_PRESS) {
-        this->_mouseMovement = !this->_mouseMovement;
-        glfwSetInputMode(this->_window, GLFW_CURSOR, this->_mouseMovement ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-        if (this->_mouseMovement) {
-            this->setMousePosition(glm::vec2(640, 360));
-            this->setMouseOffset(glm::vec2(640, 360));
-        }
-        glfwSetCursorPos(this->_window, 640, 360);
-    }
-}
-
-void Graphic::handleResizeFramebuffer(int width, int height)
-{
-    this->_windowSize = glm::vec2(width, height);
-
-    for (auto fb : this->_frameBuffers) {
-        glBindTexture(GL_TEXTURE_2D, fb.texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glBindRenderbuffer(GL_RENDERBUFFER, fb.depthbuffer);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fb.depthbuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
 }

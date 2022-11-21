@@ -37,9 +37,13 @@ namespace Lush
             glm::vec2 _mouseOffset;
 
         public:
-            Graphic();
+            Graphic(int sizeX, int sizeY, std::string title);
             ~Graphic();
-            void setupWindow();
+            void setGLFWContext(int sizeX, int sizeY, std::string title);
+
+            void setCallBacks();
+            void handleKeyboardPress(int key, int scancode, int action, int mods);
+            void handleResizeFramebuffer(int width, int height);
 
             GLFWwindow *getWindow();
             std::map<std::string, Shader> &getShaders();
@@ -60,9 +64,6 @@ namespace Lush
             glm::vec4 getViewPort();
             void setWindowSize(glm::vec2 windowSize);
             glm::vec2 getWindowSize();
-
-            void handleKeyboardPress(int key, int scancode, int action, int mods);
-            void handleResizeFramebuffer(int width, int height);
     };
 }
 
