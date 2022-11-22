@@ -56,7 +56,7 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
         this->drawScene(entityManager, componentManager);
     if (this->_showGame)
         this->drawGame();
-    if (this->_showFiles)
+    if (this->_showFileExplorer)
         this->drawFiles();
     if (this->_showProfiler)
         this->drawProfiler();
@@ -99,7 +99,7 @@ void GUISystem::drawMenuBar()
             ImGui::MenuItem("Console", NULL, &this->_showConsole);
             ImGui::MenuItem("Scene", NULL, &this->_showScene);
             ImGui::MenuItem("Game", NULL, &this->_showGame);
-            ImGui::MenuItem("Files", NULL, &this->_showFiles);
+            ImGui::MenuItem("File Explorer", NULL, &this->_showFileExplorer);
             ImGui::MenuItem("Profiler", NULL, &this->_showProfiler);
             ImGui::EndMenu();
         }
@@ -384,7 +384,7 @@ void GUISystem::drawGame()
 
 void GUISystem::drawFiles()
 {
-    ImGui::Begin("Files", &this->_showFiles);
+    ImGui::Begin("File Explorer", &this->_showFileExplorer);
     ImGui::End();
 }
 

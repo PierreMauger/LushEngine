@@ -26,7 +26,7 @@ namespace Lush
             bool _showConsole = true;
             bool _showScene = true;
             bool _showGame = true;
-            bool _showFiles = true;
+            bool _showFileExplorer = true;
             bool _showProfiler = true;
             std::size_t _selectedEntity = 0;
             ImGuizmo::OPERATION _currentOperation = ImGuizmo::OPERATION::TRANSLATE;
