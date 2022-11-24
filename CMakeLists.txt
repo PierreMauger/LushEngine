@@ -63,7 +63,7 @@ install(TARGETS ${ECS})
 
 set(IMGUI IMGUI)
 
-set(IMGUI_ROOT ${PROJECT_NAME}/IMGUI/)
+set(IMGUI_ROOT ${PROJECT_NAME}/ImGui/)
 
 set(IMGUI_INC
     ${IMGUI_ROOT}/
@@ -98,7 +98,7 @@ set(INC
     ${PROJECT_NAME}/Systems/Picking/
     ${PROJECT_NAME}/Systems/GUI/
     ${PROJECT_NAME}/Systems/Render/
-    ${PROJECT_NAME}/IMGUI/
+    ${PROJECT_NAME}/ImGui/
     ${PROJECT_NAME}/STB/
 )
 

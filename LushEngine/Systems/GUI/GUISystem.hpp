@@ -4,13 +4,13 @@
 #include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
 #include "Graphic/Graphic.hpp"
-#include "IconsFontAwesome5.h"
+#include "ImGui/IconsFontAwesome5.h"
+#include "ImGui/imgui.h"
+#include "ImGui/imgui_impl_glfw.h"
+#include "ImGui/imgui_impl_opengl3.h"
+#include "ImGui/imgui_internal.h"
+#include "ImGui/ImGuizmo.h"
 #include "Includes.hpp"
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_internal.h"
-#include "ImGuizmo.h"
 
 #define FORMAT_NAME(name) name + std::to_string(std::stoi(name)).length()
 

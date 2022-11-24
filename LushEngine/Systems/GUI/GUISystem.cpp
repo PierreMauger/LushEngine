@@ -7,7 +7,7 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
     this->_graphic = graphic;
 
     if (!IMGUI_CHECKVERSION())
-        throw std::runtime_error("IMGUI version is invalid");
+        throw std::runtime_error("ImGui version is invalid");
     ImGui::CreateContext();
 
     ImGui::StyleColorsDark();
@@ -126,9 +126,11 @@ void GUISystem::drawActionBar()
 
 void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    std::size_t size = componentManager.getComponentArray().size();
+    if (!ImGui::Begin("Scene Hierarchy", &this->_showSceneHierarchy)) {
+        ImGui::End();
+        return;
+    }
 
-    ImGui::Begin("Scene Hierarchy", &this->_showSceneHierarchy);
     if (ImGui::BeginTable("Entities", 3, ImGuiTableFlags_Resizable)) {
         ImGui::TableSetupColumn("ID");
         ImGui::TableSetupColumn("Mask");
@@ -140,7 +142,7 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManage
             ImGui::TableNextColumn();
             ImGui::Text("%lu", i);
             ImGui::TableNextColumn();
-            masks[i].has_value() ? ImGui::Text("%s", this->formatBool(masks[i].value(), size).c_str()) : ImGui::Text("None");
+            masks[i].has_value() ? ImGui::Text("%s", this->formatBool(masks[i].value(), componentManager.getComponentArray().size()).c_str()) : ImGui::Text("None");
             ImGui::TableNextColumn();
             if (masks[i].has_value()) {
                 if (ImGui::Button(std::string("Remove##" + std::to_string(i)).c_str())) {
@@ -169,7 +171,10 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManage
 
 void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    ImGui::Begin("Properties", &this->_showProperties);
+    if (!ImGui::Begin("Properties", &this->_showProperties)) {
+        ImGui::End();
+        return;
+    }
     auto &masks = entityManager.getMasks();
 
     ImGui::Text("ID: %lu", this->_selectedEntity);
@@ -308,7 +313,10 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
 
 void GUISystem::drawTools()
 {
-    ImGui::Begin("Tools", &this->_showTools);
+    if (!ImGui::Begin("Tools", &this->_showTools)) {
+        ImGui::End();
+        return;
+    }
     if (ImGui::RadioButton("Translate", this->_currentOperation == ImGuizmo::TRANSLATE))
         this->_currentOperation = ImGuizmo::TRANSLATE;
     ImGui::SameLine();
@@ -333,7 +341,10 @@ void GUISystem::drawTools()
 
 void GUISystem::drawConsole()
 {
-    ImGui::Begin("Console", &this->_showConsole);
+    if (!ImGui::Begin("Console", &this->_showConsole)) {
+        ImGui::End();
+        return;
+    }
     ImGui::End();
 }
 
@@ -342,7 +353,11 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+    if (!ImGui::Begin("Scene", &this->_showScene, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
+        ImGui::PopStyleVar(3);
+        ImGui::End();
+        return;
+    }
     ImGui::PopStyleVar(3);
 
     const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
@@ -350,7 +365,8 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
 
     GLuint texture = this->_graphic->getFrameBuffers()[0].texture;
     ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
-    this->drawGuizmo(entityManager, componentManager);
+    if (this->_showTools)
+        this->drawGuizmo(entityManager, componentManager);
     ImGui::End();
 }
 
@@ -378,19 +394,39 @@ void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &compo
 
 void GUISystem::drawGame()
 {
-    ImGui::Begin("Game", &this->_showGame);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    if (!ImGui::Begin("Game", &this->_showGame, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
+        ImGui::PopStyleVar(3);
+        ImGui::End();
+        return;
+    }
+    ImGui::PopStyleVar(3);
+
+    const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
+    this->_graphic->setViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
+
+    GLuint texture = this->_graphic->getFrameBuffers()[0].texture;
+    ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
 }
 
 void GUISystem::drawFiles()
 {
-    ImGui::Begin("File Explorer", &this->_showFileExplorer);
+    if (!ImGui::Begin("File Explorer", &this->_showFileExplorer)) {
+        ImGui::End();
+        return;
+    }
     ImGui::End();
 }
 
 void GUISystem::drawProfiler()
 {
-    ImGui::Begin("Profiler", &this->_showProfiler);
+    if (!ImGui::Begin("Profiler", &this->_showProfiler)) {
+        ImGui::End();
+        return;
+    }
     ImGui::End();
 }
 

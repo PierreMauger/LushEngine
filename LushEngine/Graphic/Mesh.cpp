@@ -1,4 +1,4 @@
-#include "Mesh.hpp"
+#include "Graphic/Mesh.hpp"
 
 using namespace Lush;
 

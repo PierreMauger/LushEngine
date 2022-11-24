@@ -1,4 +1,4 @@
-#include "Graphic.hpp"
+#include "Graphic/Graphic.hpp"
 
 using namespace Lush;
 

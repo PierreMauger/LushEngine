@@ -1,4 +1,4 @@
-#include "RenderModel.hpp"
+#include "Graphic/RenderModel.hpp"
 
 using namespace Lush;
 
