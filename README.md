@@ -6,12 +6,12 @@
 <details>
 <summary>Click to reveal</summary>
 
-- [About](#🔍-about)
-- [Features](#📈-features)
-- [Requirements](#💻-requirements)
-- [Building](#🚧-building)
-- [Code](#📉-code)
-- [Authors](#📣-authors)
+- [About](#-about)
+- [Features](#-features)
+- [Requirements](#-requirements)
+- [Building](#-building)
+- [Code](#-code)
+- [Authors](#-authors)
 
 </details>
 
@@ -23,7 +23,7 @@ The rendering is made in OpenGL with the intent of staying as low level as possi
 
 ## 📈 Features
 
-Most features are still under developpement. Here are the main ones:
+Most features are still in development. Here are the main ones:
 
 - Loading 3D models
 - 3D skeletal animation
@@ -33,6 +33,8 @@ Most features are still under developpement. Here are the main ones:
 - Advanced lighting using shaders
 - Cubemaps
 - Billboards (LOD and UI)
+- Engine UI
+- Lua scripting (in development)
 
 ## 💻 Requirements
 
@@ -58,9 +60,9 @@ It will automatically:
 
 ## 📉 Code
 
-The main code is inside the Systems.\
-To implement a new system, bind it to the SystemManager in the Engine (a system follows an interface ISystem).\
-To implement a new component, add it inside ComponentTypes.hpp, and bind it to the ComponentManager. You will then need to add it manually inside the GUI and the Component list, follow implementation of other components. Sorry and good luck :)
+To implement game logic, the code will be moved from custom systems to Lua scripts (still in development).\
+You will be able to write scripts and bind them to any entity, to interact with their components.
+To create a new component, add it in the ComponentTypes list.
 
 ## 📣 Authors
 

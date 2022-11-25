@@ -25,13 +25,14 @@ std::string loadFile(std::string fileName)
 
 Engine::Engine()
 {
-    this->_graphic = std::make_shared<Graphic>();
+    this->_graphic = std::make_shared<Graphic>(1280, 720, "Lush Engine");
 
-    this->_systemManager.bindSystem(std::make_shared<ControlSystem>(this->_graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_shared<CameraSystem>(this->_graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_shared<RenderSystem>(this->_graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_shared<PickingSystem>(this->_graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_shared<GUISystem>(this->_graphic));
+    this->_systemManager.bindSystem(std::make_unique<ControlSystem>(this->_graphic, this->_entityManager));
+    this->_systemManager.bindSystem(std::make_unique<CameraSystem>(this->_graphic, this->_entityManager));
+    this->_systemManager.bindSystem(std::make_unique<RenderSystem>(this->_graphic, this->_entityManager));
+    this->_systemManager.bindSystem(std::make_unique<PickingSystem>(this->_graphic, this->_entityManager));
+    this->_systemManager.bindSystem(std::make_unique<SceneSystem>(this->_graphic, this->_entityManager));
+    this->_systemManager.bindSystem(std::make_unique<GUISystem>(this->_graphic));
 
     this->_componentManager.bindComponent<Transform>();
     this->_componentManager.bindComponent<Velocity>();
@@ -47,7 +48,7 @@ Engine::Engine()
 
 void Engine::loadScene()
 {
-    std::string scene = loadFile("Resources/scene");
+    std::string scene = loadFile("Resources/Scenes/scene");
 
     std::vector<std::string> lines;
     std::stringstream ss(scene);
@@ -113,21 +114,25 @@ void Engine::loadScene()
 
 void Engine::run()
 {
-    while (!glfwWindowShouldClose(this->_graphic->getWindow().get())) {
-        this->clear();
+    while (!glfwWindowShouldClose(this->_graphic->getWindow())) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+        this->updateMouse();
+
         this->_systemManager.updateSystems(this->_entityManager, this->_componentManager);
-        glfwSwapBuffers(this->_graphic->getWindow().get());
-        this->draw();
+
+        glfwSwapBuffers(this->_graphic->getWindow());
+        glfwPollEvents();
     }
 }
 
-void Engine::clear()
+void Engine::updateMouse()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-}
-
-void Engine::draw()
-{
-    glfwPollEvents();
+    double x, y;
+    glfwGetCursorPos(this->_graphic->getWindow(), &x, &y);
+    if (this->_graphic->getMouseMovement())
+        this->_graphic->setMouseOffset(glm::vec2(x, y));
+    else
+        this->_graphic->setMousePosition(glm::vec2(x, y));
 }

@@ -1,5 +1,5 @@
-#ifndef RENDERSYSTEM_HPP
-#define RENDERSYSTEM_HPP
+#ifndef SCENESYSTEM_HPP
+#define SCENESYSTEM_HPP
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
@@ -9,7 +9,7 @@
 
 namespace Lush
 {
-    class RenderSystem : public ISystem
+    class SceneSystem : public ISystem
     {
         private:
             std::shared_ptr<Graphic> _graphic;
@@ -25,12 +25,15 @@ namespace Lush
             unsigned int _billboardVAO;
             unsigned int _billboardVBO;
 
+            Transform _cameraTransform;
+            Camera _camera;
+
         public:
-            RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
-            ~RenderSystem();
+            SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
+            ~SceneSystem();
 
             void update(EntityManager &entityManager, ComponentManager &componentManager);
     };
 }
 
-#endif // RENDERSYSTEM_HPP
+#endif // SCENESYSTEM_HPP

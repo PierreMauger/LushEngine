@@ -12,20 +12,25 @@
 namespace Lush
 {
     typedef struct {
-        GLuint framebuffer;
-        GLuint texture;
-        GLuint depthbuffer;
+            GLuint framebuffer;
+            GLuint texture;
+            GLuint depthbuffer;
     } FrameBuffer;
 
     class Graphic
     {
         private:
-            std::shared_ptr<GLFWwindow> _window;
+            GLFWwindow *_window;
             std::map<std::string, Shader> _shaders;
             std::map<std::string, unsigned int> _textures;
             std::map<std::size_t, RenderModel> _models;
             std::map<std::size_t, unsigned int> _skyboxes;
-            RenderView _camera;
+            RenderView _renderView;
+            std::vector<FrameBuffer> _frameBuffers;
+
+            glm::vec4 _gameViewPort;
+            glm::vec4 _sceneViewPort;
+            glm::vec2 _windowSize;
 
             bool _mouseMovement = false;
             glm::vec2 _mousePosition;
@@ -33,16 +38,21 @@ namespace Lush
             glm::vec2 _mouseOffset;
 
         public:
-            Graphic();
-            ~Graphic() = default;
-            void setupWindow();
+            Graphic(int sizeX, int sizeY, std::string title);
+            ~Graphic();
+            void setGLFWContext(int sizeX, int sizeY, std::string title);
 
-            std::shared_ptr<GLFWwindow> getWindow();
+            void setCallBacks();
+            void handleKeyboardPress(int key, int scancode, int action, int mods);
+            void handleResizeFramebuffer(int width, int height);
+
+            GLFWwindow *getWindow();
             std::map<std::string, Shader> &getShaders();
             std::map<std::string, unsigned int> &getTextures();
             std::map<std::size_t, RenderModel> &getModels();
             std::map<std::size_t, unsigned int> &getSkyboxes();
-            RenderView &getCamera();
+            RenderView &getRenderView();
+            std::vector<FrameBuffer> &getFrameBuffers();
 
             void setMouseMovement(bool mouseMovement);
             bool getMouseMovement();
@@ -50,6 +60,13 @@ namespace Lush
             void setMouseOffset(glm::vec2 mousePosition);
             glm::vec2 getMousePosition();
             glm::vec2 getMouseOffset();
+
+            void setGameViewPort(glm::vec4 viewPort);
+            glm::vec4 getGameViewPort();
+            void setSceneViewPort(glm::vec4 viewPort);
+            glm::vec4 getSceneViewPort();
+            void setWindowSize(glm::vec2 windowSize);
+            glm::vec2 getWindowSize();
     };
 }
 

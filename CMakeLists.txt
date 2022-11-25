@@ -63,19 +63,21 @@ install(TARGETS ${ECS})
 
 set(IMGUI IMGUI)
 
-set(IMGUI_ROOT ${PROJECT_NAME}/IMGUI/)
+set(IMGUI_ROOT ${PROJECT_NAME}/ImGui/)
 
 set(IMGUI_INC
     ${IMGUI_ROOT}/
 )
 
 set(IMGUI_SRC
+    ${IMGUI_ROOT}/imgui_demo.cpp
     ${IMGUI_ROOT}/imgui_draw.cpp
     ${IMGUI_ROOT}/imgui_tables.cpp
     ${IMGUI_ROOT}/imgui_widgets.cpp
     ${IMGUI_ROOT}/imgui.cpp
     ${IMGUI_ROOT}/imgui_impl_glfw.cpp
     ${IMGUI_ROOT}/imgui_impl_opengl3.cpp
+    ${IMGUI_ROOT}/ImGuizmo.cpp
 )
 
 include_directories(${IMGUI_INC})
@@ -96,7 +98,8 @@ set(INC
     ${PROJECT_NAME}/Systems/Picking/
     ${PROJECT_NAME}/Systems/GUI/
     ${PROJECT_NAME}/Systems/Render/
-    ${PROJECT_NAME}/IMGUI/
+    ${PROJECT_NAME}/Systems/Scene/
+    ${PROJECT_NAME}/ImGui/
     ${PROJECT_NAME}/STB/
 )
 
@@ -112,6 +115,7 @@ set(SRC
     ${PROJECT_NAME}/Systems/Picking/PickingSystem.cpp
     ${PROJECT_NAME}/Systems/GUI/GUISystem.cpp
     ${PROJECT_NAME}/Systems/Render/RenderSystem.cpp
+    ${PROJECT_NAME}/Systems/Scene/SceneSystem.cpp
 
     ${PROJECT_NAME}/STB/stb.cpp
 )
@@ -119,6 +123,7 @@ set(SRC
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(LUA REQUIRED)
 # LATER find_package(ASSIMP REQUIRED)
 
 include_directories(${INC}
@@ -126,6 +131,7 @@ include_directories(${INC}
     ${GLFW3_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
     ${ASSIMP_INCLUDE_DIRS}
+    ${LUA_INCLUDE_DIR}
 )
 
 add_executable(${EXEC_NAME}
@@ -138,6 +144,7 @@ target_link_libraries(${EXEC_NAME} PRIVATE
     ${OPENGL_LIBRARIES}
     glfw
     ${GLEW_LIBRARY}
+    ${LUA_LIBRARIES}
     ${ECS}
     ${IMGUI}
 )

@@ -4,10 +4,13 @@
 #include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
 #include "Graphic/Graphic.hpp"
+#include "ImGui/IconsFontAwesome5.h"
+#include "ImGui/imgui.h"
+#include "ImGui/imgui_impl_glfw.h"
+#include "ImGui/imgui_impl_opengl3.h"
+#include "ImGui/imgui_internal.h"
+#include "ImGui/ImGuizmo.h"
 #include "Includes.hpp"
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 
 #define FORMAT_NAME(name) name + std::to_string(std::stoi(name)).length()
 
@@ -17,12 +20,33 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
-            bool _showEntityManager = true;
-            bool _showEntityDetails = false;
+            bool _showSceneHierarchy = true;
+            bool _showProperties = true;
+            bool _showTools = true;
+            bool _showConsole = true;
+            bool _showScene = true;
+            bool _showGame = true;
+            bool _showFileExplorer = true;
+            bool _showProfiler = true;
             std::size_t _selectedEntity = 0;
+            ImGuizmo::OPERATION _currentOperation = ImGuizmo::OPERATION::TRANSLATE;
+            ImGuizmo::MODE _currentMode = ImGuizmo::MODE::LOCAL;
 
-            void drawEntityManager(EntityManager &entityManager, ComponentManager &componentManager);
-            void drawEntityDetails(EntityManager &entityManager, ComponentManager &componentManager);
+            // FrameBuffer _buffer;
+
+            void setDock();
+            void drawMenuBar();
+            void drawActionBar();
+
+            void drawSceneHierarchy(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawProperties(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawTools();
+            void drawConsole();
+            void drawScene(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawGame();
+            void drawFiles();
+            void drawProfiler();
             std::string formatBool(std::size_t value, std::size_t size);
 
         public:

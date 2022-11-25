@@ -1,14 +1,20 @@
-#include "Systems/Render/RenderSystem.hpp"
+#include "Systems/Scene/SceneSystem.hpp"
 
 using namespace Lush;
 
-RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
+SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
 {
     this->_graphic = graphic;
     entityManager.addMaskCategory(this->_modelTag);
     entityManager.addMaskCategory(this->_billboardTag);
     entityManager.addMaskCategory(this->_skyboxTag);
     glm::vec2 windowSize = this->_graphic->getWindowSize();
+    this->_cameraTransform.position = glm::vec3(5.0f, 5.0f, 15.0f);
+    this->_cameraTransform.rotation = glm::vec3(-100.0f, -15.0f, 0.0f);
+
+    this->_camera.forward.x = cos(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
+    this->_camera.forward.y = sin(glm::radians(this->_cameraTransform.rotation.y));
+    this->_camera.forward.z = sin(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
 
     glGenFramebuffers(1, &this->_buffer.framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
@@ -44,13 +50,15 @@ RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 }
 
-RenderSystem::~RenderSystem()
+SceneSystem::~SceneSystem()
 {
 }
 
-void RenderSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
+void SceneSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    this->_graphic->getRenderView().setAspectRatio(this->_graphic->getGameViewPort().z / this->_graphic->getGameViewPort().w);
+    this->_graphic->getRenderView().setAspectRatio(this->_graphic->getSceneViewPort().z / this->_graphic->getSceneViewPort().w);
+    this->_graphic->getRenderView().update(this->_cameraTransform, this->_camera);
+
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -82,23 +90,24 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
         glBindVertexArray(0);
     }
 
-    glDepthFunc(GL_LEQUAL);
-    this->_graphic->getRenderView().use("Skybox");
-    this->_graphic->getRenderView().setSkyBoxView();
-    for (auto id : entityManager.getMaskCategory(this->_skyboxTag)) {
-        CubeMap cubeMap = componentManager.getComponent<CubeMap>(id);
+    // INFO : dont draw to differenciate scene and game
+    // glDepthFunc(GL_LEQUAL);
+    // this->_graphic->getRenderView().use("Skybox");
+    // this->_graphic->getRenderView().setSkyBoxView();
+    // for (auto id : entityManager.getMaskCategory(this->_skyboxTag)) {
+    //     CubeMap cubeMap = componentManager.getComponent<CubeMap>(id);
 
-        if (this->_graphic->getSkyboxes().find(cubeMap.id) != this->_graphic->getSkyboxes().end()) {
-            this->_graphic->getRenderView().setSkyBox(cubeMap);
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubeMap.id]);
-            this->_graphic->getRenderView().getShader().setInt("skybox", 0);
-            glBindVertexArray(this->_skyboxVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-            glBindVertexArray(0);
-        }
-    }
-    glDepthFunc(GL_LESS);
+    //     if (this->_graphic->getSkyboxes().find(cubeMap.id) != this->_graphic->getSkyboxes().end()) {
+    //         this->_graphic->getRenderView().setSkyBox(cubeMap);
+    //         glActiveTexture(GL_TEXTURE0);
+    //         glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubeMap.id]);
+    //         this->_graphic->getRenderView().getShader().setInt("skybox", 0);
+    //         glBindVertexArray(this->_skyboxVAO);
+    //         glDrawArrays(GL_TRIANGLES, 0, 36);
+    //         glBindVertexArray(0);
+    //     }
+    // }
+    // glDepthFunc(GL_LESS);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

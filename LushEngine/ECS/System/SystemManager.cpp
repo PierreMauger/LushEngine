@@ -12,14 +12,9 @@ SystemManager::~SystemManager()
         system.reset();
 }
 
-std::vector<std::shared_ptr<ISystem>> &SystemManager::getSystems()
+void SystemManager::bindSystem(std::unique_ptr<ISystem> system)
 {
-    return this->_systems;
-}
-
-void SystemManager::bindSystem(std::shared_ptr<ISystem> system)
-{
-    this->_systems.push_back(system);
+    this->_systems.push_back(std::move(system));
 }
 
 void SystemManager::updateSystems(EntityManager &entityManager, ComponentManager &componentManager)
