@@ -9,6 +9,12 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entity
     entityManager.addMaskCategory(this->_billboardTag);
     entityManager.addMaskCategory(this->_skyboxTag);
     glm::vec2 windowSize = this->_graphic->getWindowSize();
+    this->_cameraTransform.position = glm::vec3(5.0f, 5.0f, 15.0f);
+    this->_cameraTransform.rotation = glm::vec3(-100.0f, -15.0f, 0.0f);
+
+    this->_camera.forward.x = cos(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
+    this->_camera.forward.y = sin(glm::radians(this->_cameraTransform.rotation.y));
+    this->_camera.forward.z = sin(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
 
     glGenFramebuffers(1, &this->_buffer.framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
@@ -51,6 +57,8 @@ SceneSystem::~SceneSystem()
 void SceneSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
     this->_graphic->getRenderView().setAspectRatio(this->_graphic->getSceneViewPort().z / this->_graphic->getSceneViewPort().w);
+    this->_graphic->getRenderView().update(this->_cameraTransform, this->_camera);
+
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

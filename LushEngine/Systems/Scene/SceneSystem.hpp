@@ -25,6 +25,9 @@ namespace Lush
             unsigned int _billboardVAO;
             unsigned int _billboardVBO;
 
+            Transform _cameraTransform;
+            Camera _camera;
+
         public:
             SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
             ~SceneSystem();
