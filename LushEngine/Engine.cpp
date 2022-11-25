@@ -48,7 +48,7 @@ Engine::Engine()
 
 void Engine::loadScene()
 {
-    std::string scene = loadFile("Resources/scene");
+    std::string scene = loadFile("Resources/Scenes/scene");
 
     std::vector<std::string> lines;
     std::stringstream ss(scene);
