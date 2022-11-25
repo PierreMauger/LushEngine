@@ -31,6 +31,7 @@ Engine::Engine()
     this->_systemManager.bindSystem(std::make_unique<CameraSystem>(this->_graphic, this->_entityManager));
     this->_systemManager.bindSystem(std::make_unique<RenderSystem>(this->_graphic, this->_entityManager));
     this->_systemManager.bindSystem(std::make_unique<PickingSystem>(this->_graphic, this->_entityManager));
+    this->_systemManager.bindSystem(std::make_unique<SceneSystem>(this->_graphic, this->_entityManager));
     this->_systemManager.bindSystem(std::make_unique<GUISystem>(this->_graphic));
 
     this->_componentManager.bindComponent<Transform>();
@@ -123,8 +124,6 @@ void Engine::run()
 
         glfwSwapBuffers(this->_graphic->getWindow());
         glfwPollEvents();
-
-        this->_graphic->getRenderView().setAspectRatio(this->_graphic->getViewPort().z / this->_graphic->getViewPort().w);
     }
 }
 

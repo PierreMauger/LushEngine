@@ -361,9 +361,9 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
     ImGui::PopStyleVar(3);
 
     const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
-    this->_graphic->setViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
+    this->_graphic->setSceneViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
 
-    GLuint texture = this->_graphic->getFrameBuffers()[0].texture;
+    GLuint texture = this->_graphic->getFrameBuffers()[2].texture;
     ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
     if (this->_showTools)
         this->drawGuizmo(entityManager, componentManager);
@@ -405,7 +405,7 @@ void GUISystem::drawGame()
     ImGui::PopStyleVar(3);
 
     const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
-    this->_graphic->setViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
+    this->_graphic->setGameViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
 
     GLuint texture = this->_graphic->getFrameBuffers()[0].texture;
     ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));

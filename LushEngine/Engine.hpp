@@ -16,6 +16,7 @@
 #include "Systems/GUI/GUISystem.hpp"
 #include "Systems/Picking/PickingSystem.hpp"
 #include "Systems/Render/RenderSystem.hpp"
+#include "Systems/Scene/SceneSystem.hpp"
 
 namespace Lush
 {

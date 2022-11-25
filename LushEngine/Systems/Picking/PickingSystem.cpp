@@ -37,7 +37,7 @@ PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &en
 void PickingSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
-    glm::vec4 viewport = this->_graphic->getViewPort();
+    glm::vec4 viewport = this->_graphic->getGameViewPort();
     glm::vec2 windowSize = this->_graphic->getWindowSize();
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);

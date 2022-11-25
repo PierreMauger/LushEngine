@@ -84,7 +84,8 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->setGLFWContext(sizeX, sizeY, title);
 
     this->_mousePosition = glm::vec2(sizeX / 2, sizeY / 2);
-    this->_viewPort = glm::vec4(0.0f, 0.0f, sizeX, sizeY);
+    this->_gameViewPort = glm::vec4(0.0f, 0.0f, sizeX, sizeY);
+    this->_sceneViewPort = glm::vec4(0.0f, 0.0f, sizeX, sizeY);
     this->_windowSize = glm::vec2(sizeX, sizeY);
     this->_frameBuffers.resize(0);
 
@@ -157,16 +158,19 @@ void Graphic::handleKeyboardPress(int key, [[maybe_unused]] int scancode, int ac
         this->_mouseMovement = !this->_mouseMovement;
         glfwSetInputMode(this->_window, GLFW_CURSOR, this->_mouseMovement ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
         if (this->_mouseMovement) {
-            this->setMousePosition(glm::vec2(this->_viewPort.z / 2 + this->_viewPort.x, this->_viewPort.w / 2 + this->_viewPort.y));
-            this->setMouseOffset(glm::vec2(this->_viewPort.z / 2 + this->_viewPort.x, this->_viewPort.w / 2 + this->_viewPort.y));
+            this->setMousePosition(glm::vec2(this->_gameViewPort.z / 2 + this->_gameViewPort.x, this->_gameViewPort.w / 2 + this->_gameViewPort.y));
+            this->setMouseOffset(glm::vec2(this->_gameViewPort.z / 2 + this->_gameViewPort.x, this->_gameViewPort.w / 2 + this->_gameViewPort.y));
         }
-        glfwSetCursorPos(this->_window, this->_viewPort.z / 2 + this->_viewPort.x, this->_viewPort.w / 2 + this->_viewPort.y);
+        glfwSetCursorPos(this->_window, this->_gameViewPort.z / 2 + this->_gameViewPort.x, this->_gameViewPort.w / 2 + this->_gameViewPort.y);
     }
 }
 
 void Graphic::handleResizeFramebuffer(int width, int height)
 {
     this->_windowSize = glm::vec2(width, height);
+    glViewport(0, 0, this->_windowSize.x, this->_windowSize.y);
+    this->_gameViewPort = glm::vec4(0.0f, 0.0f, this->_windowSize.x, this->_windowSize.y);
+    this->_sceneViewPort = glm::vec4(0.0f, 0.0f, this->_windowSize.x, this->_windowSize.y);
 
     for (auto fb : this->_frameBuffers) {
         glBindTexture(GL_TEXTURE_2D, fb.texture);
@@ -247,14 +251,24 @@ glm::vec2 Graphic::getMouseOffset()
     return this->_mouseOffset;
 }
 
-void Graphic::setViewPort(glm::vec4 viewPort)
+void Graphic::setGameViewPort(glm::vec4 viewPort)
 {
-    this->_viewPort = viewPort;
+    this->_gameViewPort = viewPort;
 }
 
-glm::vec4 Graphic::getViewPort()
+glm::vec4 Graphic::getGameViewPort()
 {
-    return this->_viewPort;
+    return this->_gameViewPort;
+}
+
+void Graphic::setSceneViewPort(glm::vec4 viewPort)
+{
+    this->_sceneViewPort = viewPort;
+}
+
+glm::vec4 Graphic::getSceneViewPort()
+{
+    return this->_sceneViewPort;
 }
 
 void Graphic::setWindowSize(glm::vec2 windowSize)

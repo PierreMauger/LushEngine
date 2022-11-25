@@ -98,6 +98,7 @@ set(INC
     ${PROJECT_NAME}/Systems/Picking/
     ${PROJECT_NAME}/Systems/GUI/
     ${PROJECT_NAME}/Systems/Render/
+    ${PROJECT_NAME}/Systems/Scene/
     ${PROJECT_NAME}/ImGui/
     ${PROJECT_NAME}/STB/
 )
@@ -114,6 +115,7 @@ set(SRC
     ${PROJECT_NAME}/Systems/Picking/PickingSystem.cpp
     ${PROJECT_NAME}/Systems/GUI/GUISystem.cpp
     ${PROJECT_NAME}/Systems/Render/RenderSystem.cpp
+    ${PROJECT_NAME}/Systems/Scene/SceneSystem.cpp
 
     ${PROJECT_NAME}/STB/stb.cpp
 )

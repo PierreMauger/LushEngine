@@ -28,7 +28,8 @@ namespace Lush
             RenderView _renderView;
             std::vector<FrameBuffer> _frameBuffers;
 
-            glm::vec4 _viewPort;
+            glm::vec4 _gameViewPort;
+            glm::vec4 _sceneViewPort;
             glm::vec2 _windowSize;
 
             bool _mouseMovement = false;
@@ -60,8 +61,10 @@ namespace Lush
             glm::vec2 getMousePosition();
             glm::vec2 getMouseOffset();
 
-            void setViewPort(glm::vec4 viewPort);
-            glm::vec4 getViewPort();
+            void setGameViewPort(glm::vec4 viewPort);
+            glm::vec4 getGameViewPort();
+            void setSceneViewPort(glm::vec4 viewPort);
+            glm::vec4 getSceneViewPort();
             void setWindowSize(glm::vec2 windowSize);
             glm::vec2 getWindowSize();
     };
