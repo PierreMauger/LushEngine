@@ -71,8 +71,8 @@ void GUISystem::setDock()
                                    ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
 
     ImGuiViewport *viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos({viewport->Pos.x, viewport->Pos.y + 20}); // 20 is the height of the action bar
-    ImGui::SetNextWindowSize({viewport->Size.x, viewport->Size.y - 20});
+    ImGui::SetNextWindowPos({viewport->Pos.x, viewport->Pos.y + 19}); // 19 is the height of the action bar
+    ImGui::SetNextWindowSize({viewport->Size.x, viewport->Size.y - 19});
     ImGui::SetNextWindowViewport(viewport->ID);
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
@@ -92,15 +92,15 @@ void GUISystem::drawMenuBar()
                 glfwSetWindowShouldClose(this->_graphic->getWindow(), true);
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("View")) {
-            ImGui::MenuItem("Scene Hierarchy", NULL, &this->_showSceneHierarchy);
-            ImGui::MenuItem("Properties", NULL, &this->_showProperties);
-            ImGui::MenuItem("Tools", NULL, &this->_showTools);
-            ImGui::MenuItem("Console", NULL, &this->_showConsole);
-            ImGui::MenuItem("Scene", NULL, &this->_showScene);
-            ImGui::MenuItem("Game", NULL, &this->_showGame);
-            ImGui::MenuItem("File Explorer", NULL, &this->_showFileExplorer);
-            ImGui::MenuItem("Profiler", NULL, &this->_showProfiler);
+        if (ImGui::BeginMenu("Window")) {
+            ImGui::MenuItem(ICON_FA_LIST " Scene Hierarchy", "Ctrl+1", &this->_showSceneHierarchy);
+            ImGui::MenuItem(ICON_FA_INFO_CIRCLE " Properties", "Ctrl+2", &this->_showProperties);
+            ImGui::MenuItem(ICON_FA_TOOLS " Tools", "Ctrl+3", &this->_showTools);
+            ImGui::MenuItem(ICON_FA_TERMINAL " Console", "Ctrl+4", &this->_showConsole);
+            ImGui::MenuItem(ICON_FA_EDIT " Scene", "Ctrl+5", &this->_showScene);
+            ImGui::MenuItem(ICON_FA_GAMEPAD " Game", "Ctrl+6", &this->_showGame);
+            ImGui::MenuItem(ICON_FA_FILE " File Explorer", "Ctrl+7", &this->_showFileExplorer);
+            ImGui::MenuItem(ICON_FA_STOPWATCH " Profiler", "Ctrl+8", &this->_showProfiler);
             ImGui::EndMenu();
         }
 
@@ -112,7 +112,9 @@ void GUISystem::drawActionBar()
 {
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
 
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     if (ImGui::BeginViewportSideBar("##ActionBar", ImGui::GetMainViewport(), ImGuiDir_Up, ImGui::GetFrameHeight(), window_flags)) {
+        ImGui::PopStyleVar(1);
         if (ImGui::BeginMenuBar()) {
             ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x / 2 - 50, 0));
             ImGui::Button(ICON_FA_PLAY, ImVec2(45, 0));
@@ -126,7 +128,7 @@ void GUISystem::drawActionBar()
 
 void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    if (!ImGui::Begin("Scene Hierarchy", &this->_showSceneHierarchy)) {
+    if (!ImGui::Begin(ICON_FA_LIST " Scene Hierarchy", &this->_showSceneHierarchy)) {
         ImGui::End();
         return;
     }
@@ -171,7 +173,7 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManage
 
 void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    if (!ImGui::Begin("Properties", &this->_showProperties)) {
+    if (!ImGui::Begin(ICON_FA_INFO_CIRCLE " Properties", &this->_showProperties)) {
         ImGui::End();
         return;
     }
@@ -313,7 +315,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
 
 void GUISystem::drawTools()
 {
-    if (!ImGui::Begin("Tools", &this->_showTools)) {
+    if (!ImGui::Begin(ICON_FA_TOOLS " Tools", &this->_showTools)) {
         ImGui::End();
         return;
     }
@@ -341,7 +343,7 @@ void GUISystem::drawTools()
 
 void GUISystem::drawConsole()
 {
-    if (!ImGui::Begin("Console", &this->_showConsole)) {
+    if (!ImGui::Begin(ICON_FA_TERMINAL " Console", &this->_showConsole)) {
         ImGui::End();
         return;
     }
@@ -353,7 +355,7 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    if (!ImGui::Begin("Scene", &this->_showScene, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
+    if (!ImGui::Begin(ICON_FA_EDIT " Scene", &this->_showScene, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
         ImGui::PopStyleVar(3);
         ImGui::End();
         return;
@@ -386,7 +388,8 @@ void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &compo
     model = glm::scale(model, transform.scale);
 
     ImGuizmo::SetDrawlist();
-    ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+    glm::vec4 viewport = this->_graphic->getSceneViewPort();
+    ImGuizmo::SetRect(viewport.x, viewport.y, viewport.z, viewport.w);
     ImGuizmo::Manipulate(&view[0][0], &projection[0][0], this->_currentOperation, this->_currentMode, &model[0][0], nullptr, nullptr);
 
     ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform.position[0], &transform.rotation[0], &transform.scale[0]);
@@ -397,7 +400,7 @@ void GUISystem::drawGame()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    if (!ImGui::Begin("Game", &this->_showGame, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
+    if (!ImGui::Begin(ICON_FA_GAMEPAD " Game", &this->_showGame, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
         ImGui::PopStyleVar(3);
         ImGui::End();
         return;
@@ -414,7 +417,7 @@ void GUISystem::drawGame()
 
 void GUISystem::drawFiles()
 {
-    if (!ImGui::Begin("File Explorer", &this->_showFileExplorer)) {
+    if (!ImGui::Begin(ICON_FA_FILE " File Explorer", &this->_showFileExplorer)) {
         ImGui::End();
         return;
     }
@@ -423,7 +426,7 @@ void GUISystem::drawFiles()
 
 void GUISystem::drawProfiler()
 {
-    if (!ImGui::Begin("Profiler", &this->_showProfiler)) {
+    if (!ImGui::Begin(ICON_FA_STOPWATCH " Profiler", &this->_showProfiler)) {
         ImGui::End();
         return;
     }
