@@ -105,6 +105,7 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_shaders["Outline"] = Shader(loadFile2("Resources/Shaders/outline.vs"), loadFile2("Resources/Shaders/outline.fs"));
     this->_shaders["Skybox"] = Shader(loadFile2("Resources/Shaders/skybox.vs"), loadFile2("Resources/Shaders/skybox.fs"));
     this->_shaders["Billboard"] = Shader(loadFile2("Resources/Shaders/billboard.vs"), loadFile2("Resources/Shaders/billboard.fs"));
+    this->_shaders["Grid"] = Shader(loadFile2("Resources/Shaders/grid.vs"), loadFile2("Resources/Shaders/grid.fs"));
     this->_renderView.setShaders(this->_shaders);
 }
 
@@ -132,7 +133,6 @@ void Graphic::setGLFWContext(int sizeX, int sizeY, std::string title)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_MULTISAMPLE);
-    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);

@@ -25,6 +25,9 @@ namespace Lush
             unsigned int _billboardVAO;
             unsigned int _billboardVBO;
 
+            unsigned int _gridVAO;
+            unsigned int _gridVBO;
+
             Transform _cameraTransform;
             Camera _camera;
 

@@ -70,6 +70,7 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()[0].framebuffer);
+    glEnable(GL_BLEND);
     this->_graphic->getRenderView().use("Outline");
     this->_graphic->getShaders()["Outline"].setInt("id", (pixel[0]) + (pixel[1] << 8) + (pixel[2] << 16));
     glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
@@ -78,4 +79,5 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDisable(GL_BLEND);
 }

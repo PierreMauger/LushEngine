@@ -48,6 +48,16 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entity
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
+
+    glGenVertexArrays(1, &this->_gridVAO);
+    glGenBuffers(1, &this->_gridVBO);
+    glBindVertexArray(this->_gridVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_gridVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 }
 
 SceneSystem::~SceneSystem()
@@ -57,7 +67,7 @@ SceneSystem::~SceneSystem()
 void SceneSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
     this->_graphic->getRenderView().setAspectRatio(this->_graphic->getSceneViewPort().z / this->_graphic->getSceneViewPort().w);
-    this->_graphic->getRenderView().update(this->_cameraTransform, this->_camera);
+    // this->_graphic->getRenderView().update(this->_cameraTransform, this->_camera);
 
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
 
@@ -91,23 +101,31 @@ void SceneSystem::update(EntityManager &entityManager, ComponentManager &compone
     }
 
     // INFO : dont draw to differenciate scene and game
-    // glDepthFunc(GL_LEQUAL);
-    // this->_graphic->getRenderView().use("Skybox");
-    // this->_graphic->getRenderView().setSkyBoxView();
-    // for (auto id : entityManager.getMaskCategory(this->_skyboxTag)) {
-    //     CubeMap cubeMap = componentManager.getComponent<CubeMap>(id);
+    glDepthFunc(GL_LEQUAL);
+    this->_graphic->getRenderView().use("Skybox");
+    this->_graphic->getRenderView().setSkyBoxView();
+    for (auto id : entityManager.getMaskCategory(this->_skyboxTag)) {
+        CubeMap cubeMap = componentManager.getComponent<CubeMap>(id);
 
-    //     if (this->_graphic->getSkyboxes().find(cubeMap.id) != this->_graphic->getSkyboxes().end()) {
-    //         this->_graphic->getRenderView().setSkyBox(cubeMap);
-    //         glActiveTexture(GL_TEXTURE0);
-    //         glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubeMap.id]);
-    //         this->_graphic->getRenderView().getShader().setInt("skybox", 0);
-    //         glBindVertexArray(this->_skyboxVAO);
-    //         glDrawArrays(GL_TRIANGLES, 0, 36);
-    //         glBindVertexArray(0);
-    //     }
-    // }
-    // glDepthFunc(GL_LESS);
+        if (this->_graphic->getSkyboxes().find(cubeMap.id) != this->_graphic->getSkyboxes().end()) {
+            this->_graphic->getRenderView().setSkyBox(cubeMap);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubeMap.id]);
+            this->_graphic->getRenderView().getShader().setInt("skybox", 0);
+            glBindVertexArray(this->_skyboxVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            glBindVertexArray(0);
+        }
+    }
+    glDepthFunc(GL_LESS);
+
+    this->_graphic->getRenderView().use("Grid");
+    this->_graphic->getRenderView().setView();
+    glEnable(GL_BLEND);
+    glBindVertexArray(this->_gridVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+    glDisable(GL_BLEND);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
