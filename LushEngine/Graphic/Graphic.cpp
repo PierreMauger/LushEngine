@@ -218,6 +218,26 @@ std::vector<FrameBuffer> &Graphic::getFrameBuffers()
     return this->_frameBuffers;
 }
 
+void Graphic::setRunning(bool running)
+{
+    this->_running = running;
+}
+
+bool Graphic::getRunning()
+{
+    return this->_running;
+}
+
+void Graphic::setPaused(bool paused)
+{
+    this->_paused = paused;
+}
+
+bool Graphic::getPaused()
+{
+    return this->_paused;
+}
+
 void Graphic::setMouseMovement(bool mouseMovement)
 {
     this->_mouseMovement = mouseMovement;

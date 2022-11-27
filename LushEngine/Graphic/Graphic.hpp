@@ -32,6 +32,9 @@ namespace Lush
             glm::vec4 _sceneViewPort;
             glm::vec2 _windowSize;
 
+            bool _running = false;
+            bool _paused = false;
+
             bool _mouseMovement = false;
             glm::vec2 _mousePosition;
             glm::vec2 _mouseLastPosition;
@@ -53,6 +56,11 @@ namespace Lush
             std::map<std::size_t, unsigned int> &getSkyboxes();
             RenderView &getRenderView();
             std::vector<FrameBuffer> &getFrameBuffers();
+
+            void setRunning(bool running);
+            bool getRunning();
+            void setPaused(bool paused);
+            bool getPaused();
 
             void setMouseMovement(bool mouseMovement);
             bool getMouseMovement();

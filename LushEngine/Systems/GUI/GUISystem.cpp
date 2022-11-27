@@ -117,9 +117,11 @@ void GUISystem::drawActionBar()
         ImGui::PopStyleVar(1);
         if (ImGui::BeginMenuBar()) {
             ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x / 2 - 50, 0));
-            ImGui::Button(ICON_FA_PLAY, ImVec2(45, 0));
+            if (ImGui::Button(this->_graphic->getRunning() ? ICON_FA_STOP : ICON_FA_PLAY, ImVec2(45, 0)))
+                this->_graphic->setRunning(!this->_graphic->getRunning());
             ImGui::SameLine(0, 10);
-            ImGui::Button(ICON_FA_STOP, ImVec2(45, 0));
+            if (ImGui::Button(ICON_FA_PAUSE, ImVec2(45, 0)))
+                this->_graphic->setPaused(!this->_graphic->getPaused());
             ImGui::EndMenuBar();
         }
         ImGui::End();
