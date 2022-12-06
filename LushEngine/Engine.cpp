@@ -27,6 +27,7 @@ Engine::Engine()
 {
     this->_graphic = std::make_shared<Graphic>(1280, 720, "Lush Engine");
 
+    this->_systemManager.bindSystem(std::make_unique<ScriptSystem>(this->_graphic, this->_entityManager));
     this->_systemManager.bindSystem(std::make_unique<ControlSystem>(this->_graphic, this->_entityManager));
     this->_systemManager.bindSystem(std::make_unique<CameraSystem>(this->_graphic, this->_entityManager));
     this->_systemManager.bindSystem(std::make_unique<RenderSystem>(this->_graphic, this->_entityManager));

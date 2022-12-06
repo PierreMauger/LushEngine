@@ -3,7 +3,6 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <lua.hpp>
 
 #include "ComponentTypes.hpp"
 #include "ECS/Component/ComponentManager.hpp"
@@ -17,6 +16,7 @@
 #include "Systems/Picking/PickingSystem.hpp"
 #include "Systems/Render/RenderSystem.hpp"
 #include "Systems/Scene/SceneSystem.hpp"
+#include "Systems/Script/ScriptSystem.hpp"
 
 namespace Lush
 {
