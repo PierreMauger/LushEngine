@@ -5,7 +5,7 @@
 #include "ECS/System/ISystem.hpp"
 #include "Graphic/Graphic.hpp"
 #include "Includes.hpp"
-#include "LuaScript/LuaScript.hpp"
+#include "Script/Script.hpp"
 
 namespace Lush
 {
@@ -13,7 +13,7 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
-            std::vector<LuaScript> _scripts;
+            std::vector<std::shared_ptr<Script>> _scripts;
 
         public:
             ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);

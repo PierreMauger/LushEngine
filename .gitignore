@@ -2,3 +2,4 @@
 build/
 lush
 *.ini
+Resources/Scripts/*.dll

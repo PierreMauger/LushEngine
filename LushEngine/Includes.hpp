@@ -4,6 +4,7 @@
 #include <any>
 #include <bitset>
 #include <condition_variable>
+#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <functional>

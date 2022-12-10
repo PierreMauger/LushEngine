@@ -1,7 +1,7 @@
 ################## CONFIG ##################
 
 #init Cmake
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.22)
 project(LushEngine LANGUAGES C CXX VERSION 1.0)
 
 #set flags
@@ -101,8 +101,9 @@ set(INC
     ${PROJECT_NAME}/Systems/Scene/
     ${PROJECT_NAME}/Systems/Script/
     ${PROJECT_NAME}/ImGui/
-    ${PROJECT_NAME}/LuaScript/
+    ${PROJECT_NAME}/Script/
     ${PROJECT_NAME}/STB/
+    ${PROJECT_NAME}/mono/
 )
 
 set(SRC
@@ -119,7 +120,7 @@ set(SRC
     ${PROJECT_NAME}/Systems/Render/RenderSystem.cpp
     ${PROJECT_NAME}/Systems/Scene/SceneSystem.cpp
     ${PROJECT_NAME}/Systems/Script/ScriptSystem.cpp
-    ${PROJECT_NAME}/LuaScript/LuaScript.cpp
+    ${PROJECT_NAME}/Script/Script.cpp
 
     ${PROJECT_NAME}/STB/stb.cpp
 )
@@ -127,8 +128,6 @@ set(SRC
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(LUA REQUIRED)
-find_package(LUABRIDGE REQUIRED)
 # LATER find_package(ASSIMP REQUIRED)
 
 include_directories(${INC}
@@ -136,8 +135,6 @@ include_directories(${INC}
     ${GLFW3_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
     ${ASSIMP_INCLUDE_DIRS}
-    ${LUA_INCLUDE_DIR}
-    ${LUABRIDGE_INCLUDE_DIR}
 )
 
 add_executable(${EXEC_NAME}
@@ -150,11 +147,11 @@ target_link_libraries(${EXEC_NAME} PRIVATE
     ${OPENGL_LIBRARIES}
     glfw
     ${GLEW_LIBRARY}
-    ${LUA_LIBRARIES}
     ${ECS}
     ${IMGUI}
 )
 
+target_link_libraries(${EXEC_NAME} PRIVATE "libmono-2.0.so")
 target_link_libraries(${EXEC_NAME} PRIVATE assimp)
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})

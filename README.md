@@ -34,7 +34,7 @@ Most features are still in development. Here are the main ones:
 - Cubemaps
 - Billboards (LOD and UI)
 - Engine UI
-- Lua scripting (in development)
+- C# scripting (in development)
 
 ## 💻 Requirements
 
@@ -60,7 +60,7 @@ It will automatically:
 
 ## 📉 Code
 
-To implement game logic, the code will be moved from custom systems to Lua scripts (still in development).\
+To implement game logic, the code will be moved from custom systems to C# scripts (still in development).\
 You will be able to write scripts and bind them to any entity, to interact with their components.
 To create a new component, add it in the ComponentTypes list.
 
