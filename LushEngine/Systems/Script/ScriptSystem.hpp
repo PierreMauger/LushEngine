@@ -7,6 +7,7 @@
 #include "Includes.hpp"
 #include "Script/Script.hpp"
 #include "Script/ScriptGlue.hpp"
+#include "Script/ScriptInstance.hpp"
 
 namespace Lush
 {
@@ -14,7 +15,9 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
+            // store unique domain? currently each script has a domain
             std::vector<std::shared_ptr<Script>> _scripts;
+            std::vector<std::shared_ptr<ScriptInstance>> _instances;
 
         public:
             ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);

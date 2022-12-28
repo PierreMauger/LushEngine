@@ -7,9 +7,11 @@ ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     this->_graphic = graphic;
     this->_scripts.push_back(std::make_shared<Script>("Spin"));
     ScriptGlue::registerFunctions();
+    this->_instances.push_back(std::make_shared<ScriptInstance>(*this->_scripts[0], 0));
+    this->_instances.push_back(std::make_shared<ScriptInstance>(*this->_scripts[0], 3));
 
-    for (auto &script : this->_scripts)
-        script->init();
+    for (auto &instance : this->_instances)
+        instance->init();
 }
 
 ScriptSystem::~ScriptSystem()
@@ -18,6 +20,6 @@ ScriptSystem::~ScriptSystem()
 
 void ScriptSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    for (auto &script : this->_scripts)
-        script->update(glfwGetTime());
+    for (auto &instance : this->_instances)
+        instance->update(glfwGetTime());
 }

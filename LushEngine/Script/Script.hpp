@@ -16,10 +16,10 @@ namespace Lush
             MonoDomain *_domain;
             MonoAssembly *_assembly;
             MonoImage *_image;
+            MonoClass *_class;
+            MonoClass *_entityClass;
 
-            MonoObject *_instance;
-            MonoMethod *_onInit;
-            MonoMethod *_onUpdate;
+            std::map<std::string, MonoMethod *> _methods;
 
         public:
             Script(std::string name);
@@ -27,8 +27,9 @@ namespace Lush
 
             void loadScript(std::string name);
 
-            void init();
-            void update(float time);
+            MonoMethod *getMethod(std::string name);
+            MonoDomain *getDomain();
+            MonoClass *getClass();
     };
 }
 

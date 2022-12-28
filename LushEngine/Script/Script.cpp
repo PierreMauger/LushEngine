@@ -10,10 +10,6 @@ Script::Script(std::string name)
     this->_assembly = nullptr;
     this->_image = nullptr;
 
-    this->_instance = nullptr;
-    this->_onInit = nullptr;
-    this->_onUpdate = nullptr;
-
     this->loadScript(name);
 }
 
@@ -51,34 +47,35 @@ void Script::loadScript(std::string name)
         return;
     }
 
-    MonoClass *klass = mono_class_from_name(this->_image, "", name.c_str());
-    if (!klass) {
+    this->_entityClass = mono_class_from_name(this->_image, "", "Entity");
+    if (!this->_entityClass) {
+        std::cout << "mono_class_from_name failed" << std::endl;
+        return;
+    }
+    this->_class = mono_class_from_name(this->_image, "", name.c_str());
+    if (!this->_class) {
         std::cout << "mono_class_from_name failed" << std::endl;
         return;
     }
 
-    this->_instance = mono_object_new(this->_domain, klass);
-    if (!this->_instance) {
-        std::cout << "mono_object_new failed" << std::endl;
-        return;
-    }
-    mono_runtime_object_init(this->_instance);
-
-    this->_onInit = mono_class_get_method_from_name(klass, "onInit", 0);
-    this->_onUpdate = mono_class_get_method_from_name(klass, "onUpdate", 1);
+    this->_methods["ctor"] = mono_class_get_method_from_name(this->_entityClass, ".ctor", 1);
+    this->_methods["onInit"] = mono_class_get_method_from_name(this->_class, "onInit", 0);
+    this->_methods["onUpdate"] = mono_class_get_method_from_name(this->_class, "onUpdate", 1);
 }
 
-void Script::init()
+MonoMethod *Script::getMethod(std::string name)
 {
-    if (!this->_onInit)
-        return;
-    mono_runtime_invoke(this->_onInit, this->_instance, nullptr, nullptr);
+    if (this->_methods.find(name) != this->_methods.end())
+        return this->_methods[name];
+    return nullptr;
 }
 
-void Script::update(float time)
+MonoDomain *Script::getDomain()
 {
-    if (!this->_onUpdate)
-        return;
-    void *param = &time;
-    mono_runtime_invoke(this->_onUpdate, this->_instance, &param, nullptr);
+    return this->_domain;
+}
+
+MonoClass *Script::getClass()
+{
+    return this->_class;
 }
