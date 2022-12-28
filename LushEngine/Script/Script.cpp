@@ -26,7 +26,7 @@ void Script::loadScript(std::string name)
 {
     std::string scriptPath = "Resources/Scripts/" + name + ".cs";
     std::string assemblyPath = "Resources/Scripts/" + name + ".dll";
-    std::string command = "mcs " + scriptPath + " " + "Resources/Scripts/Transform.cs" + " " + "Resources/Scripts/InternalCalls.cs" + " -target:library";
+    std::string command = "mcs " + scriptPath + " Resources/Scripts/Components.cs" + " Resources/Scripts/InternalCalls.cs" + " Resources/Scripts/Entity.cs" + " -target:library";
 
     if (system(command.c_str())) {
         std::cout << "mcs failed" << std::endl;

@@ -5,7 +5,7 @@ using namespace Lush;
 ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
 {
     this->_graphic = graphic;
-    this->_scripts.push_back(std::make_shared<Script>("Dog"));
+    this->_scripts.push_back(std::make_shared<Script>("Spin"));
     ScriptGlue::registerFunctions();
 
     for (auto &script : this->_scripts)

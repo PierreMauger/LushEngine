@@ -7,15 +7,20 @@ public struct Vector3
     public float z;
 }
 
-public class Transform
+public abstract class Component
+{
+    public Entity entity { get; internal set; }
+}
+
+public class Transform : Component
 {
     public Vector3 position {
         get {
-            InternalCalls.Transform_Get(0, out Vector3 position);
+            InternalCalls.Transform_Get(entity.id, out Vector3 position);
             return position;
         }
         set {
-            InternalCalls.Transform_Set(0, ref value);
+            InternalCalls.Transform_Set(entity.id, ref value);
         }
     }
     // public Vector3 rotation;

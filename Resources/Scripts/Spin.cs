@@ -1,14 +1,14 @@
 using System;
 using System.Runtime.CompilerServices;
 
-public class Dog
+public class Spin : Entity
 {
-    public Transform transform;
+    private Transform transform;
 
     public void onInit()
     {
-        Console.WriteLine("woof!");
-        transform = new Transform();
+        Console.WriteLine("Wow!");
+        transform = getComponent<Transform>();
     }
 
     public void onUpdate(float deltaTime)
