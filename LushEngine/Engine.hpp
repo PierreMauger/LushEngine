@@ -32,10 +32,13 @@ namespace Lush
         public:
             Engine();
             ~Engine() = default;
+            static Engine *getEngine();
 
             void loadScene();
             void run();
             void updateMouse();
+            EntityManager &getEntityManager();
+            ComponentManager &getComponentManager();
     };
 }
 

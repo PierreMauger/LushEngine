@@ -137,3 +137,13 @@ void Engine::updateMouse()
     else
         this->_graphic->setMousePosition(glm::vec2(x, y));
 }
+
+EntityManager &Engine::getEntityManager()
+{
+    return this->_entityManager;
+}
+
+ComponentManager &Engine::getComponentManager()
+{
+    return this->_componentManager;
+}

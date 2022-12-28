@@ -5,6 +5,7 @@ using namespace Lush;
 Script::Script(std::string name)
 {
     unsetenv("TERM");
+
     this->_domain = nullptr;
     this->_assembly = nullptr;
     this->_image = nullptr;
@@ -25,7 +26,7 @@ void Script::loadScript(std::string name)
 {
     std::string scriptPath = "Resources/Scripts/" + name + ".cs";
     std::string assemblyPath = "Resources/Scripts/" + name + ".dll";
-    std::string command = "mcs " + scriptPath + " -target:library";
+    std::string command = "mcs " + scriptPath + " " + "Resources/Scripts/Transform.cs" + " " + "Resources/Scripts/InternalCalls.cs" + " -target:library";
 
     if (system(command.c_str())) {
         std::cout << "mcs failed" << std::endl;

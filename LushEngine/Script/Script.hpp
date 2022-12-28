@@ -1,3 +1,6 @@
+#ifndef SCRIPT_HPP
+#define SCRIPT_HPP
+
 #include "Includes.hpp"
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
@@ -26,6 +29,7 @@ namespace Lush
 
             void init();
             void update(float time);
-
     };
 }
+
+#endif // SCRIPT_HPP

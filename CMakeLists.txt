@@ -121,6 +121,7 @@ set(SRC
     ${PROJECT_NAME}/Systems/Scene/SceneSystem.cpp
     ${PROJECT_NAME}/Systems/Script/ScriptSystem.cpp
     ${PROJECT_NAME}/Script/Script.cpp
+    ${PROJECT_NAME}/Script/ScriptGlue.cpp
 
     ${PROJECT_NAME}/STB/stb.cpp
 )
@@ -151,7 +152,7 @@ target_link_libraries(${EXEC_NAME} PRIVATE
     ${IMGUI}
 )
 
-target_link_libraries(${EXEC_NAME} PRIVATE "libmono-2.0.so")
+target_link_libraries(${EXEC_NAME} PRIVATE "libmonosgen-2.0.so.1.0.0")
 target_link_libraries(${EXEC_NAME} PRIVATE assimp)
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})

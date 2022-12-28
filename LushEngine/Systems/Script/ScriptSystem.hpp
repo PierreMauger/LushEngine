@@ -6,6 +6,7 @@
 #include "Graphic/Graphic.hpp"
 #include "Includes.hpp"
 #include "Script/Script.hpp"
+#include "Script/ScriptGlue.hpp"
 
 namespace Lush
 {

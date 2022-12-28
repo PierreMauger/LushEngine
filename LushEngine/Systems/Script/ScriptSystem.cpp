@@ -6,6 +6,7 @@ ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
 {
     this->_graphic = graphic;
     this->_scripts.push_back(std::make_shared<Script>("Dog"));
+    ScriptGlue::registerFunctions();
 
     for (auto &script : this->_scripts)
         script->init();
