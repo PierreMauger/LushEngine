@@ -120,7 +120,7 @@ set(SRC
     ${PROJECT_NAME}/Systems/Render/RenderSystem.cpp
     ${PROJECT_NAME}/Systems/Scene/SceneSystem.cpp
     ${PROJECT_NAME}/Systems/Script/ScriptSystem.cpp
-    ${PROJECT_NAME}/Script/Script.cpp
+    ${PROJECT_NAME}/Script/ScriptClass.cpp
     ${PROJECT_NAME}/Script/ScriptGlue.cpp
     ${PROJECT_NAME}/Script/ScriptInstance.cpp
 

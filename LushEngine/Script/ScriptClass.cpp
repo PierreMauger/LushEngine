@@ -1,8 +1,8 @@
-#include "Script/Script.hpp"
+#include "Script/ScriptClass.hpp"
 
 using namespace Lush;
 
-Script::Script(std::string name)
+ScriptClass::ScriptClass(std::string name)
 {
     unsetenv("TERM");
 
@@ -13,12 +13,12 @@ Script::Script(std::string name)
     this->loadScript(name);
 }
 
-Script::~Script()
+ScriptClass::~ScriptClass()
 {
     mono_jit_cleanup(this->_domain);
 }
 
-void Script::loadScript(std::string name)
+void ScriptClass::loadScript(std::string name)
 {
     std::string scriptPath = "Resources/Scripts/" + name + ".cs";
     std::string assemblyPath = "Resources/Scripts/" + name + ".dll";
@@ -63,19 +63,19 @@ void Script::loadScript(std::string name)
     this->_methods["onUpdate"] = mono_class_get_method_from_name(this->_class, "onUpdate", 1);
 }
 
-MonoMethod *Script::getMethod(std::string name)
+MonoMethod *ScriptClass::getMethod(std::string name)
 {
     if (this->_methods.find(name) != this->_methods.end())
         return this->_methods[name];
     return nullptr;
 }
 
-MonoDomain *Script::getDomain()
+MonoDomain *ScriptClass::getDomain()
 {
     return this->_domain;
 }
 
-MonoClass *Script::getClass()
+MonoClass *ScriptClass::getClass()
 {
     return this->_class;
 }

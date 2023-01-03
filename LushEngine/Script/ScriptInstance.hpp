@@ -2,14 +2,14 @@
 #define SCRIPTINSTANCE_HPP
 
 #include "Includes.hpp"
-#include "Script/Script.hpp"
+#include "Script/ScriptClass.hpp"
 
 namespace Lush
 {
     class ScriptInstance
     {
         public:
-            ScriptInstance(Script &script, std::size_t id);
+            ScriptInstance(ScriptClass &script, std::size_t id);
             ~ScriptInstance() = default;
 
             void init();

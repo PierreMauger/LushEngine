@@ -1,5 +1,5 @@
-#ifndef SCRIPT_HPP
-#define SCRIPT_HPP
+#ifndef SCRIPTCLASS_HPP
+#define SCRIPTCLASS_HPP
 
 #include "Includes.hpp"
 #include "mono/jit/jit.h"
@@ -10,7 +10,7 @@
 
 namespace Lush
 {
-    class Script
+    class ScriptClass
     {
         private:
             MonoDomain *_domain;
@@ -22,8 +22,8 @@ namespace Lush
             std::map<std::string, MonoMethod *> _methods;
 
         public:
-            Script(std::string name);
-            ~Script();
+            ScriptClass(std::string name);
+            ~ScriptClass();
 
             void loadScript(std::string name);
 
@@ -33,4 +33,4 @@ namespace Lush
     };
 }
 
-#endif // SCRIPT_HPP
+#endif // SCRIPTCLASS_HPP
