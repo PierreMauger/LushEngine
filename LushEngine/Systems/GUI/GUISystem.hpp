@@ -30,11 +30,10 @@ namespace Lush
             bool _showGame = true;
             bool _showFileExplorer = true;
             bool _showProfiler = true;
+            bool _reloading = false;
             std::size_t _selectedEntity = 0;
             ImGuizmo::OPERATION _currentOperation = ImGuizmo::OPERATION::TRANSLATE;
             ImGuizmo::MODE _currentMode = ImGuizmo::MODE::LOCAL;
-
-            // FrameBuffer _buffer;
 
             void setDock();
             void drawMenuBar();

@@ -169,8 +169,8 @@ void Graphic::handleResizeFramebuffer(int width, int height)
 {
     this->_windowSize = glm::vec2(width, height);
     glViewport(0, 0, this->_windowSize.x, this->_windowSize.y);
-    this->_gameViewPort = glm::vec4(0.0f, 0.0f, this->_windowSize.x, this->_windowSize.y);
-    this->_sceneViewPort = glm::vec4(0.0f, 0.0f, this->_windowSize.x, this->_windowSize.y);
+    // this->_gameViewPort = glm::vec4(0.0f, 0.0f, this->_windowSize.x, this->_windowSize.y);
+    // this->_sceneViewPort = glm::vec4(0.0f, 0.0f, this->_windowSize.x, this->_windowSize.y);
 
     for (auto fb : this->_frameBuffers) {
         glBindTexture(GL_TEXTURE_2D, fb.texture);

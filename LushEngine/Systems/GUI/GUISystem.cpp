@@ -13,7 +13,6 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(this->_graphic->getWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 410");
-    ImGuizmo::AllowAxisFlip(false); // doesn't work sadly
 
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NavEnableKeyboard;
@@ -63,6 +62,19 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    if (this->_reloading) {
+        ImGui::LoadIniSettingsFromDisk("Resources/Config/dockConfig.ini");
+        this->_reloading = false;
+        this->_showSceneHierarchy = true;
+        this->_showProperties = true;
+        this->_showTools = true;
+        this->_showConsole = true;
+        this->_showScene = true;
+        this->_showGame = true;
+        this->_showFileExplorer = true;
+        this->_showProfiler = true;
+    }
 }
 
 void GUISystem::setDock()
@@ -101,6 +113,7 @@ void GUISystem::drawMenuBar()
             ImGui::MenuItem(ICON_FA_GAMEPAD " Game", "Ctrl+6", &this->_showGame);
             ImGui::MenuItem(ICON_FA_FILE " File Explorer", "Ctrl+7", &this->_showFileExplorer);
             ImGui::MenuItem(ICON_FA_STOPWATCH " Profiler", "Ctrl+8", &this->_showProfiler);
+            ImGui::MenuItem(ICON_FA_SYNC " Reload Layout", nullptr, &this->_reloading);
             ImGui::EndMenu();
         }
 
@@ -202,7 +215,6 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     ImGui::DragFloat3("Position##Transform", (float *)&transform.position, 0.1f, -FLT_MAX, +FLT_MAX);
                     ImGui::DragFloat3("Rotation##Transform", (float *)&transform.rotation, 1.0f, -FLT_MAX, +FLT_MAX);
                     ImGui::DragFloat3("Scale##Transform", (float *)&transform.scale, 0.01f, 0.0f, +FLT_MAX);
-                    // ImGui::SliderFloat3("Scale##Transform", (float *)&transform.scale, 0.0f, 5.0f);
                     break;
                 }
                 case 1: {
