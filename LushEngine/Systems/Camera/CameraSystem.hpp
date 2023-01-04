@@ -6,16 +6,16 @@
 #include "Graphic/Graphic.hpp"
 #include "Includes.hpp"
 
+#define CAMERA_TAG (ComponentType::TRANSFORM | ComponentType::CAMERA)
+#define LIGHT_TAG (ComponentType::TRANSFORM | ComponentType::LIGHT)
+#define CONTROL_TAG (ComponentType::TRANSFORM | ComponentType::CONTROL)
+
 namespace Lush
 {
     class CameraSystem : public ISystem
     {
         private:
             std::shared_ptr<Graphic> _graphic;
-            std::size_t _cameraTag = (ComponentType::TRANSFORM | ComponentType::CAMERA);
-            std::size_t _lightTag = (ComponentType::TRANSFORM | ComponentType::LIGHT);
-            std::size_t _transformTag = (ComponentType::TRANSFORM);
-            std::size_t _controlTag = (ComponentType::CONTROL);
 
             std::vector<std::pair<Transform, Light>> _dirLights;
             std::vector<std::pair<Transform, Light>> _pointLights;

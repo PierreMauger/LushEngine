@@ -218,6 +218,11 @@ std::vector<FrameBuffer> &Graphic::getFrameBuffers()
     return this->_frameBuffers;
 }
 
+std::vector<std::string> &Graphic::getScriptNames()
+{
+    return this->_scriptNames;
+}
+
 void Graphic::setRunning(bool running)
 {
     this->_running = running;

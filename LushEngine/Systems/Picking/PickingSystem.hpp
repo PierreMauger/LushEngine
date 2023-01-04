@@ -7,13 +7,14 @@
 #include "Graphic/Vertices.hpp"
 #include "Includes.hpp"
 
+#define MODEL_TAG (ComponentType::TRANSFORM | ComponentType::MODEL)
+
 namespace Lush
 {
     class PickingSystem : public ISystem
     {
         private:
             std::shared_ptr<Graphic> _graphic;
-            std::size_t _modelTag = (ComponentType::TRANSFORM | ComponentType::MODEL);
 
             FrameBuffer _buffer;
 

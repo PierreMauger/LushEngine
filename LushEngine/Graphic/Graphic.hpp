@@ -12,9 +12,9 @@
 namespace Lush
 {
     typedef struct {
-            GLuint framebuffer;
-            GLuint texture;
-            GLuint depthbuffer;
+        GLuint framebuffer;
+        GLuint texture;
+        GLuint depthbuffer;
     } FrameBuffer;
 
     class Graphic
@@ -27,6 +27,8 @@ namespace Lush
             std::map<std::size_t, unsigned int> _skyboxes;
             RenderView _renderView;
             std::vector<FrameBuffer> _frameBuffers;
+
+            std::vector<std::string> _scriptNames;
 
             glm::vec4 _gameViewPort;
             glm::vec4 _sceneViewPort;
@@ -56,6 +58,7 @@ namespace Lush
             std::map<std::size_t, unsigned int> &getSkyboxes();
             RenderView &getRenderView();
             std::vector<FrameBuffer> &getFrameBuffers();
+            std::vector<std::string> &getScriptNames();
 
             void setRunning(bool running);
             bool getRunning();

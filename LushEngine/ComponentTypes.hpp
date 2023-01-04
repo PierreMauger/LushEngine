@@ -12,6 +12,8 @@ enum ComponentType {
     CONTROL = 1 << 5,
     CUBEMAP = 1 << 6,
     BILLBOARD = 1 << 7,
+
+    COMPONENT_TYPE_COUNT = 1 << 8
 };
 
 typedef struct {

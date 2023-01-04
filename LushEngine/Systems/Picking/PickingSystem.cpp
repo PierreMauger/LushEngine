@@ -5,7 +5,7 @@ using namespace Lush;
 PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
 {
     this->_graphic = graphic;
-    entityManager.addMaskCategory(this->_modelTag);
+    entityManager.addMaskCategory(MODEL_TAG);
     glm::vec2 windowSize = this->_graphic->getWindowSize();
 
     glGenFramebuffers(1, &this->_buffer.framebuffer);
@@ -45,7 +45,7 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
 
     this->_graphic->getRenderView().use("Picking");
     this->_graphic->getRenderView().setView();
-    for (auto id : entityManager.getMaskCategory(this->_modelTag)) {
+    for (auto id : entityManager.getMaskCategory(MODEL_TAG)) {
         Transform transform = componentManager.getComponent<Transform>(id);
         Model model = componentManager.getComponent<Model>(id);
 

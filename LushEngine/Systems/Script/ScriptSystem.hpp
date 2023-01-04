@@ -16,8 +16,11 @@ namespace Lush
         private:
             std::shared_ptr<Graphic> _graphic;
             // store unique domain? currently each script has a domain
-            std::vector<std::shared_ptr<ScriptClass>> _scripts;
-            std::vector<std::shared_ptr<ScriptInstance>> _instances;
+            std::vector<std::unique_ptr<ScriptClass>> _scripts;
+            std::vector<std::unique_ptr<ScriptInstance>> _instances;
+            bool _initialized = false;
+
+            bool buttonChanged();
 
         public:
             ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);

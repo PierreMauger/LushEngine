@@ -5,19 +5,19 @@ using namespace Lush;
 ControlSystem::ControlSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
 {
     this->_graphic = graphic;
-    entityManager.addMaskCategory(this->_controlTag);
-    entityManager.addMaskCategory(this->_cameraTag);
+    entityManager.addMaskCategory(CONTROL_TAG);
+    entityManager.addMaskCategory(CAMERA_TAG);
 }
 
 void ControlSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    for (auto id : entityManager.getMaskCategory(this->_controlTag)) {
+    for (auto id : entityManager.getMaskCategory(CONTROL_TAG)) {
         Transform &transform = componentManager.getComponent<Transform>(id);
         Control &control = componentManager.getComponent<Control>(id);
 
         if (!control.control)
             continue;
-        for (auto cameraId : entityManager.getMaskCategory(this->_cameraTag)) {
+        for (auto cameraId : entityManager.getMaskCategory(CAMERA_TAG)) {
             Camera camera = componentManager.getComponent<Camera>(cameraId);
 
             if (camera.mod == CameraMod::THIRD_PERSON && camera.target == id) {

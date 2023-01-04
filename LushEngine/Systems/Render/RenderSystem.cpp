@@ -5,9 +5,9 @@ using namespace Lush;
 RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
 {
     this->_graphic = graphic;
-    entityManager.addMaskCategory(this->_modelTag);
-    entityManager.addMaskCategory(this->_billboardTag);
-    entityManager.addMaskCategory(this->_skyboxTag);
+    entityManager.addMaskCategory(MODEL_TAG);
+    entityManager.addMaskCategory(BILLBOARD_TAG);
+    entityManager.addMaskCategory(SKYBOX_TAG);
     glm::vec2 windowSize = this->_graphic->getWindowSize();
 
     glGenFramebuffers(1, &this->_buffer.framebuffer);
@@ -58,7 +58,7 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
 
     this->_graphic->getRenderView().use("Camera");
     this->_graphic->getRenderView().setView();
-    for (auto id : entityManager.getMaskCategory(this->_modelTag)) {
+    for (auto id : entityManager.getMaskCategory(MODEL_TAG)) {
         Transform transform = componentManager.getComponent<Transform>(id);
         Model model = componentManager.getComponent<Model>(id);
 
@@ -69,7 +69,7 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
 
     this->_graphic->getRenderView().use("Billboard");
     this->_graphic->getRenderView().setView();
-    for (auto id : entityManager.getMaskCategory(this->_billboardTag)) {
+    for (auto id : entityManager.getMaskCategory(BILLBOARD_TAG)) {
         Transform transform = componentManager.getComponent<Transform>(id);
         BillBoard billBoard = componentManager.getComponent<BillBoard>(id);
 
@@ -85,7 +85,7 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
     glDepthFunc(GL_LEQUAL);
     this->_graphic->getRenderView().use("Skybox");
     this->_graphic->getRenderView().setSkyBoxView();
-    for (auto id : entityManager.getMaskCategory(this->_skyboxTag)) {
+    for (auto id : entityManager.getMaskCategory(SKYBOX_TAG)) {
         CubeMap cubeMap = componentManager.getComponent<CubeMap>(id);
 
         if (this->_graphic->getSkyboxes().find(cubeMap.id) != this->_graphic->getSkyboxes().end()) {

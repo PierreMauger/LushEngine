@@ -13,6 +13,8 @@
 #include "Includes.hpp"
 
 #define FORMAT_NAME(name) name + std::to_string(std::stoi(name)).length()
+#define BUTTON_COLOR ImVec4(0.26f, 0.59f, 0.98f, 0.40f)
+#define BUTTON_COLOR_SELECTED ImVec4(0.26f, 0.59f, 0.98f, 0.80f)
 
 namespace Lush
 {
@@ -47,7 +49,7 @@ namespace Lush
             void drawGame();
             void drawFiles();
             void drawProfiler();
-            std::string formatBool(std::size_t value, std::size_t size);
+            std::string formatBinary(std::size_t value, std::size_t size);
 
         public:
             GUISystem(std::shared_ptr<Graphic> graphic);

@@ -6,14 +6,15 @@
 #include "Graphic/Graphic.hpp"
 #include "Includes.hpp"
 
+#define CONTROL_TAG (ComponentType::TRANSFORM | ComponentType::CONTROL)
+#define CAMERA_TAG (ComponentType::TRANSFORM | ComponentType::CAMERA)
+
 namespace Lush
 {
     class ControlSystem : public ISystem
     {
         private:
             std::shared_ptr<Graphic> _graphic;
-            std::size_t _controlTag = (ComponentType::TRANSFORM | ComponentType::CONTROL);
-            std::size_t _cameraTag = (ComponentType::TRANSFORM | ComponentType::CAMERA);
 
         public:
             ControlSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);

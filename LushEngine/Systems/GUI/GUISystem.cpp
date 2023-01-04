@@ -113,15 +113,19 @@ void GUISystem::drawActionBar()
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    if (ImGui::BeginViewportSideBar("##ActionBar", ImGui::GetMainViewport(), ImGuiDir_Up, ImGui::GetFrameHeight(), window_flags)) {
+    if (ImGui::BeginViewportSideBar("ActionBar", ImGui::GetMainViewport(), ImGuiDir_Up, ImGui::GetFrameHeight(), window_flags)) {
         ImGui::PopStyleVar(1);
         if (ImGui::BeginMenuBar()) {
             ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x / 2 - 50, 0));
+            ImGui::PushStyleColor(ImGuiCol_Button, this->_graphic->getRunning() ? BUTTON_COLOR_SELECTED : BUTTON_COLOR);
             if (ImGui::Button(this->_graphic->getRunning() ? ICON_FA_STOP : ICON_FA_PLAY, ImVec2(45, 0)))
                 this->_graphic->setRunning(!this->_graphic->getRunning());
+            ImGui::PopStyleColor();
             ImGui::SameLine(0, 10);
+            ImGui::PushStyleColor(ImGuiCol_Button, this->_graphic->getPaused() ? BUTTON_COLOR_SELECTED : BUTTON_COLOR);
             if (ImGui::Button(ICON_FA_PAUSE, ImVec2(45, 0)))
                 this->_graphic->setPaused(!this->_graphic->getPaused());
+            ImGui::PopStyleColor();
             ImGui::EndMenuBar();
         }
         ImGui::End();
@@ -146,7 +150,9 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManage
             ImGui::TableNextColumn();
             ImGui::Text("%lu", i);
             ImGui::TableNextColumn();
-            masks[i].has_value() ? ImGui::Text("%s", this->formatBool(masks[i].value(), componentManager.getComponentArray().size()).c_str()) : ImGui::Text("None");
+            masks[i].has_value()
+                ? ImGui::Text("%s", this->formatBinary(masks[i].value(), componentManager.getComponentArray().size() + this->_graphic->getScriptNames().size()).c_str())
+                : ImGui::Text("None");
             ImGui::TableNextColumn();
             if (masks[i].has_value()) {
                 if (ImGui::Button(std::string("Remove##" + std::to_string(i)).c_str())) {
@@ -195,7 +201,8 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     Transform &transform = componentManager.getComponent<Transform>(this->_selectedEntity);
                     ImGui::DragFloat3("Position##Transform", (float *)&transform.position, 0.1f, -FLT_MAX, +FLT_MAX);
                     ImGui::DragFloat3("Rotation##Transform", (float *)&transform.rotation, 1.0f, -FLT_MAX, +FLT_MAX);
-                    ImGui::SliderFloat3("Scale##Transform", (float *)&transform.scale, 0.0f, 5.0f);
+                    ImGui::DragFloat3("Scale##Transform", (float *)&transform.scale, 0.01f, 0.0f, +FLT_MAX);
+                    // ImGui::SliderFloat3("Scale##Transform", (float *)&transform.scale, 0.0f, 5.0f);
                     break;
                 }
                 case 1: {
@@ -270,6 +277,15 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
             ImGui::Separator();
         }
     }
+    for (auto script : this->_graphic->getScriptNames()) {
+        if (masks[this->_selectedEntity].value() & ComponentType::COMPONENT_TYPE_COUNT) {
+            if (ImGui::CollapsingHeader(script.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                if (ImGui::Button(std::string("Remove##" + std::to_string(8)).c_str())) {
+                    entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() & ~ComponentType::COMPONENT_TYPE_COUNT);
+                }
+            }
+        }
+    }
     const float footerReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerReserve), false, ImGuiWindowFlags_HorizontalScrollbar);
     ImGui::EndChild();
@@ -311,6 +327,13 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 }
             }
         }
+        for (auto script : this->_graphic->getScriptNames()) {
+            if (!(masks[this->_selectedEntity].value() & ComponentType::COMPONENT_TYPE_COUNT)) {
+                if (ImGui::Selectable(script.c_str())) {
+                    entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() | ComponentType::COMPONENT_TYPE_COUNT);
+                }
+            }
+        }
     }
     ImGui::End();
 }
@@ -330,9 +353,9 @@ void GUISystem::drawTools()
     if (ImGui::RadioButton("Scale", this->_currentOperation == ImGuizmo::SCALE))
         this->_currentOperation = ImGuizmo::SCALE;
     ImGui::SameLine();
-    ImGui::Text("|");
-    ImGui::SameLine();
     if (this->_currentOperation != ImGuizmo::SCALE) {
+        ImGui::Text("|");
+        ImGui::SameLine();
         if (ImGui::RadioButton("Local", this->_currentMode == ImGuizmo::LOCAL))
             this->_currentMode = ImGuizmo::LOCAL;
         ImGui::SameLine();
@@ -435,7 +458,7 @@ void GUISystem::drawProfiler()
     ImGui::End();
 }
 
-std::string GUISystem::formatBool(std::size_t value, std::size_t size)
+std::string GUISystem::formatBinary(std::size_t value, std::size_t size)
 {
     std::string binary = std::bitset<64>(value).to_string();
     std::string result = "";

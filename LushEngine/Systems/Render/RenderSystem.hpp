@@ -7,15 +7,16 @@
 #include "Graphic/Vertices.hpp"
 #include "Includes.hpp"
 
+#define MODEL_TAG (ComponentType::TRANSFORM | ComponentType::MODEL)
+#define BILLBOARD_TAG (ComponentType::TRANSFORM | ComponentType::BILLBOARD)
+#define SKYBOX_TAG (ComponentType::CUBEMAP)
+
 namespace Lush
 {
     class RenderSystem : public ISystem
     {
         private:
             std::shared_ptr<Graphic> _graphic;
-            std::size_t _modelTag = (ComponentType::TRANSFORM | ComponentType::MODEL);
-            std::size_t _billboardTag = (ComponentType::TRANSFORM | ComponentType::BILLBOARD);
-            std::size_t _skyboxTag = (ComponentType::CUBEMAP);
 
             FrameBuffer _buffer;
 
