@@ -41,7 +41,7 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
 
     this->setDock();
     this->drawMenuBar();
-    this->drawActionBar();
+    this->drawActionBar(entityManager, componentManager);
 
     if (this->_showSceneHierarchy)
         this->drawSceneHierarchy(entityManager, componentManager);
@@ -121,7 +121,7 @@ void GUISystem::drawMenuBar()
     }
 }
 
-void GUISystem::drawActionBar()
+void GUISystem::drawActionBar(EntityManager &entityManager, ComponentManager &componentManager)
 {
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
 
@@ -131,8 +131,16 @@ void GUISystem::drawActionBar()
         if (ImGui::BeginMenuBar()) {
             ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x / 2 - 50, 0));
             ImGui::PushStyleColor(ImGuiCol_Button, this->_graphic->getRunning() ? BUTTON_COLOR_SELECTED : BUTTON_COLOR);
-            if (ImGui::Button(this->_graphic->getRunning() ? ICON_FA_STOP : ICON_FA_PLAY, ImVec2(45, 0)))
+            if (ImGui::Button(this->_graphic->getRunning() ? ICON_FA_STOP : ICON_FA_PLAY, ImVec2(45, 0))) {
                 this->_graphic->setRunning(!this->_graphic->getRunning());
+                if (this->_graphic->getRunning()) {
+                    this->_entityManagerCopy = entityManager;
+                    this->_componentManagerCopy = componentManager;
+                } else {
+                    entityManager = this->_entityManagerCopy;
+                    componentManager = this->_componentManagerCopy;
+                }
+            }
             ImGui::PopStyleColor();
             ImGui::SameLine(0, 10);
             ImGui::PushStyleColor(ImGuiCol_Button, this->_graphic->getPaused() ? BUTTON_COLOR_SELECTED : BUTTON_COLOR);

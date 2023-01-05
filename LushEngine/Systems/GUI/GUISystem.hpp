@@ -35,9 +35,12 @@ namespace Lush
             ImGuizmo::OPERATION _currentOperation = ImGuizmo::OPERATION::TRANSLATE;
             ImGuizmo::MODE _currentMode = ImGuizmo::MODE::LOCAL;
 
+            EntityManager _entityManagerCopy;
+            ComponentManager _componentManagerCopy;
+
             void setDock();
             void drawMenuBar();
-            void drawActionBar();
+            void drawActionBar(EntityManager &entityManager, ComponentManager &componentManager);
 
             void drawSceneHierarchy(EntityManager &entityManager, ComponentManager &componentManager);
             void drawProperties(EntityManager &entityManager, ComponentManager &componentManager);
