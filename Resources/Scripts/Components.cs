@@ -16,13 +16,29 @@ public class Transform : Component
 {
     public Vector3 position {
         get {
-            InternalCalls.Transform_Get(entity.id, out Vector3 position);
+            InternalCalls.Transform_GetPosition(entity.id, out Vector3 position);
             return position;
         }
         set {
-            InternalCalls.Transform_Set(entity.id, ref value);
+            InternalCalls.Transform_SetPosition(entity.id, ref value);
         }
     }
-    // public Vector3 rotation;
-    // public Vector3 scale;
+    public Vector3 rotation {
+        get {
+            InternalCalls.Transform_GetRotation(entity.id, out Vector3 rotation);
+            return rotation;
+        }
+        set {
+            InternalCalls.Transform_SetRotation(entity.id, ref value);
+        }
+    }
+    public Vector3 scale {
+        get {
+            InternalCalls.Transform_GetScale(entity.id, out Vector3 scale);
+            return scale;
+        }
+        set {
+            InternalCalls.Transform_SetScale(entity.id, ref value);
+        }
+    }
 }

@@ -3,6 +3,8 @@ using System.Runtime.CompilerServices;
 
 public class Entity
 {
+    public readonly ulong id;
+
     protected Entity()
     {
         this.id = 0;
@@ -12,8 +14,6 @@ public class Entity
     {
         this.id = id;
     }
-
-    public readonly ulong id;
 
     public T getComponent<T>() where T : Component, new()
     {

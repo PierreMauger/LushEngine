@@ -11,8 +11,12 @@ namespace Lush
     {
         public:
             static void Console_Log(std::size_t id, MonoString *message);
-            static void Transform_Get(std::size_t id, glm::vec3 *outTranslation);
-            static void Transform_Set(std::size_t id, glm::vec3 *translation);
+            static void Transform_GetPosition(std::size_t id, glm::vec3 *position);
+            static void Transform_SetPosition(std::size_t id, glm::vec3 *position);
+            static void Transform_GetRotation(std::size_t id, glm::vec3 *rotation);
+            static void Transform_SetRotation(std::size_t id, glm::vec3 *rotation);
+            static void Transform_GetScale(std::size_t id, glm::vec3 *scale);
+            static void Transform_SetScale(std::size_t id, glm::vec3 *scale);
             static void registerFunctions();
     };
 }
