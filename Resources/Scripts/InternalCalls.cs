@@ -4,6 +4,9 @@ using System.Runtime.CompilerServices;
 public static class InternalCalls
 {
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
+	internal extern static void Log(ulong id, string message);
+
+	[MethodImplAttribute(MethodImplOptions.InternalCall)]
 	internal extern static void Transform_Get(ulong id, out Vector3 position);
 
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]

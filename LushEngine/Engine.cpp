@@ -115,6 +115,9 @@ void Engine::loadScene()
 
 void Engine::run()
 {
+    std::streambuf *oldCoutStreamBuf = std::cout.rdbuf();
+    std::cout.rdbuf(this->_graphic->getStringStream().rdbuf());
+
     while (!glfwWindowShouldClose(this->_graphic->getWindow())) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -127,6 +130,7 @@ void Engine::run()
         glfwPollEvents();
         this->_graphic->setLastTime(glfwGetTime());
     }
+    std::cout.rdbuf(oldCoutStreamBuf);
 }
 
 void Engine::updateMouse()

@@ -392,6 +392,12 @@ void GUISystem::drawConsole()
         ImGui::End();
         return;
     }
+    if (ImGui::SmallButton("Clear"))
+        this->_consoleBuffer.clear();
+    if (this->_graphic->getStringStream().str().size() > 0)
+        this->_consoleBuffer += this->_graphic->getStringStream().str();
+    ImGui::TextWrapped("%s", this->_consoleBuffer.c_str());
+    this->_graphic->getStringStream().str("");
     ImGui::End();
 }
 

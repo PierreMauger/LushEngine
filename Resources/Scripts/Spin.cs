@@ -8,7 +8,8 @@ public class Spin : Entity
 
     public void onInit()
     {
-        Console.WriteLine("Wow!");
+        Console.WriteLine("Important log!");
+        this.log("Start spinning!");
         transform = getComponent<Transform>();
     }
 

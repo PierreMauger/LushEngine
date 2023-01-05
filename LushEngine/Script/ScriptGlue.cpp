@@ -2,6 +2,13 @@
 
 using namespace Lush;
 
+void ScriptGlue::Console_Log(std::size_t id, MonoString *message)
+{
+    char *utf8 = mono_string_to_utf8(message);
+    std::cout << "[" << id << "]: " << utf8 << std::endl;
+    mono_free(utf8);
+}
+
 void ScriptGlue::Transform_Get(std::size_t id, glm::vec3 *outTranslation)
 {
     Engine *engine = Engine::getEngine();
@@ -32,6 +39,7 @@ void ScriptGlue::Transform_Set(std::size_t id, glm::vec3 *translation)
 
 void ScriptGlue::registerFunctions()
 {
+    mono_add_internal_call("InternalCalls::Log", (void *)Console_Log);
     mono_add_internal_call("InternalCalls::Transform_Get", (void *)Transform_Get);
     mono_add_internal_call("InternalCalls::Transform_Set", (void *)Transform_Set);
 }

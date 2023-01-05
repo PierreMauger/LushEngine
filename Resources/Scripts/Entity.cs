@@ -20,4 +20,9 @@ public class Entity
         T component = new T() { entity = this };
         return component;
     }
+
+    public void log(string message)
+    {
+        InternalCalls.Log(this.id, message);
+    }
 }

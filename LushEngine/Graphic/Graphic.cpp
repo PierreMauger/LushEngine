@@ -233,6 +233,11 @@ std::vector<std::string> &Graphic::getScriptNames()
     return this->_scriptNames;
 }
 
+std::ostringstream &Graphic::getStringStream()
+{
+    return this->_stringStream;
+}
+
 void Graphic::setRunning(bool running)
 {
     this->_running = running;

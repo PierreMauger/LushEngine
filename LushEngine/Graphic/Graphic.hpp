@@ -32,6 +32,8 @@ namespace Lush
 
             std::vector<std::string> _scriptNames;
 
+            std::ostringstream _stringStream;
+
             glm::vec4 _gameViewPort;
             glm::vec4 _sceneViewPort;
             glm::vec2 _windowSize;
@@ -64,6 +66,8 @@ namespace Lush
             RenderView &getRenderView();
             std::vector<FrameBuffer> &getFrameBuffers();
             std::vector<std::string> &getScriptNames();
+
+            std::ostringstream &getStringStream();
 
             void setRunning(bool running);
             bool getRunning();

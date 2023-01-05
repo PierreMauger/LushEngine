@@ -38,6 +38,8 @@ namespace Lush
             EntityManager _entityManagerCopy;
             ComponentManager _componentManagerCopy;
 
+            std::string _consoleBuffer;
+
             void setDock();
             void drawMenuBar();
             void drawActionBar(EntityManager &entityManager, ComponentManager &componentManager);
