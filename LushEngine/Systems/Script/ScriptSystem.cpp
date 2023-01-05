@@ -7,6 +7,12 @@ ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     this->_graphic = graphic;
     // TODO Replace all COMPONENT_TYPE_COUNT to use more than one script
     entityManager.addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT);
+
+    try {
+        this->loadBaseScript();
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+    }
     this->_scripts.push_back(std::make_unique<ScriptClass>("Spin"));
     this->_graphic->getScriptNames().push_back("Spin");
     ScriptGlue::registerFunctions();
@@ -46,4 +52,10 @@ bool ScriptSystem::buttonChanged()
         return true;
     }
     return false;
+}
+
+void ScriptSystem::loadBaseScript()
+{
+    if (system("mcs -target:library -out:Resources/Scripts/Base.dll Resources/Scripts/Components.cs Resources/Scripts/InternalCalls.cs Resources/Scripts/Entity.cs"))
+        throw std::runtime_error("mcs failed");
 }

@@ -21,6 +21,7 @@ namespace Lush
             bool _initialized = false;
 
             bool buttonChanged();
+            void loadBaseScript();
 
         public:
             ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);

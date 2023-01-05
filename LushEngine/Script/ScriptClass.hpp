@@ -15,7 +15,9 @@ namespace Lush
         private:
             MonoDomain *_domain;
             MonoAssembly *_assembly;
+            MonoAssembly *_entityAssembly;
             MonoImage *_image;
+            MonoImage *_entityImage;
             MonoClass *_class;
             MonoClass *_entityClass;
 
