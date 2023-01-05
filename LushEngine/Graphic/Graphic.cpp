@@ -188,6 +188,16 @@ GLFWwindow *Graphic::getWindow()
     return this->_window;
 }
 
+float Graphic::getLastTime()
+{
+    return this->_lastTime;
+}
+
+void Graphic::setLastTime(float lastTime)
+{
+    this->_lastTime = lastTime;
+}
+
 std::map<std::string, Shader> &Graphic::getShaders()
 {
     return this->_shaders;

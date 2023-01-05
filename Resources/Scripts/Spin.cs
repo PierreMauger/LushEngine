@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 public class Spin : Entity
 {
     private Transform transform;
+    private float time;
 
     public void onInit()
     {
@@ -13,9 +14,10 @@ public class Spin : Entity
 
     public void onUpdate(float deltaTime)
     {
+        time += deltaTime;
         Vector3 tmp = transform.position;
-        tmp.x += (float) Math.Cos(deltaTime) * 0.05f;
-        tmp.z += (float) Math.Sin(deltaTime) * 0.05f;
+        tmp.x += (float) Math.Cos(time) * 0.05f;
+        tmp.z += (float) Math.Sin(time) * 0.05f;
         transform.position = tmp;
     }
 }

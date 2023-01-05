@@ -38,8 +38,9 @@ void ScriptSystem::update(EntityManager &entityManager, ComponentManager &compon
     }
     if (this->_graphic->getPaused() || !this->_graphic->getRunning())
         return;
+    float deltaTime = glfwGetTime() - this->_graphic->getLastTime();
     for (auto &instance : this->_instances)
-        instance->update(glfwGetTime());
+        instance->update(deltaTime);
 }
 
 bool ScriptSystem::buttonChanged()

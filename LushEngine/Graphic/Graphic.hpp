@@ -21,6 +21,8 @@ namespace Lush
     {
         private:
             GLFWwindow *_window;
+            float _lastTime = 0.0f;
+
             std::map<std::string, Shader> _shaders;
             std::map<std::string, unsigned int> _textures;
             std::map<std::size_t, RenderModel> _models;
@@ -52,6 +54,9 @@ namespace Lush
             void handleResizeFramebuffer(int width, int height);
 
             GLFWwindow *getWindow();
+            float getLastTime();
+            void setLastTime(float lastTime);
+
             std::map<std::string, Shader> &getShaders();
             std::map<std::string, unsigned int> &getTextures();
             std::map<std::size_t, RenderModel> &getModels();

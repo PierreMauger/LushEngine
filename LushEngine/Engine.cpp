@@ -125,6 +125,7 @@ void Engine::run()
 
         glfwSwapBuffers(this->_graphic->getWindow());
         glfwPollEvents();
+        this->_graphic->setLastTime(glfwGetTime());
     }
 }
 
