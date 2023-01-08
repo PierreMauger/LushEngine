@@ -40,6 +40,9 @@ namespace Lush
 
             std::string _consoleBuffer;
 
+            std::string _fileExplorerPath;
+            std::string _fileExplorerRootPath;
+
             void setDock();
             void drawMenuBar();
             void drawActionBar(EntityManager &entityManager, ComponentManager &componentManager);

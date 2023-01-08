@@ -24,6 +24,9 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
     iconsConfig.MergeMode = true;
     iconsConfig.PixelSnapH = true;
     io.Fonts->AddFontFromFileTTF("Resources/Fonts/" FONT_ICON_FILE_NAME_FAS, 12.0f, &iconsConfig, iconsRanges);
+
+    this->_fileExplorerPath = std::filesystem::current_path().string();
+    this->_fileExplorerRootPath = std::filesystem::current_path().string();
 }
 
 GUISystem::~GUISystem()
@@ -111,7 +114,7 @@ void GUISystem::drawMenuBar()
             ImGui::MenuItem(ICON_FA_TERMINAL " Console", "Ctrl+4", &this->_showConsole);
             ImGui::MenuItem(ICON_FA_EDIT " Scene", "Ctrl+5", &this->_showScene);
             ImGui::MenuItem(ICON_FA_GAMEPAD " Game", "Ctrl+6", &this->_showGame);
-            ImGui::MenuItem(ICON_FA_FILE " File Explorer", "Ctrl+7", &this->_showFileExplorer);
+            ImGui::MenuItem(ICON_FA_FOLDER_OPEN " File Explorer", "Ctrl+7", &this->_showFileExplorer);
             ImGui::MenuItem(ICON_FA_STOPWATCH " Profiler", "Ctrl+8", &this->_showProfiler);
             ImGui::MenuItem(ICON_FA_SYNC " Reload Layout", nullptr, &this->_reloading);
             ImGui::EndMenu();
@@ -398,6 +401,7 @@ void GUISystem::drawConsole()
         this->_consoleBuffer += this->_graphic->getStringStream().str();
     ImGui::TextWrapped("%s", this->_consoleBuffer.c_str());
     this->_graphic->getStringStream().str("");
+    ImGui::SetScrollHereY(1.0f);
     ImGui::End();
 }
 
@@ -468,10 +472,34 @@ void GUISystem::drawGame()
 
 void GUISystem::drawFiles()
 {
-    if (!ImGui::Begin(ICON_FA_FILE " File Explorer", &this->_showFileExplorer)) {
+    if (!ImGui::Begin(ICON_FA_FOLDER_OPEN " File Explorer", &this->_showFileExplorer)) {
         ImGui::End();
         return;
     }
+    int columns = (int)ImGui::GetContentRegionAvail().x / (50 + 20);
+
+    if (ImGui::Button(ICON_FA_ARROW_LEFT " ..") && this->_fileExplorerPath != this->_fileExplorerRootPath)
+        this->_fileExplorerPath = std::filesystem::path(this->_fileExplorerPath).parent_path().string();
+    ImGui::SameLine();
+    ImGui::Text("%s", this->_fileExplorerPath.c_str());
+
+    ImGui::Columns(columns, nullptr, false);
+    for (auto &file : std::filesystem::directory_iterator(this->_fileExplorerPath)) {
+        ImGui::SetWindowFontScale(2.0f);
+        if (file.is_directory()) {
+            ImGui::Button((ICON_FA_FOLDER "##" + file.path().string()).c_str(), ImVec2(50, 50));
+            if (ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
+                this->_fileExplorerPath = file.path().string();
+        } else {
+            ImGui::Button((ICON_FA_FILE "##" + file.path().string()).c_str(), ImVec2(50, 50));
+            if (ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
+                std::cout << "Opening file: " << file.path().string() << std::endl;
+        }
+        ImGui::SetWindowFontScale(1.0f);
+        ImGui::Text("%s", file.path().filename().string().c_str());
+        ImGui::NextColumn();
+    }
+    ImGui::Columns(1); // reset columns
     ImGui::End();
 }
 
