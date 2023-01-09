@@ -2,11 +2,9 @@
 
 using namespace Lush;
 
-ScriptClass::ScriptClass(std::string name)
+ScriptClass::ScriptClass(std::string name, MonoDomain *domain)
 {
-    unsetenv("TERM");
-
-    this->_domain = nullptr;
+    this->_domain = domain;
     this->_assembly = nullptr;
     this->_entityAssembly = nullptr;
     this->_image = nullptr;
@@ -21,11 +19,6 @@ ScriptClass::ScriptClass(std::string name)
     }
 }
 
-ScriptClass::~ScriptClass()
-{
-    mono_jit_cleanup(this->_domain);
-}
-
 void ScriptClass::loadScript(std::string name)
 {
     std::string scriptPath = "Resources/Scripts/" + name + ".cs";
@@ -35,9 +28,9 @@ void ScriptClass::loadScript(std::string name)
         throw std::runtime_error("mcs failed");
 
     // Initialize the JIT domain
-    this->_domain = mono_jit_init("LushJIT");
-    if (!this->_domain)
-        throw std::runtime_error("mono_jit_init failed");
+    // this->_domain = mono_jit_init("LushJIT");
+    // if (!this->_domain)
+        // throw std::runtime_error("mono_jit_init failed");
 
     // Load the assembly
     this->_assembly = mono_domain_assembly_open(this->_domain, assemblyPath.c_str());

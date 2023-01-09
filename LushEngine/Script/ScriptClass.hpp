@@ -24,8 +24,8 @@ namespace Lush
             std::map<std::string, MonoMethod *> _methods;
 
         public:
-            ScriptClass(std::string name);
-            ~ScriptClass();
+            ScriptClass(std::string name, MonoDomain *domain);
+            ~ScriptClass() = default;
 
             void loadScript(std::string name);
 

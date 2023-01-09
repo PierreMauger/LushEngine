@@ -5,23 +5,28 @@ using namespace Lush;
 ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
 {
     this->_graphic = graphic;
-    // TODO Replace all COMPONENT_TYPE_COUNT to use more than one script
-    entityManager.addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT);
 
     try {
+        this->initScriptDomain();
         this->loadBaseScript();
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
-    this->_scripts.push_back(std::make_unique<ScriptClass>("Spin"));
+    this->_scripts.push_back(std::make_unique<ScriptClass>("Spin", this->_domain));
     this->_graphic->getScriptNames().push_back("Spin");
+    this->_scripts.push_back(std::make_unique<ScriptClass>("Boing", this->_domain));
+    this->_graphic->getScriptNames().push_back("Boing");
     ScriptGlue::registerFunctions();
+
+    for (std::size_t i = 0; i < this->_scripts.size(); i++)
+        entityManager.addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << i);
 }
 
 ScriptSystem::~ScriptSystem()
 {
     this->_instances.clear();
     this->_scripts.clear();
+    mono_jit_cleanup(this->_domain);
 }
 
 void ScriptSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
@@ -31,8 +36,9 @@ void ScriptSystem::update(EntityManager &entityManager, ComponentManager &compon
             this->_instances.clear();
             return;
         }
-        for (auto id : entityManager.getMaskCategory(ComponentType::COMPONENT_TYPE_COUNT))
-            this->_instances.push_back(std::make_unique<ScriptInstance>(*this->_scripts[0], id));
+        for (std::size_t i = 0; i < this->_scripts.size(); i++)
+            for (auto id : entityManager.getMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << i))
+                this->_instances.push_back(std::make_unique<ScriptInstance>(*this->_scripts[i], id));
         for (auto &instance : this->_instances)
             instance->init();
     }
@@ -53,6 +59,14 @@ bool ScriptSystem::buttonChanged()
         return true;
     }
     return false;
+}
+
+void ScriptSystem::initScriptDomain()
+{
+    unsetenv("TERM");
+    this->_domain = mono_jit_init("LushJIT");
+    if (!this->_domain)
+        throw std::runtime_error("mono_jit_init failed");
 }
 
 void ScriptSystem::loadBaseScript()

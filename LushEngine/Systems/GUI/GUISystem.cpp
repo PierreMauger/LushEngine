@@ -310,11 +310,11 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
             ImGui::Separator();
         }
     }
-    for (auto script : this->_graphic->getScriptNames()) {
-        if (masks[this->_selectedEntity].value() & ComponentType::COMPONENT_TYPE_COUNT) {
-            if (ImGui::CollapsingHeader(script.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
-                if (ImGui::Button(std::string("Remove##" + std::to_string(8)).c_str())) {
-                    entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() & ~ComponentType::COMPONENT_TYPE_COUNT);
+    for (std::size_t i = 0; i < this->_graphic->getScriptNames().size(); i++) {
+        if (masks[this->_selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << i)) {
+            if (ImGui::CollapsingHeader(this->_graphic->getScriptNames()[i].c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                if (ImGui::Button(std::string("Remove##" + std::to_string(8 + i)).c_str())) {
+                    entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() & ~(ComponentType::COMPONENT_TYPE_COUNT << i));
                 }
             }
         }
@@ -360,10 +360,10 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 }
             }
         }
-        for (auto script : this->_graphic->getScriptNames()) {
-            if (!(masks[this->_selectedEntity].value() & ComponentType::COMPONENT_TYPE_COUNT)) {
-                if (ImGui::Selectable(script.c_str())) {
-                    entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() | ComponentType::COMPONENT_TYPE_COUNT);
+        for (std::size_t i = 0; i < this->_graphic->getScriptNames().size(); i++) {
+            if (!(masks[this->_selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT<< i))) {
+                if (ImGui::Selectable(this->_graphic->getScriptNames()[i].c_str())) {
+                    entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() | (ComponentType::COMPONENT_TYPE_COUNT << i));
                 }
             }
         }
