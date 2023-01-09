@@ -38,6 +38,10 @@ GUISystem::~GUISystem()
 
 void GUISystem::update(EntityManager &entityManager, ComponentManager &componentManager)
 {
+    if (this->_singleFrame) {
+        this->_singleFrame = false;
+        this->_graphic->setPaused(true);
+    }
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -132,9 +136,10 @@ void GUISystem::drawActionBar(EntityManager &entityManager, ComponentManager &co
     if (ImGui::BeginViewportSideBar("ActionBar", ImGui::GetMainViewport(), ImGuiDir_Up, ImGui::GetFrameHeight(), window_flags)) {
         ImGui::PopStyleVar(1);
         if (ImGui::BeginMenuBar()) {
-            ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x / 2 - 50, 0));
+            ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x / 2 - 85, 0));
+            ImGui::SameLine(0, 0);
             ImGui::PushStyleColor(ImGuiCol_Button, this->_graphic->getRunning() ? BUTTON_COLOR_SELECTED : BUTTON_COLOR);
-            if (ImGui::Button(this->_graphic->getRunning() ? ICON_FA_STOP : ICON_FA_PLAY, ImVec2(45, 0))) {
+            if (ImGui::Button(this->_graphic->getRunning() ? ICON_FA_STOP : ICON_FA_PLAY, ImVec2(50, 0))) {
                 this->_graphic->setRunning(!this->_graphic->getRunning());
                 if (this->_graphic->getRunning()) {
                     this->_entityManagerCopy = entityManager;
@@ -147,9 +152,14 @@ void GUISystem::drawActionBar(EntityManager &entityManager, ComponentManager &co
             ImGui::PopStyleColor();
             ImGui::SameLine(0, 10);
             ImGui::PushStyleColor(ImGuiCol_Button, this->_graphic->getPaused() ? BUTTON_COLOR_SELECTED : BUTTON_COLOR);
-            if (ImGui::Button(ICON_FA_PAUSE, ImVec2(45, 0)))
+            if (ImGui::Button(ICON_FA_PAUSE, ImVec2(50, 0)))
                 this->_graphic->setPaused(!this->_graphic->getPaused());
             ImGui::PopStyleColor();
+            ImGui::SameLine(0, 10);
+            if (ImGui::Button(ICON_FA_STEP_FORWARD, ImVec2(50, 0)) && this->_graphic->getRunning() && this->_graphic->getPaused()) {
+                this->_singleFrame = true;
+                this->_graphic->setPaused(false);
+            }
             ImGui::EndMenuBar();
         }
         ImGui::End();
@@ -401,7 +411,8 @@ void GUISystem::drawConsole()
         this->_consoleBuffer += this->_graphic->getStringStream().str();
     ImGui::TextWrapped("%s", this->_consoleBuffer.c_str());
     this->_graphic->getStringStream().str("");
-    ImGui::SetScrollHereY(1.0f);
+    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+        ImGui::SetScrollHereY(1.0f);
     ImGui::End();
 }
 
@@ -477,6 +488,8 @@ void GUISystem::drawFiles()
         return;
     }
     int columns = (int)ImGui::GetContentRegionAvail().x / (50 + 20);
+    if (columns < 1)
+        columns = 1;
 
     if (ImGui::Button(ICON_FA_ARROW_LEFT " ..") && this->_fileExplorerPath != this->_fileExplorerRootPath)
         this->_fileExplorerPath = std::filesystem::path(this->_fileExplorerPath).parent_path().string();

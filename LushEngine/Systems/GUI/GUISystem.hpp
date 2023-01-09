@@ -31,6 +31,7 @@ namespace Lush
             bool _showFileExplorer = true;
             bool _showProfiler = true;
             bool _reloading = false;
+            bool _singleFrame = false;
             std::size_t _selectedEntity = 0;
             ImGuizmo::OPERATION _currentOperation = ImGuizmo::OPERATION::TRANSLATE;
             ImGuizmo::MODE _currentMode = ImGuizmo::MODE::LOCAL;
