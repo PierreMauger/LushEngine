@@ -27,11 +27,6 @@ void ScriptClass::loadScript(std::string name)
     if (system(std::string("mcs -target:library -out:" + assemblyPath + " " + scriptPath + " -r:Resources/Scripts/Base.dll").c_str()))
         throw std::runtime_error("mcs failed");
 
-    // Initialize the JIT domain
-    // this->_domain = mono_jit_init("LushJIT");
-    // if (!this->_domain)
-        // throw std::runtime_error("mono_jit_init failed");
-
     // Load the assembly
     this->_assembly = mono_domain_assembly_open(this->_domain, assemblyPath.c_str());
     if (!this->_assembly)
