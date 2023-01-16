@@ -12,10 +12,10 @@ ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
-    // this->_scripts.push_back(std::make_unique<ScriptClass>("Spin", this->_domain));
-    // this->_graphic->getScriptNames().push_back("Spin");
-    // this->_scripts.push_back(std::make_unique<ScriptClass>("Boing", this->_domain));
-    // this->_graphic->getScriptNames().push_back("Boing");
+    this->_scripts.push_back(std::make_unique<ScriptClass>("Spin", this->_domain));
+    this->_graphic->getScriptNames().push_back("Spin");
+    this->_scripts.push_back(std::make_unique<ScriptClass>("Boing", this->_domain));
+    this->_graphic->getScriptNames().push_back("Boing");
     ScriptGlue::registerFunctions();
 
     for (std::size_t i = 0; i < this->_scripts.size(); i++)
