@@ -17,9 +17,9 @@
 
 ## 🔍 About
 
-This project is about making a cross-platform 3D engine in C++, mainly as an excuse to work on cool 3D stuff on my free time.\
+This project is about making a cross-platform 3D engine in C++, mainly as an excuse to work on cool 3D stuff and design paterns on my free time.\
 It uses an ECS achitecture and an implementation of ImGui for debuging.\
-The engine propose C# scripting to help game development.\
+The engine propose C# scripting for game logic implementation.\
 The rendering is made in OpenGL with the intent of staying as low level as possible. Implementation of Vulkan is planned in the future.
 
 ## 📈 Features
@@ -48,7 +48,7 @@ List of external libraries used:
 - GLFW
 - GLEW
 - GLM
-- ASSIMP (not provided)
+- ASSIMP
 - Mono
 
 ## 🚧 Building
@@ -64,7 +64,7 @@ It will automatically:
 
 ## 📉 Code
 
-To implement game logic, you can create a C# scipt and bind it to any entity.\
+To implement game logic, you can create a C# script and bind it to any entity.\
 The script will be compiled and loaded at runtime.\
 The script will be able to interact with the entity's components as long as it follows the basic interface (onInit, onUpdate, etc).
 
