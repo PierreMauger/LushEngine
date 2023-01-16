@@ -245,8 +245,17 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 }
                 case 2: {
                     Model &model = componentManager.getComponent<Model>(this->_selectedEntity);
-                    const ImU64 increment = 1;
-                    ImGui::InputScalar("ID##Model", ImGuiDataType_U64, &model.id, &increment);
+                    std::string selectedItem = model.name;
+                    if (ImGui::BeginCombo("Select Item", selectedItem.c_str())) {
+                        for (auto &[key, value] : this->_graphic->getModels()) {
+                            bool is_selected = (selectedItem == key);
+                            if (ImGui::Selectable(key.c_str(), is_selected))
+                                model.name = key;
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
                     break;
                 }
                 case 3: {
@@ -284,16 +293,32 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 }
                 case 6: {
                     CubeMap &cubemap = componentManager.getComponent<CubeMap>(this->_selectedEntity);
-                    const ImU64 increment = 1;
-                    ImGui::InputScalar("ID##CubeMap", ImGuiDataType_U64, &cubemap.id, &increment);
-                    ImGui::DragFloat("Rotation Speed##CubeMap", &cubemap.rotationSpeed, 0.1f, -FLT_MAX, +FLT_MAX);
-                    ImGui::ColorEdit3("Color##CubeMap", (float *)&cubemap.color);
+                    std::string selectedItem = cubemap.name;
+                    if (ImGui::BeginCombo("Select Item", selectedItem.c_str())) {
+                        for (auto &[key, value] : this->_graphic->getSkyboxes()) {
+                            bool is_selected = (selectedItem == key);
+                            if (ImGui::Selectable(key.c_str(), is_selected))
+                                cubemap.name = key;
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
                     break;
                 }
                 case 7: {
                     BillBoard &bill = componentManager.getComponent<BillBoard>(this->_selectedEntity);
-                    const ImU64 increment = 1;
-                    ImGui::InputScalar("Texture ID##BillBoard", ImGuiDataType_U64, &bill.textureId, &increment);
+                    std::string selectedItem = bill.name;
+                    if (ImGui::BeginCombo("Select Item", selectedItem.c_str())) {
+                        for (auto &[key, value] : this->_graphic->getTextures()) {
+                            bool is_selected = (selectedItem == key);
+                            if (ImGui::Selectable(key.c_str(), is_selected))
+                                bill.name = key;
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
                     break;
                 }
                 default:
@@ -440,8 +465,8 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
             if (file.substr(file.find_last_of(".") + 1) == "dae") {
                 std::size_t id = entityManager.getMasks().size();
                 entityManager.addMask(id, ComponentType::MODEL | ComponentType::TRANSFORM);
-                componentManager.addComponent<Model>(id);
                 componentManager.addComponent<Transform>(id);
+                componentManager.addComponent<Model>(id, {file.substr(0, file.find_last_of("."))});
             }
             std::cout << "Dropped file: " << file << std::endl;
         }
@@ -518,7 +543,7 @@ void GUISystem::drawFiles()
         } else {
             ImGui::Button((ICON_FA_FILE "##" + file.path().string()).c_str(), ImVec2(50, 50));
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                ImGui::SetDragDropPayload("FILE", file.path().string().c_str(), file.path().string().size() + 1);
+                ImGui::SetDragDropPayload("FILE", file.path().filename().string().c_str(), file.path().filename().string().size() + 1);
                 ImGui::Text("%s", file.path().filename().string().c_str());
                 ImGui::EndDragDropSource();
             }
@@ -530,14 +555,6 @@ void GUISystem::drawFiles()
         ImGui::NextColumn();
     }
     ImGui::Columns(1); // reset columns
-    if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("FILE")) {
-            std::string file = (char *)payload->Data;
-            std::cout << "Dropped file: " << file << std::endl;
-        }
-        ImGui::EndDragDropTarget();
-    }
-
     ImGui::End();
 }
 

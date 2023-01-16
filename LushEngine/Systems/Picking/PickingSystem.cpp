@@ -57,8 +57,8 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
 
         this->_graphic->getRenderView().getShader().setVec4("id", color);
         this->_graphic->getRenderView().setModel(transform);
-        if (this->_graphic->getModels().find(model.id) != this->_graphic->getModels().end())
-            this->_graphic->getModels()[model.id].draw(this->_graphic->getRenderView().getShader());
+        if (this->_graphic->getModels().find(model.name) != this->_graphic->getModels().end())
+            this->_graphic->getModels()[model.name].draw(this->_graphic->getRenderView().getShader());
     }
     glm::vec2 mousePosition = this->_graphic->getMousePosition();
     unsigned char pixel[4] = {0};

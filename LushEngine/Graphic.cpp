@@ -92,11 +92,11 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_textures["Crate_specular.png"] = loadTexture("Resources/Textures/Crate_specular.png");
     this->_textures["Crate_emission.png"] = loadTexture("Resources/Textures/Crate_emission.png");
 
-    this->_models[0] = RenderModel(loadFile2("Resources/Models/Fox.dae"), this->_textures);
-    this->_models[1] = RenderModel(loadFile2("Resources/Models/Crate.dae"), this->_textures);
-    this->_models[2] = RenderModel(loadFile2("Resources/Models/Cube.dae"), this->_textures);
+    this->_models["Fox"] = RenderModel(loadFile2("Resources/Models/Fox.dae"), this->_textures);
+    this->_models["Crate"] = RenderModel(loadFile2("Resources/Models/Crate.dae"), this->_textures);
+    this->_models["Cube"] = RenderModel(loadFile2("Resources/Models/Cube.dae"), this->_textures);
 
-    this->_skyboxes[0] = loadCubemap({"Resources/Skybox/right.jpg", "Resources/Skybox/left.jpg", "Resources/Skybox/top.jpg", "Resources/Skybox/bottom.jpg",
+    this->_skyboxes["Sky"] = loadCubemap({"Resources/Skybox/right.jpg", "Resources/Skybox/left.jpg", "Resources/Skybox/top.jpg", "Resources/Skybox/bottom.jpg",
                                       "Resources/Skybox/front.jpg", "Resources/Skybox/back.jpg"});
 
     this->_shaders["Camera"] = Shader(loadFile2("Resources/Shaders/camera.vs"), loadFile2("Resources/Shaders/camera.fs"));
@@ -207,12 +207,12 @@ std::map<std::string, unsigned int> &Graphic::getTextures()
     return this->_textures;
 }
 
-std::map<std::size_t, RenderModel> &Graphic::getModels()
+std::map<std::string, RenderModel> &Graphic::getModels()
 {
     return this->_models;
 }
 
-std::map<std::size_t, unsigned int> &Graphic::getSkyboxes()
+std::map<std::string, unsigned int> &Graphic::getSkyboxes()
 {
     return this->_skyboxes;
 }

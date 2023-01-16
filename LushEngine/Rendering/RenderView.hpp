@@ -47,7 +47,6 @@ namespace Lush
             void setPointLights(std::vector<std::pair<Transform, Light>> pointLights);
             void setModel(Transform transform);
             void setBillboard(Transform transform);
-            void setSkyBox(CubeMap cubeMap);
     };
 }
 

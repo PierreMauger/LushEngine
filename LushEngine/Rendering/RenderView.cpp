@@ -144,13 +144,3 @@ void RenderView::setBillboard(Transform transform)
 
     this->_shaders[this->_actShader].setMat4("model", model);
 }
-
-void RenderView::setSkyBox(CubeMap cubeMap)
-{
-    glm::mat4 model = glm::mat4(1.0f);
-    if (cubeMap.rotationSpeed != 0.0f)
-        model = glm::rotate(model, glm::radians((float)glfwGetTime() * cubeMap.rotationSpeed), glm::vec3(0.0f, 1.0f, 0.0f));
-
-    this->_shaders[this->_actShader].setMat4("model", model);
-    this->_shaders[this->_actShader].setVec3("color", cubeMap.color);
-}

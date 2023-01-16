@@ -29,7 +29,7 @@ typedef struct {
 } Velocity;
 
 typedef struct {
-    std::size_t id = 0;
+    std::string name = "Fox";
 } Model;
 
 // enum CameraType {
@@ -78,13 +78,11 @@ typedef struct {
 } Control;
 
 typedef struct {
-    std::size_t id = 0;
-    float rotationSpeed = 0.0f;
-    glm::vec3 color = glm::vec3(1.0f);
+    std::string name = "Sky";
 } CubeMap;
 
 typedef struct {
-    std::size_t textureId = 0;
+    std::string name = "";
 } BillBoard;
 
 #endif // COMPONENTTYPES_HPP

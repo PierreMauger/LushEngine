@@ -25,8 +25,8 @@ namespace Lush
 
             std::map<std::string, Shader> _shaders;
             std::map<std::string, unsigned int> _textures;
-            std::map<std::size_t, RenderModel> _models;
-            std::map<std::size_t, unsigned int> _skyboxes;
+            std::map<std::string, RenderModel> _models;
+            std::map<std::string, unsigned int> _skyboxes;
             RenderView _renderView;
             std::map<std::string, FrameBuffer> _frameBuffers;
 
@@ -61,8 +61,8 @@ namespace Lush
 
             std::map<std::string, Shader> &getShaders();
             std::map<std::string, unsigned int> &getTextures();
-            std::map<std::size_t, RenderModel> &getModels();
-            std::map<std::size_t, unsigned int> &getSkyboxes();
+            std::map<std::string, RenderModel> &getModels();
+            std::map<std::string, unsigned int> &getSkyboxes();
             RenderView &getRenderView();
             std::map<std::string, FrameBuffer> &getFrameBuffers();
             FrameBuffer &getFrameBuffer(std::string name);
