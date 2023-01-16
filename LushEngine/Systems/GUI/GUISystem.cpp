@@ -361,7 +361,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
             }
         }
         for (std::size_t i = 0; i < this->_graphic->getScriptNames().size(); i++) {
-            if (!(masks[this->_selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT<< i))) {
+            if (!(masks[this->_selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << i))) {
                 if (ImGui::Selectable(this->_graphic->getScriptNames()[i].c_str())) {
                     entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() | (ComponentType::COMPONENT_TYPE_COUNT << i));
                 }
@@ -435,6 +435,20 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
     ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
     if (this->_showTools)
         this->drawGuizmo(entityManager, componentManager);
+
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("FILE")) {
+            std::string file = (char *)payload->Data;
+            if (file.substr(file.find_last_of(".") + 1) == "dae") {
+                std::size_t id = entityManager.getMasks().size();
+                entityManager.addMask(id, ComponentType::MODEL | ComponentType::TRANSFORM);
+                componentManager.addComponent<Model>(id);
+                componentManager.addComponent<Transform>(id);
+            }
+            std::cout << "Dropped file: " << file << std::endl;
+        }
+        ImGui::EndDragDropTarget();
+    }
     ImGui::End();
 }
 
@@ -505,6 +519,11 @@ void GUISystem::drawFiles()
                 this->_fileExplorerPath = file.path().string();
         } else {
             ImGui::Button((ICON_FA_FILE "##" + file.path().string()).c_str(), ImVec2(50, 50));
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                ImGui::SetDragDropPayload("FILE", file.path().string().c_str(), file.path().string().size() + 1);
+                ImGui::Text("%s", file.path().filename().string().c_str());
+                ImGui::EndDragDropSource();
+            }
             if (ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
                 std::cout << "Opening file: " << file.path().string() << std::endl;
         }
@@ -513,6 +532,14 @@ void GUISystem::drawFiles()
         ImGui::NextColumn();
     }
     ImGui::Columns(1); // reset columns
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("FILE")) {
+            std::string file = (char *)payload->Data;
+            std::cout << "Dropped file: " << file << std::endl;
+        }
+        ImGui::EndDragDropTarget();
+    }
+
     ImGui::End();
 }
 
