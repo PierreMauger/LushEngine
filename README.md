@@ -18,7 +18,8 @@
 ## 🔍 About
 
 This project is about making a cross-platform 3D engine in C++, mainly as an excuse to work on cool 3D stuff on my free time.\
-It has an ECS and an implementation of ImGui for debuging.\
+It uses an ECS achitecture and an implementation of ImGui for debuging.\
+The engine propose C# scripting to help game development.\
 The rendering is made in OpenGL with the intent of staying as low level as possible. Implementation of Vulkan is planned in the future.
 
 ## 📈 Features
@@ -27,25 +28,28 @@ Most features are still in development. Here are the main ones:
 
 - Loading 3D models
 - 3D skeletal animation
-- Mouse picking on 3D objects
+- Mouse picking on 3D objects (using depth calculation)
 - 3D camera, first and third person
 - Tesselation of terrain (LOD)
 - Advanced lighting using shaders
 - Cubemaps
-- Billboards (LOD and UI)
-- Engine UI
+- Billboards (for LOD and UI)
+- Engine docked UI (Unity-like)
+- Guizmos (Unity-like)
 - C# scripting (in development)
 
 ## 💻 Requirements
 
 Libraries are handled by CMake, the required librairies are fetched from their Git Release.\
-Assimp is temporarily not fetched due to it's size. Install it on your machine or enable the script manually.
+Some packets are not fetched due to their size and build cost. They will be provided in the repository.
 
 List of external libraries used:
 - OpenGL
 - GLFW
 - GLEW
-- ASSIMP (for import, will be replaced)
+- GLM
+- ASSIMP (not provided)
+- Mono
 
 ## 🚧 Building
 
@@ -60,9 +64,9 @@ It will automatically:
 
 ## 📉 Code
 
-To implement game logic, the code will be moved from custom systems to C# scripts (still in development).\
-You will be able to write scripts and bind them to any entity, to interact with their components.
-To create a new component, add it in the ComponentTypes list.
+To implement game logic, you can create a C# scipt and bind it to any entity.\
+The script will be compiled and loaded at runtime.\
+The script will be able to interact with the entity's components as long as it follows the basic interface (onInit, onUpdate, etc).
 
 ## 📣 Authors
 
