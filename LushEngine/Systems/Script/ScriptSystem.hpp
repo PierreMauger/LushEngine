@@ -3,7 +3,7 @@
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
-#include "Graphic/Graphic.hpp"
+#include "Graphic.hpp"
 #include "Includes.hpp"
 #include "Script/ScriptClass.hpp"
 #include "Script/ScriptGlue.hpp"

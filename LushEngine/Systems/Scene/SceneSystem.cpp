@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
+SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : _graphic(graphic)
 {
     this->_graphic = graphic;
     entityManager.addMaskCategory(MODEL_TAG);
@@ -29,7 +29,7 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entity
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, windowSize.x, windowSize.y);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_buffer.depthbuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    this->_graphic->getFrameBuffers().push_back(this->_buffer);
+    this->_graphic->getFrameBuffers()["scene"] = this->_buffer;
 
     glGenVertexArrays(1, &this->_skyboxVAO);
     glGenBuffers(1, &this->_skyboxVBO);
@@ -100,7 +100,6 @@ void SceneSystem::update(EntityManager &entityManager, ComponentManager &compone
         glBindVertexArray(0);
     }
 
-    // INFO : dont draw to differenciate scene and game
     glDepthFunc(GL_LEQUAL);
     this->_graphic->getRenderView().use("Skybox");
     this->_graphic->getRenderView().setSkyBoxView();

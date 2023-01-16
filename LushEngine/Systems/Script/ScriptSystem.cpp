@@ -2,10 +2,8 @@
 
 using namespace Lush;
 
-ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
+ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : _graphic(graphic)
 {
-    this->_graphic = graphic;
-
     try {
         this->initScriptDomain();
         this->loadBaseScript();

@@ -1,7 +1,7 @@
 #ifndef SCRIPTGLUE_HPP
 #define SCRIPTGLUE_HPP
 
-#include "Engine.hpp"
+#include "ECS/ECS.hpp"
 #include "Includes.hpp"
 #include "mono/jit/jit.h"
 

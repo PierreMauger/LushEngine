@@ -2,9 +2,8 @@
 
 using namespace Lush;
 
-ControlSystem::ControlSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
+ControlSystem::ControlSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : _graphic(graphic)
 {
-    this->_graphic = graphic;
     entityManager.addMaskCategory(CONTROL_TAG);
     entityManager.addMaskCategory(CAMERA_TAG);
 }

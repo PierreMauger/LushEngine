@@ -2,9 +2,8 @@
 
 using namespace Lush;
 
-CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
+CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : _graphic(graphic)
 {
-    this->_graphic = graphic;
     entityManager.addMaskCategory(CAMERA_TAG);
     entityManager.addMaskCategory(LIGHT_TAG);
 }

@@ -24,15 +24,6 @@ set(CMAKE_THREADS_LIBS_INIT Threads::Threads)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 set(BUILD_SHARED_LIBS TRUE)
 
-# set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
-# set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
-# set(ASSIMP_BUILD_SAMPLES OFF)
-# set(ASSIMP_BUILD_TESTS OFF)
-
-# set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
-# set(ASSIMP_BUILD_COLLADA_IMPORTER ON)
-# set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
-
 ################## BUILD ECS ##################
 
 set(ECS ECS)
@@ -47,6 +38,7 @@ set(ECS_INC
 )
 
 set(ECS_SRC
+    ${ECS_ROOT}/ECS.cpp
     ${ECS_ROOT}/Component/SparseArray.cpp
     ${ECS_ROOT}/Component/ComponentManager.cpp
     ${ECS_ROOT}/Entity/EntityManager.cpp
@@ -92,7 +84,7 @@ set(EXEC_NAME lush)
 
 set(INC
     ${PROJECT_NAME}/
-    ${PROJECT_NAME}/Graphic/
+    ${PROJECT_NAME}/Rendering/
     ${PROJECT_NAME}/Systems/Camera/
     ${PROJECT_NAME}/Systems/Control/
     ${PROJECT_NAME}/Systems/Picking/
@@ -108,11 +100,12 @@ set(INC
 
 set(SRC
     ${PROJECT_NAME}/Engine.cpp
-    ${PROJECT_NAME}/Graphic/Graphic.cpp
-    ${PROJECT_NAME}/Graphic/RenderView.cpp
-    ${PROJECT_NAME}/Graphic/Shader.cpp
-    ${PROJECT_NAME}/Graphic/Mesh.cpp
-    ${PROJECT_NAME}/Graphic/RenderModel.cpp
+    ${PROJECT_NAME}/Graphic.cpp
+    ${PROJECT_NAME}/Loader.cpp
+    ${PROJECT_NAME}/Rendering/RenderView.cpp
+    ${PROJECT_NAME}/Rendering/Shader.cpp
+    ${PROJECT_NAME}/Rendering/Mesh.cpp
+    ${PROJECT_NAME}/Rendering/RenderModel.cpp
     ${PROJECT_NAME}/Systems/Camera/CameraSystem.cpp
     ${PROJECT_NAME}/Systems/Control/ControlSystem.cpp
     ${PROJECT_NAME}/Systems/Picking/PickingSystem.cpp
@@ -130,7 +123,6 @@ set(SRC
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
-# LATER find_package(ASSIMP REQUIRED)
 
 include_directories(${INC}
     ${OpenGL_INCLUDE_DIRS}
@@ -153,8 +145,8 @@ target_link_libraries(${EXEC_NAME} PRIVATE
     ${IMGUI}
 )
 
-target_link_libraries(${EXEC_NAME} PRIVATE "libmonosgen-2.0.so.1.0.0")
-target_link_libraries(${EXEC_NAME} PRIVATE assimp)
+target_link_libraries(${EXEC_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/lib/libmonosgen-2.0.so.1.0.0)
+target_link_libraries(${EXEC_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/lib/libassimp.so.5.2.0)
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
 

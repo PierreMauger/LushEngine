@@ -26,23 +26,8 @@ std::string loadFile(std::string fileName)
 Engine::Engine()
 {
     this->_graphic = std::make_shared<Graphic>(1280, 720, "Lush Engine");
-
-    this->_systemManager.bindSystem(std::make_unique<ScriptSystem>(this->_graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_unique<ControlSystem>(this->_graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_unique<CameraSystem>(this->_graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_unique<RenderSystem>(this->_graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_unique<PickingSystem>(this->_graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_unique<SceneSystem>(this->_graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_unique<GUISystem>(this->_graphic));
-
-    this->_componentManager.bindComponent<Transform>();
-    this->_componentManager.bindComponent<Velocity>();
-    this->_componentManager.bindComponent<Model>();
-    this->_componentManager.bindComponent<Camera>();
-    this->_componentManager.bindComponent<Light>();
-    this->_componentManager.bindComponent<Control>();
-    this->_componentManager.bindComponent<CubeMap>();
-    this->_componentManager.bindComponent<BillBoard>();
+    this->_ecs.loadComponents();
+    this->_ecs.loadSystems(this->_graphic);
 
     this->loadScene();
 }
@@ -65,8 +50,8 @@ void Engine::loadScene()
         while (std::regex_search(line, match, regex)) {
             std::size_t id = std::stoul(match[1].str());
             std::size_t mask = std::stoul(match[2].str(), nullptr, 2);
-            this->_entityManager.addMask(id, mask);
-            for (std::size_t i = 0; i < this->_componentManager.getComponentArray().size(); i++) {
+            this->_ecs.getEntityManager().addMask(id, mask);
+            for (std::size_t i = 0; i < this->_ecs.getComponentManager().getComponentArray().size(); i++) {
                 if (mask & (1 << i)) {
                     switch (i) {
                     case 0: {
@@ -79,29 +64,29 @@ void Engine::loadScene()
                         temp.rotation = glm::vec3(std::stof(match2[4].str()), std::stof(match2[5].str()), std::stof(match2[6].str()));
                         temp.scale = glm::vec3(std::stof(match2[7].str()), std::stof(match2[8].str()), std::stof(match2[9].str()));
 
-                        this->_componentManager.addComponent<Transform>(id, temp);
+                        this->_ecs.getComponentManager().addComponent<Transform>(id, temp);
                         break;
                     }
                     case 1:
-                        this->_componentManager.addComponent<Velocity>(id);
+                        this->_ecs.getComponentManager().addComponent<Velocity>(id);
                         break;
                     case 2:
-                        this->_componentManager.addComponent<Model>(id);
+                        this->_ecs.getComponentManager().addComponent<Model>(id);
                         break;
                     case 3:
-                        this->_componentManager.addComponent<Camera>(id);
+                        this->_ecs.getComponentManager().addComponent<Camera>(id);
                         break;
                     case 4:
-                        this->_componentManager.addComponent<Light>(id);
+                        this->_ecs.getComponentManager().addComponent<Light>(id);
                         break;
                     case 5:
-                        this->_componentManager.addComponent<Control>(id);
+                        this->_ecs.getComponentManager().addComponent<Control>(id);
                         break;
                     case 6:
-                        this->_componentManager.addComponent<CubeMap>(id);
+                        this->_ecs.getComponentManager().addComponent<CubeMap>(id);
                         break;
                     case 7:
-                        this->_componentManager.addComponent<BillBoard>(id);
+                        this->_ecs.getComponentManager().addComponent<BillBoard>(id);
                         break;
                     default:
                         break;
@@ -124,7 +109,7 @@ void Engine::run()
 
         this->updateMouse();
 
-        this->_systemManager.updateSystems(this->_entityManager, this->_componentManager);
+        this->_ecs.getSystemManager().updateSystems(this->_ecs.getEntityManager(), this->_ecs.getComponentManager());
 
         glfwSwapBuffers(this->_graphic->getWindow());
         glfwPollEvents();
@@ -141,14 +126,4 @@ void Engine::updateMouse()
         this->_graphic->setMouseOffset(glm::vec2(x, y));
     else
         this->_graphic->setMousePosition(glm::vec2(x, y));
-}
-
-EntityManager &Engine::getEntityManager()
-{
-    return this->_entityManager;
-}
-
-ComponentManager &Engine::getComponentManager()
-{
-    return this->_componentManager;
 }

@@ -3,11 +3,12 @@
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
-#include "Graphic/Graphic.hpp"
-#include "Graphic/Vertices.hpp"
+#include "Graphic.hpp"
 #include "Includes.hpp"
+#include "Rendering/Vertices.hpp"
 
 #define MODEL_TAG (ComponentType::TRANSFORM | ComponentType::MODEL)
+#define BILLBOARD_TAG (ComponentType::TRANSFORM | ComponentType::BILLBOARD)
 
 namespace Lush
 {

@@ -2,10 +2,8 @@
 
 using namespace Lush;
 
-GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
+GUISystem::GUISystem(std::shared_ptr<Graphic> graphic) : _graphic(graphic)
 {
-    this->_graphic = graphic;
-
     if (!IMGUI_CHECKVERSION())
         throw std::runtime_error("ImGui version is invalid");
     ImGui::CreateContext();
@@ -431,7 +429,7 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
     const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
     this->_graphic->setSceneViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
 
-    GLuint texture = this->_graphic->getFrameBuffers()[2].texture;
+    GLuint texture = this->_graphic->getFrameBuffers()["scene"].texture;
     ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
     if (this->_showTools)
         this->drawGuizmo(entityManager, componentManager);
@@ -490,7 +488,7 @@ void GUISystem::drawGame()
     const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
     this->_graphic->setGameViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
 
-    GLuint texture = this->_graphic->getFrameBuffers()[0].texture;
+    GLuint texture = this->_graphic->getFrameBuffers()["render"].texture;
     ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
 }

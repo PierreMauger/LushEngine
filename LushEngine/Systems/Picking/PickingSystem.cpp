@@ -2,10 +2,10 @@
 
 using namespace Lush;
 
-PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
+PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : _graphic(graphic)
 {
-    this->_graphic = graphic;
     entityManager.addMaskCategory(MODEL_TAG);
+    entityManager.addMaskCategory(BILLBOARD_TAG);
     glm::vec2 windowSize = this->_graphic->getWindowSize();
 
     glGenFramebuffers(1, &this->_buffer.framebuffer);
@@ -21,7 +21,7 @@ PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &en
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, windowSize.x, windowSize.y);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_buffer.depthbuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    this->_graphic->getFrameBuffers().push_back(this->_buffer);
+    this->_graphic->getFrameBuffers()["picking"] = this->_buffer;
 
     glGenVertexArrays(1, &this->_planeVAO);
     glGenBuffers(1, &this->_planeVBO);
@@ -55,7 +55,7 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
         color.b = (((id + 1) & 0x00FF0000) >> 16) / 255.0f;
         color.a = 1.0f;
 
-        this->_graphic->getShaders()["Picking"].setVec4("id", color);
+        this->_graphic->getRenderView().getShader().setVec4("id", color);
         this->_graphic->getRenderView().setModel(transform);
         if (this->_graphic->getModels().find(model.id) != this->_graphic->getModels().end())
             this->_graphic->getModels()[model.id].draw(this->_graphic->getRenderView().getShader());
@@ -69,10 +69,10 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
     glReadPixels(mousePosition.x, windowSize.y - mousePosition.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()[0].framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()["scene"].framebuffer);
     glEnable(GL_BLEND);
     this->_graphic->getRenderView().use("Outline");
-    this->_graphic->getShaders()["Outline"].setInt("id", (pixel[0]) + (pixel[1] << 8) + (pixel[2] << 16));
+    this->_graphic->getRenderView().getShader().setInt("id", (pixel[0]) + (pixel[1] << 8) + (pixel[2] << 16));
     glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
     glBindVertexArray(this->_planeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);

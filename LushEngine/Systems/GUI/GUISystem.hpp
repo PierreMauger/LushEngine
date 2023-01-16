@@ -3,7 +3,7 @@
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ISystem.hpp"
-#include "Graphic/Graphic.hpp"
+#include "Graphic.hpp"
 #include "ImGui/IconsFontAwesome5.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_glfw.h"
