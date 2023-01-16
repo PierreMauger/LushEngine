@@ -4,8 +4,10 @@
 #include "Includes.hpp"
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
+#include "mono/metadata/attrdefs.h"
 #include "mono/metadata/debug-helpers.h"
 #include "mono/metadata/environment.h"
+#include "mono/metadata/metadata.h"
 #include "mono/metadata/mono-config.h"
 
 namespace Lush
@@ -22,12 +24,14 @@ namespace Lush
             MonoClass *_entityClass;
 
             std::map<std::string, MonoMethod *> _methods;
+            std::map<std::string, std::string> _attributes;
 
         public:
             ScriptClass(std::string name, MonoDomain *domain);
             ~ScriptClass() = default;
 
             void loadScript(std::string name);
+            void loadAttributes();
 
             MonoMethod *getMethod(std::string name);
             MonoDomain *getDomain();

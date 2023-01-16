@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 public class Boing : Entity
 {
     private Transform transform;
-    private float time;
+    public float time;
 
     public void onInit()
     {

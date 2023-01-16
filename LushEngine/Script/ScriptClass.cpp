@@ -14,6 +14,7 @@ ScriptClass::ScriptClass(std::string name, MonoDomain *domain)
 
     try {
         this->loadScript(name);
+        this->loadAttributes();
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
@@ -59,6 +60,25 @@ void ScriptClass::loadScript(std::string name)
     for (auto it = this->_methods.begin(); it != this->_methods.end(); it++)
         if (!it->second)
             throw std::runtime_error("mono_class_get_method_from_name failed for " + it->first);
+}
+
+void ScriptClass::loadAttributes()
+{
+    int fieldCount = mono_class_num_fields(this->_class);
+    void *iter = NULL;
+
+    for (int i = 0; i < fieldCount; i++) {
+        MonoClassField *field = mono_class_get_fields(this->_class, &iter);
+        const char *fieldName = mono_field_get_name(field);
+        MonoType *fieldType = mono_field_get_type(field);
+        // const char *fieldTypeName = mono_type_get_name(fieldType); // ex: System.Int32
+        uint32_t fieldAttrs = mono_field_get_flags(field);
+        MonoClass *fieldClass = mono_class_from_mono_type(fieldType);
+        const char *fieldClassName = mono_class_get_name(fieldClass); // ex: Int32
+
+        if (fieldAttrs & MONO_FIELD_ATTR_PUBLIC)
+            this->_attributes[fieldName] = fieldClassName;
+    }
 }
 
 MonoMethod *ScriptClass::getMethod(std::string name)

@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id)
+ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id) : _class(script)
 {
     this->_instance = mono_object_new(script.getDomain(), script.getClass());
     this->_ctor = script.getMethod("ctor");
@@ -14,6 +14,11 @@ ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id)
         args[0] = &id;
         mono_runtime_invoke(this->_ctor, this->_instance, args, nullptr);
     }
+}
+
+ScriptClass &ScriptInstance::getClass()
+{
+    return this->_class;
 }
 
 void ScriptInstance::init()

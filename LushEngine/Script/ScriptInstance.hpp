@@ -12,10 +12,13 @@ namespace Lush
             ScriptInstance(ScriptClass &script, std::size_t id);
             ~ScriptInstance() = default;
 
+            ScriptClass &getClass();
+
             void init();
             void update(float time);
 
         private:
+            ScriptClass _class;
             MonoObject *_instance;
             MonoMethod *_ctor;
             MonoMethod *_onInit;
