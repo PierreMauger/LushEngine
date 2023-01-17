@@ -478,13 +478,13 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
 void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager)
 {
     ImGuizmo::BeginFrame();
-    glm::mat4 view = this->_graphic->getRenderView().getView();
-    glm::mat4 projection = this->_graphic->getRenderView().getProjection();
 
     if (!entityManager.hasMask(this->_selectedEntity, ComponentType::TRANSFORM))
         return;
     Transform &transform = componentManager.getComponent<Transform>(this->_selectedEntity);
 
+    glm::mat4 view = this->_graphic->getRenderView().getView();
+    glm::mat4 projection = this->_graphic->getRenderView().getProjection();
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, transform.position);
     model *= glm::toMat4(glm::quat(glm::radians(transform.rotation)));
