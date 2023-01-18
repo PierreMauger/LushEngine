@@ -13,7 +13,7 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic) : _graphic(graphic)
     ImGui_ImplOpenGL3_Init("#version 410");
 
     ImGuiIO &io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
     io.Fonts->AddFontDefault();
 
     // merge in icons from Font Awesome
@@ -450,6 +450,8 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
         return;
     }
     ImGui::PopStyleVar(3);
+
+    this->_graphic->setSceneMovement(ImGui::IsWindowFocused() && !ImGuizmo::IsUsing());
 
     const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
     this->_graphic->setSceneViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});

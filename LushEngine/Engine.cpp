@@ -32,6 +32,10 @@ Engine::Engine()
     this->loadScene();
 }
 
+Engine::~Engine()
+{
+}
+
 void Engine::loadScene()
 {
     std::string scene = loadFile("Resources/Scenes/scene");
@@ -111,6 +115,8 @@ void Engine::run()
 
         this->_ecs.getSystemManager().updateSystems(this->_ecs.getEntityManager(), this->_ecs.getComponentManager());
 
+        // this->_graphic->setCursor();
+
         glfwSwapBuffers(this->_graphic->getWindow());
         glfwPollEvents();
         this->_graphic->setLastTime(glfwGetTime());
@@ -122,6 +128,8 @@ void Engine::updateMouse()
 {
     double x, y;
     glfwGetCursorPos(this->_graphic->getWindow(), &x, &y);
+    if (this->_graphic->getSceneMovement())
+        this->_graphic->setMouseOffset(glm::vec2(x, y));
     if (this->_graphic->getMouseMovement())
         this->_graphic->setMouseOffset(glm::vec2(x, y));
     else

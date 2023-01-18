@@ -74,6 +74,22 @@ void SceneSystem::update(EntityManager &entityManager, ComponentManager &compone
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    if (this->_graphic->getSceneMovement()) {
+        if (this->_graphic->getMouseButton() == 0)
+            this->_graphic->getRenderView().rotate(this->_cameraTransform, this->_graphic->getMouseOffset());
+        if (this->_graphic->getMouseButton() == 1)
+            this->_cameraTransform.position += this->_camera.forward * this->_graphic->getMouseOffset().y * 0.05f;
+        if (this->_graphic->getMouseButton() == 2) {
+            glm::vec3 cameraRight = glm::normalize(glm::cross(this->_camera.forward, glm::vec3(0.0f, 1.0f, 0.0f)));
+            glm::vec3 cameraUp = glm::normalize(glm::cross(cameraRight, this->_camera.forward));
+            this->_cameraTransform.position -= cameraRight * this->_graphic->getMouseOffset().x * 0.025f;
+            this->_cameraTransform.position -= cameraUp * this->_graphic->getMouseOffset().y * 0.025f;
+        }
+    }
+    this->_camera.forward.x = cos(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
+    this->_camera.forward.y = sin(glm::radians(this->_cameraTransform.rotation.y));
+    this->_camera.forward.z = sin(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
+
     this->_graphic->getRenderView().use("Camera");
     this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(MODEL_TAG)) {

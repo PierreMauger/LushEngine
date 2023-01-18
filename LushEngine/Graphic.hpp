@@ -42,9 +42,13 @@ namespace Lush
             bool _paused = false;
 
             bool _mouseMovement = false;
+            bool _sceneMovement = false;
+            int _mouseButton = -1;
             glm::vec2 _mousePosition;
             glm::vec2 _mouseLastPosition;
             glm::vec2 _mouseOffset;
+
+            std::array<GLFWcursor *, 3> _cursors;
 
         public:
             Graphic(int sizeX, int sizeY, std::string title);
@@ -54,6 +58,7 @@ namespace Lush
             void setCallBacks();
             void handleKeyboardPress(int key, int scancode, int action, int mods);
             void handleResizeFramebuffer(int width, int height);
+            void handleMousePress(int button, int action, int mods);
 
             GLFWwindow *getWindow();
             float getLastTime();
@@ -77,6 +82,10 @@ namespace Lush
 
             void setMouseMovement(bool mouseMovement);
             bool getMouseMovement();
+            void setSceneMovement(bool sceneMovement);
+            bool getSceneMovement();
+            void setMouseButton(int mouseButton);
+            int getMouseButton();
             void setMousePosition(glm::vec2 mousePosition);
             void setMouseOffset(glm::vec2 mousePosition);
             glm::vec2 getMousePosition();

@@ -19,7 +19,7 @@ namespace Lush
 
         public:
             Engine();
-            ~Engine() = default;
+            ~Engine();
 
             void loadScene();
             void run();

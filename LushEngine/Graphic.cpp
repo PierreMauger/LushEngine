@@ -97,7 +97,7 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_models["Cube"] = RenderModel(loadFile2("Resources/Models/Cube.dae"), this->_textures);
 
     this->_skyboxes["Sky"] = loadCubemap({"Resources/Skybox/right.jpg", "Resources/Skybox/left.jpg", "Resources/Skybox/top.jpg", "Resources/Skybox/bottom.jpg",
-                                      "Resources/Skybox/front.jpg", "Resources/Skybox/back.jpg"});
+                                          "Resources/Skybox/front.jpg", "Resources/Skybox/back.jpg"});
 
     this->_shaders["Camera"] = Shader(loadFile2("Resources/Shaders/camera.vs"), loadFile2("Resources/Shaders/camera.fs"));
     this->_shaders["Picking"] = Shader(loadFile2("Resources/Shaders/camera.vs"), loadFile2("Resources/Shaders/picking.fs"));
@@ -106,10 +106,21 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_shaders["Billboard"] = Shader(loadFile2("Resources/Shaders/billboard.vs"), loadFile2("Resources/Shaders/billboard.fs"));
     this->_shaders["Grid"] = Shader(loadFile2("Resources/Shaders/grid.vs"), loadFile2("Resources/Shaders/grid.fs"));
     this->_renderView.setShaders(this->_shaders);
+
+    this->_cursors[0] = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+    this->_cursors[1] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+    this->_cursors[2] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+
+    // GLFWimage images[1];
+    // images[0].pixels = stbi_load("Resources/Icon/Lush.png", &images[0].width, &images[0].height, 0, 4);
+    // this->_cursors[...] = glfwCreateCursor(&images[0], 0, 0);
+    // stbi_image_free(images[0].pixels);
 }
 
 Graphic::~Graphic()
 {
+    for (std::size_t i = 0; i < this->_cursors.size(); i++)
+        glfwDestroyCursor(this->_cursors[i]);
     glfwDestroyWindow(this->_window);
 }
 
@@ -147,6 +158,9 @@ void Graphic::setCallBacks()
 
     auto resizeCallback = [](GLFWwindow *w, int width, int height) { static_cast<Graphic *>(glfwGetWindowUserPointer(w))->handleResizeFramebuffer(width, height); };
     glfwSetFramebufferSizeCallback(this->_window, resizeCallback);
+
+    auto mousePressCallback = [](GLFWwindow *w, int button, int action, int mods) { static_cast<Graphic *>(glfwGetWindowUserPointer(w))->handleMousePress(button, action, mods); };
+    glfwSetMouseButtonCallback(this->_window, mousePressCallback);
 }
 
 void Graphic::handleKeyboardPress(int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
@@ -179,6 +193,18 @@ void Graphic::handleResizeFramebuffer(int width, int height)
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fb.depthbuffer);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+}
+
+void Graphic::handleMousePress(int button, int action, int mods)
+{
+    if (action == GLFW_PRESS) {
+        this->_mouseButton = button;
+        glfwSetCursor(this->_window, this->_cursors[button]);
+    }
+    if (action == GLFW_RELEASE) {
+        this->_mouseButton = -1;
+        glfwSetCursor(this->_window, nullptr);
     }
 }
 
@@ -270,6 +296,26 @@ void Graphic::setMouseMovement(bool mouseMovement)
 bool Graphic::getMouseMovement()
 {
     return this->_mouseMovement;
+}
+
+void Graphic::setSceneMovement(bool sceneMovement)
+{
+    this->_sceneMovement = sceneMovement;
+}
+
+bool Graphic::getSceneMovement()
+{
+    return this->_sceneMovement;
+}
+
+void Graphic::setMouseButton(int button)
+{
+    this->_mouseButton = button;
+}
+
+int Graphic::getMouseButton()
+{
+    return this->_mouseButton;
 }
 
 void Graphic::setMousePosition(glm::vec2 mousePosition)
