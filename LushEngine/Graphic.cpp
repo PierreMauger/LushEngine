@@ -196,9 +196,9 @@ void Graphic::handleResizeFramebuffer(int width, int height)
     }
 }
 
-void Graphic::handleMousePress(int button, int action, int mods)
+void Graphic::handleMousePress(int button, int action, [[maybe_unused]] int mods)
 {
-    if (action == GLFW_PRESS) {
+    if (this->_sceneMovement && action == GLFW_PRESS) {
         this->_mouseButton = button;
         glfwSetCursor(this->_window, this->_cursors[button]);
     }

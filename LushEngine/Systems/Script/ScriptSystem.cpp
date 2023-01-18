@@ -27,8 +27,9 @@ ScriptSystem::~ScriptSystem()
     mono_jit_cleanup(this->_domain);
 }
 
-void ScriptSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
+void ScriptSystem::update(EntityManager &entityManager, [[maybe_unused]] ComponentManager &componentManager)
 {
+    // Will be replaced when instances will be accessed by GUI System
     if (this->buttonChanged()) {
         if (!this->_graphic->getRunning()) {
             this->_instances.clear();

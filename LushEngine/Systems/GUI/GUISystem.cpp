@@ -451,7 +451,7 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
     }
     ImGui::PopStyleVar(3);
 
-    this->_graphic->setSceneMovement(ImGui::IsWindowFocused() && !ImGuizmo::IsUsing());
+    this->_graphic->setSceneMovement(ImGui::IsWindowHovered() && !ImGuizmo::IsUsing());
 
     const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
     this->_graphic->setSceneViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
