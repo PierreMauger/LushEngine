@@ -107,6 +107,12 @@ void main()
     object.emission = hasTexture ? texture(tex.emission, TexCoords).rgb : material.emission;
     object.shininess = hasTexture ? tex.shininess : material.shininess;
 
+    if (hasTexture) {
+        object.diffuse *= texture(tex.diffuse, TexCoords).a;
+        // if (texture(tex.diffuse, TexCoords).a == 0.0f)
+            // discard;
+    }
+
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 result = vec3(0.0f);
