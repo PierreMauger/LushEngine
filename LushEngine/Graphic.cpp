@@ -91,13 +91,13 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_textures["Crate.png"] = loadTexture("Resources/Textures/Crate.png");
     this->_textures["Crate_specular.png"] = loadTexture("Resources/Textures/Crate_specular.png");
     this->_textures["Crate_emission.png"] = loadTexture("Resources/Textures/Crate_emission.png");
-    this->_textures["dingus_baseColor.jpeg"] = loadTexture("Resources/Textures/dingus_baseColor.jpeg");
-    this->_textures["whiskers_baseColor.png"] = loadTexture("Resources/Textures/whiskers_baseColor.png");
+    this->_textures["Maxwell.jpeg"] = loadTexture("Resources/Textures/Maxwell.jpeg");
+    this->_textures["Whiskers.png"] = loadTexture("Resources/Textures/Whiskers.png");
 
     this->_models["Fox"] = RenderModel(loadFile2("Resources/Models/Fox.dae"), this->_textures);
     this->_models["Crate"] = RenderModel(loadFile2("Resources/Models/Crate.dae"), this->_textures);
     this->_models["Cube"] = RenderModel(loadFile2("Resources/Models/Cube.dae"), this->_textures);
-    this->_models["Maxwell"] = RenderModel(loadFile2("Resources/Models/untitled.dae"), this->_textures);
+    this->_models["Maxwell"] = RenderModel(loadFile2("Resources/Models/Maxwell.dae"), this->_textures);
 
     this->_skyboxes["Sky"] = loadCubemap({"Resources/Skybox/right.jpg", "Resources/Skybox/left.jpg", "Resources/Skybox/top.jpg", "Resources/Skybox/bottom.jpg",
                                           "Resources/Skybox/front.jpg", "Resources/Skybox/back.jpg"});

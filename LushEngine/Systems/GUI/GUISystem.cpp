@@ -23,6 +23,8 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic) : _graphic(graphic)
     iconsConfig.PixelSnapH = true;
     io.Fonts->AddFontFromFileTTF("Resources/Fonts/" FONT_ICON_FILE_NAME_FAS, 12.0f, &iconsConfig, iconsRanges);
 
+    ImGuizmo::Enable(true);
+
     this->_fileExplorerPath = std::filesystem::current_path().string();
     this->_fileExplorerRootPath = std::filesystem::current_path().string();
 }
@@ -485,19 +487,16 @@ void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &compo
         return;
     Transform &transform = componentManager.getComponent<Transform>(this->_selectedEntity);
 
+    glm::vec4 viewport = this->_graphic->getSceneViewPort();
     glm::mat4 view = this->_graphic->getRenderView().getView();
     glm::mat4 projection = this->_graphic->getRenderView().getProjection();
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, transform.position);
-    model *= glm::toMat4(glm::quat(glm::radians(transform.rotation)));
-    model = glm::scale(model, transform.scale);
 
     ImGuizmo::SetDrawlist();
-    glm::vec4 viewport = this->_graphic->getSceneViewPort();
     ImGuizmo::SetRect(viewport.x, viewport.y, viewport.z, viewport.w);
-    ImGuizmo::Manipulate(&view[0][0], &projection[0][0], this->_currentOperation, this->_currentMode, &model[0][0], nullptr, nullptr);
-
-    ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform.position[0], &transform.rotation[0], &transform.scale[0]);
+    ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(transform.position), glm::value_ptr(transform.rotation), glm::value_ptr(transform.scale), glm::value_ptr(model));
+    ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), this->_currentOperation, this->_currentMode, glm::value_ptr(model), nullptr, nullptr);
+    ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(transform.position), glm::value_ptr(transform.rotation), glm::value_ptr(transform.scale));
 }
 
 void GUISystem::drawGame()

@@ -71,10 +71,11 @@ vec3 calcDirLight(Base object, DirLight light, vec3 normal, vec3 viewDir)
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), object.shininess);
     // combine results
-    vec3 ambient = light.ambient * object.ambient;
-    vec3 diffuse = light.diffuse * diff * object.diffuse;
+
+    vec3 ambient = light.ambient * 0.2f;
+    vec3 diffuse = light.diffuse * diff;
     vec3 specular = light.specular * spec * object.specular;
-    return ambient + diffuse + specular;
+    return (ambient + diffuse + specular) * object.diffuse;
 }
 
 vec3 calcPointLight(Base object, PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
@@ -89,13 +90,13 @@ vec3 calcPointLight(Base object, PointLight light, vec3 normal, vec3 fragPos, ve
     float distance = length(light.position - fragPos);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     // combine results
-    vec3 ambient = light.ambient * object.ambient;
-    vec3 diffuse = light.diffuse * diff * object.diffuse;
+    vec3 ambient = light.ambient * 0.2f;
+    vec3 diffuse = light.diffuse * diff;
     vec3 specular = light.specular * spec * object.specular;
     ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
-    return ambient + diffuse + specular;
+    return (ambient + diffuse + specular) * object.diffuse;
 }
 
 void main()
@@ -107,12 +108,6 @@ void main()
     object.emission = hasTexture ? texture(tex.emission, TexCoords).rgb : material.emission;
     object.shininess = hasTexture ? tex.shininess : material.shininess;
 
-    if (hasTexture) {
-        object.diffuse *= texture(tex.diffuse, TexCoords).a;
-        // if (texture(tex.diffuse, TexCoords).a == 0.0f)
-            // discard;
-    }
-
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 result = vec3(0.0f);
@@ -122,6 +117,12 @@ void main()
 
     for (int i = 0; i < pointLightCount && i < NB_POINT_LIGHTS; i++)
         result += calcPointLight(object, pointLights[i], norm, FragPos, viewDir);
+
+    if (hasTexture) {
+        result *= texture(tex.diffuse, TexCoords).a;
+        if (texture(tex.diffuse, TexCoords).a <= 0.2f)
+            discard;
+    }
 
     FragColor = vec4(result + object.emission, 1.0f);
 }
