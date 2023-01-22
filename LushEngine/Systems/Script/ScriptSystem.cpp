@@ -12,8 +12,8 @@ ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     }
     this->_scripts.push_back(std::make_unique<ScriptClass>("Spin", this->_domain));
     this->_graphic->getScriptNames().push_back("Spin");
-    this->_scripts.push_back(std::make_unique<ScriptClass>("Boing", this->_domain));
-    this->_graphic->getScriptNames().push_back("Boing");
+    this->_scripts.push_back(std::make_unique<ScriptClass>("Maxwell", this->_domain));
+    this->_graphic->getScriptNames().push_back("Maxwell");
     ScriptGlue::registerFunctions();
 
     for (std::size_t i = 0; i < this->_scripts.size(); i++)
@@ -44,6 +44,7 @@ void ScriptSystem::update(EntityManager &entityManager, [[maybe_unused]] Compone
     if (this->_graphic->getPaused() || !this->_graphic->getRunning())
         return;
     float deltaTime = glfwGetTime() - this->_graphic->getLastTime();
+    // std::cout << "deltaTime: " << deltaTime << std::endl;
     for (auto &instance : this->_instances)
         instance->update(deltaTime);
 }

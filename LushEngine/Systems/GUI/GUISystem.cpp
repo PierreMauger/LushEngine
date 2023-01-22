@@ -58,10 +58,10 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
         this->drawTools();
     if (this->_showConsole)
         this->drawConsole();
-    if (this->_showScene)
-        this->drawScene(entityManager, componentManager);
     if (this->_showGame)
         this->drawGame();
+    if (this->_showScene)
+        this->drawScene(entityManager, componentManager);
     if (this->_showFileExplorer)
         this->drawFiles();
     if (this->_showProfiler)
@@ -447,6 +447,26 @@ void GUISystem::drawConsole()
     ImGui::End();
 }
 
+void GUISystem::drawGame()
+{
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    if (!ImGui::Begin(ICON_FA_GAMEPAD " Game", &this->_showGame, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
+        ImGui::PopStyleVar(3);
+        ImGui::End();
+        return;
+    }
+    ImGui::PopStyleVar(3);
+
+    const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
+    this->_graphic->setGameViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
+
+    GLuint texture = this->_graphic->getFrameBuffers()["render"].texture;
+    ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::End();
+}
+
 void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &componentManager)
 {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
@@ -506,26 +526,6 @@ bool GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &compo
     ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), this->_currentOperation, this->_currentMode, glm::value_ptr(model), nullptr, nullptr);
     ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(transform.position), glm::value_ptr(transform.rotation), glm::value_ptr(transform.scale));
     return true;
-}
-
-void GUISystem::drawGame()
-{
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    if (!ImGui::Begin(ICON_FA_GAMEPAD " Game", &this->_showGame, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
-        ImGui::PopStyleVar(3);
-        ImGui::End();
-        return;
-    }
-    ImGui::PopStyleVar(3);
-
-    const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
-    this->_graphic->setGameViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
-
-    GLuint texture = this->_graphic->getFrameBuffers()["render"].texture;
-    ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
-    ImGui::End();
 }
 
 void GUISystem::drawFiles()

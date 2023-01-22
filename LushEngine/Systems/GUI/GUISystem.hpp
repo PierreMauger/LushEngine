@@ -26,8 +26,8 @@ namespace Lush
             bool _showProperties = true;
             bool _showTools = true;
             bool _showConsole = true;
-            bool _showScene = true;
             bool _showGame = true;
+            bool _showScene = true;
             bool _showFileExplorer = true;
             bool _showProfiler = true;
             bool _reloading = false;
@@ -51,9 +51,9 @@ namespace Lush
             void drawProperties(EntityManager &entityManager, ComponentManager &componentManager);
             void drawTools();
             void drawConsole();
+            void drawGame();
             void drawScene(EntityManager &entityManager, ComponentManager &componentManager);
             bool drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager);
-            void drawGame();
             void drawFiles();
             void drawProfiler();
             std::string formatBinary(std::size_t value, std::size_t size);
