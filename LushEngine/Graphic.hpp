@@ -41,6 +41,9 @@ namespace Lush
             bool _running = false;
             bool _paused = false;
 
+            std::size_t _hoveredEntity = 0;
+            std::size_t _selectedEntity = -1;
+
             bool _mouseMovement = false;
             bool _sceneMovement = false;
             int _mouseButton = -1;
@@ -79,6 +82,11 @@ namespace Lush
             bool getRunning();
             void setPaused(bool paused);
             bool getPaused();
+
+            void setHoveredEntity(std::size_t hoveredEntity);
+            std::size_t getHoveredEntity();
+            void setSelectedEntity(std::size_t selectedEntity);
+            std::size_t getSelectedEntity();
 
             void setMouseMovement(bool mouseMovement);
             bool getMouseMovement();

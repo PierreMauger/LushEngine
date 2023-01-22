@@ -61,18 +61,21 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
             this->_graphic->getModels()[model.name].draw(this->_graphic->getRenderView().getShader());
     }
     glm::vec2 mousePosition = this->_graphic->getMousePosition();
-    unsigned char pixel[4] = {0};
-    // convert from viewport coord to screen coord (picking buffer is drawn on whole screen and resize later to viewport)
+    // convert from viewport coord to screen coord (picking buffer is drawn on whole screen and resized later to viewport)
     mousePosition.x = (mousePosition.x - viewport.x) * windowSize.x / viewport.z;
     mousePosition.y = (mousePosition.y - viewport.y) * windowSize.y / viewport.w;
 
+    std::size_t pixel = 0;
     glReadPixels(mousePosition.x, windowSize.y - mousePosition.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
+    pixel = pixel & 0x00FFFFFF;
+    this->_graphic->setHoveredEntity(pixel - 1);
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()["scene"].framebuffer);
     glEnable(GL_BLEND);
     this->_graphic->getRenderView().use("Outline");
-    this->_graphic->getRenderView().getShader().setInt("id", (pixel[0]) + (pixel[1] << 8) + (pixel[2] << 16));
+    this->_graphic->getRenderView().getShader().setInt("id", pixel);
     glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
     glBindVertexArray(this->_planeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);

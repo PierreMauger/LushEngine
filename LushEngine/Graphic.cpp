@@ -202,6 +202,8 @@ void Graphic::handleResizeFramebuffer(int width, int height)
 void Graphic::handleMousePress(int button, int action, [[maybe_unused]] int mods)
 {
     if (this->_sceneMovement && action == GLFW_PRESS) {
+        if (button == GLFW_MOUSE_BUTTON_LEFT)
+            this->_selectedEntity = this->_hoveredEntity;
         this->_mouseButton = button;
         glfwSetCursor(this->_window, this->_cursors[button]);
     }
@@ -289,6 +291,26 @@ void Graphic::setPaused(bool paused)
 bool Graphic::getPaused()
 {
     return this->_paused;
+}
+
+void Graphic::setHoveredEntity(std::size_t hoveredEntity)
+{
+    this->_hoveredEntity = hoveredEntity;
+}
+
+std::size_t Graphic::getHoveredEntity()
+{
+    return this->_hoveredEntity;
+}
+
+void Graphic::setSelectedEntity(std::size_t selectedEntity)
+{
+    this->_selectedEntity = selectedEntity;
+}
+
+std::size_t Graphic::getSelectedEntity()
+{
+    return this->_selectedEntity;
 }
 
 void Graphic::setMouseMovement(bool mouseMovement)

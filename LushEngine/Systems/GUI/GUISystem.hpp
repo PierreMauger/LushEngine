@@ -32,7 +32,6 @@ namespace Lush
             bool _showProfiler = true;
             bool _reloading = false;
             bool _singleFrame = false;
-            std::size_t _selectedEntity = 0;
             ImGuizmo::OPERATION _currentOperation = ImGuizmo::OPERATION::TRANSLATE;
             ImGuizmo::MODE _currentMode = ImGuizmo::MODE::LOCAL;
 
@@ -53,7 +52,7 @@ namespace Lush
             void drawTools();
             void drawConsole();
             void drawScene(EntityManager &entityManager, ComponentManager &componentManager);
-            void drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager);
+            bool drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager);
             void drawGame();
             void drawFiles();
             void drawProfiler();
