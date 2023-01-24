@@ -10,10 +10,6 @@ public class Maxwell : Entity
     {
         transform = getComponent<Transform>();
         time = 0.0f;
-
-        Vector3 tmpRot = transform.rotation;
-        tmpRot.x = -45.0f;
-        transform.rotation = tmpRot;
     }
 
     public void onUpdate(float deltaTime)
@@ -22,8 +18,14 @@ public class Maxwell : Entity
         Vector3 tmpRot = transform.rotation;
         Vector3 tmpPos = transform.position;
 
-        tmpRot.x += (float)Math.Sin(time * 8.0f) * 300.0f * deltaTime;
-        tmpPos.y += (float)Math.Sin(time * 16.0f) * 2f * deltaTime;
+        float sin = (float)(Math.Asin(Math.Sin(time * 8.0f + Math.PI / 2.0f)));
+        sin = sin > 0.5f || sin < -0.5f ? sin : 0.0f;
+
+        float sinBis = (float)(Math.Asin(Math.Sin(time * 16.0f)));
+        sinBis = sinBis > 0.5f || sinBis < -0.5f ? sinBis : 0.0f;
+
+        tmpRot.x += sin * 180.0f * deltaTime;
+        tmpPos.y += sinBis * 4.0f * deltaTime;
 
         transform.rotation = tmpRot;
         transform.position = tmpPos;
