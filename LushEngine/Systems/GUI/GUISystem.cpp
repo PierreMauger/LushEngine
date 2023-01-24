@@ -280,7 +280,6 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                         ImGui::SliderFloat("Distance##Camera", &camera.distance, 0.0f, 100.0f);
                         const ImU64 increment = 1;
                         ImGui::InputScalar("Target ID##Camera", ImGuiDataType_U64, &camera.target, &increment);
-                        ImGui::Checkbox("Align Target##Camera", &camera.alignTarget);
                     }
                     break;
                 }

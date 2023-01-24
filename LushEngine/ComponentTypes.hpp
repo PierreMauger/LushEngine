@@ -52,7 +52,6 @@ typedef struct {
     CameraMod mod = FIRST_PERSON;
     float distance = 10.0f;
     std::size_t target = 0;
-    bool alignTarget = false;
 } Camera;
 
 enum LightType {

@@ -34,14 +34,10 @@ void CameraSystem::update(EntityManager &entityManager, ComponentManager &compon
         camera.forward.y = sin(glm::radians(transform.rotation.y));
         camera.forward.z = sin(glm::radians(transform.rotation.x)) * cos(glm::radians(transform.rotation.y));
 
-        if (camera.mod == CameraMod::THIRD_PERSON) {
-            if (camera.target != id && entityManager.hasMask(camera.target, CONTROL_TAG)) {
-                Transform &target = componentManager.getComponent<Transform>(camera.target);
+        if (camera.mod == CameraMod::THIRD_PERSON && camera.target != id && entityManager.hasMask(camera.target, CONTROL_TAG)) {
+            Transform &target = componentManager.getComponent<Transform>(camera.target);
 
-                transform.position = target.position - camera.forward * camera.distance;
-                if (camera.alignTarget)
-                    target.rotation.y = glm::degrees(-glm::atan(camera.forward.z, camera.forward.x));
-            }
+            transform.position = target.position - camera.forward * camera.distance;
         }
         this->_graphic->getRenderView().update(transform, camera);
 
