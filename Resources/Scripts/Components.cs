@@ -42,3 +42,16 @@ public class Transform : Component
         }
     }
 }
+
+public class Camera : Component
+{
+    public Vector3 forward {
+        get {
+            InternalCalls.Camera_GetForward(entity.id, out Vector3 forward);
+            return forward;
+        }
+        set {
+            InternalCalls.Camera_SetForward(entity.id, ref value);
+        }
+    }
+}

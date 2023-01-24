@@ -21,7 +21,6 @@ void ECS::loadComponents()
     this->_componentManager.bindComponent<Model>();
     this->_componentManager.bindComponent<Camera>();
     this->_componentManager.bindComponent<Light>();
-    this->_componentManager.bindComponent<Control>();
     this->_componentManager.bindComponent<CubeMap>();
     this->_componentManager.bindComponent<BillBoard>();
 }
@@ -29,7 +28,6 @@ void ECS::loadComponents()
 void ECS::loadSystems(std::shared_ptr<Graphic> graphic)
 {
     this->_systemManager.bindSystem(std::make_unique<ScriptSystem>(graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_unique<ControlSystem>(graphic, this->_entityManager));
     this->_systemManager.bindSystem(std::make_unique<CameraSystem>(graphic, this->_entityManager));
     this->_systemManager.bindSystem(std::make_unique<RenderSystem>(graphic, this->_entityManager));
     this->_systemManager.bindSystem(std::make_unique<SceneSystem>(graphic, this->_entityManager));

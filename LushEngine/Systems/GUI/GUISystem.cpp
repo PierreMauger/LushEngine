@@ -295,11 +295,6 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     break;
                 }
                 case 5: {
-                    Control &control = componentManager.getComponent<Control>(selectedEntity);
-                    ImGui::Checkbox("##Control", &control.control);
-                    break;
-                }
-                case 6: {
                     CubeMap &cubemap = componentManager.getComponent<CubeMap>(selectedEntity);
                     std::string selectedItem = cubemap.name;
                     if (ImGui::BeginCombo("Select Item", selectedItem.c_str())) {
@@ -314,7 +309,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     }
                     break;
                 }
-                case 7: {
+                case 6: {
                     BillBoard &bill = componentManager.getComponent<BillBoard>(selectedEntity);
                     std::string selectedItem = bill.name;
                     if (ImGui::BeginCombo("Select Item", selectedItem.c_str())) {
@@ -376,12 +371,9 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                         componentManager.addComponent<Light>(selectedEntity);
                         break;
                     case 5:
-                        componentManager.addComponent<Control>(selectedEntity);
-                        break;
-                    case 6:
                         componentManager.addComponent<CubeMap>(selectedEntity);
                         break;
-                    case 7:
+                    case 6:
                         componentManager.addComponent<BillBoard>(selectedEntity);
                         break;
                     default:

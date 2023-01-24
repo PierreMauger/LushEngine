@@ -6,7 +6,6 @@
 #include "ECS/System/SystemManager.hpp"
 #include "Graphic.hpp"
 #include "Systems/Camera/CameraSystem.hpp"
-#include "Systems/Control/ControlSystem.hpp"
 #include "Systems/GUI/GUISystem.hpp"
 #include "Systems/Picking/PickingSystem.hpp"
 #include "Systems/Render/RenderSystem.hpp"

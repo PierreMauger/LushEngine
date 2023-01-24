@@ -69,6 +69,36 @@ void ScriptGlue::Transform_SetScale(std::size_t id, glm::vec3 *scale)
         std::cout << "Entity " << id << " has no Transform component" << std::endl;
 }
 
+void ScriptGlue::Camera_GetForward(std::size_t id, glm::vec3 *forward)
+{
+    ECS *ecs = ECS::getECS();
+
+    if (ecs->getEntityManager().hasMask(id, ComponentType::CAMERA))
+        *forward = ecs->getComponentManager().getComponent<Camera>(id).forward;
+    else
+        std::cout << "Entity " << id << " has no Camera component" << std::endl;
+}
+
+void ScriptGlue::Camera_SetForward(std::size_t id, glm::vec3 *forward)
+{
+    ECS *ecs = ECS::getECS();
+
+    if (ecs->getEntityManager().hasMask(id, ComponentType::CAMERA))
+        ecs->getComponentManager().getComponent<Camera>(id).forward = *forward;
+    else
+        std::cout << "Entity " << id << " has no Camera component" << std::endl;
+}
+
+bool ScriptGlue::IsKeyDown(int key)
+{
+    GLFWwindow *window = glfwGetCurrentContext();
+
+    if (window)
+        return glfwGetKey(window, key) == GLFW_PRESS;
+    else
+        return false;
+}
+
 void ScriptGlue::registerFunctions()
 {
     mono_add_internal_call("InternalCalls::Log", (void *)Console_Log);
@@ -78,4 +108,7 @@ void ScriptGlue::registerFunctions()
     mono_add_internal_call("InternalCalls::Transform_SetRotation", (void *)Transform_SetRotation);
     mono_add_internal_call("InternalCalls::Transform_GetScale", (void *)Transform_GetScale);
     mono_add_internal_call("InternalCalls::Transform_SetScale", (void *)Transform_SetScale);
+    mono_add_internal_call("InternalCalls::Camera_GetForward", (void *)Camera_GetForward);
+    mono_add_internal_call("InternalCalls::Camera_SetForward", (void *)Camera_SetForward);
+    mono_add_internal_call("InternalCalls::IsKeyDown", (void *)IsKeyDown);
 }

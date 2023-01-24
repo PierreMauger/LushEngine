@@ -37,10 +37,9 @@ void CameraSystem::update(EntityManager &entityManager, ComponentManager &compon
         if (camera.mod == CameraMod::THIRD_PERSON) {
             if (camera.target != id && entityManager.hasMask(camera.target, CONTROL_TAG)) {
                 Transform &target = componentManager.getComponent<Transform>(camera.target);
-                Control control = componentManager.getComponent<Control>(camera.target);
 
                 transform.position = target.position - camera.forward * camera.distance;
-                if (control.alignTarget || camera.alignTarget)
+                if (camera.alignTarget)
                     target.rotation.y = glm::degrees(-glm::atan(camera.forward.z, camera.forward.x));
             }
         }

@@ -10,7 +10,7 @@ public class Entity
         this.id = 0;
     }
 
-    internal Entity(ulong id)
+    public Entity(ulong id)
     {
         this.id = id;
     }

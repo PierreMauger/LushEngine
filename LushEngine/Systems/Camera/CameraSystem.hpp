@@ -8,7 +8,7 @@
 
 #define CAMERA_TAG (ComponentType::TRANSFORM | ComponentType::CAMERA)
 #define LIGHT_TAG (ComponentType::TRANSFORM | ComponentType::LIGHT)
-#define CONTROL_TAG (ComponentType::TRANSFORM | ComponentType::CONTROL)
+#define CONTROL_TAG (ComponentType::TRANSFORM)
 
 namespace Lush
 {

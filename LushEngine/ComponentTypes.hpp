@@ -9,11 +9,10 @@ enum ComponentType {
     MODEL = 1 << 2,
     CAMERA = 1 << 3,
     LIGHT = 1 << 4,
-    CONTROL = 1 << 5,
-    CUBEMAP = 1 << 6,
-    BILLBOARD = 1 << 7,
+    CUBEMAP = 1 << 5,
+    BILLBOARD = 1 << 6,
 
-    COMPONENT_TYPE_COUNT = 1 << 8
+    COMPONENT_TYPE_COUNT = 1 << 7
 };
 
 typedef struct {
@@ -71,11 +70,6 @@ typedef struct {
     glm::vec3 color = glm::vec3(1.0f);
     float cutOff = 0.0f;
 } Light;
-
-typedef struct {
-    bool control = true;
-    bool alignTarget = false;
-} Control;
 
 typedef struct {
     std::string name = "Sky";

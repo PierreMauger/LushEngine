@@ -20,4 +20,12 @@ public static class InternalCalls
 	internal extern static void Transform_GetScale(ulong id, out Vector3 scale);
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
 	internal extern static void Transform_SetScale(ulong id, ref Vector3 scale);
+
+	[MethodImplAttribute(MethodImplOptions.InternalCall)]
+	internal extern static void Camera_GetForward(ulong id, out Vector3 forward);
+	[MethodImplAttribute(MethodImplOptions.InternalCall)]
+	internal extern static void Camera_SetForward(ulong id, ref Vector3 forward);
+
+	[MethodImplAttribute(MethodImplOptions.InternalCall)]
+	public extern static bool IsKeyDown(int key);
 }
