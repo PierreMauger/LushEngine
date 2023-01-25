@@ -114,7 +114,7 @@ void Engine::run()
 
         glfwSwapBuffers(this->_graphic->getWindow());
         glfwPollEvents();
-        this->_graphic->setLastTime(glfwGetTime());
+        this->_graphic->setDeltaTime(glfwGetTime());
     }
     std::cout.rdbuf(oldCoutStreamBuf);
 }

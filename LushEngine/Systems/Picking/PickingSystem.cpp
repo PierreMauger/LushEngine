@@ -66,9 +66,8 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
     mousePosition.y = (mousePosition.y - viewport.y) * windowSize.y / viewport.w;
 
     std::size_t pixel = 0;
-    // TEMP
     if (this->_graphic->getSceneMovement()) {
-        // glReadPixels(mousePosition.x, windowSize.y - mousePosition.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
+        glReadPixels(mousePosition.x, windowSize.y - mousePosition.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
         pixel = pixel & 0x00FFFFFF;
         this->_graphic->setHoveredEntity(pixel - 1);
     }
