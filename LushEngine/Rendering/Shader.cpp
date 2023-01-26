@@ -2,12 +2,18 @@
 
 using namespace Lush;
 
-Shader::Shader(const std::string vertexCode, const std::string fragmentCode)
+Shader::Shader(const std::string vertexCode, const std::string fragmentCode, const std::string geometryCode, const std::string tessControlCode, const std::string tessEvalCode)
 {
     const char *vShaderCode = vertexCode.c_str();
     const char *fShaderCode = fragmentCode.c_str();
+    const char *gShaderCode = geometryCode.c_str();
+    const char *tcShaderCode = tessControlCode.c_str();
+    const char *teShaderCode = tessEvalCode.c_str();
     unsigned int vertex;
     unsigned int fragment;
+    unsigned int geometry = 0;
+    unsigned int tessContol = 0;
+    unsigned int tessEval = 0;
 
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, NULL);
@@ -17,13 +23,43 @@ Shader::Shader(const std::string vertexCode, const std::string fragmentCode)
     glShaderSource(fragment, 1, &fShaderCode, NULL);
     glCompileShader(fragment);
     this->checkCompileErrors(fragment, "FRAGMENT");
+    if (geometryCode != "") {
+        geometry = glCreateShader(GL_GEOMETRY_SHADER);
+        glShaderSource(geometry, 1, &gShaderCode, NULL);
+        glCompileShader(geometry);
+        this->checkCompileErrors(geometry, "GEOMETRY");
+    }
+    if (tessControlCode != "") {
+        tessContol = glCreateShader(GL_TESS_CONTROL_SHADER);
+        glShaderSource(tessContol, 1, &tcShaderCode, NULL);
+        glCompileShader(tessContol);
+        this->checkCompileErrors(tessContol, "TESS_CONTROL");
+    }
+    if (tessEvalCode != "") {
+        tessEval = glCreateShader(GL_TESS_EVALUATION_SHADER);
+        glShaderSource(tessEval, 1, &teShaderCode, NULL);
+        glCompileShader(tessEval);
+        this->checkCompileErrors(tessEval, "TESS_EVALUATION");
+    }
     this->_ID = glCreateProgram();
     glAttachShader(this->_ID, vertex);
     glAttachShader(this->_ID, fragment);
+    if (geometryCode != "")
+        glAttachShader(this->_ID, geometry);
+    if (tessControlCode != "")
+        glAttachShader(this->_ID, tessContol);
+    if (tessEvalCode != "")
+        glAttachShader(this->_ID, tessEval);
     glLinkProgram(this->_ID);
     this->checkCompileErrors(this->_ID, "PROGRAM");
     glDeleteShader(vertex);
     glDeleteShader(fragment);
+    if (geometryCode != "")
+        glDeleteShader(geometry);
+    if (tessControlCode != "")
+        glDeleteShader(tessContol);
+    if (tessEvalCode != "")
+        glDeleteShader(tessEval);
 }
 
 void Shader::use() const

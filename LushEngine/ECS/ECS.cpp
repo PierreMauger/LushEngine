@@ -23,6 +23,7 @@ void ECS::loadComponents()
     this->_componentManager.bindComponent<Light>();
     this->_componentManager.bindComponent<CubeMap>();
     this->_componentManager.bindComponent<BillBoard>();
+    this->_componentManager.bindComponent<Map>();
 }
 
 void ECS::loadSystems(std::shared_ptr<Graphic> graphic)

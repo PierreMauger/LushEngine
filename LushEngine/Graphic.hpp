@@ -8,6 +8,7 @@
 #include "Rendering/RenderModel.hpp"
 #include "Rendering/RenderView.hpp"
 #include "Rendering/Shader.hpp"
+#include "Rendering/Map.hpp"
 
 namespace Lush
 {
@@ -30,6 +31,8 @@ namespace Lush
             std::map<std::string, unsigned int> _skyboxes;
             RenderView _renderView;
             std::map<std::string, FrameBuffer> _frameBuffers;
+
+            std::unique_ptr<MapMesh> _map;
 
             std::vector<std::string> _scriptNames;
 

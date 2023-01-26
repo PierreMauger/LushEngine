@@ -89,6 +89,9 @@ void Engine::loadScene()
                     case 6:
                         this->_ecs.getComponentManager().addComponent<BillBoard>(id);
                         break;
+                    case 7:
+                        this->_ecs.getComponentManager().addComponent<Map>(id);
+                        break;
                     default:
                         break;
                     }

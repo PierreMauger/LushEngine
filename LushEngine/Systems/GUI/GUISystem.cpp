@@ -254,7 +254,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 case 2: {
                     Model &model = componentManager.getComponent<Model>(selectedEntity);
                     std::string selectedItem = model.name;
-                    if (ImGui::BeginCombo("Select Item", selectedItem.c_str())) {
+                    if (ImGui::BeginCombo("Select Item##Model", selectedItem.c_str())) {
                         for (auto &[key, value] : this->_graphic->getModels()) {
                             bool is_selected = (selectedItem == key);
                             if (ImGui::Selectable(key.c_str(), is_selected))
@@ -296,7 +296,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 case 5: {
                     CubeMap &cubemap = componentManager.getComponent<CubeMap>(selectedEntity);
                     std::string selectedItem = cubemap.name;
-                    if (ImGui::BeginCombo("Select Item", selectedItem.c_str())) {
+                    if (ImGui::BeginCombo("Select Item##CubeMap", selectedItem.c_str())) {
                         for (auto &[key, value] : this->_graphic->getSkyboxes()) {
                             bool is_selected = (selectedItem == key);
                             if (ImGui::Selectable(key.c_str(), is_selected))
@@ -311,11 +311,26 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 case 6: {
                     BillBoard &bill = componentManager.getComponent<BillBoard>(selectedEntity);
                     std::string selectedItem = bill.name;
-                    if (ImGui::BeginCombo("Select Item", selectedItem.c_str())) {
+                    if (ImGui::BeginCombo("Select Item##Billboard", selectedItem.c_str())) {
                         for (auto &[key, value] : this->_graphic->getTextures()) {
                             bool is_selected = (selectedItem == key);
                             if (ImGui::Selectable(key.c_str(), is_selected))
                                 bill.name = key;
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
+                    break;
+                }
+                case 7: {
+                    Map &map = componentManager.getComponent<Map>(selectedEntity);
+                    std::string selectedItem = map.name;
+                    if (ImGui::BeginCombo("Select Item##Map", selectedItem.c_str())) {
+                        for (auto &[key, value] : this->_graphic->getTextures()) {
+                            bool is_selected = (selectedItem == key);
+                            if (ImGui::Selectable(key.c_str(), is_selected))
+                                map.name = key;
                             if (is_selected)
                                 ImGui::SetItemDefaultFocus();
                         }
@@ -374,6 +389,9 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                         break;
                     case 6:
                         componentManager.addComponent<BillBoard>(selectedEntity);
+                        break;
+                    case 7:
+                        componentManager.addComponent<Map>(selectedEntity);
                         break;
                     default:
                         break;

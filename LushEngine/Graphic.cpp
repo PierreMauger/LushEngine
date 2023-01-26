@@ -93,6 +93,7 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_textures["Crate_emission.png"] = loadTexture("Resources/Textures/Crate_emission.png");
     this->_textures["Maxwell.jpeg"] = loadTexture("Resources/Textures/Maxwell.jpeg");
     this->_textures["Whiskers.png"] = loadTexture("Resources/Textures/Whiskers.png");
+    this->_textures["heightMap.png"] = loadTexture("Resources/Textures/heightMap.png");
 
     this->_models["Fox"] = RenderModel(loadFile2("Resources/Models/Fox.dae"), this->_textures);
     this->_models["Crate"] = RenderModel(loadFile2("Resources/Models/Crate.dae"), this->_textures);
@@ -108,7 +109,11 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_shaders["Skybox"] = Shader(loadFile2("Resources/Shaders/skybox.vs"), loadFile2("Resources/Shaders/skybox.fs"));
     this->_shaders["Billboard"] = Shader(loadFile2("Resources/Shaders/billboard.vs"), loadFile2("Resources/Shaders/billboard.fs"));
     this->_shaders["Grid"] = Shader(loadFile2("Resources/Shaders/grid.vs"), loadFile2("Resources/Shaders/grid.fs"));
+    this->_shaders["Map"] =
+        Shader(loadFile2("Resources/Shaders/map.vs"), loadFile2("Resources/Shaders/map.fs"), "", loadFile2("Resources/Shaders/map.tcs"), loadFile2("Resources/Shaders/map.tes"));
     this->_renderView.setShaders(this->_shaders);
+
+    this->_map = std::make_unique<MapMesh>(2624, 1756);
 
     this->_cursors[0] = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
     this->_cursors[1] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);

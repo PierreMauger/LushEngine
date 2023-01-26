@@ -16,7 +16,8 @@ namespace Lush
             unsigned int _ID;
 
         public:
-            Shader(const std::string vertexCode, const std::string fragmentCode);
+            Shader(const std::string vertexCode, const std::string fragmentCode, const std::string geometryCode = "", const std::string tessControlCode = "",
+                   const std::string tessEvalCode = "");
             Shader() = default;
             ~Shader() = default;
 

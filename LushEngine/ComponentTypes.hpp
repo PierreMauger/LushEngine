@@ -11,8 +11,9 @@ enum ComponentType {
     LIGHT = 1 << 4,
     CUBEMAP = 1 << 5,
     BILLBOARD = 1 << 6,
+    MAP = 1 << 7,
 
-    COMPONENT_TYPE_COUNT = 1 << 7
+    COMPONENT_TYPE_COUNT = 1 << 8
 };
 
 typedef struct {
@@ -77,5 +78,9 @@ typedef struct {
 typedef struct {
     std::string name = "";
 } BillBoard;
+
+typedef struct {
+    std::string name = "";
+} Map;
 
 #endif // COMPONENTTYPES_HPP
