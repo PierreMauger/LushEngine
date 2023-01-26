@@ -84,10 +84,10 @@ void Engine::loadScene()
                         this->_ecs.getComponentManager().addComponent<Light>(id);
                         break;
                     case 5:
-                        this->_ecs.getComponentManager().addComponent<CubeMap>(id);
+                        this->_ecs.getComponentManager().addComponent<Cubemap>(id);
                         break;
                     case 6:
-                        this->_ecs.getComponentManager().addComponent<BillBoard>(id);
+                        this->_ecs.getComponentManager().addComponent<Billboard>(id);
                         break;
                     case 7:
                         this->_ecs.getComponentManager().addComponent<Map>(id);

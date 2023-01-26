@@ -19,6 +19,9 @@ namespace Lush
 
             FrameBuffer _buffer;
 
+            unsigned int _billboardVAO;
+            unsigned int _billboardVBO;
+
             unsigned int _planeVAO;
             unsigned int _planeVBO;
 

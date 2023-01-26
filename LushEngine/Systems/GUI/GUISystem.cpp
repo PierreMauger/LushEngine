@@ -294,9 +294,9 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     break;
                 }
                 case 5: {
-                    CubeMap &cubemap = componentManager.getComponent<CubeMap>(selectedEntity);
+                    Cubemap &cubemap = componentManager.getComponent<Cubemap>(selectedEntity);
                     std::string selectedItem = cubemap.name;
-                    if (ImGui::BeginCombo("Select Item##CubeMap", selectedItem.c_str())) {
+                    if (ImGui::BeginCombo("Select Item##Cubemap", selectedItem.c_str())) {
                         for (auto &[key, value] : this->_graphic->getSkyboxes()) {
                             bool is_selected = (selectedItem == key);
                             if (ImGui::Selectable(key.c_str(), is_selected))
@@ -309,7 +309,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     break;
                 }
                 case 6: {
-                    BillBoard &bill = componentManager.getComponent<BillBoard>(selectedEntity);
+                    Billboard &bill = componentManager.getComponent<Billboard>(selectedEntity);
                     std::string selectedItem = bill.name;
                     if (ImGui::BeginCombo("Select Item##Billboard", selectedItem.c_str())) {
                         for (auto &[key, value] : this->_graphic->getTextures()) {
@@ -385,10 +385,10 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                         componentManager.addComponent<Light>(selectedEntity);
                         break;
                     case 5:
-                        componentManager.addComponent<CubeMap>(selectedEntity);
+                        componentManager.addComponent<Cubemap>(selectedEntity);
                         break;
                     case 6:
-                        componentManager.addComponent<BillBoard>(selectedEntity);
+                        componentManager.addComponent<Billboard>(selectedEntity);
                         break;
                     case 7:
                         componentManager.addComponent<Map>(selectedEntity);

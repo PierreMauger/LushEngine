@@ -21,8 +21,8 @@ void ECS::loadComponents()
     this->_componentManager.bindComponent<Model>();
     this->_componentManager.bindComponent<Camera>();
     this->_componentManager.bindComponent<Light>();
-    this->_componentManager.bindComponent<CubeMap>();
-    this->_componentManager.bindComponent<BillBoard>();
+    this->_componentManager.bindComponent<Cubemap>();
+    this->_componentManager.bindComponent<Billboard>();
     this->_componentManager.bindComponent<Map>();
 }
 

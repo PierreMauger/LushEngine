@@ -105,13 +105,13 @@ void SceneSystem::update(EntityManager &entityManager, ComponentManager &compone
     this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(BILLBOARD_TAG)) {
         Transform transform = componentManager.getComponent<Transform>(id);
-        BillBoard billBoard = componentManager.getComponent<BillBoard>(id);
+        Billboard billboard = componentManager.getComponent<Billboard>(id);
 
         this->_graphic->getRenderView().setBillboard(transform);
         glActiveTexture(GL_TEXTURE0);
         // TEMP : if texture not found, use black texture, but default texture should be better
-        if (this->_graphic->getTextures().find(billBoard.name) != this->_graphic->getTextures().end())
-            glBindTexture(GL_TEXTURE_2D, this->_graphic->getTextures()[billBoard.name]);
+        if (this->_graphic->getTextures().find(billboard.name) != this->_graphic->getTextures().end())
+            glBindTexture(GL_TEXTURE_2D, this->_graphic->getTextures()[billboard.name]);
         else
             glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("tex", 0);
@@ -124,11 +124,11 @@ void SceneSystem::update(EntityManager &entityManager, ComponentManager &compone
     this->_graphic->getRenderView().use("Skybox");
     this->_graphic->getRenderView().setSkyBoxView();
     for (auto id : entityManager.getMaskCategory(SKYBOX_TAG)) {
-        CubeMap cubeMap = componentManager.getComponent<CubeMap>(id);
+        Cubemap cubemap = componentManager.getComponent<Cubemap>(id);
 
-        if (this->_graphic->getSkyboxes().find(cubeMap.name) != this->_graphic->getSkyboxes().end()) {
+        if (this->_graphic->getSkyboxes().find(cubemap.name) != this->_graphic->getSkyboxes().end()) {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubeMap.name]);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubemap.name]);
             this->_graphic->getRenderView().getShader().setInt("skybox", 0);
             glBindVertexArray(this->_skyboxVAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);

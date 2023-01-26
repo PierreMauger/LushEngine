@@ -23,6 +23,16 @@ PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &en
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     this->_graphic->getFrameBuffers()["picking"] = this->_buffer;
 
+    glGenVertexArrays(1, &this->_billboardVAO);
+    glGenBuffers(1, &this->_billboardVBO);
+    glBindVertexArray(this->_billboardVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_billboardVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(billboardVertices), &billboardVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
+
     glGenVertexArrays(1, &this->_planeVAO);
     glGenBuffers(1, &this->_planeVBO);
     glBindVertexArray(this->_planeVAO);
@@ -43,7 +53,7 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    this->_graphic->getRenderView().use("Picking");
+    this->_graphic->getRenderView().use("PickingCamera");
     this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(MODEL_TAG)) {
         Transform transform = componentManager.getComponent<Transform>(id);
@@ -60,6 +70,26 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
         if (this->_graphic->getModels().find(model.name) != this->_graphic->getModels().end())
             this->_graphic->getModels()[model.name].draw(this->_graphic->getRenderView().getShader());
     }
+
+    this->_graphic->getRenderView().use("PickingBillboard");
+    this->_graphic->getRenderView().setView();
+    for (auto id : entityManager.getMaskCategory(BILLBOARD_TAG)) {
+        Transform transform = componentManager.getComponent<Transform>(id);
+        Billboard billboard = componentManager.getComponent<Billboard>(id);
+
+        glm::vec4 color;
+        color.r = (((id + 1) & 0x000000FF) >> 0) / 255.0f;
+        color.g = (((id + 1) & 0x0000FF00) >> 8) / 255.0f;
+        color.b = (((id + 1) & 0x00FF0000) >> 16) / 255.0f;
+        color.a = 1.0f;
+
+        this->_graphic->getRenderView().getShader().setVec4("id", color);
+        this->_graphic->getRenderView().setBillboard(transform);
+        glBindVertexArray(this->_billboardVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+    }
+
     glm::vec2 mousePosition = this->_graphic->getMousePosition();
     // convert from viewport coord to screen coord (picking buffer is drawn on whole screen and resized later to viewport)
     mousePosition.x = (mousePosition.x - viewport.x) * windowSize.x / viewport.z;

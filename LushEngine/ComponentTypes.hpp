@@ -73,11 +73,11 @@ typedef struct {
 
 typedef struct {
     std::string name = "Sky";
-} CubeMap;
+} Cubemap;
 
 typedef struct {
     std::string name = "";
-} BillBoard;
+} Billboard;
 
 typedef struct {
     std::string name = "";
