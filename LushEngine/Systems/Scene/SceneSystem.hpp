@@ -10,6 +10,7 @@
 #define MODEL_TAG (ComponentType::TRANSFORM | ComponentType::MODEL)
 #define BILLBOARD_TAG (ComponentType::TRANSFORM | ComponentType::BILLBOARD)
 #define SKYBOX_TAG (ComponentType::CUBEMAP)
+#define MAP_TAG (ComponentType::MAP)
 
 namespace Lush
 {
@@ -19,15 +20,9 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
 
             FrameBuffer _buffer;
-
-            unsigned int _skyboxVAO;
-            unsigned int _skyboxVBO;
-
-            unsigned int _billboardVAO;
-            unsigned int _billboardVBO;
-
-            unsigned int _gridVAO;
-            unsigned int _gridVBO;
+            BufferObject _skybox;
+            BufferObject _billboard;
+            BufferObject _grid;
 
             Transform _cameraTransform;
             Camera _camera;

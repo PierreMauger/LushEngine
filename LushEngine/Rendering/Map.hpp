@@ -2,6 +2,7 @@
 #define MAP_HPP
 
 #include "Includes.hpp"
+#include "Rendering/Mesh.hpp"
 #include "Rendering/Shader.hpp"
 
 namespace Lush
@@ -9,8 +10,7 @@ namespace Lush
     class MapMesh
     {
         private:
-            unsigned int _VAO;
-            unsigned int _VBO;
+            BufferObject _map;
 
             int _width;
             int _height;

@@ -31,28 +31,28 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entity
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     this->_graphic->getFrameBuffers()["scene"] = this->_buffer;
 
-    glGenVertexArrays(1, &this->_skyboxVAO);
-    glGenBuffers(1, &this->_skyboxVBO);
-    glBindVertexArray(this->_skyboxVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_skyboxVBO);
+    glGenVertexArrays(1, &this->_skybox.vao);
+    glGenBuffers(1, &this->_skybox.vbo);
+    glBindVertexArray(this->_skybox.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_skybox.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
 
-    glGenVertexArrays(1, &this->_billboardVAO);
-    glGenBuffers(1, &this->_billboardVBO);
-    glBindVertexArray(this->_billboardVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_billboardVBO);
+    glGenVertexArrays(1, &this->_billboard.vao);
+    glGenBuffers(1, &this->_billboard.vbo);
+    glBindVertexArray(this->_billboard.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_billboard.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(billboardVertices), &billboardVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 
-    glGenVertexArrays(1, &this->_gridVAO);
-    glGenBuffers(1, &this->_gridVBO);
-    glBindVertexArray(this->_gridVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_gridVBO);
+    glGenVertexArrays(1, &this->_grid.vao);
+    glGenBuffers(1, &this->_grid.vbo);
+    glBindVertexArray(this->_grid.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_grid.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
@@ -115,9 +115,24 @@ void SceneSystem::update(EntityManager &entityManager, ComponentManager &compone
         else
             glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("tex", 0);
-        glBindVertexArray(this->_billboardVAO);
+        glBindVertexArray(this->_billboard.vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
+    }
+
+    this->_graphic->getRenderView().use("Map");
+    this->_graphic->getRenderView().setView();
+    for (auto id : entityManager.getMaskCategory(MAP_TAG)) {
+        Map map = componentManager.getComponent<Map>(id);
+
+        this->_graphic->getRenderView().getShader().setMat4("model", glm::mat4(1.0f));
+        glActiveTexture(GL_TEXTURE0);
+        if (this->_graphic->getTextures().find(map.name) != this->_graphic->getTextures().end())
+            glBindTexture(GL_TEXTURE_2D, this->_graphic->getTextures()[map.name]);
+        else
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+        this->_graphic->getMap().draw();
     }
 
     glDepthFunc(GL_LEQUAL);
@@ -130,7 +145,7 @@ void SceneSystem::update(EntityManager &entityManager, ComponentManager &compone
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubemap.name]);
             this->_graphic->getRenderView().getShader().setInt("skybox", 0);
-            glBindVertexArray(this->_skyboxVAO);
+            glBindVertexArray(this->_skybox.vao);
             glDrawArrays(GL_TRIANGLES, 0, 36);
             glBindVertexArray(0);
         }
@@ -140,7 +155,7 @@ void SceneSystem::update(EntityManager &entityManager, ComponentManager &compone
     this->_graphic->getRenderView().use("Grid");
     this->_graphic->getRenderView().setView();
     glEnable(GL_BLEND);
-    glBindVertexArray(this->_gridVAO);
+    glBindVertexArray(this->_grid.vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
     glDisable(GL_BLEND);

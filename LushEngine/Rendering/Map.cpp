@@ -37,11 +37,11 @@ MapMesh::MapMesh(int width, int height)
             vertices.push_back((j + 1) / (float)this->_rez);                                         // v
         }
     }
-    glGenVertexArrays(1, &this->_VAO);
-    glBindVertexArray(this->_VAO);
+    glGenVertexArrays(1, &this->_map.vao);
+    glBindVertexArray(this->_map.vao);
 
-    glGenBuffers(1, &this->_VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_VBO);
+    glGenBuffers(1, &this->_map.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_map.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
@@ -55,7 +55,7 @@ MapMesh::MapMesh(int width, int height)
 
 void MapMesh::draw()
 {
-    glBindVertexArray(this->_VAO);
+    glBindVertexArray(this->_map.vao);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDrawArrays(GL_PATCHES, 0, this->_rez * this->_rez * 4);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

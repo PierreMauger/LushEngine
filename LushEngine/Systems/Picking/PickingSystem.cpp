@@ -23,20 +23,20 @@ PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &en
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     this->_graphic->getFrameBuffers()["picking"] = this->_buffer;
 
-    glGenVertexArrays(1, &this->_billboardVAO);
-    glGenBuffers(1, &this->_billboardVBO);
-    glBindVertexArray(this->_billboardVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_billboardVBO);
+    glGenVertexArrays(1, &this->_billboard.vao);
+    glGenBuffers(1, &this->_billboard.vbo);
+    glBindVertexArray(this->_billboard.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_billboard.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(billboardVertices), &billboardVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 
-    glGenVertexArrays(1, &this->_planeVAO);
-    glGenBuffers(1, &this->_planeVBO);
-    glBindVertexArray(this->_planeVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_planeVBO);
+    glGenVertexArrays(1, &this->_plane.vao);
+    glGenBuffers(1, &this->_plane.vbo);
+    glBindVertexArray(this->_plane.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_plane.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
@@ -85,7 +85,7 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
 
         this->_graphic->getRenderView().getShader().setVec4("id", color);
         this->_graphic->getRenderView().setBillboard(transform);
-        glBindVertexArray(this->_billboardVAO);
+        glBindVertexArray(this->_billboard.vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
     }
@@ -109,7 +109,7 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
     this->_graphic->getRenderView().use("Outline");
     this->_graphic->getRenderView().getShader().setInt("id", pixel);
     glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
-    glBindVertexArray(this->_planeVAO);
+    glBindVertexArray(this->_plane.vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);

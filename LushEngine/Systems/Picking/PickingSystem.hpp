@@ -18,12 +18,8 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
 
             FrameBuffer _buffer;
-
-            unsigned int _billboardVAO;
-            unsigned int _billboardVBO;
-
-            unsigned int _planeVAO;
-            unsigned int _planeVBO;
+            BufferObject _billboard;
+            BufferObject _plane;
 
         public:
             PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);

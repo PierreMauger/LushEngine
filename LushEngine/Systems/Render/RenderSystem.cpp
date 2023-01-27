@@ -25,18 +25,18 @@ RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     this->_graphic->getFrameBuffers()["render"] = this->_buffer;
 
-    glGenVertexArrays(1, &this->_skyboxVAO);
-    glGenBuffers(1, &this->_skyboxVBO);
-    glBindVertexArray(this->_skyboxVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_skyboxVBO);
+    glGenVertexArrays(1, &this->_skybox.vao);
+    glGenBuffers(1, &this->_skybox.vbo);
+    glBindVertexArray(this->_skybox.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_skybox.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
 
-    glGenVertexArrays(1, &this->_billboardVAO);
-    glGenBuffers(1, &this->_billboardVBO);
-    glBindVertexArray(this->_billboardVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_billboardVBO);
+    glGenVertexArrays(1, &this->_billboard.vao);
+    glGenBuffers(1, &this->_billboard.vbo);
+    glBindVertexArray(this->_billboard.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, this->_billboard.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(billboardVertices), &billboardVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
@@ -81,7 +81,7 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
         else
             glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("tex", 0);
-        glBindVertexArray(this->_billboardVAO);
+        glBindVertexArray(this->_billboard.vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
     }
@@ -111,7 +111,7 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubemap.name]);
             this->_graphic->getRenderView().getShader().setInt("skybox", 0);
-            glBindVertexArray(this->_skyboxVAO);
+            glBindVertexArray(this->_skybox.vao);
             glDrawArrays(GL_TRIANGLES, 0, 36);
             glBindVertexArray(0);
         }

@@ -20,12 +20,8 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
 
             FrameBuffer _buffer;
-
-            unsigned int _skyboxVAO;
-            unsigned int _skyboxVBO;
-
-            unsigned int _billboardVAO;
-            unsigned int _billboardVBO;
+            BufferObject _skybox;
+            BufferObject _billboard;
 
         public:
             RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
