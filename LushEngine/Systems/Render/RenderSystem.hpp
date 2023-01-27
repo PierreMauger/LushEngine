@@ -10,6 +10,7 @@
 #define MODEL_TAG (ComponentType::TRANSFORM | ComponentType::MODEL)
 #define BILLBOARD_TAG (ComponentType::TRANSFORM | ComponentType::BILLBOARD)
 #define SKYBOX_TAG (ComponentType::CUBEMAP)
+#define MAP_TAG (ComponentType::MAP)
 
 namespace Lush
 {

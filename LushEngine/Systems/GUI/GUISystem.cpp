@@ -529,10 +529,14 @@ bool GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &compo
     glm::mat4 projection = this->_graphic->getRenderView().getProjection();
     glm::mat4 model = glm::mat4(1.0f);
 
+    float snapValue = this->_currentOperation == ImGuizmo::ROTATE ? 45.0f : 0.5f;
+    float snap[3] = {snapValue, snapValue, snapValue};
+
     ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(viewport.x, viewport.y, viewport.z, viewport.w);
     ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(transform.position), glm::value_ptr(transform.rotation), glm::value_ptr(transform.scale), glm::value_ptr(model));
-    ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), this->_currentOperation, this->_currentMode, glm::value_ptr(model), nullptr, nullptr);
+    ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), this->_currentOperation, this->_currentMode, glm::value_ptr(model), nullptr,
+                         ImGui::GetIO().KeyCtrl ? snap : nullptr);
     ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(transform.position), glm::value_ptr(transform.rotation), glm::value_ptr(transform.scale));
     return true;
 }

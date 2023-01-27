@@ -75,6 +75,7 @@ namespace Lush
             std::map<std::string, unsigned int> &getTextures();
             std::map<std::string, RenderModel> &getModels();
             std::map<std::string, unsigned int> &getSkyboxes();
+            MapMesh &getMap();
             RenderView &getRenderView();
             std::map<std::string, FrameBuffer> &getFrameBuffers();
             FrameBuffer &getFrameBuffer(std::string name);

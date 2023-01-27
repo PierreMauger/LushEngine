@@ -7,6 +7,7 @@ RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     entityManager.addMaskCategory(MODEL_TAG);
     entityManager.addMaskCategory(BILLBOARD_TAG);
     entityManager.addMaskCategory(SKYBOX_TAG);
+    entityManager.addMaskCategory(MAP_TAG);
     glm::vec2 windowSize = this->_graphic->getWindowSize();
 
     glGenFramebuffers(1, &this->_buffer.framebuffer);
@@ -83,6 +84,21 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
         glBindVertexArray(this->_billboardVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
+    }
+
+    this->_graphic->getRenderView().use("Map");
+    this->_graphic->getRenderView().setView();
+    for (auto id : entityManager.getMaskCategory(MAP_TAG)) {
+        Map map = componentManager.getComponent<Map>(id);
+
+        this->_graphic->getRenderView().getShader().setMat4("model", glm::mat4(1.0f));
+        glActiveTexture(GL_TEXTURE0);
+        if (this->_graphic->getTextures().find(map.name) != this->_graphic->getTextures().end())
+            glBindTexture(GL_TEXTURE_2D, this->_graphic->getTextures()[map.name]);
+        else
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+        this->_graphic->getMap().draw();
     }
 
     glDepthFunc(GL_LEQUAL);

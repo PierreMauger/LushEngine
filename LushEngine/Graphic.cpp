@@ -256,6 +256,11 @@ std::map<std::string, unsigned int> &Graphic::getSkyboxes()
     return this->_skyboxes;
 }
 
+MapMesh &Graphic::getMap()
+{
+    return *this->_map;
+}
+
 RenderView &Graphic::getRenderView()
 {
     return this->_renderView;
