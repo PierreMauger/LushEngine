@@ -225,17 +225,6 @@ GLFWwindow *Graphic::getWindow()
     return this->_window;
 }
 
-float Graphic::getDeltaTime()
-{
-    return this->_deltaTime;
-}
-
-void Graphic::setDeltaTime(float currentTime)
-{
-    this->_deltaTime = currentTime - this->_lastTime;
-    this->_lastTime = currentTime;
-}
-
 std::map<std::string, Shader> &Graphic::getShaders()
 {
     return this->_shaders;

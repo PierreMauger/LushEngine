@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-GUISystem::GUISystem(std::shared_ptr<Graphic> graphic) : _graphic(graphic)
+GUISystem::GUISystem(std::shared_ptr<Graphic> graphic) : ASystem(60.0f), _graphic(graphic)
 {
     if (!IMGUI_CHECKVERSION())
         throw std::runtime_error("ImGui version is invalid");
@@ -36,8 +36,10 @@ GUISystem::~GUISystem()
     ImGui::DestroyContext();
 }
 
-void GUISystem::update(EntityManager &entityManager, ComponentManager &componentManager)
+void GUISystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
 {
+    if (!this->shouldUpdate(deltaTime))
+        return;
     if (this->_singleFrame) {
         this->_singleFrame = false;
         this->_graphic->setPaused(true);

@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : _graphic(graphic)
+RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : ASystem(60.0f), _graphic(graphic)
 {
     entityManager.addMaskCategory(MODEL_TAG);
     entityManager.addMaskCategory(BILLBOARD_TAG);
@@ -48,8 +48,10 @@ RenderSystem::~RenderSystem()
 {
 }
 
-void RenderSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
+void RenderSystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
 {
+    if (!this->shouldUpdate(deltaTime))
+        return;
     this->_graphic->getRenderView().setAspectRatio(this->_graphic->getGameViewPort().z / this->_graphic->getGameViewPort().w);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
 

@@ -2,7 +2,7 @@
 #define CAMERASYSTEM_HPP
 
 #include "ComponentTypes.hpp"
-#include "ECS/System/ISystem.hpp"
+#include "ECS/System/ASystem.hpp"
 #include "Graphic.hpp"
 #include "Includes.hpp"
 
@@ -12,7 +12,7 @@
 
 namespace Lush
 {
-    class CameraSystem : public ISystem
+    class CameraSystem : public ASystem
     {
         private:
             std::shared_ptr<Graphic> _graphic;
@@ -26,7 +26,7 @@ namespace Lush
             CameraSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
             ~CameraSystem() = default;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
     };
 }
 

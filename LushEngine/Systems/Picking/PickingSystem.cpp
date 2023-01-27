@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : _graphic(graphic)
+PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : ASystem(60.0f), _graphic(graphic)
 {
     entityManager.addMaskCategory(MODEL_TAG);
     entityManager.addMaskCategory(BILLBOARD_TAG);
@@ -44,8 +44,10 @@ PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &en
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 }
 
-void PickingSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
+void PickingSystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
 {
+    if (!this->shouldUpdate(deltaTime))
+        return;
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
     glm::vec4 viewport = this->_graphic->getSceneViewPort();
     glm::vec2 windowSize = this->_graphic->getWindowSize();

@@ -2,7 +2,7 @@
 #define GUISYSTEM_HPP
 
 #include "ComponentTypes.hpp"
-#include "ECS/System/ISystem.hpp"
+#include "ECS/System/ASystem.hpp"
 #include "Graphic.hpp"
 #include "ImGui/IconsFontAwesome5.h"
 #include "ImGui/imgui.h"
@@ -18,7 +18,7 @@
 
 namespace Lush
 {
-    class GUISystem : public ISystem
+    class GUISystem : public ASystem
     {
         private:
             std::shared_ptr<Graphic> _graphic;
@@ -62,7 +62,7 @@ namespace Lush
             GUISystem(std::shared_ptr<Graphic> graphic);
             ~GUISystem();
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
     };
 }
 

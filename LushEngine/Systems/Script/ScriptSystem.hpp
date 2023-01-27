@@ -2,7 +2,7 @@
 #define SCRIPTSYSTEM_HPP
 
 #include "ComponentTypes.hpp"
-#include "ECS/System/ISystem.hpp"
+#include "ECS/System/ASystem.hpp"
 #include "Graphic.hpp"
 #include "Includes.hpp"
 #include "Script/ScriptClass.hpp"
@@ -11,7 +11,7 @@
 
 namespace Lush
 {
-    class ScriptSystem : public ISystem
+    class ScriptSystem : public ASystem
     {
         private:
             std::shared_ptr<Graphic> _graphic;
@@ -28,7 +28,7 @@ namespace Lush
             ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
             ~ScriptSystem();
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
     };
 }
 

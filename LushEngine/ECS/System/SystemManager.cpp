@@ -12,13 +12,13 @@ SystemManager::~SystemManager()
         system.reset();
 }
 
-void SystemManager::bindSystem(std::unique_ptr<ISystem> system)
+void SystemManager::bindSystem(std::unique_ptr<ASystem> system)
 {
     this->_systems.push_back(std::move(system));
 }
 
-void SystemManager::updateSystems(EntityManager &entityManager, ComponentManager &componentManager)
+void SystemManager::updateSystems(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
 {
     for (auto &system : this->_systems)
-        system->update(entityManager, componentManager);
+        system->update(entityManager, componentManager, deltaTime);
 }

@@ -16,6 +16,8 @@ namespace Lush
         private:
             ECS _ecs;
             std::shared_ptr<Graphic> _graphic;
+            float _lastTime = 0.0f;
+            float _deltaTime = 0.0f;
 
         public:
             Engine();

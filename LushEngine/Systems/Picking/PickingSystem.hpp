@@ -2,7 +2,7 @@
 #define PICKINGSYSTEM_HPP
 
 #include "ComponentTypes.hpp"
-#include "ECS/System/ISystem.hpp"
+#include "ECS/System/ASystem.hpp"
 #include "Graphic.hpp"
 #include "Includes.hpp"
 #include "Rendering/Vertices.hpp"
@@ -12,7 +12,7 @@
 
 namespace Lush
 {
-    class PickingSystem : public ISystem
+    class PickingSystem : public ASystem
     {
         private:
             std::shared_ptr<Graphic> _graphic;
@@ -25,7 +25,7 @@ namespace Lush
             PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
             ~PickingSystem() = default;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
     };
 }
 

@@ -22,8 +22,6 @@ namespace Lush
     {
         private:
             GLFWwindow *_window;
-            float _lastTime = 0.0f;
-            float _deltaTime = 0.0f;
 
             std::map<std::string, Shader> _shaders;
             std::map<std::string, unsigned int> _textures;
@@ -68,8 +66,6 @@ namespace Lush
             void handleMousePress(int button, int action, int mods);
 
             GLFWwindow *getWindow();
-            float getDeltaTime();
-            void setDeltaTime(float currentTime);
 
             std::map<std::string, Shader> &getShaders();
             std::map<std::string, unsigned int> &getTextures();

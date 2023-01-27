@@ -113,11 +113,12 @@ void Engine::run()
 
         this->updateMouse();
 
-        this->_ecs.getSystemManager().updateSystems(this->_ecs.getEntityManager(), this->_ecs.getComponentManager());
+        this->_ecs.getSystemManager().updateSystems(this->_ecs.getEntityManager(), this->_ecs.getComponentManager(), this->_deltaTime);
 
         glfwSwapBuffers(this->_graphic->getWindow());
         glfwPollEvents();
-        this->_graphic->setDeltaTime(glfwGetTime());
+        this->_deltaTime = glfwGetTime() - this->_lastTime;
+        this->_lastTime = glfwGetTime();
     }
     std::cout.rdbuf(oldCoutStreamBuf);
 }

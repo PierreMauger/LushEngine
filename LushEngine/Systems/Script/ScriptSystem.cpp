@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : _graphic(graphic)
+ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : ASystem(60.0f), _graphic(graphic)
 {
     try {
         this->initScriptDomain();
@@ -29,8 +29,10 @@ ScriptSystem::~ScriptSystem()
     mono_jit_cleanup(this->_domain);
 }
 
-void ScriptSystem::update(EntityManager &entityManager, [[maybe_unused]] ComponentManager &componentManager)
+void ScriptSystem::update(EntityManager &entityManager, [[maybe_unused]] ComponentManager &componentManager, float deltaTime)
 {
+    if (!this->shouldUpdate(deltaTime))
+        return;
     // Will be replaced when instances will be accessed by GUI System
     if (this->buttonChanged()) {
         if (!this->_graphic->getRunning()) {
@@ -46,7 +48,7 @@ void ScriptSystem::update(EntityManager &entityManager, [[maybe_unused]] Compone
     if (this->_graphic->getPaused() || !this->_graphic->getRunning())
         return;
     for (auto &instance : this->_instances)
-        instance->update(this->_graphic->getDeltaTime());
+        instance->update(this->getDeltaTime());
 }
 
 bool ScriptSystem::buttonChanged()

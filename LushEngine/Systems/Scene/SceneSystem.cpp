@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : _graphic(graphic)
+SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : ASystem(60.0f), _graphic(graphic)
 {
     this->_graphic = graphic;
     entityManager.addMaskCategory(MODEL_TAG);
@@ -64,8 +64,10 @@ SceneSystem::~SceneSystem()
 {
 }
 
-void SceneSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
+void SceneSystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
 {
+    if (!this->shouldUpdate(deltaTime))
+        return;
     this->_graphic->getRenderView().setAspectRatio(this->_graphic->getSceneViewPort().z / this->_graphic->getSceneViewPort().w);
     this->_graphic->getRenderView().update(this->_cameraTransform, this->_camera);
 
