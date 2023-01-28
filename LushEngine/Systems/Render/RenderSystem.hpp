@@ -23,6 +23,11 @@ namespace Lush
             BufferObject _skybox;
             BufferObject _billboard;
 
+            void drawModels(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawBillboards(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawMap(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawSkybox(EntityManager &entityManager, ComponentManager &componentManager);
+
         public:
             RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
             ~RenderSystem();

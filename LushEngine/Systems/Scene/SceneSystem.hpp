@@ -27,6 +27,13 @@ namespace Lush
             Transform _cameraTransform;
             Camera _camera;
 
+            void handleMouse();
+            void drawModels(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawBillboards(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawMap(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawSkybox(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawGrid();
+
         public:
             SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
             ~SceneSystem();

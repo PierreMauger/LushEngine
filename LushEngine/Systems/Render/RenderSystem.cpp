@@ -33,6 +33,16 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    this->drawSkybox(entityManager, componentManager);
+    this->drawMap(entityManager, componentManager);
+    this->drawModels(entityManager, componentManager);
+    this->drawBillboards(entityManager, componentManager);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void RenderSystem::drawModels(EntityManager &entityManager, ComponentManager &componentManager)
+{
     this->_graphic->getRenderView().use("Model");
     this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(MODEL_TAG)) {
@@ -43,7 +53,10 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
         if (this->_graphic->getModels().find(model.name) != this->_graphic->getModels().end())
             this->_graphic->getModels()[model.name].draw(this->_graphic->getRenderView().getShader());
     }
+}
 
+void RenderSystem::drawBillboards(EntityManager &entityManager, ComponentManager &componentManager)
+{
     this->_graphic->getRenderView().use("Billboard");
     this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(BILLBOARD_TAG)) {
@@ -62,7 +75,10 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
     }
+}
 
+void RenderSystem::drawMap(EntityManager &entityManager, ComponentManager &componentManager)
+{
     this->_graphic->getRenderView().use("Map");
     this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(MAP_TAG)) {
@@ -77,7 +93,10 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
 
         this->_graphic->getMap().draw();
     }
+}
 
+void RenderSystem::drawSkybox(EntityManager &entityManager, ComponentManager &componentManager)
+{
     glDepthFunc(GL_LEQUAL);
     this->_graphic->getRenderView().use("Skybox");
     this->_graphic->getRenderView().setSkyBoxView();
@@ -94,6 +113,4 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
         }
     }
     glDepthFunc(GL_LESS);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
