@@ -201,7 +201,7 @@ void Graphic::handleResizeFramebuffer(int width, int height)
         glBindRenderbuffer(GL_RENDERBUFFER, fb.depthbuffer);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fb.depthbuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
 }
 

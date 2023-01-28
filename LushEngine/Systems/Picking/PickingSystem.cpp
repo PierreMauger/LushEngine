@@ -27,14 +27,13 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
         return;
     glm::vec4 viewport = this->_graphic->getSceneViewPort();
     glm::vec2 windowSize = this->_graphic->getWindowSize();
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
     this->drawModels(entityManager, componentManager);
     this->drawBillboards(entityManager, componentManager);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // convert from viewport coord to screen coord (picking buffer is drawn on whole screen and resized later to viewport)
     glm::vec2 mousePosition = this->_graphic->getMousePosition();
@@ -47,7 +46,9 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
         glReadPixels(mousePosition.x, windowSize.y - mousePosition.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
         pixel = pixel & 0x00FFFFFF;
         this->_graphic->setHoveredEntity(pixel - 1);
+        std::cout << "Hovered entity: " << pixel - 1 << std::endl;
     }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     this->drawOutline(pixel);
 }
