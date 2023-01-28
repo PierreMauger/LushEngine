@@ -87,8 +87,9 @@ set(INC
     ${PROJECT_NAME}/
     ${PROJECT_NAME}/Rendering/
     ${PROJECT_NAME}/Systems/Camera/
-    ${PROJECT_NAME}/Systems/Picking/
+    ${PROJECT_NAME}/Systems/FileWatcher/
     ${PROJECT_NAME}/Systems/GUI/
+    ${PROJECT_NAME}/Systems/Picking/
     ${PROJECT_NAME}/Systems/Render/
     ${PROJECT_NAME}/Systems/Scene/
     ${PROJECT_NAME}/Systems/Script/
@@ -109,8 +110,9 @@ set(SRC
     ${PROJECT_NAME}/Rendering/Map.cpp
     ${PROJECT_NAME}/Rendering/RenderModel.cpp
     ${PROJECT_NAME}/Systems/Camera/CameraSystem.cpp
-    ${PROJECT_NAME}/Systems/Picking/PickingSystem.cpp
+    ${PROJECT_NAME}/Systems/FileWatcher/FileWatcherSystem.cpp
     ${PROJECT_NAME}/Systems/GUI/GUISystem.cpp
+    ${PROJECT_NAME}/Systems/Picking/PickingSystem.cpp
     ${PROJECT_NAME}/Systems/Render/RenderSystem.cpp
     ${PROJECT_NAME}/Systems/Scene/SceneSystem.cpp
     ${PROJECT_NAME}/Systems/Script/ScriptSystem.cpp

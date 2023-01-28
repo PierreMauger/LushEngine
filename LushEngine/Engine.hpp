@@ -8,6 +8,13 @@
 #include "ECS/ECS.hpp"
 #include "Graphic.hpp"
 #include "Includes.hpp"
+#include "Systems/Camera/CameraSystem.hpp"
+#include "Systems/FileWatcher/FileWatcherSystem.hpp"
+#include "Systems/GUI/GUISystem.hpp"
+#include "Systems/Picking/PickingSystem.hpp"
+#include "Systems/Render/RenderSystem.hpp"
+#include "Systems/Scene/SceneSystem.hpp"
+#include "Systems/Script/ScriptSystem.hpp"
 
 namespace Lush
 {

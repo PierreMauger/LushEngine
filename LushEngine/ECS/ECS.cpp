@@ -14,28 +14,6 @@ ECS::ECS()
     ecs = this;
 }
 
-void ECS::loadComponents()
-{
-    this->_componentManager.bindComponent<Transform>();
-    this->_componentManager.bindComponent<Velocity>();
-    this->_componentManager.bindComponent<Model>();
-    this->_componentManager.bindComponent<Camera>();
-    this->_componentManager.bindComponent<Light>();
-    this->_componentManager.bindComponent<Cubemap>();
-    this->_componentManager.bindComponent<Billboard>();
-    this->_componentManager.bindComponent<Map>();
-}
-
-void ECS::loadSystems(std::shared_ptr<Graphic> graphic)
-{
-    this->_systemManager.bindSystem(std::make_unique<ScriptSystem>(graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_unique<CameraSystem>(graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_unique<RenderSystem>(graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_unique<SceneSystem>(graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_unique<PickingSystem>(graphic, this->_entityManager));
-    this->_systemManager.bindSystem(std::make_unique<GUISystem>(graphic));
-}
-
 EntityManager &ECS::getEntityManager()
 {
     return this->_entityManager;

@@ -26,8 +26,23 @@ std::string loadFile(std::string fileName)
 Engine::Engine()
 {
     this->_graphic = std::make_shared<Graphic>(1280, 720, "Lush Engine");
-    this->_ecs.loadComponents();
-    this->_ecs.loadSystems(this->_graphic);
+
+    this->_ecs.getComponentManager().bindComponent<Transform>();
+    this->_ecs.getComponentManager().bindComponent<Velocity>();
+    this->_ecs.getComponentManager().bindComponent<Model>();
+    this->_ecs.getComponentManager().bindComponent<Camera>();
+    this->_ecs.getComponentManager().bindComponent<Light>();
+    this->_ecs.getComponentManager().bindComponent<Cubemap>();
+    this->_ecs.getComponentManager().bindComponent<Billboard>();
+    this->_ecs.getComponentManager().bindComponent<Map>();
+
+    this->_ecs.getSystemManager().bindSystem(std::make_unique<ScriptSystem>(this->_graphic, this->_ecs.getEntityManager()));
+    this->_ecs.getSystemManager().bindSystem(std::make_unique<CameraSystem>(this->_graphic, this->_ecs.getEntityManager()));
+    this->_ecs.getSystemManager().bindSystem(std::make_unique<RenderSystem>(this->_graphic, this->_ecs.getEntityManager()));
+    this->_ecs.getSystemManager().bindSystem(std::make_unique<SceneSystem>(this->_graphic, this->_ecs.getEntityManager()));
+    this->_ecs.getSystemManager().bindSystem(std::make_unique<PickingSystem>(this->_graphic, this->_ecs.getEntityManager()));
+    this->_ecs.getSystemManager().bindSystem(std::make_unique<GUISystem>(this->_graphic));
+    this->_ecs.getSystemManager().bindSystem(std::make_unique<FileWatcherSystem>(this->_graphic, this->_ecs.getEntityManager()));
 
     this->loadScene();
 }

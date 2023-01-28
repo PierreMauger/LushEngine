@@ -451,10 +451,13 @@ void GUISystem::drawConsole()
         this->_consoleBuffer.clear();
     if (this->_graphic->getStringStream().str().size() > 0)
         this->_consoleBuffer += this->_graphic->getStringStream().str();
-    ImGui::TextWrapped("%s", this->_consoleBuffer.c_str());
-    this->_graphic->getStringStream().str("");
-    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
-        ImGui::SetScrollHereY(1.0f);
+    ImGui::Separator();
+    if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar)) {
+        ImGui::TextWrapped("%s", this->_consoleBuffer.c_str());
+        this->_graphic->getStringStream().str("");
+        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+            ImGui::SetScrollHereY(1.0f);
+    }
     ImGui::End();
 }
 

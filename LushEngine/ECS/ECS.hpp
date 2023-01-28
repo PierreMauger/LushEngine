@@ -5,12 +5,6 @@
 #include "ECS/Entity/EntityManager.hpp"
 #include "ECS/System/SystemManager.hpp"
 #include "Graphic.hpp"
-#include "Systems/Camera/CameraSystem.hpp"
-#include "Systems/GUI/GUISystem.hpp"
-#include "Systems/Picking/PickingSystem.hpp"
-#include "Systems/Render/RenderSystem.hpp"
-#include "Systems/Scene/SceneSystem.hpp"
-#include "Systems/Script/ScriptSystem.hpp"
 
 namespace Lush
 {
@@ -19,9 +13,6 @@ namespace Lush
         public:
             ECS();
             ~ECS() = default;
-
-            void loadComponents();
-            void loadSystems(std::shared_ptr<Graphic> graphic);
 
             EntityManager &getEntityManager();
             ComponentManager &getComponentManager();
