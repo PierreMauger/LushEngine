@@ -18,6 +18,9 @@ void FileWatcherSystem::update(EntityManager &entityManager, [[maybe_unused]] Co
         if (file.isModified()) {
             file.update();
             std::cout << "File " << file.getPath() << " has been modified" << std::endl;
+            for (auto &[name, res] : this->_graphic->getResources())
+                if (res.hasFile(file))
+                    res.reload();
         }
     }
 }
