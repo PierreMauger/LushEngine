@@ -4,6 +4,7 @@ using namespace Lush;
 
 ScriptClass::ScriptClass(std::string name, MonoDomain *domain)
 {
+    this->_name = name;
     this->_domain = domain;
     this->_assembly = nullptr;
     this->_entityAssembly = nullptr;
@@ -59,6 +60,11 @@ void ScriptClass::loadScript(std::string name)
     for (auto it = this->_methods.begin(); it != this->_methods.end(); it++)
         if (!it->second)
             throw std::runtime_error("mono_class_get_method_from_name failed for " + it->first);
+}
+
+std::string ScriptClass::getName() const
+{
+    return this->_name;
 }
 
 MonoMethod *ScriptClass::getMethod(std::string name)

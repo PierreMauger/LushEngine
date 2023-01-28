@@ -13,6 +13,7 @@ namespace Lush
     class ScriptClass
     {
         private:
+            std::string _name;
             MonoDomain *_domain;
             MonoAssembly *_assembly;
             MonoAssembly *_entityAssembly;
@@ -29,6 +30,7 @@ namespace Lush
 
             void loadScript(std::string name);
 
+            std::string getName() const;
             MonoMethod *getMethod(std::string name);
             MonoDomain *getDomain();
             MonoClass *getClass();

@@ -9,6 +9,8 @@
 #include "Rendering/RenderView.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/Map.hpp"
+#include "Script/ScriptClass.hpp"
+#include "Script/ScriptInstance.hpp"
 
 namespace Lush
 {
@@ -23,10 +25,12 @@ namespace Lush
             std::map<std::string, unsigned int> _skyboxes;
             RenderView _renderView;
             std::map<std::string, FrameBuffer> _frameBuffers;
+            std::vector<ScriptClass> _scripts;
+            std::vector<ScriptInstance> _instances;
 
             std::unique_ptr<MapMesh> _map;
 
-            std::vector<std::string> _scriptNames;
+            // std::vector<std::string> _scriptNames;
 
             std::ostringstream _stringStream;
 
@@ -69,7 +73,9 @@ namespace Lush
             RenderView &getRenderView();
             std::map<std::string, FrameBuffer> &getFrameBuffers();
             FrameBuffer &getFrameBuffer(std::string name);
-            std::vector<std::string> &getScriptNames();
+
+            std::vector<ScriptClass> &getScripts();
+            std::vector<ScriptInstance> &getInstances();
 
             std::ostringstream &getStringStream();
 

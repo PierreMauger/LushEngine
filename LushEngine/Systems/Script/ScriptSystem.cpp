@@ -10,57 +10,28 @@ ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
-    this->_scripts.push_back(std::make_unique<ScriptClass>("Spin", this->_domain));
-    this->_graphic->getScriptNames().push_back("Spin");
-    this->_scripts.push_back(std::make_unique<ScriptClass>("Maxwell", this->_domain));
-    this->_graphic->getScriptNames().push_back("Maxwell");
-    this->_scripts.push_back(std::make_unique<ScriptClass>("Controlable", this->_domain));
-    this->_graphic->getScriptNames().push_back("Controlable");
+    this->_graphic->getScripts().push_back(ScriptClass("Spin", this->_domain));
+    this->_graphic->getScripts().push_back(ScriptClass("Maxwell", this->_domain));
+    this->_graphic->getScripts().push_back(ScriptClass("Controlable", this->_domain));
     ScriptGlue::registerFunctions();
 
-    for (std::size_t i = 0; i < this->_scripts.size(); i++)
+    for (std::size_t i = 0; i < this->_graphic->getScripts().size(); i++)
         entityManager.addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << i);
 }
 
 ScriptSystem::~ScriptSystem()
 {
-    this->_instances.clear();
-    this->_scripts.clear();
     mono_jit_cleanup(this->_domain);
 }
 
-void ScriptSystem::update(EntityManager &entityManager, [[maybe_unused]] ComponentManager &componentManager, float deltaTime)
+void ScriptSystem::update([[maybe_unused]] EntityManager &entityManager, [[maybe_unused]] ComponentManager &componentManager, float deltaTime)
 {
     if (!this->shouldUpdate(deltaTime))
         return;
-    // Will be replaced when instances will be accessed by GUI System
-    if (this->buttonChanged()) {
-        if (!this->_graphic->getRunning()) {
-            this->_instances.clear();
-            return;
-        }
-        for (std::size_t i = 0; i < this->_scripts.size(); i++)
-            for (auto id : entityManager.getMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << i))
-                this->_instances.push_back(std::make_unique<ScriptInstance>(*this->_scripts[i], id));
-        for (auto &instance : this->_instances)
-            instance->init();
-    }
     if (this->_graphic->getPaused() || !this->_graphic->getRunning())
         return;
-    for (auto &instance : this->_instances)
-        instance->update(this->getDeltaTime());
-}
-
-bool ScriptSystem::buttonChanged()
-{
-    if (this->_initialized && !this->_graphic->getRunning()) {
-        this->_initialized = false;
-        return true;
-    } else if (!this->_initialized && this->_graphic->getRunning()) {
-        this->_initialized = true;
-        return true;
-    }
-    return false;
+    for (auto &instance : this->_graphic->getInstances())
+        instance.update(this->getDeltaTime());
 }
 
 void ScriptSystem::initScriptDomain()

@@ -264,9 +264,14 @@ FrameBuffer &Graphic::getFrameBuffer(std::string name)
     return this->_frameBuffers[name];
 }
 
-std::vector<std::string> &Graphic::getScriptNames()
+std::vector<ScriptClass> &Graphic::getScripts()
 {
-    return this->_scriptNames;
+    return this->_scripts;
+}
+
+std::vector<ScriptInstance> &Graphic::getInstances()
+{
+    return this->_instances;
 }
 
 std::ostringstream &Graphic::getStringStream()

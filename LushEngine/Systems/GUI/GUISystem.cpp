@@ -146,7 +146,13 @@ void GUISystem::drawActionBar(EntityManager &entityManager, ComponentManager &co
                 if (this->_graphic->getRunning()) {
                     this->_entityManagerCopy = entityManager;
                     this->_componentManagerCopy = componentManager;
+                    for (std::size_t i = 0; i < this->_graphic->getScripts().size(); i++)
+                        for (auto id : entityManager.getMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << i))
+                            this->_graphic->getInstances().push_back(ScriptInstance(this->_graphic->getScripts()[i], id));
+                    for (auto &instance : this->_graphic->getInstances())
+                        instance.init();
                 } else {
+                    this->_graphic->getInstances().clear();
                     entityManager = this->_entityManagerCopy;
                     componentManager = this->_componentManagerCopy;
                 }
@@ -187,7 +193,7 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManage
             ImGui::Text("%lu", i);
             ImGui::TableNextColumn();
             masks[i].has_value()
-                ? ImGui::Text("%s", this->formatBinary(masks[i].value(), componentManager.getComponentArray().size() + this->_graphic->getScriptNames().size()).c_str())
+                ? ImGui::Text("%s", this->formatBinary(masks[i].value(), componentManager.getComponentArray().size() + this->_graphic->getScripts().size()).c_str())
                 : ImGui::Text("None");
             ImGui::TableNextColumn();
             if (masks[i].has_value()) {
@@ -352,9 +358,9 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
             ImGui::Separator();
         }
     }
-    for (std::size_t i = 0; i < this->_graphic->getScriptNames().size(); i++) {
+    for (std::size_t i = 0; i < this->_graphic->getScripts().size(); i++) {
         if (masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << i)) {
-            if (ImGui::CollapsingHeader(this->_graphic->getScriptNames()[i].c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+            if (ImGui::CollapsingHeader(this->_graphic->getScripts()[i].getName().c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
                 if (ImGui::Button(std::string("Remove##" + std::to_string(8 + i)).c_str())) {
                     entityManager.updateMask(selectedEntity, masks[selectedEntity].value() & ~(ComponentType::COMPONENT_TYPE_COUNT << i));
                 }
@@ -402,9 +408,9 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 }
             }
         }
-        for (std::size_t i = 0; i < this->_graphic->getScriptNames().size(); i++) {
+        for (std::size_t i = 0; i < this->_graphic->getScripts().size(); i++) {
             if (!(masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << i))) {
-                if (ImGui::Selectable(this->_graphic->getScriptNames()[i].c_str())) {
+                if (ImGui::Selectable(this->_graphic->getScripts()[i].getName().c_str())) {
                     entityManager.updateMask(selectedEntity, masks[selectedEntity].value() | (ComponentType::COMPONENT_TYPE_COUNT << i));
                 }
             }

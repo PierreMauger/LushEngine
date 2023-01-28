@@ -15,12 +15,9 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
-            std::vector<std::unique_ptr<ScriptClass>> _scripts;
-            std::vector<std::unique_ptr<ScriptInstance>> _instances;
-            bool _initialized = false;
+
             MonoDomain *_domain;
 
-            bool buttonChanged();
             void initScriptDomain();
             void loadBaseScript();
 
