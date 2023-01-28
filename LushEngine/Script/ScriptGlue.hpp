@@ -2,6 +2,7 @@
 #define SCRIPTGLUE_HPP
 
 #include "ECS/ECS.hpp"
+#include "Graphic.hpp"
 #include "Includes.hpp"
 #include "mono/jit/jit.h"
 

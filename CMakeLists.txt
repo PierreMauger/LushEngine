@@ -93,8 +93,9 @@ set(INC
     ${PROJECT_NAME}/Systems/Render/
     ${PROJECT_NAME}/Systems/Scene/
     ${PROJECT_NAME}/Systems/Script/
-    ${PROJECT_NAME}/ImGui/
     ${PROJECT_NAME}/Script/
+    ${PROJECT_NAME}/File/
+    ${PROJECT_NAME}/ImGui/
     ${PROJECT_NAME}/STB/
     ${PROJECT_NAME}/mono/
 )
@@ -119,6 +120,8 @@ set(SRC
     ${PROJECT_NAME}/Script/ScriptClass.cpp
     ${PROJECT_NAME}/Script/ScriptGlue.cpp
     ${PROJECT_NAME}/Script/ScriptInstance.cpp
+    ${PROJECT_NAME}/File/File.cpp
+    ${PROJECT_NAME}/File/Resource.cpp
 
     ${PROJECT_NAME}/STB/stb.cpp
 )

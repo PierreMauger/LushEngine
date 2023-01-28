@@ -180,7 +180,6 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManage
         ImGui::End();
         return;
     }
-
     if (ImGui::BeginTable("Entities", 3, ImGuiTableFlags_Resizable)) {
         ImGui::TableSetupColumn("ID");
         ImGui::TableSetupColumn("Mask");

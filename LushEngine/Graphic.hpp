@@ -11,6 +11,7 @@
 #include "Rendering/Map.hpp"
 #include "Script/ScriptClass.hpp"
 #include "Script/ScriptInstance.hpp"
+#include "File/File.hpp"
 
 namespace Lush
 {
@@ -18,6 +19,8 @@ namespace Lush
     {
         private:
             GLFWwindow *_window;
+
+            std::map<std::string, File> _files;
 
             std::map<std::string, Shader> _shaders;
             std::map<std::string, unsigned int> _textures;
@@ -29,8 +32,6 @@ namespace Lush
             std::vector<ScriptInstance> _instances;
 
             std::unique_ptr<MapMesh> _map;
-
-            // std::vector<std::string> _scriptNames;
 
             std::ostringstream _stringStream;
 
@@ -73,6 +74,7 @@ namespace Lush
             RenderView &getRenderView();
             std::map<std::string, FrameBuffer> &getFrameBuffers();
             FrameBuffer &getFrameBuffer(std::string name);
+            std::map<std::string, File> &getFiles();
 
             std::vector<ScriptClass> &getScripts();
             std::vector<ScriptInstance> &getInstances();

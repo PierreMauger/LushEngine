@@ -46,7 +46,6 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
         glReadPixels(mousePosition.x, windowSize.y - mousePosition.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
         pixel = pixel & 0x00FFFFFF;
         this->_graphic->setHoveredEntity(pixel - 1);
-        std::cout << "Hovered entity: " << pixel - 1 << std::endl;
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

@@ -4,7 +4,6 @@
 #include "ECS/Component/ComponentManager.hpp"
 #include "ECS/Entity/EntityManager.hpp"
 #include "ECS/System/SystemManager.hpp"
-#include "Graphic.hpp"
 
 namespace Lush
 {

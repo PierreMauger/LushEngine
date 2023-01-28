@@ -14,4 +14,10 @@ void FileWatcherSystem::update(EntityManager &entityManager, [[maybe_unused]] Co
 {
     if (!this->shouldUpdate(deltaTime))
         return;
+    for (auto &[name, file] : this->_graphic->getFiles()) {
+        if (file.isModified()) {
+            file.update();
+            std::cout << "File " << file.getPath() << " has been modified" << std::endl;
+        }
+    }
 }

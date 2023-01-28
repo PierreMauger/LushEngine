@@ -3,6 +3,7 @@
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ASystem.hpp"
+#include "File/File.hpp"
 #include "Graphic.hpp"
 #include "Includes.hpp"
 

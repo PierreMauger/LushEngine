@@ -88,6 +88,27 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_sceneViewPort = glm::vec4(0.0f, 0.0f, sizeX, sizeY);
     this->_windowSize = glm::vec2(sizeX, sizeY);
 
+    this->_files["Fox.dae"] = File("Resources/Models/Fox.dae");
+    this->_files["Crate.dae"] = File("Resources/Models/Crate.dae");
+    this->_files["Cube.dae"] = File("Resources/Models/Cube.dae");
+    this->_files["Maxwell.dae"] = File("Resources/Models/Maxwell.dae");
+
+    this->_files["model.vs"] = File("Resources/Shaders/model.vs");
+    this->_files["model.fs"] = File("Resources/Shaders/model.fs");
+    this->_files["picking.fs"] = File("Resources/Shaders/picking.fs");
+    this->_files["billboard.vs"] = File("Resources/Shaders/billboard.vs");
+    this->_files["billboard.fs"] = File("Resources/Shaders/billboard.fs");
+    this->_files["outline.vs"] = File("Resources/Shaders/outline.vs");
+    this->_files["outline.fs"] = File("Resources/Shaders/outline.fs");
+    this->_files["skybox.vs"] = File("Resources/Shaders/skybox.vs");
+    this->_files["skybox.fs"] = File("Resources/Shaders/skybox.fs");
+    this->_files["grid.vs"] = File("Resources/Shaders/grid.vs");
+    this->_files["grid.fs"] = File("Resources/Shaders/grid.fs");
+    this->_files["map.vs"] = File("Resources/Shaders/map.vs");
+    this->_files["map.fs"] = File("Resources/Shaders/map.fs");
+    this->_files["map.tcs"] = File("Resources/Shaders/map.tcs");
+    this->_files["map.tes"] = File("Resources/Shaders/map.tes");
+
     this->_textures["Crate.png"] = loadTexture("Resources/Textures/Crate.png");
     this->_textures["Crate_specular.png"] = loadTexture("Resources/Textures/Crate_specular.png");
     this->_textures["Crate_emission.png"] = loadTexture("Resources/Textures/Crate_emission.png");
@@ -95,23 +116,22 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_textures["Whiskers.png"] = loadTexture("Resources/Textures/Whiskers.png");
     this->_textures["heightMap.png"] = loadTexture("Resources/Textures/heightMap.png");
 
-    this->_models["Fox"] = RenderModel(loadFile2("Resources/Models/Fox.dae"), this->_textures);
-    this->_models["Crate"] = RenderModel(loadFile2("Resources/Models/Crate.dae"), this->_textures);
-    this->_models["Cube"] = RenderModel(loadFile2("Resources/Models/Cube.dae"), this->_textures);
-    this->_models["Maxwell"] = RenderModel(loadFile2("Resources/Models/Maxwell.dae"), this->_textures);
+    this->_models["Fox"] = RenderModel(this->_files["Fox.dae"].load(), this->_textures);
+    this->_models["Crate"] = RenderModel(this->_files["Crate.dae"].load(), this->_textures);
+    this->_models["Cube"] = RenderModel(this->_files["Cube.dae"].load(), this->_textures);
+    this->_models["Maxwell"] = RenderModel(this->_files["Maxwell.dae"].load(), this->_textures);
 
     this->_skyboxes["Sky"] = loadCubemap({"Resources/Skybox/right.jpg", "Resources/Skybox/left.jpg", "Resources/Skybox/top.jpg", "Resources/Skybox/bottom.jpg",
                                           "Resources/Skybox/front.jpg", "Resources/Skybox/back.jpg"});
 
-    this->_shaders["Model"] = Shader(loadFile2("Resources/Shaders/model.vs"), loadFile2("Resources/Shaders/model.fs"));
-    this->_shaders["PickingModel"] = Shader(loadFile2("Resources/Shaders/model.vs"), loadFile2("Resources/Shaders/picking.fs"));
-    this->_shaders["PickingBillboard"] = Shader(loadFile2("Resources/Shaders/billboard.vs"), loadFile2("Resources/Shaders/picking.fs"));
-    this->_shaders["Outline"] = Shader(loadFile2("Resources/Shaders/outline.vs"), loadFile2("Resources/Shaders/outline.fs"));
-    this->_shaders["Skybox"] = Shader(loadFile2("Resources/Shaders/skybox.vs"), loadFile2("Resources/Shaders/skybox.fs"));
-    this->_shaders["Billboard"] = Shader(loadFile2("Resources/Shaders/billboard.vs"), loadFile2("Resources/Shaders/billboard.fs"));
-    this->_shaders["Grid"] = Shader(loadFile2("Resources/Shaders/grid.vs"), loadFile2("Resources/Shaders/grid.fs"));
-    this->_shaders["Map"] =
-        Shader(loadFile2("Resources/Shaders/map.vs"), loadFile2("Resources/Shaders/map.fs"), "", loadFile2("Resources/Shaders/map.tcs"), loadFile2("Resources/Shaders/map.tes"));
+    this->_shaders["Model"] = Shader(this->_files["model.vs"].load(), this->_files["model.fs"].load());
+    this->_shaders["PickingModel"] = Shader(this->_files["model.vs"].load(), this->_files["picking.fs"].load());
+    this->_shaders["PickingBillboard"] = Shader(this->_files["billboard.vs"].load(), this->_files["picking.fs"].load());
+    this->_shaders["Outline"] = Shader(this->_files["outline.vs"].load(), this->_files["outline.fs"].load());
+    this->_shaders["Skybox"] = Shader(this->_files["skybox.vs"].load(), this->_files["skybox.fs"].load());
+    this->_shaders["Billboard"] = Shader(this->_files["billboard.vs"].load(), this->_files["billboard.fs"].load());
+    this->_shaders["Grid"] = Shader(this->_files["grid.vs"].load(), this->_files["grid.fs"].load());
+    this->_shaders["Map"] = Shader(this->_files["map.vs"].load(), this->_files["map.fs"].load(), "", this->_files["map.tcs"].load(), this->_files["map.tes"].load());
     this->_renderView.setShaders(this->_shaders);
 
     this->_map = std::make_unique<MapMesh>(2624, 1756);
@@ -257,6 +277,11 @@ RenderView &Graphic::getRenderView()
 std::map<std::string, FrameBuffer> &Graphic::getFrameBuffers()
 {
     return this->_frameBuffers;
+}
+
+std::map<std::string, File> &Graphic::getFiles()
+{
+    return this->_files;
 }
 
 FrameBuffer &Graphic::getFrameBuffer(std::string name)
