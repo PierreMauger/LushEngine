@@ -9,33 +9,39 @@
 namespace Lush
 {
     typedef struct {
-            glm::vec3 position;
-            glm::vec3 normal;
-            glm::vec2 texCoords;
-            glm::vec3 tangent;
-            glm::vec3 bitangent;
-            int boneIDs[MAX_BONE_INFLUENCE];
-            float weights[MAX_BONE_INFLUENCE];
+        glm::vec3 position;
+        glm::vec3 normal;
+        glm::vec2 texCoords;
+        glm::vec3 tangent;
+        glm::vec3 bitangent;
+        int boneIDs[MAX_BONE_INFLUENCE];
+        float weights[MAX_BONE_INFLUENCE];
     } Vertex;
 
     typedef struct {
-            glm::vec3 diffuse;
-            glm::vec3 specular;
-            glm::vec3 ambient;
-            glm::vec3 emission;
-            float shininess;
+        glm::vec3 diffuse;
+        glm::vec3 specular;
+        glm::vec3 ambient;
+        glm::vec3 emission;
+        float shininess;
     } Material;
 
     typedef struct {
-            unsigned int id;
-            std::string type;
+        unsigned int id;
+        std::string type;
     } Texture;
 
     typedef struct {
-            GLuint vao;
-            GLuint vbo;
-            GLuint ebo;
+        GLuint vao;
+        GLuint vbo;
+        GLuint ebo;
     } BufferObject;
+
+    typedef struct {
+        GLuint framebuffer;
+        GLuint texture;
+        GLuint depthbuffer;
+    } FrameBuffer;
 
     class Mesh
     {

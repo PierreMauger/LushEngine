@@ -5,7 +5,7 @@
 #include "ECS/System/ASystem.hpp"
 #include "Graphic.hpp"
 #include "Includes.hpp"
-#include "Rendering/Vertices.hpp"
+#include "Rendering/Shapes.hpp"
 
 #define MODEL_TAG (ComponentType::TRANSFORM | ComponentType::MODEL)
 #define BILLBOARD_TAG (ComponentType::TRANSFORM | ComponentType::BILLBOARD)

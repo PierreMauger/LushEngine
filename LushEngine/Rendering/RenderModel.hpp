@@ -14,8 +14,8 @@
 namespace Lush
 {
     typedef struct {
-            int id;
-            glm::mat4 offset;
+        int id;
+        glm::mat4 offset;
     } BoneInfo;
 
     class RenderModel

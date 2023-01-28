@@ -8,44 +8,19 @@ RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     entityManager.addMaskCategory(BILLBOARD_TAG);
     entityManager.addMaskCategory(SKYBOX_TAG);
     entityManager.addMaskCategory(MAP_TAG);
-    glm::vec2 windowSize = this->_graphic->getWindowSize();
 
-    glGenFramebuffers(1, &this->_buffer.framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
-    glGenTextures(1, &this->_buffer.texture);
-    glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, windowSize.x, windowSize.y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->_buffer.texture, 0);
-    glGenRenderbuffers(1, &this->_buffer.depthbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, this->_buffer.depthbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, windowSize.x, windowSize.y);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_buffer.depthbuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
     this->_graphic->getFrameBuffers()["render"] = this->_buffer;
 
-    glGenVertexArrays(1, &this->_skybox.vao);
-    glGenBuffers(1, &this->_skybox.vbo);
-    glBindVertexArray(this->_skybox.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_skybox.vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-
-    glGenVertexArrays(1, &this->_billboard.vao);
-    glGenBuffers(1, &this->_billboard.vbo);
-    glBindVertexArray(this->_billboard.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_billboard.vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(billboardVertices), &billboardVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
+    Shapes::setupSkyBox(this->_skybox);
+    Shapes::setupBillboard(this->_billboard);
 }
 
 RenderSystem::~RenderSystem()
 {
+    Shapes::deleteFrameBuffer(this->_buffer);
+    Shapes::deleteBufferObject(this->_skybox);
+    Shapes::deleteBufferObject(this->_billboard);
 }
 
 void RenderSystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
@@ -58,7 +33,7 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    this->_graphic->getRenderView().use("Camera");
+    this->_graphic->getRenderView().use("Model");
     this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(MODEL_TAG)) {
         Transform transform = componentManager.getComponent<Transform>(id);

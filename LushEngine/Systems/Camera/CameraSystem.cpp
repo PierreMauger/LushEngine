@@ -24,7 +24,7 @@ void CameraSystem::update(EntityManager &entityManager, ComponentManager &compon
             this->_spotLights.push_back({transform, light});
     }
 
-    this->_graphic->getRenderView().use("Camera");
+    this->_graphic->getRenderView().use("Model");
     for (auto id : entityManager.getMaskCategory(CAMERA_TAG)) {
         Transform &transform = componentManager.getComponent<Transform>(id);
         Camera &camera = componentManager.getComponent<Camera>(id);

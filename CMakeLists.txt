@@ -102,6 +102,7 @@ set(SRC
     ${PROJECT_NAME}/Engine.cpp
     ${PROJECT_NAME}/Graphic.cpp
     ${PROJECT_NAME}/Loader.cpp
+    ${PROJECT_NAME}/Rendering/Shapes.cpp
     ${PROJECT_NAME}/Rendering/RenderView.cpp
     ${PROJECT_NAME}/Rendering/Shader.cpp
     ${PROJECT_NAME}/Rendering/Mesh.cpp
