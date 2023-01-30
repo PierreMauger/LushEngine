@@ -14,6 +14,8 @@ namespace Lush
         private:
             std::shared_ptr<Graphic> _graphic;
 
+            void updateResource(File &file, std::string name);
+
         public:
             FileWatcherSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
             ~FileWatcherSystem();

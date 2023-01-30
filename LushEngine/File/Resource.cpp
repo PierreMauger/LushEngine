@@ -2,15 +2,7 @@
 
 using namespace Lush;
 
-Resource::Resource(std::vector<File> files)
-{
-    this->_files = files;
-}
-
-void Resource::reload()
-{
-    std::cout << "Reloading resource" << std::endl;
-}
+static std::vector<Resource> resources;
 
 bool Resource::hasFile(File file) const
 {
@@ -20,4 +12,19 @@ bool Resource::hasFile(File file) const
             return true;
     }
     return false;
+}
+
+ResourceType Resource::getType() const
+{
+    return this->_type;
+}
+
+std::vector<Resource> &Resource::getResources()
+{
+    return resources;
+}
+
+bool Resource::operator==(const Resource &other) const
+{
+    return this->_name == other._name;
 }

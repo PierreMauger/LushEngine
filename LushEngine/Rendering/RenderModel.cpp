@@ -26,9 +26,9 @@ static glm::mat4 ConvertMatrixToGLMFormat(const aiMatrix4x4 &from)
     return to;
 }
 
-RenderModel::RenderModel(std::string const &file, std::map<std::string, unsigned int> texturesLoaded)
+RenderModel::RenderModel(File &file, std::map<std::string, unsigned int> texturesLoaded) : Resource(file.getPath(), ResourceType::MODEL, file)
 {
-    this->load(file, texturesLoaded);
+    this->load(file.load(), texturesLoaded);
 }
 
 std::map<std::string, BoneInfo> &RenderModel::getBoneInfoMap()

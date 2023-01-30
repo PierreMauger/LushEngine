@@ -7,6 +7,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "File/File.hpp"
+#include "File/Resource.hpp"
 #include "Includes.hpp"
 #include "Rendering/Mesh.hpp"
 #include "STB/stb_image.h"
@@ -14,11 +16,11 @@
 namespace Lush
 {
     typedef struct {
-        int id;
-        glm::mat4 offset;
+            int id;
+            glm::mat4 offset;
     } BoneInfo;
 
-    class RenderModel
+    class RenderModel : Resource
     {
         private:
             std::vector<Mesh> _meshes;
@@ -26,7 +28,7 @@ namespace Lush
             int _boneCounter = 0;
 
         public:
-            RenderModel(std::string const &file, std::map<std::string, unsigned int> texturesLoaded);
+            RenderModel(File &file, std::map<std::string, unsigned int> texturesLoaded);
             RenderModel() = default;
             ~RenderModel() = default;
 

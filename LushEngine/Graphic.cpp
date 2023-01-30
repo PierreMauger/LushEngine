@@ -88,10 +88,10 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_sceneViewPort = glm::vec4(0.0f, 0.0f, sizeX, sizeY);
     this->_windowSize = glm::vec2(sizeX, sizeY);
 
-    this->_files["Fox.dae"] = File("Resources/Models/Fox.dae");
-    this->_files["Crate.dae"] = File("Resources/Models/Crate.dae");
-    this->_files["Cube.dae"] = File("Resources/Models/Cube.dae");
-    this->_files["Maxwell.dae"] = File("Resources/Models/Maxwell.dae");
+    this->_files["Fox"] = File("Resources/Models/Fox.dae");
+    this->_files["Crate"] = File("Resources/Models/Crate.dae");
+    this->_files["Cube"] = File("Resources/Models/Cube.dae");
+    this->_files["Maxwell"] = File("Resources/Models/Maxwell.dae");
 
     this->_files["model.vs"] = File("Resources/Shaders/model.vs");
     this->_files["model.fs"] = File("Resources/Shaders/model.fs");
@@ -109,8 +109,6 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_files["map.tcs"] = File("Resources/Shaders/map.tcs");
     this->_files["map.tes"] = File("Resources/Shaders/map.tes");
 
-    this->_resources["cube"] = Resource({this->_files["Cube.dae"]});
-
     this->_textures["Crate.png"] = loadTexture("Resources/Textures/Crate.png");
     this->_textures["Crate_specular.png"] = loadTexture("Resources/Textures/Crate_specular.png");
     this->_textures["Crate_emission.png"] = loadTexture("Resources/Textures/Crate_emission.png");
@@ -118,10 +116,10 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_textures["Whiskers.png"] = loadTexture("Resources/Textures/Whiskers.png");
     this->_textures["heightMap.png"] = loadTexture("Resources/Textures/heightMap.png");
 
-    this->_models["Fox"] = RenderModel(this->_files["Fox.dae"].load(), this->_textures);
-    this->_models["Crate"] = RenderModel(this->_files["Crate.dae"].load(), this->_textures);
-    this->_models["Cube"] = RenderModel(this->_files["Cube.dae"].load(), this->_textures);
-    this->_models["Maxwell"] = RenderModel(this->_files["Maxwell.dae"].load(), this->_textures);
+    this->_models["Fox"] = RenderModel(this->_files["Fox"], this->_textures);
+    this->_models["Crate"] = RenderModel(this->_files["Crate"], this->_textures);
+    this->_models["Cube"] = RenderModel(this->_files["Cube"], this->_textures);
+    this->_models["Maxwell"] = RenderModel(this->_files["Maxwell"], this->_textures);
 
     this->_skyboxes["Sky"] = loadCubemap({"Resources/Skybox/right.jpg", "Resources/Skybox/left.jpg", "Resources/Skybox/top.jpg", "Resources/Skybox/bottom.jpg",
                                           "Resources/Skybox/front.jpg", "Resources/Skybox/back.jpg"});
@@ -286,10 +284,10 @@ std::map<std::string, File> &Graphic::getFiles()
     return this->_files;
 }
 
-std::map<std::string, Resource> &Graphic::getResources()
-{
-    return this->_resources;
-}
+// std::map<std::string, Resource> &Graphic::getResources()
+// {
+//     return this->_resources;
+// }
 
 FrameBuffer &Graphic::getFrameBuffer(std::string name)
 {

@@ -22,7 +22,7 @@ namespace Lush
             GLFWwindow *_window;
 
             std::map<std::string, File> _files;
-            std::map<std::string, Resource> _resources;
+            // std::map<std::string, Resource> _resources;
 
             std::map<std::string, Shader> _shaders;
             std::map<std::string, unsigned int> _textures;
@@ -77,7 +77,7 @@ namespace Lush
             std::map<std::string, FrameBuffer> &getFrameBuffers();
             FrameBuffer &getFrameBuffer(std::string name);
             std::map<std::string, File> &getFiles();
-            std::map<std::string, Resource> &getResources();
+            // std::map<std::string, Resource> &getResources();
 
             std::vector<ScriptClass> &getScripts();
             std::vector<ScriptInstance> &getInstances();
