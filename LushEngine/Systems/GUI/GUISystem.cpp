@@ -146,9 +146,12 @@ void GUISystem::drawActionBar(EntityManager &entityManager, ComponentManager &co
                 if (this->_graphic->getRunning()) {
                     this->_entityManagerCopy = entityManager;
                     this->_componentManagerCopy = componentManager;
-                    for (std::size_t i = 0; i < this->_graphic->getScripts().size(); i++)
-                        for (auto id : entityManager.getMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << i))
-                            this->_graphic->getInstances().push_back(ScriptInstance(this->_graphic->getScripts()[i], id));
+                    std::size_t it = 0;
+                    for (auto &[name, script] : this->_graphic->getScripts()) {
+                        for (auto id : entityManager.getMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << it))
+                            this->_graphic->getInstances().push_back(ScriptInstance(script, id));
+                        it++;
+                    }
                     for (auto &instance : this->_graphic->getInstances())
                         instance.init();
                 } else {
@@ -357,14 +360,13 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
             ImGui::Separator();
         }
     }
-    for (std::size_t i = 0; i < this->_graphic->getScripts().size(); i++) {
-        if (masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << i)) {
-            if (ImGui::CollapsingHeader(this->_graphic->getScripts()[i].getName().c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
-                if (ImGui::Button(std::string("Remove##" + std::to_string(8 + i)).c_str())) {
-                    entityManager.updateMask(selectedEntity, masks[selectedEntity].value() & ~(ComponentType::COMPONENT_TYPE_COUNT << i));
-                }
-            }
-        }
+    std::size_t it = 0;
+    for (auto &[name, script] : this->_graphic->getScripts()) {
+        if (masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it))
+            if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+                if (ImGui::Button(std::string("Remove##" + std::to_string(8 + it)).c_str()))
+                    entityManager.updateMask(selectedEntity, masks[selectedEntity].value() & ~(ComponentType::COMPONENT_TYPE_COUNT << it));
+        it++;
     }
     const float footerReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerReserve), false, ImGuiWindowFlags_HorizontalScrollbar);
@@ -407,12 +409,12 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 }
             }
         }
-        for (std::size_t i = 0; i < this->_graphic->getScripts().size(); i++) {
-            if (!(masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << i))) {
-                if (ImGui::Selectable(this->_graphic->getScripts()[i].getName().c_str())) {
-                    entityManager.updateMask(selectedEntity, masks[selectedEntity].value() | (ComponentType::COMPONENT_TYPE_COUNT << i));
-                }
-            }
+        it = 0;
+        for (auto &[name, script] : this->_graphic->getScripts()) {
+            if (!(masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it)))
+                if (ImGui::Selectable(name.c_str()))
+                    entityManager.updateMask(selectedEntity, masks[selectedEntity].value() | (ComponentType::COMPONENT_TYPE_COUNT << it));
+            it++;
         }
     }
     ImGui::End();

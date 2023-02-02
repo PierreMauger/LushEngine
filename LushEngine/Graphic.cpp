@@ -109,6 +109,10 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_files["map.tcs"] = File("Resources/Shaders/map.tcs");
     this->_files["map.tes"] = File("Resources/Shaders/map.tes");
 
+    this->_files["Spin"] = File("Resources/Scripts/Spin.cs");
+    // this->_files["Maxwell"] = File("Resources/Scripts/Maxwell.cs");
+    this->_files["Controlable"] = File("Resources/Scripts/Controlable.cs");
+
     this->_textures["Crate.png"] = loadTexture("Resources/Textures/Crate.png");
     this->_textures["Crate_specular.png"] = loadTexture("Resources/Textures/Crate_specular.png");
     this->_textures["Crate_emission.png"] = loadTexture("Resources/Textures/Crate_emission.png");
@@ -284,17 +288,12 @@ std::map<std::string, File> &Graphic::getFiles()
     return this->_files;
 }
 
-// std::map<std::string, Resource> &Graphic::getResources()
-// {
-//     return this->_resources;
-// }
-
 FrameBuffer &Graphic::getFrameBuffer(std::string name)
 {
     return this->_frameBuffers[name];
 }
 
-std::vector<ScriptClass> &Graphic::getScripts()
+std::map<std::string, ScriptClass> &Graphic::getScripts()
 {
     return this->_scripts;
 }

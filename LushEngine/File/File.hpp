@@ -17,6 +17,7 @@ namespace Lush
             ~File() = default;
 
             std::string getPath() const;
+            std::string getName() const;
             bool isModified() const;
             void update();
 

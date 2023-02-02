@@ -2,11 +2,7 @@
 
 using namespace Lush;
 
-FileWatcherSystem::FileWatcherSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : ASystem(3.0f), _graphic(graphic)
-{
-}
-
-FileWatcherSystem::~FileWatcherSystem()
+FileWatcherSystem::FileWatcherSystem(std::shared_ptr<Graphic> graphic, [[maybe_unused]] EntityManager &entityManager) : ASystem(3.0f), _graphic(graphic)
 {
 }
 
@@ -30,15 +26,19 @@ void FileWatcherSystem::updateResource(File &file, std::string name)
             switch (res.getType()) {
             case ResourceType::MODEL:
                 try {
-                    this->_graphic->getModels()[name] = RenderModel(file, this->_graphic->getTextures());
+                    this->_graphic->getModels()[name].reload(file, this->_graphic->getTextures());
                 } catch (std::exception &e) {
                     std::cout << "Error while reloading model " << name << ": " << e.what() << std::endl;
                 }
-                Resource::getResources().erase(std::remove(Resource::getResources().begin(), Resource::getResources().end(), res), Resource::getResources().end());
                 break;
             case ResourceType::SHADER:
                 break;
             case ResourceType::SCRIPT:
+                try {
+                    this->_graphic->getScripts()[name].reload();
+                } catch (std::exception &e) {
+                    std::cout << "Error while reloading script " << name << ": " << e.what() << std::endl;
+                }
                 break;
             default:
                 break;

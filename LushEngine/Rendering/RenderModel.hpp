@@ -32,7 +32,8 @@ namespace Lush
             RenderModel() = default;
             ~RenderModel() = default;
 
-            void load(std::string const &file, std::map<std::string, unsigned int> texturesLoaded);
+            void load(File &file, std::map<std::string, unsigned int> texturesLoaded);
+            void reload(File &file, std::map<std::string, unsigned int> texturesLoaded);
             void draw(Shader &shader);
 
         private:

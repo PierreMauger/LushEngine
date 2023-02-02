@@ -18,7 +18,7 @@ namespace Lush
 
         public:
             FileWatcherSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
-            ~FileWatcherSystem();
+            ~FileWatcherSystem() = default;
 
             void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
     };

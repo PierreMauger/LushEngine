@@ -30,7 +30,7 @@ namespace Lush
             std::map<std::string, unsigned int> _skyboxes;
             RenderView _renderView;
             std::map<std::string, FrameBuffer> _frameBuffers;
-            std::vector<ScriptClass> _scripts;
+            std::map<std::string, ScriptClass> _scripts;
             std::vector<ScriptInstance> _instances;
 
             std::unique_ptr<MapMesh> _map;
@@ -77,9 +77,8 @@ namespace Lush
             std::map<std::string, FrameBuffer> &getFrameBuffers();
             FrameBuffer &getFrameBuffer(std::string name);
             std::map<std::string, File> &getFiles();
-            // std::map<std::string, Resource> &getResources();
 
-            std::vector<ScriptClass> &getScripts();
+            std::map<std::string, ScriptClass> &getScripts();
             std::vector<ScriptInstance> &getInstances();
 
             std::ostringstream &getStringStream();

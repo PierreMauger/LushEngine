@@ -13,6 +13,12 @@ std::string File::getPath() const
     return this->_path;
 }
 
+std::string File::getName() const
+{
+    // get filename from path without extension
+    return std::filesystem::path(this->_path).filename().replace_extension().string();
+}
+
 bool File::isModified() const
 {
     return this->_lastModify != std::filesystem::last_write_time(this->_path);

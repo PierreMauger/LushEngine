@@ -28,7 +28,7 @@ static glm::mat4 ConvertMatrixToGLMFormat(const aiMatrix4x4 &from)
 
 RenderModel::RenderModel(File &file, std::map<std::string, unsigned int> texturesLoaded) : Resource(file.getPath(), ResourceType::MODEL, file)
 {
-    this->load(file.load(), texturesLoaded);
+    this->load(file, texturesLoaded);
 }
 
 std::map<std::string, BoneInfo> &RenderModel::getBoneInfoMap()
@@ -41,14 +41,21 @@ int &RenderModel::getBoneCount()
     return this->_boneCounter;
 }
 
-void RenderModel::load(std::string const &file, std::map<std::string, unsigned int> texturesLoaded)
+void RenderModel::load(File &file, std::map<std::string, unsigned int> texturesLoaded)
 {
+    std::string content = file.load();
     Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFileFromMemory(file.c_str(), file.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene *scene = importer.ReadFileFromMemory(content.c_str(), content.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
     if (!scene)
         throw std::runtime_error(std::string("RenderModel loading: ") + importer.GetErrorString());
     this->processNode(*scene->mRootNode, *scene, texturesLoaded);
+}
+
+void RenderModel::reload(File &file, std::map<std::string, unsigned int> texturesLoaded)
+{
+    this->_meshes.clear();
+    this->load(file, texturesLoaded);
 }
 
 void RenderModel::processNode(aiNode &node, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded)

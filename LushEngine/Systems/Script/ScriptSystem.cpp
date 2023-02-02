@@ -10,12 +10,15 @@ ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
-    this->_graphic->getScripts().push_back(ScriptClass("Spin", this->_domain));
-    this->_graphic->getScripts().push_back(ScriptClass("Maxwell", this->_domain));
-    this->_graphic->getScripts().push_back(ScriptClass("Controlable", this->_domain));
+    std::map<std::string, ScriptClass> &scripts = this->_graphic->getScripts();
+    std::map<std::string, File> files = this->_graphic->getFiles();
+
+    scripts["Spin"] = ScriptClass(files["Spin"]);
+    scripts["Maxwell"] = ScriptClass(files["Maxwell"]);
+    scripts["Controlable"] = ScriptClass(files["Controlable"]);
     ScriptGlue::registerFunctions();
 
-    for (std::size_t i = 0; i < this->_graphic->getScripts().size(); i++)
+    for (std::size_t i = 0; i < scripts.size(); i++)
         entityManager.addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << i);
 }
 
@@ -44,6 +47,6 @@ void ScriptSystem::initScriptDomain()
 
 void ScriptSystem::loadBaseScript()
 {
-    if (system("mcs -target:library -out:Resources/Scripts/Base.dll Resources/Scripts/Components.cs Resources/Scripts/InternalCalls.cs Resources/Scripts/Entity.cs"))
+    if (system("mcs -target:library -out:Resources/Scripts/Core.dll Resources/Scripts/Components.cs Resources/Scripts/InternalCalls.cs Resources/Scripts/Entity.cs"))
         throw std::runtime_error("mcs failed");
 }
