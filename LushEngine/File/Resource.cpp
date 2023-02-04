@@ -14,6 +14,16 @@ bool Resource::hasFile(File file) const
     return false;
 }
 
+std::vector<File> &Resource::getFiles()
+{
+    return this->_files;
+}
+
+std::string Resource::getUUID() const
+{
+    return this->_uuid.to_string();
+}
+
 ResourceType Resource::getType() const
 {
     return this->_type;
@@ -26,5 +36,5 @@ std::vector<Resource> &Resource::getResources()
 
 bool Resource::operator==(const Resource &other) const
 {
-    return this->_name == other._name;
+    return this->_uuid == other._uuid;
 }

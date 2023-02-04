@@ -22,7 +22,6 @@ namespace Lush
             GLFWwindow *_window;
 
             std::map<std::string, File> _files;
-            // std::map<std::string, Resource> _resources;
 
             std::map<std::string, Shader> _shaders;
             std::map<std::string, unsigned int> _textures;

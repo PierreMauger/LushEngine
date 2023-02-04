@@ -6,20 +6,24 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "File/Resource.hpp"
 #include "Includes.hpp"
 
 namespace Lush
 {
-    class Shader
+    class Shader : public Resource
     {
         private:
             unsigned int _ID;
 
         public:
-            Shader(const std::string vertexCode, const std::string fragmentCode, const std::string geometryCode = "", const std::string tessControlCode = "",
-                   const std::string tessEvalCode = "");
+            Shader(const File &vertexFile, const File &fragmentFile, const File &geometryFile = File(), const File &tessControlFile = File(), const File &tessEvalFile = File());
             Shader() = default;
             ~Shader() = default;
+
+            void load(const File &vertexFile, const File &fragmentFile, const File &geometryFile = File(), const File &tessControlFile = File(), const File &tessEvalFile = File());
+            void reload(const File &vertexFile, const File &fragmentFile, const File &geometryFile = File(), const File &tessControlFile = File(),
+                        const File &tessEvalFile = File());
 
             void use() const;
             unsigned int getID() const;

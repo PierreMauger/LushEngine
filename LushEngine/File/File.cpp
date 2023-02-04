@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-File::File(std::string path)
+File::File(const std::string &path)
 {
     this->_path = path;
     this->_lastModify = std::filesystem::last_write_time(path);

@@ -20,7 +20,7 @@ namespace Lush
             glm::mat4 offset;
     } BoneInfo;
 
-    class RenderModel : Resource
+    class RenderModel : public Resource
     {
         private:
             std::vector<Mesh> _meshes;

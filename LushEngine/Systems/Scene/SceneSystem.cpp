@@ -14,6 +14,7 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entity
     this->_camera.forward.x = cos(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
     this->_camera.forward.y = sin(glm::radians(this->_cameraTransform.rotation.y));
     this->_camera.forward.z = sin(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
+    this->_camera.far = 1000.0f;
 
     Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
     this->_graphic->getFrameBuffers()["scene"] = this->_buffer;

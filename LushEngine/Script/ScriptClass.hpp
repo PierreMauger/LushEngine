@@ -13,10 +13,9 @@
 
 namespace Lush
 {
-    class ScriptClass : Resource
+    class ScriptClass : public Resource
     {
         private:
-            std::string _name;
             MonoDomain *_domain;
             MonoAssembly *_assembly;
             MonoAssembly *_entityAssembly;
@@ -32,8 +31,8 @@ namespace Lush
             ScriptClass() = default;
             ~ScriptClass() = default;
 
-            void load(std::string name);
-            void reload();
+            void load(File &file);
+            void reload(File &file);
 
             MonoMethod *getMethod(std::string name);
             MonoDomain *getDomain();

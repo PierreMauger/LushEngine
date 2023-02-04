@@ -14,7 +14,7 @@ ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     std::map<std::string, File> files = this->_graphic->getFiles();
 
     scripts["Spin"] = ScriptClass(files["Spin"]);
-    scripts["Maxwell"] = ScriptClass(files["Maxwell"]);
+    scripts["Maxwell"] = ScriptClass(files["MaxwellScript"]);
     scripts["Controlable"] = ScriptClass(files["Controlable"]);
     ScriptGlue::registerFunctions();
 

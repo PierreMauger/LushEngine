@@ -2,9 +2,8 @@
 
 using namespace Lush;
 
-ScriptClass::ScriptClass(File &file) : Resource(file.getPath(), ResourceType::SCRIPT, file)
+ScriptClass::ScriptClass(File &file) : Resource(ResourceType::SCRIPT, file)
 {
-    this->_name = file.getName();
     this->_domain = nullptr;
     this->_assembly = nullptr;
     this->_entityAssembly = nullptr;
@@ -14,14 +13,15 @@ ScriptClass::ScriptClass(File &file) : Resource(file.getPath(), ResourceType::SC
     this->_entityClass = nullptr;
 
     try {
-        this->load(this->_name);
+        this->load(file);
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
 }
 
-void ScriptClass::load(std::string name)
+void ScriptClass::load(File &file)
 {
+    std::string name = file.getName();
     std::string scriptPath = "Resources/Scripts/" + name + ".cs";
     std::string assemblyPath = "Resources/Scripts/" + name + ".dll";
 
@@ -29,7 +29,7 @@ void ScriptClass::load(std::string name)
         throw std::runtime_error("mcs failed");
 
     // Create a new domain
-    this->_domain = mono_domain_create_appdomain((char *)this->_name.c_str(), nullptr);
+    this->_domain = mono_domain_create_appdomain((char *)name.c_str(), nullptr);
 
     // Load the assembly
     this->_assembly = mono_domain_assembly_open(this->_domain, assemblyPath.c_str());
@@ -65,7 +65,7 @@ void ScriptClass::load(std::string name)
             throw std::runtime_error("mono_class_get_method_from_name failed for " + it->first);
 }
 
-void ScriptClass::reload()
+void ScriptClass::reload(File &file)
 {
     this->_assembly = nullptr;
     this->_entityAssembly = nullptr;
@@ -76,7 +76,7 @@ void ScriptClass::reload()
     this->_methods.clear();
 
     mono_domain_unload(this->_domain);
-    this->load(this->_name);
+    this->load(file);
 }
 
 MonoMethod *ScriptClass::getMethod(std::string name)

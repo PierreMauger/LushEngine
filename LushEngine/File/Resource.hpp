@@ -3,11 +3,11 @@
 
 #include "File/File.hpp"
 #include "Includes.hpp"
+#include "UUID.hpp"
 
 namespace Lush
 {
-    enum class ResourceType
-    {
+    enum class ResourceType {
         TEXTURE,
         MODEL,
         SHADER,
@@ -21,16 +21,16 @@ namespace Lush
     class Resource
     {
         private:
-            std::string _name;
-            std::vector<File> _files;
+            UUID _uuid;
             ResourceType _type;
+            std::vector<File> _files;
 
         public:
-            template <typename... Args> Resource(std::string name, ResourceType type = ResourceType::UNKNOWN, Args... args)
+            template <typename... Args> Resource(ResourceType type = ResourceType::UNKNOWN, Args... args)
             {
-                this->_name = name;
                 this->_type = type;
                 this->_files = {args...};
+                this->_uuid = UUID();
                 getResources().push_back(*this);
             }
 
@@ -38,6 +38,8 @@ namespace Lush
             ~Resource() = default;
 
             bool hasFile(File file) const;
+            std::vector<File> &getFiles();
+            std::string getUUID() const;
             ResourceType getType() const;
 
             bool operator==(const Resource &other) const;

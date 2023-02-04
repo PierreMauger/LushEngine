@@ -13,8 +13,10 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
+            std::vector<Resource> _resourcesToReload;
 
-            void updateResource(File &file, std::string name);
+            void reloadResourcesFromFile(File &file);
+            void updateResource(Resource &resource);
 
         public:
             FileWatcherSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);

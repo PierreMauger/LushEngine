@@ -110,7 +110,7 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_files["map.tes"] = File("Resources/Shaders/map.tes");
 
     this->_files["Spin"] = File("Resources/Scripts/Spin.cs");
-    // this->_files["Maxwell"] = File("Resources/Scripts/Maxwell.cs");
+    this->_files["MaxwellScript"] = File("Resources/Scripts/Maxwell.cs");
     this->_files["Controlable"] = File("Resources/Scripts/Controlable.cs");
 
     this->_textures["Crate.png"] = loadTexture("Resources/Textures/Crate.png");
@@ -128,14 +128,14 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_skyboxes["Sky"] = loadCubemap({"Resources/Skybox/right.jpg", "Resources/Skybox/left.jpg", "Resources/Skybox/top.jpg", "Resources/Skybox/bottom.jpg",
                                           "Resources/Skybox/front.jpg", "Resources/Skybox/back.jpg"});
 
-    this->_shaders["Model"] = Shader(this->_files["model.vs"].load(), this->_files["model.fs"].load());
-    this->_shaders["PickingModel"] = Shader(this->_files["model.vs"].load(), this->_files["picking.fs"].load());
-    this->_shaders["PickingBillboard"] = Shader(this->_files["billboard.vs"].load(), this->_files["picking.fs"].load());
-    this->_shaders["Outline"] = Shader(this->_files["outline.vs"].load(), this->_files["outline.fs"].load());
-    this->_shaders["Skybox"] = Shader(this->_files["skybox.vs"].load(), this->_files["skybox.fs"].load());
-    this->_shaders["Billboard"] = Shader(this->_files["billboard.vs"].load(), this->_files["billboard.fs"].load());
-    this->_shaders["Grid"] = Shader(this->_files["grid.vs"].load(), this->_files["grid.fs"].load());
-    this->_shaders["Map"] = Shader(this->_files["map.vs"].load(), this->_files["map.fs"].load(), "", this->_files["map.tcs"].load(), this->_files["map.tes"].load());
+    this->_shaders["Model"] = Shader(this->_files["model.vs"], this->_files["model.fs"]);
+    this->_shaders["PickingModel"] = Shader(this->_files["model.vs"], this->_files["picking.fs"]);
+    this->_shaders["PickingBillboard"] = Shader(this->_files["billboard.vs"], this->_files["picking.fs"]);
+    this->_shaders["Outline"] = Shader(this->_files["outline.vs"], this->_files["outline.fs"]);
+    this->_shaders["Skybox"] = Shader(this->_files["skybox.vs"], this->_files["skybox.fs"]);
+    this->_shaders["Billboard"] = Shader(this->_files["billboard.vs"], this->_files["billboard.fs"]);
+    this->_shaders["Grid"] = Shader(this->_files["grid.vs"], this->_files["grid.fs"]);
+    this->_shaders["Map"] = Shader(this->_files["map.vs"], this->_files["map.fs"], File(), this->_files["map.tcs"], this->_files["map.tes"]);
     this->_renderView.setShaders(this->_shaders);
 
     this->_map = std::make_unique<MapMesh>(2624, 1756);

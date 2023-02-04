@@ -12,8 +12,8 @@ namespace Lush
             std::filesystem::file_time_type _lastModify;
 
         public:
-            File(std::string path);
-            File() = default;
+            File(const std::string &path);
+            File() {};
             ~File() = default;
 
             std::string getPath() const;

@@ -223,6 +223,10 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManage
     ImGui::End();
 }
 
+const char *iconTable[] = {
+    ICON_FA_INFO_CIRCLE " ", ICON_FA_RUNNING " ", ICON_FA_CUBE " ", ICON_FA_VIDEO " ", ICON_FA_LIGHTBULB " ", ICON_FA_MAP " ", ICON_FA_SIGN " ", ICON_FA_MAP " ",
+};
+
 void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &componentManager)
 {
     if (!ImGui::Begin(ICON_FA_INFO_CIRCLE " Properties", &this->_showProperties)) {
@@ -245,7 +249,8 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
     }
     for (std::size_t i = 0; i < componentManager.getComponentArray().size(); i++) {
         if (masks[selectedEntity].value() & (1 << i)) {
-            if (ImGui::CollapsingHeader(FORMAT_NAME(componentManager.getComponentType(i).name()), ImGuiTreeNodeFlags_DefaultOpen)) {
+            std::string name = FORMAT_NAME(componentManager.getComponentType(i).name());
+            if (ImGui::CollapsingHeader((iconTable[i] + name).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
                 switch (i) {
                 case 0: {
                     Transform &transform = componentManager.getComponent<Transform>(selectedEntity);
@@ -363,7 +368,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
     std::size_t it = 0;
     for (auto &[name, script] : this->_graphic->getScripts()) {
         if (masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it))
-            if (ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader((ICON_FA_FILE_CODE " " + name).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
                 if (ImGui::Button(std::string("Remove##" + std::to_string(8 + it)).c_str()))
                     entityManager.updateMask(selectedEntity, masks[selectedEntity].value() & ~(ComponentType::COMPONENT_TYPE_COUNT << it));
         it++;
@@ -375,7 +380,8 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
     if (ImGui::CollapsingHeader("Add Component")) {
         for (std::size_t i = 0; i < componentManager.getComponentArray().size(); i++) {
             if (!(masks[selectedEntity].value() & (1 << i))) {
-                if (ImGui::Selectable(FORMAT_NAME(componentManager.getComponentType(i).name()))) {
+                ImGui::PushID(i);
+                if (ImGui::Selectable("##selectable", false, ImGuiSelectableFlags_SpanAllColumns)) {
                     entityManager.updateMask(selectedEntity, masks[selectedEntity].value() | (1 << i));
                     switch (i) {
                     case 0:
@@ -407,13 +413,25 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     }
                     // TODO: replace this switch
                 }
+                ImGui::SameLine(0, 0);
+                ImGui::Text("%s", iconTable[i]);
+                ImGui::SameLine(30, 0);
+                ImGui::Text("%s", FORMAT_NAME(componentManager.getComponentType(i).name()));
+                ImGui::PopID();
             }
         }
         it = 0;
         for (auto &[name, script] : this->_graphic->getScripts()) {
-            if (!(masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it)))
-                if (ImGui::Selectable(name.c_str()))
+            if (!(masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it))) {
+                ImGui::PushID(8 + it);
+                if (ImGui::Selectable("##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                     entityManager.updateMask(selectedEntity, masks[selectedEntity].value() | (ComponentType::COMPONENT_TYPE_COUNT << it));
+                ImGui::SameLine(10, 0);
+                ImGui::Text(ICON_FA_FILE_CODE);
+                ImGui::SameLine(30, 0);
+                ImGui::Text("%s", name.c_str());
+                ImGui::PopID();
+            }
             it++;
         }
     }

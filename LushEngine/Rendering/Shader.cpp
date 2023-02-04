@@ -2,64 +2,90 @@
 
 using namespace Lush;
 
-Shader::Shader(const std::string vertexCode, const std::string fragmentCode, const std::string geometryCode, const std::string tessControlCode, const std::string tessEvalCode)
+Shader::Shader(const File &vertexFile, const File &fragmentFile, const File &geometryFile, const File &tessControlFile, const File &tessEvalFile)
+    : Resource(ResourceType::SHADER, vertexFile, fragmentFile, geometryFile, tessControlFile, tessEvalFile)
 {
-    const char *vShaderCode = vertexCode.c_str();
-    const char *fShaderCode = fragmentCode.c_str();
-    const char *gShaderCode = geometryCode.c_str();
-    const char *tcShaderCode = tessControlCode.c_str();
-    const char *teShaderCode = tessEvalCode.c_str();
-    unsigned int vertex;
-    unsigned int fragment;
+    this->load(vertexFile, fragmentFile, geometryFile, tessControlFile, tessEvalFile);
+}
+
+void Shader::load(const File &vertexFile, const File &fragmentFile, const File &geometryFile, const File &tessControlFile, const File &tessEvalFile)
+{
+    std::string vShaderCode = vertexFile.load();
+    std::string fShaderCode = fragmentFile.load();
+    std::string gShaderCode = geometryFile.load();
+    std::string tcShaderCode = tessControlFile.load();
+    std::string teShaderCode = tessEvalFile.load();
+
+    const char *vShader = vShaderCode.c_str();
+    const char *fShader = fShaderCode.c_str();
+    const char *gShader = gShaderCode.c_str();
+    const char *tcShader = tcShaderCode.c_str();
+    const char *teShader = teShaderCode.c_str();
+
+    unsigned int vertex = 0;
+    unsigned int fragment = 0;
     unsigned int geometry = 0;
     unsigned int tessContol = 0;
     unsigned int tessEval = 0;
 
     vertex = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex, 1, &vShaderCode, NULL);
+    glShaderSource(vertex, 1, &vShader, NULL);
     glCompileShader(vertex);
     this->checkCompileErrors(vertex, "VERTEX");
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment, 1, &fShaderCode, NULL);
+    glShaderSource(fragment, 1, &fShader, NULL);
     glCompileShader(fragment);
     this->checkCompileErrors(fragment, "FRAGMENT");
-    if (geometryCode != "") {
+    if (gShaderCode != "") {
         geometry = glCreateShader(GL_GEOMETRY_SHADER);
-        glShaderSource(geometry, 1, &gShaderCode, NULL);
+        glShaderSource(geometry, 1, &gShader, NULL);
         glCompileShader(geometry);
         this->checkCompileErrors(geometry, "GEOMETRY");
     }
-    if (tessControlCode != "") {
+    if (tcShaderCode != "") {
         tessContol = glCreateShader(GL_TESS_CONTROL_SHADER);
-        glShaderSource(tessContol, 1, &tcShaderCode, NULL);
+        glShaderSource(tessContol, 1, &tcShader, NULL);
         glCompileShader(tessContol);
         this->checkCompileErrors(tessContol, "TESS_CONTROL");
     }
-    if (tessEvalCode != "") {
+    if (teShaderCode != "") {
         tessEval = glCreateShader(GL_TESS_EVALUATION_SHADER);
-        glShaderSource(tessEval, 1, &teShaderCode, NULL);
+        glShaderSource(tessEval, 1, &teShader, NULL);
         glCompileShader(tessEval);
         this->checkCompileErrors(tessEval, "TESS_EVALUATION");
     }
     this->_ID = glCreateProgram();
+
     glAttachShader(this->_ID, vertex);
     glAttachShader(this->_ID, fragment);
-    if (geometryCode != "")
+    if (gShaderCode != "")
         glAttachShader(this->_ID, geometry);
-    if (tessControlCode != "")
+    if (tcShaderCode != "")
         glAttachShader(this->_ID, tessContol);
-    if (tessEvalCode != "")
+    if (teShaderCode != "")
         glAttachShader(this->_ID, tessEval);
     glLinkProgram(this->_ID);
     this->checkCompileErrors(this->_ID, "PROGRAM");
     glDeleteShader(vertex);
     glDeleteShader(fragment);
-    if (geometryCode != "")
+    if (gShaderCode != "")
         glDeleteShader(geometry);
-    if (tessControlCode != "")
+    if (tcShaderCode != "")
         glDeleteShader(tessContol);
-    if (tessEvalCode != "")
+    if (teShaderCode != "")
         glDeleteShader(tessEval);
+}
+
+void Shader::reload(const File &vertexFile, const File &fragmentFile, const File &geometryFile, const File &tessControlFile, const File &tessEvalFile)
+{
+    glDetachShader(this->_ID, GL_VERTEX_SHADER);
+    glDetachShader(this->_ID, GL_FRAGMENT_SHADER);
+    glDetachShader(this->_ID, GL_GEOMETRY_SHADER);
+    glDetachShader(this->_ID, GL_TESS_CONTROL_SHADER);
+    glDetachShader(this->_ID, GL_TESS_EVALUATION_SHADER);
+    glDeleteProgram(this->_ID);
+
+    this->load(vertexFile, fragmentFile, geometryFile, tessControlFile, tessEvalFile);
 }
 
 void Shader::use() const
