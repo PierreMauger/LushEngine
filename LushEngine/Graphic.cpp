@@ -119,6 +119,12 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_textures["Maxwell.jpeg"] = loadTexture("Resources/Textures/Maxwell.jpeg");
     this->_textures["Whiskers.png"] = loadTexture("Resources/Textures/Whiskers.png");
     this->_textures["heightMap.png"] = loadTexture("Resources/Textures/heightMap.png");
+    this->_textures["Audio.png"] = loadTexture("Resources/Textures/Editor/Audio.png");
+    this->_textures["Camera.png"] = loadTexture("Resources/Textures/Editor/Camera.png");
+    this->_textures["DirectionalLight.png"] = loadTexture("Resources/Textures/Editor/DirectionalLight.png");
+    this->_textures["Geometry.png"] = loadTexture("Resources/Textures/Editor/Geometry.png");
+    this->_textures["PointLight.png"] = loadTexture("Resources/Textures/Editor/PointLight.png");
+    this->_textures["SpotLight.png"] = loadTexture("Resources/Textures/Editor/SpotLight.png");
 
     this->_models["Fox"] = RenderModel(this->_files["Fox"], this->_textures);
     this->_models["Crate"] = RenderModel(this->_files["Crate"], this->_textures);

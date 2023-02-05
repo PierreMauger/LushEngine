@@ -24,6 +24,7 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic) : ASystem(60.0f), _graphi
     io.Fonts->AddFontFromFileTTF("Resources/Fonts/" FONT_ICON_FILE_NAME_FAS, 12.0f, &iconsConfig, iconsRanges);
 
     ImGuizmo::Enable(true);
+    ImGuizmo::AllowAxisFlip(false);
 
     this->_fileExplorerPath = std::filesystem::current_path().string();
     this->_fileExplorerRootPath = std::filesystem::current_path().string();
