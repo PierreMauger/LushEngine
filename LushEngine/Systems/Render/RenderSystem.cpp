@@ -67,7 +67,7 @@ void RenderSystem::drawBillboards(EntityManager &entityManager, ComponentManager
         glActiveTexture(GL_TEXTURE0);
         // TEMP : if texture not found, use black texture, but default texture should be better
         if (this->_graphic->getTextures().find(billboard.name) != this->_graphic->getTextures().end())
-            glBindTexture(GL_TEXTURE_2D, this->_graphic->getTextures()[billboard.name]);
+            glBindTexture(GL_TEXTURE_2D, this->_graphic->getTextures()[billboard.name].getId());
         else
             glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("tex", 0);
@@ -87,7 +87,7 @@ void RenderSystem::drawMap(EntityManager &entityManager, ComponentManager &compo
         this->_graphic->getRenderView().getShader().setMat4("model", glm::mat4(1.0f));
         glActiveTexture(GL_TEXTURE0);
         if (this->_graphic->getTextures().find(map.name) != this->_graphic->getTextures().end())
-            glBindTexture(GL_TEXTURE_2D, this->_graphic->getTextures()[map.name]);
+            glBindTexture(GL_TEXTURE_2D, this->_graphic->getTextures()[map.name].getId());
         else
             glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -105,7 +105,7 @@ void RenderSystem::drawSkybox(EntityManager &entityManager, ComponentManager &co
 
         if (this->_graphic->getSkyboxes().find(cubemap.name) != this->_graphic->getSkyboxes().end()) {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubemap.name]);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubemap.name].getId());
             this->_graphic->getRenderView().getShader().setInt("skybox", 0);
             glBindVertexArray(this->_skybox.vao);
             glDrawArrays(GL_TRIANGLES, 0, 36);

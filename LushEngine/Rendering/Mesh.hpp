@@ -29,7 +29,7 @@ namespace Lush
     typedef struct {
         unsigned int id;
         std::string type;
-    } Texture;
+    } Tex;
 
     typedef struct {
         GLuint vao;
@@ -48,12 +48,12 @@ namespace Lush
         private:
             std::vector<Vertex> _vertices;
             std::vector<unsigned int> _indices;
-            std::vector<Texture> _textures;
+            std::vector<Tex> _textures;
             Material _material;
             BufferObject _bufferObject;
 
         public:
-            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, Material material);
+            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Tex> textures, Material material);
             ~Mesh() = default;
             void draw(Shader &shader);
 

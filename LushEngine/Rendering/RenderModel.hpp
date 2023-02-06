@@ -11,6 +11,7 @@
 #include "File/Resource.hpp"
 #include "Includes.hpp"
 #include "Rendering/Mesh.hpp"
+#include "Rendering/Texture.hpp"
 #include "STB/stb_image.h"
 
 namespace Lush
@@ -28,21 +29,21 @@ namespace Lush
             int _boneCounter = 0;
 
         public:
-            RenderModel(File &file, std::map<std::string, unsigned int> texturesLoaded);
+            RenderModel(File &file, std::map<std::string, Texture> textures);
             RenderModel() = default;
             ~RenderModel() = default;
 
-            void load(File &file, std::map<std::string, unsigned int> texturesLoaded);
-            void reload(File &file, std::map<std::string, unsigned int> texturesLoaded);
+            void load(File &file, std::map<std::string, Texture> textures);
+            void reload(File &file, std::map<std::string, Texture> textures);
             void draw(Shader &shader);
 
         private:
             std::map<std::string, BoneInfo> &getBoneInfoMap();
             int &getBoneCount();
 
-            void processNode(aiNode &node, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded);
-            Mesh processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::string, unsigned int> texturesLoaded);
-            std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::map<std::string, unsigned int> texturesLoaded);
+            void processNode(aiNode &node, const aiScene &scene, std::map<std::string, Texture> textures);
+            Mesh processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::string, Texture> textures);
+            std::vector<Tex> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::map<std::string, Texture> textures);
 
             void setVertexBoneDataToDefault(Vertex &vertex);
             void setVertexBoneData(Vertex &vertex, int boneID, float weight);

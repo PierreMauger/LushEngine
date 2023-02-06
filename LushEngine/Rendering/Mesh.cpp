@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, Material material)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Tex> textures, Material material)
 {
     this->_vertices = vertices;
     this->_indices = indices;
@@ -61,6 +61,7 @@ void Mesh::draw(Shader &shader)
         glActiveTexture(GL_TEXTURE0 + i);
         shader.setInt(this->_textures[i].type, i);
         glBindTexture(GL_TEXTURE_2D, this->_textures[i].id);
+        std::cout << this->_textures[i].id << std::endl;
     }
 
     glBindVertexArray(this->_bufferObject.vao);

@@ -2,83 +2,6 @@
 
 using namespace Lush;
 
-// TODO loader
-std::string loadFile2(std::string fileName)
-{
-    std::ifstream file;
-    std::string buffer;
-    std::stringstream stream;
-
-    file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    try {
-        file.open(fileName);
-        stream << file.rdbuf();
-        file.close();
-        buffer = stream.str();
-    } catch (std::ifstream::failure &e) {
-        throw std::runtime_error("File loading error: " + fileName);
-    }
-    return buffer;
-}
-
-unsigned int loadTexture(std::string name)
-{
-    unsigned int textureID;
-
-    glGenTextures(1, &textureID);
-
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load(name.c_str(), &width, &height, &nrChannels, 0);
-    if (data) {
-        GLenum format = GL_RGB;
-        if (nrChannels == 1)
-            format = GL_RED;
-        else if (nrChannels == 3)
-            format = GL_RGB;
-        else if (nrChannels == 4)
-            format = GL_RGBA;
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        stbi_image_free(data);
-    } else {
-        stbi_image_free(data);
-    }
-    glBindTexture(GL_TEXTURE_2D, 0);
-    return textureID;
-}
-
-unsigned int loadCubemap(std::vector<std::string> faces)
-{
-    unsigned int textureID;
-
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-    int width, height, nrChannels;
-    for (unsigned int i = 0; i < faces.size(); i++) {
-        unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-        if (data) {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-            stbi_image_free(data);
-        } else {
-            stbi_image_free(data);
-        }
-    }
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    return textureID;
-}
-
 Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / sizeY)
 {
     this->setGLFWContext(sizeX, sizeY, title);
@@ -113,26 +36,47 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_files["MaxwellScript"] = File("Resources/Scripts/Maxwell.cs");
     this->_files["Controlable"] = File("Resources/Scripts/Controlable.cs");
 
-    this->_textures["Crate.png"] = loadTexture("Resources/Textures/Crate.png");
-    this->_textures["Crate_specular.png"] = loadTexture("Resources/Textures/Crate_specular.png");
-    this->_textures["Crate_emission.png"] = loadTexture("Resources/Textures/Crate_emission.png");
-    this->_textures["Maxwell.jpeg"] = loadTexture("Resources/Textures/Maxwell.jpeg");
-    this->_textures["Whiskers.png"] = loadTexture("Resources/Textures/Whiskers.png");
-    this->_textures["heightMap.png"] = loadTexture("Resources/Textures/heightMap.png");
-    this->_textures["Audio.png"] = loadTexture("Resources/Textures/Editor/Audio.png");
-    this->_textures["Camera.png"] = loadTexture("Resources/Textures/Editor/Camera.png");
-    this->_textures["DirectionalLight.png"] = loadTexture("Resources/Textures/Editor/DirectionalLight.png");
-    this->_textures["Geometry.png"] = loadTexture("Resources/Textures/Editor/Geometry.png");
-    this->_textures["PointLight.png"] = loadTexture("Resources/Textures/Editor/PointLight.png");
-    this->_textures["SpotLight.png"] = loadTexture("Resources/Textures/Editor/SpotLight.png");
+    this->_files["Crate.png"] = File("Resources/Textures/Crate.png");
+    this->_files["Crate_specular.png"] = File("Resources/Textures/Crate_specular.png");
+    this->_files["Crate_emission.png"] = File("Resources/Textures/Crate_emission.png");
+    this->_files["Maxwell.jpeg"] = File("Resources/Textures/Maxwell.jpeg");
+    this->_files["Whiskers.png"] = File("Resources/Textures/Whiskers.png");
+    this->_files["heightMap.png"] = File("Resources/Textures/heightMap.png");
+    this->_files["Audio.png"] = File("Resources/Textures/Editor/Audio.png");
+    this->_files["Camera.png"] = File("Resources/Textures/Editor/Camera.png");
+    this->_files["DirectionalLight.png"] = File("Resources/Textures/Editor/DirectionalLight.png");
+    this->_files["Geometry.png"] = File("Resources/Textures/Editor/Geometry.png");
+    this->_files["PointLight.png"] = File("Resources/Textures/Editor/PointLight.png");
+    this->_files["SpotLight.png"] = File("Resources/Textures/Editor/SpotLight.png");
+
+    this->_textures["Crate.png"] = Texture(this->_files["Crate.png"]);
+    this->_textures["Crate_specular.png"] = Texture(this->_files["Crate_specular.png"]);
+    this->_textures["Crate_emission.png"] = Texture(this->_files["Crate_emission.png"]);
+    this->_textures["Maxwell.jpeg"] = Texture(this->_files["Maxwell.jpeg"]);
+    this->_textures["Whiskers.png"] = Texture(this->_files["Whiskers.png"]);
+    this->_textures["heightMap.png"] = Texture(this->_files["heightMap.png"]);
+    this->_textures["Audio.png"] = Texture(this->_files["Audio.png"]);
+    this->_textures["Camera.png"] = Texture(this->_files["Camera.png"]);
+    this->_textures["DirectionalLight.png"] = Texture(this->_files["DirectionalLight.png"]);
+    this->_textures["Geometry.png"] = Texture(this->_files["Geometry.png"]);
+    this->_textures["PointLight.png"] = Texture(this->_files["PointLight.png"]);
+    this->_textures["SpotLight.png"] = Texture(this->_files["SpotLight.png"]);
 
     this->_models["Fox"] = RenderModel(this->_files["Fox"], this->_textures);
     this->_models["Crate"] = RenderModel(this->_files["Crate"], this->_textures);
     this->_models["Cube"] = RenderModel(this->_files["Cube"], this->_textures);
     this->_models["Maxwell"] = RenderModel(this->_files["Maxwell"], this->_textures);
 
-    this->_skyboxes["Sky"] = loadCubemap({"Resources/Skybox/right.jpg", "Resources/Skybox/left.jpg", "Resources/Skybox/top.jpg", "Resources/Skybox/bottom.jpg",
-                                          "Resources/Skybox/front.jpg", "Resources/Skybox/back.jpg"});
+    this->_files["right.jpg"] = File("Resources/Skybox/right.jpg");
+    this->_files["left.jpg"] = File("Resources/Skybox/left.jpg");
+    this->_files["top.jpg"] = File("Resources/Skybox/top.jpg");
+    this->_files["bottom.jpg"] = File("Resources/Skybox/bottom.jpg");
+    this->_files["front.jpg"] = File("Resources/Skybox/front.jpg");
+    this->_files["back.jpg"] = File("Resources/Skybox/back.jpg");
+
+    std::vector<File> files = {this->_files["right.jpg"], this->_files["left.jpg"], this->_files["top.jpg"], this->_files["bottom.jpg"],
+                               this->_files["front.jpg"], this->_files["back.jpg"]};
+    this->_skyboxes["Sky"] = CubeMap(files);
 
     this->_shaders["Model"] = Shader(this->_files["model.vs"], this->_files["model.fs"]);
     this->_shaders["PickingModel"] = Shader(this->_files["model.vs"], this->_files["picking.fs"]);
@@ -259,7 +203,7 @@ std::map<std::string, Shader> &Graphic::getShaders()
     return this->_shaders;
 }
 
-std::map<std::string, unsigned int> &Graphic::getTextures()
+std::map<std::string, Texture> &Graphic::getTextures()
 {
     return this->_textures;
 }
@@ -269,7 +213,7 @@ std::map<std::string, RenderModel> &Graphic::getModels()
     return this->_models;
 }
 
-std::map<std::string, unsigned int> &Graphic::getSkyboxes()
+std::map<std::string, CubeMap> &Graphic::getSkyboxes()
 {
     return this->_skyboxes;
 }

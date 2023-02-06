@@ -98,6 +98,7 @@ set(INC
     ${PROJECT_NAME}/ImGui/
     ${PROJECT_NAME}/STB/
     ${PROJECT_NAME}/mono/
+    ${PROJECT_NAME}/RapidXML/
 )
 
 set(SRC
@@ -106,6 +107,8 @@ set(SRC
     ${PROJECT_NAME}/Loader.cpp
     ${PROJECT_NAME}/UUID.cpp
     ${PROJECT_NAME}/Rendering/Shapes.cpp
+    ${PROJECT_NAME}/Rendering/Texture.cpp
+    ${PROJECT_NAME}/Rendering/CubeMap.cpp
     ${PROJECT_NAME}/Rendering/RenderView.cpp
     ${PROJECT_NAME}/Rendering/Shader.cpp
     ${PROJECT_NAME}/Rendering/Mesh.cpp

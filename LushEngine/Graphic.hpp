@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 
 #include "Includes.hpp"
+#include "Rendering/Texture.hpp"
+#include "Rendering/CubeMap.hpp"
 #include "Rendering/RenderModel.hpp"
 #include "Rendering/RenderView.hpp"
 #include "Rendering/Shader.hpp"
@@ -24,9 +26,9 @@ namespace Lush
             std::map<std::string, File> _files;
 
             std::map<std::string, Shader> _shaders;
-            std::map<std::string, unsigned int> _textures;
+            std::map<std::string, Texture> _textures;
             std::map<std::string, RenderModel> _models;
-            std::map<std::string, unsigned int> _skyboxes;
+            std::map<std::string, CubeMap> _skyboxes;
             RenderView _renderView;
             std::map<std::string, FrameBuffer> _frameBuffers;
             std::map<std::string, ScriptClass> _scripts;
@@ -68,9 +70,9 @@ namespace Lush
             GLFWwindow *getWindow();
 
             std::map<std::string, Shader> &getShaders();
-            std::map<std::string, unsigned int> &getTextures();
+            std::map<std::string, Texture> &getTextures();
             std::map<std::string, RenderModel> &getModels();
-            std::map<std::string, unsigned int> &getSkyboxes();
+            std::map<std::string, CubeMap> &getSkyboxes();
             MapMesh &getMap();
             RenderView &getRenderView();
             std::map<std::string, FrameBuffer> &getFrameBuffers();
