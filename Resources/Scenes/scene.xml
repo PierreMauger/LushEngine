@@ -1,0 +1,22 @@
+<Scene>
+  <Entities>
+    <Entity id="0">
+      <Components>
+        <Transform position="0 0 0" rotation="0 0 0" scale="1 1 1" />
+        <Model name="Fox" />
+      </Components>
+    </Entity>
+    <Entity id="1">
+      <Components>
+        <Transform position="5 5 15" rotation="-100 -15 0" scale="1 1 1" />
+        <Camera />
+      </Components>
+    </Entity>
+    <Entity id="2">
+      <Components>
+        <Transform position="3 0 0" rotation="-30 -30 -30" scale="1 1 1" />
+        <Light />
+      </Components>
+    </Entity>
+  </Entities>
+</Scene>

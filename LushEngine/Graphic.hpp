@@ -15,6 +15,7 @@
 #include "Script/ScriptInstance.hpp"
 #include "File/File.hpp"
 #include "File/Resource.hpp"
+#include "Scene.hpp"
 
 namespace Lush
 {
@@ -33,6 +34,7 @@ namespace Lush
             std::map<std::string, FrameBuffer> _frameBuffers;
             std::map<std::string, ScriptClass> _scripts;
             std::vector<ScriptInstance> _instances;
+            std::shared_ptr<Scene> _scene;
 
             std::unique_ptr<MapMesh> _map;
 
@@ -111,6 +113,8 @@ namespace Lush
             glm::vec4 getSceneViewPort();
             void setWindowSize(glm::vec2 windowSize);
             glm::vec2 getWindowSize();
+
+            std::shared_ptr<Scene> getScene();
     };
 }
 

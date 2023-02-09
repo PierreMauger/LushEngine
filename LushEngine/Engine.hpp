@@ -28,9 +28,8 @@ namespace Lush
 
         public:
             Engine();
-            ~Engine();
+            ~Engine() = default;
 
-            void loadScene();
             void run();
             void updateMouse();
     };

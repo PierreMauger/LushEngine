@@ -105,6 +105,7 @@ set(SRC
     ${PROJECT_NAME}/Engine.cpp
     ${PROJECT_NAME}/Graphic.cpp
     ${PROJECT_NAME}/Loader.cpp
+    ${PROJECT_NAME}/Scene.cpp
     ${PROJECT_NAME}/UUID.cpp
     ${PROJECT_NAME}/Rendering/Shapes.cpp
     ${PROJECT_NAME}/Rendering/Texture.cpp

@@ -49,6 +49,10 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_files["PointLight.png"] = File("Resources/Textures/Editor/PointLight.png");
     this->_files["SpotLight.png"] = File("Resources/Textures/Editor/SpotLight.png");
 
+    this->_files["scene.xml"] = File("Resources/Scenes/scene.xml");
+
+    this->_scene = std::make_shared<Scene>(this->_files["scene.xml"]);
+
     this->_textures["Crate.png"] = Texture(this->_files["Crate.png"]);
     this->_textures["Crate_specular.png"] = Texture(this->_files["Crate_specular.png"]);
     this->_textures["Crate_emission.png"] = Texture(this->_files["Crate_emission.png"]);
@@ -379,4 +383,9 @@ void Graphic::setWindowSize(glm::vec2 windowSize)
 glm::vec2 Graphic::getWindowSize()
 {
     return this->_windowSize;
+}
+
+std::shared_ptr<Scene> Graphic::getScene()
+{
+    return this->_scene;
 }
