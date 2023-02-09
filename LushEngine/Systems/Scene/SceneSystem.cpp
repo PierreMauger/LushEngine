@@ -9,8 +9,8 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entity
     entityManager.addMaskCategory(SKYBOX_TAG);
     entityManager.addMaskCategory(MAP_TAG);
 
-    this->_cameraTransform.position = glm::vec3(5.0f, 5.0f, 15.0f);
-    this->_cameraTransform.rotation = glm::vec3(-100.0f, -15.0f, 0.0f);
+    this->_cameraTransform.position = glm::vec3(10.0f, 5.0f, 15.0f);
+    this->_cameraTransform.rotation = glm::vec3(-130.0f, -15.0f, 0.0f);
     this->_camera.forward.x = cos(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
     this->_camera.forward.y = sin(glm::radians(this->_cameraTransform.rotation.y));
     this->_camera.forward.z = sin(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));

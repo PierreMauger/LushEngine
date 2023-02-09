@@ -44,20 +44,38 @@ void Scene::load(File &file)
                 this->_componentManager.addComponent<Transform>(id, temp);
             } else if (name == "Velocity") {
                 mask |= ComponentType::VELOCITY;
+                // attributs
                 this->_componentManager.addComponent<Velocity>(id);
             } else if (name == "Model") {
                 mask |= ComponentType::MODEL;
                 Model temp;
-                temp.name = componentNode->first_attribute("name")->value();;
+                temp.name = componentNode->first_attribute("name")->value();
                 this->_componentManager.addComponent<Model>(id, temp);
             } else if (name == "Camera") {
                 mask |= ComponentType::CAMERA;
                 Camera temp;
+                // attributs
                 this->_componentManager.addComponent<Camera>(id, temp);
             } else if (name == "Light") {
                 mask |= ComponentType::LIGHT;
                 Light temp;
+                // attributs
                 this->_componentManager.addComponent<Light>(id, temp);
+            } else if (name == "Cubemap") {
+                mask |= ComponentType::CUBEMAP;
+                Cubemap temp;
+                temp.name = componentNode->first_attribute("name")->value();
+                this->_componentManager.addComponent<Cubemap>(id, temp);
+            } else if (name == "Billboard") {
+                mask |= ComponentType::BILLBOARD;
+                Billboard temp;
+                temp.name = componentNode->first_attribute("name")->value();
+                this->_componentManager.addComponent<Billboard>(id, temp);
+            } else if (name == "Map") {
+                mask |= ComponentType::MAP;
+                Map temp;
+                temp.name = componentNode->first_attribute("name")->value();
+                this->_componentManager.addComponent<Map>(id, temp);
             }
         }
         this->_entityManager.updateMask(id, mask);
@@ -67,6 +85,9 @@ void Scene::load(File &file)
 
 void Scene::setScene(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    entityManager = this->_entityManager;
+    // can't use copy constructor because of mask category
+    for (std::size_t i = 0; i < this->_entityManager.getMasks().size(); i++)
+        if (this->_entityManager.getMasks()[i].has_value())
+            entityManager.addMask(i, this->_entityManager.getMasks()[i].value());
     componentManager = this->_componentManager;
 }
