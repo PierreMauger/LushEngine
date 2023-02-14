@@ -18,14 +18,9 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
             std::shared_ptr<ResourceManager> _resourceManager;
 
-            MonoDomain *_domain;
-
-            void initScriptDomain();
-            void loadBaseScript();
-
         public:
             ScriptSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
-            ~ScriptSystem();
+            ~ScriptSystem() = default;
 
             void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
     };

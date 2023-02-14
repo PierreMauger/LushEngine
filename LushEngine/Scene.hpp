@@ -1,16 +1,18 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
+#include "ComponentTypes.hpp"
+#include "ECS/Component/ComponentManager.hpp"
+#include "ECS/Entity/EntityManager.hpp"
 #include "File/File.hpp"
 #include "Includes.hpp"
+#include "Script/ScriptClass.hpp"
 #include "rapidxml.hpp"
 #include "rapidxml_print.hpp"
-#include "ComponentTypes.hpp"
-#include "ECS/Entity/EntityManager.hpp"
-#include "ECS/Component/ComponentManager.hpp"
 
 namespace Lush
 {
+    // TODO: Add as a resource
     class Scene
     {
         private:
@@ -18,10 +20,10 @@ namespace Lush
             ComponentManager _componentManager;
 
         public:
-            Scene(File &file);
+            Scene(File &file, std::map<std::string, ScriptClass> &scripts);
             ~Scene() = default;
 
-            void load(File &file);
+            void load(File &file, std::map<std::string, ScriptClass> &scripts);
 
             void setScene(EntityManager &entityManager, ComponentManager &componentManager);
     };

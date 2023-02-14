@@ -42,10 +42,6 @@ ResourceManager::ResourceManager()
     this->_files["PointLight.png"] = File("Resources/Textures/Editor/PointLight.png");
     this->_files["SpotLight.png"] = File("Resources/Textures/Editor/SpotLight.png");
 
-    this->_files["scene.xml"] = File("Resources/Scenes/scene.xml");
-
-    this->_scene = std::make_shared<Scene>(this->_files["scene.xml"]);
-
     this->_textures["Crate.png"] = Texture(this->_files["Crate.png"]);
     this->_textures["Crate_specular.png"] = Texture(this->_files["Crate_specular.png"]);
     this->_textures["Crate_emission.png"] = Texture(this->_files["Crate_emission.png"]);
@@ -71,8 +67,8 @@ ResourceManager::ResourceManager()
     this->_files["front.jpg"] = File("Resources/Skybox/front.jpg");
     this->_files["back.jpg"] = File("Resources/Skybox/back.jpg");
 
-    std::vector<File> files = {this->_files["right.jpg"], this->_files["left.jpg"], this->_files["top.jpg"], this->_files["bottom.jpg"],
-                               this->_files["front.jpg"], this->_files["back.jpg"]};
+    std::vector<File> files = {this->_files["right.jpg"],  this->_files["left.jpg"],  this->_files["top.jpg"],
+                               this->_files["bottom.jpg"], this->_files["front.jpg"], this->_files["back.jpg"]};
     this->_skyboxes["Sky"] = CubeMap(files);
 
     this->_shaders["Model"] = Shader(this->_files["model.vs"], this->_files["model.fs"]);
@@ -85,10 +81,39 @@ ResourceManager::ResourceManager()
     this->_shaders["Map"] = Shader(this->_files["map.vs"], this->_files["map.fs"], File(), this->_files["map.tcs"], this->_files["map.tes"]);
 
     this->_map = std::make_unique<MapMesh>(2624, 1756);
+
+    try {
+        this->initScriptDomain();
+        this->loadBaseScript();
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+    }
+
+    this->_scripts["Spin"] = ScriptClass(this->_files["Spin"]);
+    this->_scripts["Maxwell"] = ScriptClass(this->_files["MaxwellScript"]);
+    this->_scripts["Controlable"] = ScriptClass(this->_files["Controlable"]);
+
+    this->_files["scene.xml"] = File("Resources/Scenes/scene.xml");
+    this->_scene = std::make_shared<Scene>(this->_files["scene.xml"], this->_scripts);
 }
 
 ResourceManager::~ResourceManager()
 {
+    mono_jit_cleanup(this->_domain);
+}
+
+void ResourceManager::initScriptDomain()
+{
+    unsetenv("TERM");
+    this->_domain = mono_jit_init("LushJIT");
+    if (!this->_domain)
+        throw std::runtime_error("mono_jit_init failed");
+}
+
+void ResourceManager::loadBaseScript()
+{
+    if (system("mcs -target:library -out:Resources/Scripts/Core.dll Resources/Scripts/Components.cs Resources/Scripts/InternalCalls.cs Resources/Scripts/Entity.cs"))
+        throw std::runtime_error("mcs failed");
 }
 
 std::map<std::string, Shader> &ResourceManager::getShaders()
@@ -111,11 +136,6 @@ std::map<std::string, CubeMap> &ResourceManager::getSkyboxes()
     return this->_skyboxes;
 }
 
-MapMesh &ResourceManager::getMap()
-{
-    return *this->_map;
-}
-
 std::map<std::string, File> &ResourceManager::getFiles()
 {
     return this->_files;
@@ -129,6 +149,11 @@ std::map<std::string, ScriptClass> &ResourceManager::getScripts()
 std::vector<ScriptInstance> &ResourceManager::getInstances()
 {
     return this->_instances;
+}
+
+MapMesh &ResourceManager::getMap()
+{
+    return *this->_map;
 }
 
 std::shared_ptr<Scene> ResourceManager::getScene()

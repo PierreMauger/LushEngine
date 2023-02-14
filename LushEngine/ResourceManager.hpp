@@ -33,6 +33,10 @@ namespace Lush
 
             std::shared_ptr<Scene> _scene;
             std::unique_ptr<MapMesh> _map;
+            MonoDomain *_domain;
+
+            void initScriptDomain();
+            void loadBaseScript();
 
         public:
             ResourceManager();

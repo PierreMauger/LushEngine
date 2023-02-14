@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-Scene::Scene(File &file)
+Scene::Scene(File &file, std::map<std::string, ScriptClass> &scripts)
 {
     this->_componentManager.bindComponent<Transform>();
     this->_componentManager.bindComponent<Velocity>();
@@ -13,10 +13,10 @@ Scene::Scene(File &file)
     this->_componentManager.bindComponent<Billboard>();
     this->_componentManager.bindComponent<Map>();
 
-    this->load(file);
+    this->load(file, scripts);
 }
 
-void Scene::load(File &file)
+void Scene::load(File &file, std::map<std::string, ScriptClass> &scripts)
 {
     rapidxml::xml_document<> doc;
     std::string xml = file.load();
@@ -77,9 +77,16 @@ void Scene::load(File &file)
                 temp.name = componentNode->first_attribute("name")->value();
                 this->_componentManager.addComponent<Map>(id, temp);
             }
+            std::size_t it = 0;
+            for (auto &[scriptName, script] : scripts) {
+                if (scriptName == name)
+                    mask |= ComponentType::COMPONENT_TYPE_COUNT << it;
+                it++;
+            }
         }
         this->_entityManager.updateMask(id, mask);
     }
+
     delete[] xmlCopy;
 }
 
