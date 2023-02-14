@@ -23,7 +23,7 @@ namespace Lush
             // std::vector<std::pair<Transform, Light>> _areaLights;
 
         public:
-            CameraSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
+            CameraSystem(std::shared_ptr<Graphic> graphic);
             ~CameraSystem() = default;
 
             void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);

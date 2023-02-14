@@ -6,6 +6,7 @@
 #include "Graphic.hpp"
 #include "Includes.hpp"
 #include "Rendering/Shapes.hpp"
+#include "ResourceManager.hpp"
 
 #define MODEL_TAG (ComponentType::TRANSFORM | ComponentType::MODEL)
 #define BILLBOARD_TAG (ComponentType::TRANSFORM | ComponentType::BILLBOARD)
@@ -18,6 +19,7 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
+            std::shared_ptr<ResourceManager> _resourceManager;
 
             FrameBuffer _buffer;
             BufferObject _skybox;
@@ -29,7 +31,7 @@ namespace Lush
             void drawSkybox(EntityManager &entityManager, ComponentManager &componentManager);
 
         public:
-            RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
+            RenderSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~RenderSystem();
 
             void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);

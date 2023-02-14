@@ -4,6 +4,7 @@
 #include "ComponentTypes.hpp"
 #include "ECS/System/ASystem.hpp"
 #include "Graphic.hpp"
+#include "ResourceManager.hpp"
 #include "ImGui/IconsFontAwesome5.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_glfw.h"
@@ -22,6 +23,8 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
+            std::shared_ptr<ResourceManager> _resourceManager;
+
             bool _showSceneHierarchy = true;
             bool _showProperties = true;
             bool _showTools = true;
@@ -59,7 +62,7 @@ namespace Lush
             std::string formatBinary(std::size_t value, std::size_t size);
 
         public:
-            GUISystem(std::shared_ptr<Graphic> graphic);
+            GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~GUISystem();
 
             void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);

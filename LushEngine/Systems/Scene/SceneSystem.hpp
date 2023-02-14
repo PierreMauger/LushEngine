@@ -6,6 +6,7 @@
 #include "Graphic.hpp"
 #include "Includes.hpp"
 #include "Rendering/Shapes.hpp"
+#include "ResourceManager.hpp"
 
 #define MODEL_TAG (ComponentType::TRANSFORM | ComponentType::MODEL)
 #define BILLBOARD_TAG (ComponentType::TRANSFORM | ComponentType::BILLBOARD)
@@ -18,6 +19,7 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
+            std::shared_ptr<ResourceManager> _resourceManager;
 
             FrameBuffer _buffer;
             BufferObject _skybox;
@@ -35,7 +37,7 @@ namespace Lush
             void drawGrid();
 
         public:
-            SceneSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
+            SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~SceneSystem();
 
             void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);

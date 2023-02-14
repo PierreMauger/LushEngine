@@ -2,7 +2,8 @@
 
 using namespace Lush;
 
-FileWatcherSystem::FileWatcherSystem(std::shared_ptr<Graphic> graphic, [[maybe_unused]] EntityManager &entityManager) : ASystem(3.0f), _graphic(graphic)
+FileWatcherSystem::FileWatcherSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
+    : ASystem(3.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
 }
 
@@ -10,7 +11,7 @@ void FileWatcherSystem::update([[maybe_unused]] EntityManager &entityManager, [[
 {
     if (!this->shouldUpdate(deltaTime))
         return;
-    for (auto &[name, file] : this->_graphic->getFiles()) {
+    for (auto &[name, file] : this->_resourceManager->getFiles()) {
         if (file.isModified()) {
             file.update();
             this->reloadResourcesFromFile(file);
@@ -38,10 +39,10 @@ void FileWatcherSystem::updateResource(Resource &resource)
 
     switch (resource.getType()) {
     case ResourceType::MODEL:
-        for (auto &[name, model] : this->_graphic->getModels()) {
+        for (auto &[name, model] : this->_resourceManager->getModels()) {
             if (model == resource) {
                 try {
-                    model.reload(files[0], this->_graphic->getTextures());
+                    model.reload(files[0], this->_resourceManager->getTextures());
                     std::cout << "Reloaded model " << name << std::endl;
                 } catch (const std::exception &e) {
                     std::cout << e.what() << std::endl;
@@ -50,7 +51,7 @@ void FileWatcherSystem::updateResource(Resource &resource)
         }
         break;
     case ResourceType::SHADER:
-        for (auto &[name, shader] : this->_graphic->getShaders()) {
+        for (auto &[name, shader] : this->_resourceManager->getShaders()) {
             if (shader == resource) {
                 try {
                     if (files.size() == 2)
@@ -61,7 +62,7 @@ void FileWatcherSystem::updateResource(Resource &resource)
                         shader.reload(files[0], files[1], files[2], files[3]);
                     else if (files.size() == 5)
                         shader.reload(files[0], files[1], files[2], files[3], files[4]);
-                    this->_graphic->getRenderView().setShaders(this->_graphic->getShaders());
+                    this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());
                     std::cout << "Reloaded shader " << name << std::endl;
                 } catch (const std::exception &e) {
                     std::cout << e.what() << std::endl;
@@ -70,7 +71,7 @@ void FileWatcherSystem::updateResource(Resource &resource)
         }
         break;
     case ResourceType::SCRIPT:
-        for (auto &[name, script] : this->_graphic->getScripts()) {
+        for (auto &[name, script] : this->_resourceManager->getScripts()) {
             if (script == resource) {
                 if (this->_graphic->getRunning()) {
                     this->_resourcesToReload.push_back(resource);

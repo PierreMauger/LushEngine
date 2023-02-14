@@ -98,12 +98,14 @@ set(INC
     ${PROJECT_NAME}/ImGui/
     ${PROJECT_NAME}/STB/
     ${PROJECT_NAME}/mono/
+    ${PROJECT_NAME}/assimp/
     ${PROJECT_NAME}/RapidXML/
 )
 
 set(SRC
     ${PROJECT_NAME}/Engine.cpp
     ${PROJECT_NAME}/Graphic.cpp
+    ${PROJECT_NAME}/ResourceManager.cpp
     ${PROJECT_NAME}/Loader.cpp
     ${PROJECT_NAME}/Scene.cpp
     ${PROJECT_NAME}/UUID.cpp

@@ -61,7 +61,6 @@ void Mesh::draw(Shader &shader)
         glActiveTexture(GL_TEXTURE0 + i);
         shader.setInt(this->_textures[i].type, i);
         glBindTexture(GL_TEXTURE_2D, this->_textures[i].id);
-        std::cout << this->_textures[i].id << std::endl;
     }
 
     glBindVertexArray(this->_bufferObject.vao);

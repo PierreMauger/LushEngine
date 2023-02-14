@@ -2,7 +2,8 @@
 
 using namespace Lush;
 
-ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : ASystem(60.0f), _graphic(graphic)
+ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
+    : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
     try {
         this->initScriptDomain();
@@ -10,16 +11,14 @@ ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &enti
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
-    std::map<std::string, ScriptClass> &scripts = this->_graphic->getScripts();
-    std::map<std::string, File> files = this->_graphic->getFiles();
+    // TODO : Move this to ResourceManager
+    std::map<std::string, ScriptClass> &scripts = this->_resourceManager->getScripts();
+    std::map<std::string, File> files = this->_resourceManager->getFiles();
 
     scripts["Spin"] = ScriptClass(files["Spin"]);
     scripts["Maxwell"] = ScriptClass(files["MaxwellScript"]);
     scripts["Controlable"] = ScriptClass(files["Controlable"]);
     ScriptGlue::registerFunctions();
-
-    for (std::size_t i = 0; i < scripts.size(); i++)
-        entityManager.addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << i);
 }
 
 ScriptSystem::~ScriptSystem()
@@ -29,11 +28,11 @@ ScriptSystem::~ScriptSystem()
 
 void ScriptSystem::update([[maybe_unused]] EntityManager &entityManager, [[maybe_unused]] ComponentManager &componentManager, float deltaTime)
 {
-    if (!this->shouldUpdate(deltaTime))
-        return;
     if (this->_graphic->getPaused() || !this->_graphic->getRunning())
         return;
-    for (auto &instance : this->_graphic->getInstances())
+    if (!this->shouldUpdate(deltaTime))
+        return;
+    for (auto &instance : this->_resourceManager->getInstances())
         instance.update(this->getDeltaTime());
 }
 

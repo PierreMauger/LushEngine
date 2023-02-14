@@ -2,11 +2,8 @@
 
 using namespace Lush;
 
-PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager) : ASystem(60.0f), _graphic(graphic)
+PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
-    entityManager.addMaskCategory(MODEL_TAG);
-    entityManager.addMaskCategory(BILLBOARD_TAG);
-
     Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
     this->_graphic->getFrameBuffers()["picking"] = this->_buffer;
 
@@ -68,8 +65,8 @@ void PickingSystem::drawModels(EntityManager &entityManager, ComponentManager &c
 
         this->_graphic->getRenderView().getShader().setVec4("id", color);
         this->_graphic->getRenderView().setModel(transform);
-        if (this->_graphic->getModels().find(model.name) != this->_graphic->getModels().end())
-            this->_graphic->getModels()[model.name].draw(this->_graphic->getRenderView().getShader());
+        if (this->_resourceManager->getModels().find(model.name) != this->_resourceManager->getModels().end())
+            this->_resourceManager->getModels()[model.name].draw(this->_graphic->getRenderView().getShader());
     }
 }
 

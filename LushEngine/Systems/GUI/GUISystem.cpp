@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-GUISystem::GUISystem(std::shared_ptr<Graphic> graphic) : ASystem(60.0f), _graphic(graphic)
+GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
     if (!IMGUI_CHECKVERSION())
         throw std::runtime_error("ImGui version is invalid");
@@ -148,15 +148,15 @@ void GUISystem::drawActionBar(EntityManager &entityManager, ComponentManager &co
                     this->_entityManagerCopy = entityManager;
                     this->_componentManagerCopy = componentManager;
                     std::size_t it = 0;
-                    for (auto &[name, script] : this->_graphic->getScripts()) {
+                    for (auto &[name, script] : this->_resourceManager->getScripts()) {
                         for (auto id : entityManager.getMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << it))
-                            this->_graphic->getInstances().push_back(ScriptInstance(script, id));
+                            this->_resourceManager->getInstances().push_back(ScriptInstance(script, id));
                         it++;
                     }
-                    for (auto &instance : this->_graphic->getInstances())
+                    for (auto &instance : this->_resourceManager->getInstances())
                         instance.init();
                 } else {
-                    this->_graphic->getInstances().clear();
+                    this->_resourceManager->getInstances().clear();
                     entityManager = this->_entityManagerCopy;
                     componentManager = this->_componentManagerCopy;
                 }
@@ -196,7 +196,7 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManage
             ImGui::Text("%lu", i);
             ImGui::TableNextColumn();
             masks[i].has_value()
-                ? ImGui::Text("%s", this->formatBinary(masks[i].value(), componentManager.getComponentArray().size() + this->_graphic->getScripts().size()).c_str())
+                ? ImGui::Text("%s", this->formatBinary(masks[i].value(), componentManager.getComponentArray().size() + this->_resourceManager->getScripts().size()).c_str())
                 : ImGui::Text("None");
             ImGui::TableNextColumn();
             if (masks[i].has_value()) {
@@ -271,7 +271,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     Model &model = componentManager.getComponent<Model>(selectedEntity);
                     std::string selectedItem = model.name;
                     if (ImGui::BeginCombo("Select Item##Model", selectedItem.c_str())) {
-                        for (auto &[key, value] : this->_graphic->getModels()) {
+                        for (auto &[key, value] : this->_resourceManager->getModels()) {
                             bool is_selected = (selectedItem == key);
                             if (ImGui::Selectable(key.c_str(), is_selected))
                                 model.name = key;
@@ -313,7 +313,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     Cubemap &cubemap = componentManager.getComponent<Cubemap>(selectedEntity);
                     std::string selectedItem = cubemap.name;
                     if (ImGui::BeginCombo("Select Item##Cubemap", selectedItem.c_str())) {
-                        for (auto &[key, value] : this->_graphic->getSkyboxes()) {
+                        for (auto &[key, value] : this->_resourceManager->getSkyboxes()) {
                             bool is_selected = (selectedItem == key);
                             if (ImGui::Selectable(key.c_str(), is_selected))
                                 cubemap.name = key;
@@ -328,7 +328,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     Billboard &bill = componentManager.getComponent<Billboard>(selectedEntity);
                     std::string selectedItem = bill.name;
                     if (ImGui::BeginCombo("Select Item##Billboard", selectedItem.c_str())) {
-                        for (auto &[key, value] : this->_graphic->getTextures()) {
+                        for (auto &[key, value] : this->_resourceManager->getTextures()) {
                             bool is_selected = (selectedItem == key);
                             if (ImGui::Selectable(key.c_str(), is_selected))
                                 bill.name = key;
@@ -343,7 +343,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     Map &map = componentManager.getComponent<Map>(selectedEntity);
                     std::string selectedItem = map.name;
                     if (ImGui::BeginCombo("Select Item##Map", selectedItem.c_str())) {
-                        for (auto &[key, value] : this->_graphic->getTextures()) {
+                        for (auto &[key, value] : this->_resourceManager->getTextures()) {
                             bool is_selected = (selectedItem == key);
                             if (ImGui::Selectable(key.c_str(), is_selected))
                                 map.name = key;
@@ -367,7 +367,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
         }
     }
     std::size_t it = 0;
-    for (auto &[name, script] : this->_graphic->getScripts()) {
+    for (auto &[name, script] : this->_resourceManager->getScripts()) {
         if (masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it))
             if (ImGui::CollapsingHeader((ICON_FA_FILE_CODE " " + name).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
                 if (ImGui::Button(std::string("Remove##" + std::to_string(8 + it)).c_str()))
@@ -422,7 +422,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
             }
         }
         it = 0;
-        for (auto &[name, script] : this->_graphic->getScripts()) {
+        for (auto &[name, script] : this->_resourceManager->getScripts()) {
             if (!(masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it))) {
                 ImGui::PushID(8 + it);
                 if (ImGui::Selectable("##selectable", false, ImGuiSelectableFlags_SpanAllColumns))

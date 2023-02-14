@@ -8,6 +8,7 @@
 #include "ECS/ECS.hpp"
 #include "Graphic.hpp"
 #include "Includes.hpp"
+#include "ResourceManager.hpp"
 #include "Systems/Camera/CameraSystem.hpp"
 #include "Systems/FileWatcher/FileWatcherSystem.hpp"
 #include "Systems/GUI/GUISystem.hpp"
@@ -23,6 +24,7 @@ namespace Lush
         private:
             ECS _ecs;
             std::shared_ptr<Graphic> _graphic;
+            std::shared_ptr<ResourceManager> _resourceManager;
             float _lastTime = 0.0f;
             float _deltaTime = 0.0f;
 

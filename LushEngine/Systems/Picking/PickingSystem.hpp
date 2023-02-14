@@ -6,6 +6,7 @@
 #include "Graphic.hpp"
 #include "Includes.hpp"
 #include "Rendering/Shapes.hpp"
+#include "ResourceManager.hpp"
 
 #define MODEL_TAG (ComponentType::TRANSFORM | ComponentType::MODEL)
 #define BILLBOARD_TAG (ComponentType::TRANSFORM | ComponentType::BILLBOARD)
@@ -16,6 +17,7 @@ namespace Lush
     {
         private:
             std::shared_ptr<Graphic> _graphic;
+            std::shared_ptr<ResourceManager> _resourceManager;
 
             FrameBuffer _buffer;
             BufferObject _billboard;
@@ -26,7 +28,7 @@ namespace Lush
             void drawOutline(std::size_t pixel);
 
         public:
-            PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
+            PickingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~PickingSystem();
 
             void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);

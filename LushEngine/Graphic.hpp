@@ -24,19 +24,8 @@ namespace Lush
         private:
             GLFWwindow *_window;
 
-            std::map<std::string, File> _files;
-
-            std::map<std::string, Shader> _shaders;
-            std::map<std::string, Texture> _textures;
-            std::map<std::string, RenderModel> _models;
-            std::map<std::string, CubeMap> _skyboxes;
             RenderView _renderView;
             std::map<std::string, FrameBuffer> _frameBuffers;
-            std::map<std::string, ScriptClass> _scripts;
-            std::vector<ScriptInstance> _instances;
-            std::shared_ptr<Scene> _scene;
-
-            std::unique_ptr<MapMesh> _map;
 
             std::ostringstream _stringStream;
 
@@ -71,18 +60,9 @@ namespace Lush
 
             GLFWwindow *getWindow();
 
-            std::map<std::string, Shader> &getShaders();
-            std::map<std::string, Texture> &getTextures();
-            std::map<std::string, RenderModel> &getModels();
-            std::map<std::string, CubeMap> &getSkyboxes();
-            MapMesh &getMap();
             RenderView &getRenderView();
             std::map<std::string, FrameBuffer> &getFrameBuffers();
             FrameBuffer &getFrameBuffer(std::string name);
-            std::map<std::string, File> &getFiles();
-
-            std::map<std::string, ScriptClass> &getScripts();
-            std::vector<ScriptInstance> &getInstances();
 
             std::ostringstream &getStringStream();
 
@@ -113,8 +93,6 @@ namespace Lush
             glm::vec4 getSceneViewPort();
             void setWindowSize(glm::vec2 windowSize);
             glm::vec2 getWindowSize();
-
-            std::shared_ptr<Scene> getScene();
     };
 }
 
