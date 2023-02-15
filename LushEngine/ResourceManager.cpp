@@ -4,61 +4,50 @@ using namespace Lush;
 
 ResourceManager::ResourceManager()
 {
-    this->_files["Fox"] = File("Resources/Models/Fox.dae");
-    this->_files["Crate"] = File("Resources/Models/Crate.dae");
-    this->_files["Cube"] = File("Resources/Models/Cube.dae");
-    this->_files["Maxwell"] = File("Resources/Models/Maxwell.dae");
+    // Loading all textures
+    this->loadDirectory("Resources/Textures", [this](std::string path) {
+        this->_files[path] = File(path);
+        std::string name = std::filesystem::path(path).filename().string();
+        this->_textures[name] = Texture(this->_files[path]);
+    }, {".png", ".jpg", ".jpeg"});
 
-    this->_files["model.vs"] = File("Resources/Shaders/model.vs");
-    this->_files["model.fs"] = File("Resources/Shaders/model.fs");
-    this->_files["picking.fs"] = File("Resources/Shaders/picking.fs");
-    this->_files["billboard.vs"] = File("Resources/Shaders/billboard.vs");
-    this->_files["billboard.fs"] = File("Resources/Shaders/billboard.fs");
-    this->_files["outline.vs"] = File("Resources/Shaders/outline.vs");
-    this->_files["outline.fs"] = File("Resources/Shaders/outline.fs");
-    this->_files["skybox.vs"] = File("Resources/Shaders/skybox.vs");
-    this->_files["skybox.fs"] = File("Resources/Shaders/skybox.fs");
-    this->_files["grid.vs"] = File("Resources/Shaders/grid.vs");
-    this->_files["grid.fs"] = File("Resources/Shaders/grid.fs");
-    this->_files["map.vs"] = File("Resources/Shaders/map.vs");
-    this->_files["map.fs"] = File("Resources/Shaders/map.fs");
-    this->_files["map.tcs"] = File("Resources/Shaders/map.tcs");
-    this->_files["map.tes"] = File("Resources/Shaders/map.tes");
+    // Loading all models
+    this->loadDirectory("Resources/Models", [this](std::string path) {
+        this->_files[path] = File(path);
+        this->_models[this->_files[path].getName()] = RenderModel(this->_files[path], this->_textures);
+    }, {".dae"});
 
-    this->_files["Spin"] = File("Resources/Scripts/Spin.cs");
-    this->_files["MaxwellScript"] = File("Resources/Scripts/Maxwell.cs");
-    this->_files["Controlable"] = File("Resources/Scripts/Controlable.cs");
+    try {
+        this->initScriptDomain();
+        this->loadCoreScript();
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+    }
+    // Loading all scripts
+    this->loadDirectory("Resources/Scripts", [this](std::string path) {
+        this->_files[path] = File(path);
+        this->_scripts[this->_files[path].getName()] = ScriptClass(this->_files[path]);
+    }, {".cs"});
 
-    this->_files["Crate.png"] = File("Resources/Textures/Crate.png");
-    this->_files["Crate_specular.png"] = File("Resources/Textures/Crate_specular.png");
-    this->_files["Crate_emission.png"] = File("Resources/Textures/Crate_emission.png");
-    this->_files["Maxwell.jpeg"] = File("Resources/Textures/Maxwell.jpeg");
-    this->_files["Whiskers.png"] = File("Resources/Textures/Whiskers.png");
-    this->_files["heightMap.png"] = File("Resources/Textures/heightMap.png");
-    this->_files["Audio.png"] = File("Resources/Textures/Editor/Audio.png");
-    this->_files["Camera.png"] = File("Resources/Textures/Editor/Camera.png");
-    this->_files["DirectionalLight.png"] = File("Resources/Textures/Editor/DirectionalLight.png");
-    this->_files["Geometry.png"] = File("Resources/Textures/Editor/Geometry.png");
-    this->_files["PointLight.png"] = File("Resources/Textures/Editor/PointLight.png");
-    this->_files["SpotLight.png"] = File("Resources/Textures/Editor/SpotLight.png");
+    // Loading all scenes
+    this->loadDirectory("Resources/Scenes", [this](std::string path) {
+        this->_files[path] = File(path);
+        this->_scene = std::make_shared<Scene>(this->_files[path], this->_scripts);
+    }, {".xml"});
 
-    this->_textures["Crate.png"] = Texture(this->_files["Crate.png"]);
-    this->_textures["Crate_specular.png"] = Texture(this->_files["Crate_specular.png"]);
-    this->_textures["Crate_emission.png"] = Texture(this->_files["Crate_emission.png"]);
-    this->_textures["Maxwell.jpeg"] = Texture(this->_files["Maxwell.jpeg"]);
-    this->_textures["Whiskers.png"] = Texture(this->_files["Whiskers.png"]);
-    this->_textures["heightMap.png"] = Texture(this->_files["heightMap.png"]);
-    this->_textures["Audio.png"] = Texture(this->_files["Audio.png"]);
-    this->_textures["Camera.png"] = Texture(this->_files["Camera.png"]);
-    this->_textures["DirectionalLight.png"] = Texture(this->_files["DirectionalLight.png"]);
-    this->_textures["Geometry.png"] = Texture(this->_files["Geometry.png"]);
-    this->_textures["PointLight.png"] = Texture(this->_files["PointLight.png"]);
-    this->_textures["SpotLight.png"] = Texture(this->_files["SpotLight.png"]);
-
-    this->_models["Fox"] = RenderModel(this->_files["Fox"], this->_textures);
-    this->_models["Crate"] = RenderModel(this->_files["Crate"], this->_textures);
-    this->_models["Cube"] = RenderModel(this->_files["Cube"], this->_textures);
-    this->_models["Maxwell"] = RenderModel(this->_files["Maxwell"], this->_textures);
+    // Loading all shaders
+    this->loadDirectory("Resources/Shaders", [this](std::string path) {
+        this->_files[path] = File(path);
+        // this->_shaders[this->_files[path].getName()] = Shader(this->_files[path]);
+    }, {".vs", ".fs", ".tcs", ".tes", ".gs", ".cs"});
+    this->_shaders["Model"] = Shader(this->_files["Resources/Shaders/model.vs"], this->_files["Resources/Shaders/model.fs"]);
+    this->_shaders["PickingModel"] = Shader(this->_files["Resources/Shaders/model.vs"], this->_files["Resources/Shaders/picking.fs"]);
+    this->_shaders["PickingBillboard"] = Shader(this->_files["Resources/Shaders/billboard.vs"], this->_files["Resources/Shaders/picking.fs"]);
+    this->_shaders["Outline"] = Shader(this->_files["Resources/Shaders/outline.vs"], this->_files["Resources/Shaders/outline.fs"]);
+    this->_shaders["Skybox"] = Shader(this->_files["Resources/Shaders/skybox.vs"], this->_files["Resources/Shaders/skybox.fs"]);
+    this->_shaders["Billboard"] = Shader(this->_files["Resources/Shaders/billboard.vs"], this->_files["Resources/Shaders/billboard.fs"]);
+    this->_shaders["Grid"] = Shader(this->_files["Resources/Shaders/grid.vs"], this->_files["Resources/Shaders/grid.fs"]);
+    this->_shaders["Map"] = Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/map.fs"], File(), this->_files["Resources/Shaders/map.tcs"], this->_files["Resources/Shaders/map.tes"]);
 
     this->_files["right.jpg"] = File("Resources/Skybox/right.jpg");
     this->_files["left.jpg"] = File("Resources/Skybox/left.jpg");
@@ -66,35 +55,11 @@ ResourceManager::ResourceManager()
     this->_files["bottom.jpg"] = File("Resources/Skybox/bottom.jpg");
     this->_files["front.jpg"] = File("Resources/Skybox/front.jpg");
     this->_files["back.jpg"] = File("Resources/Skybox/back.jpg");
-
     std::vector<File> files = {this->_files["right.jpg"],  this->_files["left.jpg"],  this->_files["top.jpg"],
                                this->_files["bottom.jpg"], this->_files["front.jpg"], this->_files["back.jpg"]};
     this->_skyboxes["Sky"] = CubeMap(files);
 
-    this->_shaders["Model"] = Shader(this->_files["model.vs"], this->_files["model.fs"]);
-    this->_shaders["PickingModel"] = Shader(this->_files["model.vs"], this->_files["picking.fs"]);
-    this->_shaders["PickingBillboard"] = Shader(this->_files["billboard.vs"], this->_files["picking.fs"]);
-    this->_shaders["Outline"] = Shader(this->_files["outline.vs"], this->_files["outline.fs"]);
-    this->_shaders["Skybox"] = Shader(this->_files["skybox.vs"], this->_files["skybox.fs"]);
-    this->_shaders["Billboard"] = Shader(this->_files["billboard.vs"], this->_files["billboard.fs"]);
-    this->_shaders["Grid"] = Shader(this->_files["grid.vs"], this->_files["grid.fs"]);
-    this->_shaders["Map"] = Shader(this->_files["map.vs"], this->_files["map.fs"], File(), this->_files["map.tcs"], this->_files["map.tes"]);
-
     this->_map = std::make_unique<MapMesh>(2624, 1756);
-
-    try {
-        this->initScriptDomain();
-        this->loadBaseScript();
-    } catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
-    }
-
-    this->_scripts["Spin"] = ScriptClass(this->_files["Spin"]);
-    this->_scripts["Maxwell"] = ScriptClass(this->_files["MaxwellScript"]);
-    this->_scripts["Controlable"] = ScriptClass(this->_files["Controlable"]);
-
-    this->_files["scene.xml"] = File("Resources/Scenes/scene.xml");
-    this->_scene = std::make_shared<Scene>(this->_files["scene.xml"], this->_scripts);
 }
 
 ResourceManager::~ResourceManager()
@@ -110,10 +75,22 @@ void ResourceManager::initScriptDomain()
         throw std::runtime_error("mono_jit_init failed");
 }
 
-void ResourceManager::loadBaseScript()
+void ResourceManager::loadCoreScript()
 {
-    if (system("mcs -target:library -out:Resources/Scripts/Core.dll Resources/Scripts/Components.cs Resources/Scripts/InternalCalls.cs Resources/Scripts/Entity.cs"))
+    if (system("mcs -target:library -out:Resources/CoreScripts/Core.dll Resources/CoreScripts/Components.cs Resources/CoreScripts/InternalCalls.cs Resources/CoreScripts/Entity.cs"))
         throw std::runtime_error("mcs failed");
+}
+
+void ResourceManager::loadDirectory(const std::filesystem::path &path, std::function<void(std::string)> func, const std::vector<std::string> &extensions)
+{
+    for (const auto &entry : std::filesystem::directory_iterator(path)) {
+        if (entry.is_regular_file()) {
+            if (std::find(extensions.begin(), extensions.end(), entry.path().extension().string()) != extensions.end())
+                func(entry.path().string());
+        } else if (entry.is_directory()) {
+            this->loadDirectory(entry.path(), func, extensions);
+        }
+    }
 }
 
 std::map<std::string, Shader> &ResourceManager::getShaders()

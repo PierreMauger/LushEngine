@@ -4,18 +4,18 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "File/File.hpp"
+#include "File/Resource.hpp"
 #include "Includes.hpp"
-#include "Rendering/Texture.hpp"
 #include "Rendering/CubeMap.hpp"
+#include "Rendering/Map.hpp"
 #include "Rendering/RenderModel.hpp"
 #include "Rendering/RenderView.hpp"
 #include "Rendering/Shader.hpp"
-#include "Rendering/Map.hpp"
+#include "Rendering/Texture.hpp"
+#include "Scene.hpp"
 #include "Script/ScriptClass.hpp"
 #include "Script/ScriptInstance.hpp"
-#include "File/File.hpp"
-#include "File/Resource.hpp"
-#include "Scene.hpp"
 
 namespace Lush
 {
@@ -36,7 +36,8 @@ namespace Lush
             MonoDomain *_domain;
 
             void initScriptDomain();
-            void loadBaseScript();
+            void loadCoreScript();
+            void loadDirectory(const std::filesystem::path &path, std::function<void(std::string)> func, const std::vector<std::string> &extensions);
 
         public:
             ResourceManager();

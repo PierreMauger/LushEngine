@@ -25,7 +25,7 @@ void ScriptClass::load(File &file)
     std::string scriptPath = "Resources/Scripts/" + name + ".cs";
     std::string assemblyPath = "Resources/Scripts/" + name + ".dll";
 
-    if (system(std::string("mcs -target:library -out:" + assemblyPath + " " + scriptPath + " -r:Resources/Scripts/Core.dll").c_str()))
+    if (system(std::string("mcs -target:library -out:" + assemblyPath + " " + scriptPath + " -r:Resources/CoreScripts/Core.dll").c_str()))
         throw std::runtime_error("mcs failed");
 
     // Create a new domain
@@ -35,7 +35,7 @@ void ScriptClass::load(File &file)
     this->_assembly = mono_domain_assembly_open(this->_domain, assemblyPath.c_str());
     if (!this->_assembly)
         throw std::runtime_error("mono_domain_assembly_open failed for " + name + ".dll");
-    this->_entityAssembly = mono_domain_assembly_open(this->_domain, "Resources/Scripts/Core.dll");
+    this->_entityAssembly = mono_domain_assembly_open(this->_domain, "Resources/CoreScripts/Core.dll");
     if (!this->_entityAssembly)
         throw std::runtime_error("mono_domain_assembly_open failed for Core.dll");
 
