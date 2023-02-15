@@ -12,6 +12,12 @@ namespace Lush
 {
     class Texture
     {
+        private:
+            unsigned int _id = 0;
+            int _width;
+            int _height;
+            int _nrChannels;
+
         public:
             Texture(File &file);
             Texture() = default;
@@ -20,12 +26,6 @@ namespace Lush
             void load(File &file);
 
             unsigned int getId();
-
-        private:
-            unsigned int _id = 0;
-            int _width;
-            int _height;
-            int _nrChannels;
     };
 }
 

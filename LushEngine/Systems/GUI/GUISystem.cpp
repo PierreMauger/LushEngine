@@ -369,9 +369,31 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
     std::size_t it = 0;
     for (auto &[name, script] : this->_resourceManager->getScripts()) {
         if (masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it))
-            if (ImGui::CollapsingHeader((ICON_FA_FILE_CODE " " + name).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader((ICON_FA_FILE_CODE " " + name).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                std::size_t instance = this->getScriptInstanceIndex(selectedEntity);
+                for (auto &[fieldName, field] : script.getFields()) {
+                    if (instance != (std::size_t)-1) {
+                        if (field.type == "Single") {
+                            float value = this->_resourceManager->getInstances()[instance].getFieldValue<float>(fieldName);
+                            if (ImGui::DragFloat(fieldName.c_str(), &value))
+                                this->_resourceManager->getInstances()[instance].setFieldValue(fieldName, value);
+                        }
+                        if (field.type == "Entity" || field.type == "UInt64") {
+                            unsigned long value = this->_resourceManager->getInstances()[instance].getFieldValue<unsigned long>(fieldName);
+                            if (ImGui::InputScalar(fieldName.c_str(), ImGuiDataType_U64, &value))
+                                this->_resourceManager->getInstances()[instance].setFieldValue(fieldName, value);
+                        }
+                    } else {
+                        ImGui::Text("%s : %s", fieldName.c_str(), field.type.c_str());
+                        // if (field.type == "Single") {
+                        // float value = 0.0f;
+                        // ImGui::DragFloat(fieldName.c_str(), &value);
+                        // }
+                    }
+                }
                 if (ImGui::Button(std::string("Remove##" + std::to_string(8 + it)).c_str()))
                     entityManager.updateMask(selectedEntity, masks[selectedEntity].value() & ~(ComponentType::COMPONENT_TYPE_COUNT << it));
+            }
         it++;
     }
     const float footerReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
@@ -633,4 +655,16 @@ std::string GUISystem::formatBinary(std::size_t value, std::size_t size)
             result += " ";
     }
     return result;
+}
+
+std::size_t GUISystem::getScriptInstanceIndex(std::size_t entityId)
+{
+    std::size_t i = 0;
+
+    for (auto &instance : this->_resourceManager->getInstances()) {
+        if (instance.getId() == entityId)
+            return i;
+        i++;
+    }
+    return (std::size_t)-1;
 }

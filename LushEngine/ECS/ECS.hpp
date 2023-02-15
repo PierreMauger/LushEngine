@@ -9,6 +9,11 @@ namespace Lush
 {
     class ECS
     {
+        private:
+            EntityManager _entityManager;
+            ComponentManager _componentManager;
+            SystemManager _systemManager;
+
         public:
             ECS();
             ~ECS() = default;
@@ -18,11 +23,6 @@ namespace Lush
             SystemManager &getSystemManager();
 
             static ECS *getECS();
-
-        private:
-            EntityManager _entityManager;
-            ComponentManager _componentManager;
-            SystemManager _systemManager;
     };
 }
 

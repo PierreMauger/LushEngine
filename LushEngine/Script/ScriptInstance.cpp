@@ -8,6 +8,7 @@ ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id) : _class(scr
     this->_ctor = script.getMethod("ctor");
     this->_onInit = script.getMethod("onInit");
     this->_onUpdate = script.getMethod("onUpdate");
+    this->_id = id;
 
     if (this->_ctor) {
         void *args[1];
@@ -19,6 +20,27 @@ ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id) : _class(scr
 ScriptClass &ScriptInstance::getClass()
 {
     return this->_class;
+}
+
+std::size_t ScriptInstance::getId()
+{
+    return this->_id;
+}
+
+bool ScriptInstance::getFieldValueInternal(std::string name, void *value)
+{
+    if (this->_class.getFields().find(name) == this->_class.getFields().end())
+        return false;
+
+    FieldInfo field = this->_class.getFields()[name];
+    mono_field_get_value(this->_instance, field.field, value);
+    return true;
+}
+
+void ScriptInstance::setFieldValueInternal(std::string name, void *value)
+{
+    FieldInfo field = this->_class.getFields()[name];
+    mono_field_set_value(this->_instance, field.field, value);
 }
 
 void ScriptInstance::init()

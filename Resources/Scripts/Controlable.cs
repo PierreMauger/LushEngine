@@ -4,13 +4,15 @@ using System.Runtime.CompilerServices;
 public class Controlable : Entity
 {
     private Transform transform;
-    private Entity cameraEntity;
     private Camera camera;
+    private Entity cameraEntity;
+    public ulong cameraEntityId;
 
     public void onInit()
     {
         transform = getComponent<Transform>();
-        cameraEntity = new Entity(1);
+        cameraEntityId = 1;
+        cameraEntity = new Entity(cameraEntityId);
         camera = cameraEntity.getComponent<Camera>();
     }
 

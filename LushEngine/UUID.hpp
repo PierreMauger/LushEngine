@@ -7,14 +7,14 @@ namespace Lush
 {
     class UUID
     {
+        private:
+            unsigned long long _id;
+
         public:
             UUID();
             std::string to_string() const;
 
             bool operator==(const UUID &other) const;
-
-        private:
-            unsigned long long _id;
     };
 
 }

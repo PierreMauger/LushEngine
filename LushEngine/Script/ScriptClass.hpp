@@ -15,6 +15,11 @@
 
 namespace Lush
 {
+    typedef struct {
+        std::string type;
+        MonoClassField *field;
+    } FieldInfo;
+
     class ScriptClass : public Resource
     {
         private:
@@ -27,7 +32,7 @@ namespace Lush
             MonoClass *_entityClass;
 
             std::map<std::string, MonoMethod *> _methods;
-            std::map<std::string, std::string> _attributes;
+            std::map<std::string, FieldInfo> _fields;
 
         public:
             ScriptClass(File &file);
@@ -39,6 +44,8 @@ namespace Lush
             void loadAttributes();
 
             MonoMethod *getMethod(std::string name);
+            std::map<std::string, FieldInfo> &getFields();
+
             MonoDomain *getDomain();
             MonoClass *getClass();
     };

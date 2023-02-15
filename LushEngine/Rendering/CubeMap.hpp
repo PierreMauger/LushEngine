@@ -12,6 +12,12 @@ namespace Lush
 {
     class CubeMap
     {
+        private:
+            unsigned int _id = 0;
+            int _width;
+            int _height;
+            int _nrChannels;
+
         public:
             CubeMap(std::vector<File> &files);
             CubeMap() = default;
@@ -20,12 +26,6 @@ namespace Lush
             void load(std::vector<File> &files);
 
             unsigned int getId();
-
-        private:
-            unsigned int _id = 0;
-            int _width;
-            int _height;
-            int _nrChannels;
     };
 }
 

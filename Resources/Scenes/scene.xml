@@ -25,6 +25,7 @@
       <Components>
         <Transform position="3 0 -2" rotation="0 0 0" scale="1 1 1" />
         <Model name="Fox" />
+        <Controlable />
       </Components>
     </Entity>
     <Entity id="4">
