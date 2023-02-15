@@ -9,9 +9,9 @@ enum ComponentType {
     MODEL = 1 << 2,
     CAMERA = 1 << 3,
     LIGHT = 1 << 4,
-    CONTROL = 1 << 5,
-    CUBEMAP = 1 << 6,
-    BILLBOARD = 1 << 7,
+    CUBEMAP = 1 << 5,
+    BILLBOARD = 1 << 6,
+    MAP = 1 << 7,
 
     COMPONENT_TYPE_COUNT = 1 << 8
 };
@@ -29,7 +29,7 @@ typedef struct {
 } Velocity;
 
 typedef struct {
-    std::size_t id = 0;
+    std::string name = "Fox";
 } Model;
 
 // enum CameraType {
@@ -53,7 +53,6 @@ typedef struct {
     CameraMod mod = FIRST_PERSON;
     float distance = 10.0f;
     std::size_t target = 0;
-    bool alignTarget = false;
 } Camera;
 
 enum LightType {
@@ -73,18 +72,15 @@ typedef struct {
 } Light;
 
 typedef struct {
-    bool control = true;
-    bool alignTarget = false;
-} Control;
+    std::string name = "Sky";
+} Cubemap;
 
 typedef struct {
-    std::size_t id = 0;
-    float rotationSpeed = 0.0f;
-    glm::vec3 color = glm::vec3(1.0f);
-} CubeMap;
+    std::string name = "";
+} Billboard;
 
 typedef struct {
-    std::size_t textureId = 0;
-} BillBoard;
+    std::string name = "";
+} Map;
 
 #endif // COMPONENTTYPES_HPP

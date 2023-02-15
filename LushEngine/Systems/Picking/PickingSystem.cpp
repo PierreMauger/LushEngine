@@ -2,48 +2,56 @@
 
 using namespace Lush;
 
-PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
+PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
-    this->_graphic = graphic;
-    entityManager.addMaskCategory(MODEL_TAG);
-    glm::vec2 windowSize = this->_graphic->getWindowSize();
+    Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
+    this->_graphic->getFrameBuffers()["picking"] = this->_buffer;
 
-    glGenFramebuffers(1, &this->_buffer.framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
-    glGenTextures(1, &this->_buffer.texture);
-    glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowSize.x, windowSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->_buffer.texture, 0);
-    glGenRenderbuffers(1, &this->_buffer.depthbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, this->_buffer.depthbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, windowSize.x, windowSize.y);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_buffer.depthbuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    this->_graphic->getFrameBuffers().push_back(this->_buffer);
-
-    glGenVertexArrays(1, &this->_planeVAO);
-    glGenBuffers(1, &this->_planeVBO);
-    glBindVertexArray(this->_planeVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_planeVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
+    Shapes::setupBillboard(this->_billboard);
+    Shapes::setupPlane(this->_plane);
 }
 
-void PickingSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
+PickingSystem::~PickingSystem()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
-    glm::vec4 viewport = this->_graphic->getGameViewPort();
+    Shapes::deleteFrameBuffer(this->_buffer);
+    Shapes::deleteBufferObject(this->_billboard);
+    Shapes::deleteBufferObject(this->_plane);
+}
+
+void PickingSystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
+{
+    if (!this->shouldUpdate(deltaTime))
+        return;
+    glm::vec4 viewport = this->_graphic->getSceneViewPort();
     glm::vec2 windowSize = this->_graphic->getWindowSize();
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    this->_graphic->getRenderView().use("Picking");
+    this->drawModels(entityManager, componentManager);
+    this->drawBillboards(entityManager, componentManager);
+
+    // convert from viewport coord to screen coord (picking buffer is drawn on whole screen and resized later to viewport)
+    glm::vec2 mousePosition = this->_graphic->getMousePosition();
+    mousePosition.x = (mousePosition.x - viewport.x) * windowSize.x / viewport.z;
+    mousePosition.y = (mousePosition.y - viewport.y) * windowSize.y / viewport.w;
+
+    // read pixel from picking buffer
+    std::size_t pixel = 0;
+    if (this->_graphic->getSceneMovement()) {
+        glReadPixels(mousePosition.x, windowSize.y - mousePosition.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
+        pixel = pixel & 0x00FFFFFF;
+        this->_graphic->setHoveredEntity(pixel - 1);
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    this->drawOutline(pixel);
+}
+
+void PickingSystem::drawModels(EntityManager &entityManager, ComponentManager &componentManager)
+{
+    this->_graphic->getRenderView().use("PickingModel");
     this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(MODEL_TAG)) {
         Transform transform = componentManager.getComponent<Transform>(id);
@@ -55,26 +63,43 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
         color.b = (((id + 1) & 0x00FF0000) >> 16) / 255.0f;
         color.a = 1.0f;
 
-        this->_graphic->getShaders()["Picking"].setVec4("id", color);
+        this->_graphic->getRenderView().getShader().setVec4("id", color);
         this->_graphic->getRenderView().setModel(transform);
-        if (this->_graphic->getModels().find(model.id) != this->_graphic->getModels().end())
-            this->_graphic->getModels()[model.id].draw(this->_graphic->getRenderView().getShader());
+        if (this->_resourceManager->getModels().find(model.name) != this->_resourceManager->getModels().end())
+            this->_resourceManager->getModels()[model.name].draw(this->_graphic->getRenderView().getShader());
     }
-    glm::vec2 mousePosition = this->_graphic->getMousePosition();
-    unsigned char pixel[4] = {0};
-    // convert from viewport coord to screen coord (picking buffer is drawn on whole screen and resize later to viewport)
-    mousePosition.x = (mousePosition.x - viewport.x) * windowSize.x / viewport.z;
-    mousePosition.y = (mousePosition.y - viewport.y) * windowSize.y / viewport.w;
+}
 
-    glReadPixels(mousePosition.x, windowSize.y - mousePosition.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+void PickingSystem::drawBillboards(EntityManager &entityManager, ComponentManager &componentManager)
+{
+    this->_graphic->getRenderView().use("PickingBillboard");
+    this->_graphic->getRenderView().setView();
+    for (auto id : entityManager.getMaskCategory(BILLBOARD_TAG)) {
+        Transform transform = componentManager.getComponent<Transform>(id);
+        Billboard billboard = componentManager.getComponent<Billboard>(id);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()[0].framebuffer);
+        glm::vec4 color;
+        color.r = (((id + 1) & 0x000000FF) >> 0) / 255.0f;
+        color.g = (((id + 1) & 0x0000FF00) >> 8) / 255.0f;
+        color.b = (((id + 1) & 0x00FF0000) >> 16) / 255.0f;
+        color.a = 1.0f;
+
+        this->_graphic->getRenderView().getShader().setVec4("id", color);
+        this->_graphic->getRenderView().setBillboard(transform);
+        glBindVertexArray(this->_billboard.vao);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+    }
+}
+
+void PickingSystem::drawOutline(std::size_t pixel)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()["scene"].framebuffer);
     glEnable(GL_BLEND);
     this->_graphic->getRenderView().use("Outline");
-    this->_graphic->getShaders()["Outline"].setInt("id", (pixel[0]) + (pixel[1] << 8) + (pixel[2] << 16));
+    this->_graphic->getRenderView().getShader().setInt("id", pixel);
     glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
-    glBindVertexArray(this->_planeVAO);
+    glBindVertexArray(this->_plane.vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);

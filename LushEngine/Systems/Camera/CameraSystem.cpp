@@ -2,15 +2,14 @@
 
 using namespace Lush;
 
-CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
+CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic) : ASystem(60.0f), _graphic(graphic)
 {
-    this->_graphic = graphic;
-    entityManager.addMaskCategory(CAMERA_TAG);
-    entityManager.addMaskCategory(LIGHT_TAG);
 }
 
-void CameraSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
+void CameraSystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
 {
+    if (!this->shouldUpdate(deltaTime))
+        return;
     for (auto id : entityManager.getMaskCategory(LIGHT_TAG)) {
         Transform transform = componentManager.getComponent<Transform>(id);
         Light light = componentManager.getComponent<Light>(id);
@@ -23,7 +22,7 @@ void CameraSystem::update(EntityManager &entityManager, ComponentManager &compon
             this->_spotLights.push_back({transform, light});
     }
 
-    this->_graphic->getRenderView().use("Camera");
+    this->_graphic->getRenderView().use("Model");
     for (auto id : entityManager.getMaskCategory(CAMERA_TAG)) {
         Transform &transform = componentManager.getComponent<Transform>(id);
         Camera &camera = componentManager.getComponent<Camera>(id);
@@ -35,15 +34,10 @@ void CameraSystem::update(EntityManager &entityManager, ComponentManager &compon
         camera.forward.y = sin(glm::radians(transform.rotation.y));
         camera.forward.z = sin(glm::radians(transform.rotation.x)) * cos(glm::radians(transform.rotation.y));
 
-        if (camera.mod == CameraMod::THIRD_PERSON) {
-            if (camera.target != id && entityManager.hasMask(camera.target, CONTROL_TAG)) {
-                Transform &target = componentManager.getComponent<Transform>(camera.target);
-                Control control = componentManager.getComponent<Control>(camera.target);
+        if (camera.mod == CameraMod::THIRD_PERSON && camera.target != id && entityManager.hasMask(camera.target, CONTROL_TAG)) {
+            Transform &target = componentManager.getComponent<Transform>(camera.target);
 
-                transform.position = target.position - camera.forward * camera.distance;
-                if (control.alignTarget || camera.alignTarget)
-                    target.rotation.y = glm::degrees(-glm::atan(camera.forward.z, camera.forward.x));
-            }
+            transform.position = target.position - camera.forward * camera.distance;
         }
         this->_graphic->getRenderView().update(transform, camera);
 

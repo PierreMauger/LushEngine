@@ -2,10 +2,8 @@
 
 using namespace Lush;
 
-GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
+GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
-    this->_graphic = graphic;
-
     if (!IMGUI_CHECKVERSION())
         throw std::runtime_error("ImGui version is invalid");
     ImGui::CreateContext();
@@ -15,7 +13,7 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
     ImGui_ImplOpenGL3_Init("#version 410");
 
     ImGuiIO &io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
     io.Fonts->AddFontDefault();
 
     // merge in icons from Font Awesome
@@ -24,6 +22,9 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic)
     iconsConfig.MergeMode = true;
     iconsConfig.PixelSnapH = true;
     io.Fonts->AddFontFromFileTTF("Resources/Fonts/" FONT_ICON_FILE_NAME_FAS, 12.0f, &iconsConfig, iconsRanges);
+
+    ImGuizmo::Enable(true);
+    ImGuizmo::AllowAxisFlip(false);
 
     this->_fileExplorerPath = std::filesystem::current_path().string();
     this->_fileExplorerRootPath = std::filesystem::current_path().string();
@@ -36,8 +37,10 @@ GUISystem::~GUISystem()
     ImGui::DestroyContext();
 }
 
-void GUISystem::update(EntityManager &entityManager, ComponentManager &componentManager)
+void GUISystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
 {
+    if (!this->shouldUpdate(deltaTime))
+        return;
     if (this->_singleFrame) {
         this->_singleFrame = false;
         this->_graphic->setPaused(true);
@@ -58,10 +61,10 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
         this->drawTools();
     if (this->_showConsole)
         this->drawConsole();
-    if (this->_showScene)
-        this->drawScene(entityManager, componentManager);
     if (this->_showGame)
         this->drawGame();
+    if (this->_showScene)
+        this->drawScene(entityManager, componentManager);
     if (this->_showFileExplorer)
         this->drawFiles();
     if (this->_showProfiler)
@@ -144,7 +147,16 @@ void GUISystem::drawActionBar(EntityManager &entityManager, ComponentManager &co
                 if (this->_graphic->getRunning()) {
                     this->_entityManagerCopy = entityManager;
                     this->_componentManagerCopy = componentManager;
+                    std::size_t it = 0;
+                    for (auto &[name, script] : this->_resourceManager->getScripts()) {
+                        for (auto id : entityManager.getMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << it))
+                            this->_resourceManager->getInstances().push_back(ScriptInstance(script, id));
+                        it++;
+                    }
+                    for (auto &instance : this->_resourceManager->getInstances())
+                        instance.init();
                 } else {
+                    this->_resourceManager->getInstances().clear();
                     entityManager = this->_entityManagerCopy;
                     componentManager = this->_componentManagerCopy;
                 }
@@ -172,7 +184,6 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManage
         ImGui::End();
         return;
     }
-
     if (ImGui::BeginTable("Entities", 3, ImGuiTableFlags_Resizable)) {
         ImGui::TableSetupColumn("ID");
         ImGui::TableSetupColumn("Mask");
@@ -185,7 +196,7 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManage
             ImGui::Text("%lu", i);
             ImGui::TableNextColumn();
             masks[i].has_value()
-                ? ImGui::Text("%s", this->formatBinary(masks[i].value(), componentManager.getComponentArray().size() + this->_graphic->getScriptNames().size()).c_str())
+                ? ImGui::Text("%s", this->formatBinary(masks[i].value(), componentManager.getComponentArray().size() + this->_resourceManager->getScripts().size()).c_str())
                 : ImGui::Text("None");
             ImGui::TableNextColumn();
             if (masks[i].has_value()) {
@@ -195,7 +206,7 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManage
                 }
                 ImGui::SameLine();
                 if (ImGui::Button(std::string("Modify##" + std::to_string(i)).c_str()))
-                    this->_selectedEntity = i;
+                    this->_graphic->setSelectedEntity(i);
             } else {
                 if (ImGui::Button(std::string("Create##" + std::to_string(i)).c_str()))
                     entityManager.addMask(i, 0);
@@ -213,6 +224,10 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManage
     ImGui::End();
 }
 
+const char *iconTable[] = {
+    ICON_FA_INFO_CIRCLE " ", ICON_FA_RUNNING " ", ICON_FA_CUBE " ", ICON_FA_VIDEO " ", ICON_FA_LIGHTBULB " ", ICON_FA_MAP " ", ICON_FA_SIGN " ", ICON_FA_MAP " ",
+};
+
 void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &componentManager)
 {
     if (!ImGui::Begin(ICON_FA_INFO_CIRCLE " Properties", &this->_showProperties)) {
@@ -220,39 +235,55 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
         return;
     }
     auto &masks = entityManager.getMasks();
+    std::size_t selectedEntity = this->_graphic->getSelectedEntity();
 
-    ImGui::Text("ID: %lu", this->_selectedEntity);
-    if (!masks[this->_selectedEntity].has_value()) {
+    if (selectedEntity == (std::size_t)-1) {
+        ImGui::Text("ID: None");
+        ImGui::End();
+        return;
+    }
+    ImGui::Text("ID: %lu", selectedEntity);
+    if (!masks[selectedEntity].has_value()) {
         ImGui::Text("Entity does not exist");
         ImGui::End();
         return;
     }
     for (std::size_t i = 0; i < componentManager.getComponentArray().size(); i++) {
-        if (masks[this->_selectedEntity].value() & (1 << i)) {
-            if (ImGui::CollapsingHeader(FORMAT_NAME(componentManager.getComponentType(i).name()), ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (masks[selectedEntity].value() & (1 << i)) {
+            std::string name = FORMAT_NAME(componentManager.getComponentType(i).name());
+            if (ImGui::CollapsingHeader((iconTable[i] + name).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
                 switch (i) {
                 case 0: {
-                    Transform &transform = componentManager.getComponent<Transform>(this->_selectedEntity);
+                    Transform &transform = componentManager.getComponent<Transform>(selectedEntity);
                     ImGui::DragFloat3("Position##Transform", (float *)&transform.position, 0.1f, -FLT_MAX, +FLT_MAX);
                     ImGui::DragFloat3("Rotation##Transform", (float *)&transform.rotation, 1.0f, -FLT_MAX, +FLT_MAX);
                     ImGui::DragFloat3("Scale##Transform", (float *)&transform.scale, 0.01f, 0.0f, +FLT_MAX);
                     break;
                 }
                 case 1: {
-                    Velocity &velocity = componentManager.getComponent<Velocity>(this->_selectedEntity);
+                    Velocity &velocity = componentManager.getComponent<Velocity>(selectedEntity);
                     ImGui::SliderFloat("X##Velocity", &velocity.x, -10, 10);
                     ImGui::SliderFloat("Y##Velocity", &velocity.y, -10, 10);
                     ImGui::SliderFloat("Z##Velocity", &velocity.z, -10, 10);
                     break;
                 }
                 case 2: {
-                    Model &model = componentManager.getComponent<Model>(this->_selectedEntity);
-                    const ImU64 increment = 1;
-                    ImGui::InputScalar("ID##Model", ImGuiDataType_U64, &model.id, &increment);
+                    Model &model = componentManager.getComponent<Model>(selectedEntity);
+                    std::string selectedItem = model.name;
+                    if (ImGui::BeginCombo("Select Item##Model", selectedItem.c_str())) {
+                        for (auto &[key, value] : this->_resourceManager->getModels()) {
+                            bool is_selected = (selectedItem == key);
+                            if (ImGui::Selectable(key.c_str(), is_selected))
+                                model.name = key;
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
                     break;
                 }
                 case 3: {
-                    Camera &camera = componentManager.getComponent<Camera>(this->_selectedEntity);
+                    Camera &camera = componentManager.getComponent<Camera>(selectedEntity);
                     const char *names[CameraMod::CAMERA_MOD_COUNT] = {"First", "Third"};
 
                     ImGui::DragFloat3("Forward##Camera", (float *)&camera.forward, 0.01f, -1.0f, 1.0f);
@@ -265,12 +296,11 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                         ImGui::SliderFloat("Distance##Camera", &camera.distance, 0.0f, 100.0f);
                         const ImU64 increment = 1;
                         ImGui::InputScalar("Target ID##Camera", ImGuiDataType_U64, &camera.target, &increment);
-                        ImGui::Checkbox("Align Target##Camera", &camera.alignTarget);
                     }
                     break;
                 }
                 case 4: {
-                    Light &light = componentManager.getComponent<Light>(this->_selectedEntity);
+                    Light &light = componentManager.getComponent<Light>(selectedEntity);
                     const char *names[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
 
                     ImGui::SliderInt("Type##Light", (int *)&light.type, 0, LightType::LIGHT_TYPE_COUNT - 1, names[light.type]);
@@ -280,22 +310,48 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     break;
                 }
                 case 5: {
-                    Control &control = componentManager.getComponent<Control>(this->_selectedEntity);
-                    ImGui::Checkbox("##Control", &control.control);
+                    Cubemap &cubemap = componentManager.getComponent<Cubemap>(selectedEntity);
+                    std::string selectedItem = cubemap.name;
+                    if (ImGui::BeginCombo("Select Item##Cubemap", selectedItem.c_str())) {
+                        for (auto &[key, value] : this->_resourceManager->getSkyboxes()) {
+                            bool is_selected = (selectedItem == key);
+                            if (ImGui::Selectable(key.c_str(), is_selected))
+                                cubemap.name = key;
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
                     break;
                 }
                 case 6: {
-                    CubeMap &cubemap = componentManager.getComponent<CubeMap>(this->_selectedEntity);
-                    const ImU64 increment = 1;
-                    ImGui::InputScalar("ID##CubeMap", ImGuiDataType_U64, &cubemap.id, &increment);
-                    ImGui::DragFloat("Rotation Speed##CubeMap", &cubemap.rotationSpeed, 0.1f, -FLT_MAX, +FLT_MAX);
-                    ImGui::ColorEdit3("Color##CubeMap", (float *)&cubemap.color);
+                    Billboard &bill = componentManager.getComponent<Billboard>(selectedEntity);
+                    std::string selectedItem = bill.name;
+                    if (ImGui::BeginCombo("Select Item##Billboard", selectedItem.c_str())) {
+                        for (auto &[key, value] : this->_resourceManager->getTextures()) {
+                            bool is_selected = (selectedItem == key);
+                            if (ImGui::Selectable(key.c_str(), is_selected))
+                                bill.name = key;
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
                     break;
                 }
                 case 7: {
-                    BillBoard &bill = componentManager.getComponent<BillBoard>(this->_selectedEntity);
-                    const ImU64 increment = 1;
-                    ImGui::InputScalar("Texture ID##BillBoard", ImGuiDataType_U64, &bill.textureId, &increment);
+                    Map &map = componentManager.getComponent<Map>(selectedEntity);
+                    std::string selectedItem = map.name;
+                    if (ImGui::BeginCombo("Select Item##Map", selectedItem.c_str())) {
+                        for (auto &[key, value] : this->_resourceManager->getTextures()) {
+                            bool is_selected = (selectedItem == key);
+                            if (ImGui::Selectable(key.c_str(), is_selected))
+                                map.name = key;
+                            if (is_selected)
+                                ImGui::SetItemDefaultFocus();
+                        }
+                        ImGui::EndCombo();
+                    }
                     break;
                 }
                 default:
@@ -303,21 +359,20 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 }
                 // TODO: Clear this switch too
                 if (ImGui::Button(std::string("Remove##" + std::to_string(i)).c_str())) {
-                    entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() & ~(1 << i));
-                    componentManager.removeSingleComponent(this->_selectedEntity, componentManager.getComponentType(i));
+                    entityManager.updateMask(selectedEntity, masks[selectedEntity].value() & ~(1 << i));
+                    componentManager.removeSingleComponent(selectedEntity, componentManager.getComponentType(i));
                 }
             }
             ImGui::Separator();
         }
     }
-    for (std::size_t i = 0; i < this->_graphic->getScriptNames().size(); i++) {
-        if (masks[this->_selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << i)) {
-            if (ImGui::CollapsingHeader(this->_graphic->getScriptNames()[i].c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
-                if (ImGui::Button(std::string("Remove##" + std::to_string(8 + i)).c_str())) {
-                    entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() & ~(ComponentType::COMPONENT_TYPE_COUNT << i));
-                }
-            }
-        }
+    std::size_t it = 0;
+    for (auto &[name, script] : this->_resourceManager->getScripts()) {
+        if (masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it))
+            if (ImGui::CollapsingHeader((ICON_FA_FILE_CODE " " + name).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+                if (ImGui::Button(std::string("Remove##" + std::to_string(8 + it)).c_str()))
+                    entityManager.updateMask(selectedEntity, masks[selectedEntity].value() & ~(ComponentType::COMPONENT_TYPE_COUNT << it));
+        it++;
     }
     const float footerReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerReserve), false, ImGuiWindowFlags_HorizontalScrollbar);
@@ -325,47 +380,60 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
     ImGui::Separator();
     if (ImGui::CollapsingHeader("Add Component")) {
         for (std::size_t i = 0; i < componentManager.getComponentArray().size(); i++) {
-            if (!(masks[this->_selectedEntity].value() & (1 << i))) {
-                if (ImGui::Selectable(FORMAT_NAME(componentManager.getComponentType(i).name()))) {
-                    entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() | (1 << i));
+            if (!(masks[selectedEntity].value() & (1 << i))) {
+                ImGui::PushID(i);
+                if (ImGui::Selectable("##selectable", false, ImGuiSelectableFlags_SpanAllColumns)) {
+                    entityManager.updateMask(selectedEntity, masks[selectedEntity].value() | (1 << i));
                     switch (i) {
                     case 0:
-                        componentManager.addComponent<Transform>(this->_selectedEntity);
+                        componentManager.addComponent<Transform>(selectedEntity);
                         break;
                     case 1:
-                        componentManager.addComponent<Velocity>(this->_selectedEntity);
+                        componentManager.addComponent<Velocity>(selectedEntity);
                         break;
                     case 2:
-                        componentManager.addComponent<Model>(this->_selectedEntity);
+                        componentManager.addComponent<Model>(selectedEntity);
                         break;
                     case 3:
-                        componentManager.addComponent<Camera>(this->_selectedEntity);
+                        componentManager.addComponent<Camera>(selectedEntity);
                         break;
                     case 4:
-                        componentManager.addComponent<Light>(this->_selectedEntity);
+                        componentManager.addComponent<Light>(selectedEntity);
                         break;
                     case 5:
-                        componentManager.addComponent<Control>(this->_selectedEntity);
+                        componentManager.addComponent<Cubemap>(selectedEntity);
                         break;
                     case 6:
-                        componentManager.addComponent<CubeMap>(this->_selectedEntity);
+                        componentManager.addComponent<Billboard>(selectedEntity);
                         break;
                     case 7:
-                        componentManager.addComponent<BillBoard>(this->_selectedEntity);
+                        componentManager.addComponent<Map>(selectedEntity);
                         break;
                     default:
                         break;
                     }
                     // TODO: replace this switch
                 }
+                ImGui::SameLine(0, 0);
+                ImGui::Text("%s", iconTable[i]);
+                ImGui::SameLine(30, 0);
+                ImGui::Text("%s", FORMAT_NAME(componentManager.getComponentType(i).name()));
+                ImGui::PopID();
             }
         }
-        for (std::size_t i = 0; i < this->_graphic->getScriptNames().size(); i++) {
-            if (!(masks[this->_selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT<< i))) {
-                if (ImGui::Selectable(this->_graphic->getScriptNames()[i].c_str())) {
-                    entityManager.updateMask(this->_selectedEntity, masks[this->_selectedEntity].value() | (ComponentType::COMPONENT_TYPE_COUNT << i));
-                }
+        it = 0;
+        for (auto &[name, script] : this->_resourceManager->getScripts()) {
+            if (!(masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it))) {
+                ImGui::PushID(8 + it);
+                if (ImGui::Selectable("##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
+                    entityManager.updateMask(selectedEntity, masks[selectedEntity].value() | (ComponentType::COMPONENT_TYPE_COUNT << it));
+                ImGui::SameLine(10, 0);
+                ImGui::Text(ICON_FA_FILE_CODE);
+                ImGui::SameLine(30, 0);
+                ImGui::Text("%s", name.c_str());
+                ImGui::PopID();
             }
+            it++;
         }
     }
     ImGui::End();
@@ -409,56 +477,15 @@ void GUISystem::drawConsole()
         this->_consoleBuffer.clear();
     if (this->_graphic->getStringStream().str().size() > 0)
         this->_consoleBuffer += this->_graphic->getStringStream().str();
-    ImGui::TextWrapped("%s", this->_consoleBuffer.c_str());
-    this->_graphic->getStringStream().str("");
-    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
-        ImGui::SetScrollHereY(1.0f);
-    ImGui::End();
-}
-
-void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &componentManager)
-{
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    if (!ImGui::Begin(ICON_FA_EDIT " Scene", &this->_showScene, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
-        ImGui::PopStyleVar(3);
-        ImGui::End();
-        return;
+    ImGui::Separator();
+    if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar)) {
+        ImGui::TextWrapped("%s", this->_consoleBuffer.c_str());
+        this->_graphic->getStringStream().str("");
+        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+            ImGui::SetScrollHereY(1.0f);
+        ImGui::EndChild();
     }
-    ImGui::PopStyleVar(3);
-
-    const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
-    this->_graphic->setSceneViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
-
-    GLuint texture = this->_graphic->getFrameBuffers()[2].texture;
-    ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
-    if (this->_showTools)
-        this->drawGuizmo(entityManager, componentManager);
     ImGui::End();
-}
-
-void GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager)
-{
-    ImGuizmo::BeginFrame();
-    glm::mat4 view = this->_graphic->getRenderView().getView();
-    glm::mat4 projection = this->_graphic->getRenderView().getProjection();
-
-    if (!entityManager.hasMask(this->_selectedEntity, ComponentType::TRANSFORM))
-        return;
-    Transform &transform = componentManager.getComponent<Transform>(this->_selectedEntity);
-
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, transform.position);
-    model *= glm::toMat4(glm::quat(glm::radians(transform.rotation)));
-    model = glm::scale(model, transform.scale);
-
-    ImGuizmo::SetDrawlist();
-    glm::vec4 viewport = this->_graphic->getSceneViewPort();
-    ImGuizmo::SetRect(viewport.x, viewport.y, viewport.z, viewport.w);
-    ImGuizmo::Manipulate(&view[0][0], &projection[0][0], this->_currentOperation, this->_currentMode, &model[0][0], nullptr, nullptr);
-
-    ImGuizmo::DecomposeMatrixToComponents(&model[0][0], &transform.position[0], &transform.rotation[0], &transform.scale[0]);
 }
 
 void GUISystem::drawGame()
@@ -476,9 +503,74 @@ void GUISystem::drawGame()
     const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
     this->_graphic->setGameViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
 
-    GLuint texture = this->_graphic->getFrameBuffers()[0].texture;
+    GLuint texture = this->_graphic->getFrameBuffers()["render"].texture;
     ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
+}
+
+void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &componentManager)
+{
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    if (!ImGui::Begin(ICON_FA_EDIT " Scene", &this->_showScene, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
+        ImGui::PopStyleVar(3);
+        ImGui::End();
+        return;
+    }
+    ImGui::PopStyleVar(3);
+
+    bool guizmoDrawn = false;
+
+    const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
+    this->_graphic->setSceneViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
+
+    GLuint texture = this->_graphic->getFrameBuffers()["scene"].texture;
+    ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
+    if (this->_showTools)
+        guizmoDrawn = this->drawGuizmo(entityManager, componentManager);
+
+    this->_graphic->setSceneMovement(ImGui::IsWindowHovered() && !(ImGuizmo::IsOver() && guizmoDrawn));
+
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("FILE")) {
+            std::string file = (char *)payload->Data;
+            if (file.substr(file.find_last_of(".") + 1) == "dae") {
+                std::size_t id = entityManager.getMasks().size();
+                entityManager.addMask(id, ComponentType::MODEL | ComponentType::TRANSFORM);
+                componentManager.addComponent<Transform>(id);
+                componentManager.addComponent<Model>(id, {file.substr(0, file.find_last_of("."))});
+            }
+            std::cout << "Dropped file: " << file << std::endl;
+        }
+        ImGui::EndDragDropTarget();
+    }
+    ImGui::End();
+}
+
+bool GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager)
+{
+    ImGuizmo::BeginFrame();
+
+    if (!entityManager.hasMask(this->_graphic->getSelectedEntity(), ComponentType::TRANSFORM))
+        return false;
+    Transform &transform = componentManager.getComponent<Transform>(this->_graphic->getSelectedEntity());
+
+    glm::vec4 viewport = this->_graphic->getSceneViewPort();
+    glm::mat4 view = this->_graphic->getRenderView().getView();
+    glm::mat4 projection = this->_graphic->getRenderView().getProjection();
+    glm::mat4 model = glm::mat4(1.0f);
+
+    float snapValue = this->_currentOperation == ImGuizmo::ROTATE ? 45.0f : 0.5f;
+    float snap[3] = {snapValue, snapValue, snapValue};
+
+    ImGuizmo::SetDrawlist();
+    ImGuizmo::SetRect(viewport.x, viewport.y, viewport.z, viewport.w);
+    ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(transform.position), glm::value_ptr(transform.rotation), glm::value_ptr(transform.scale), glm::value_ptr(model));
+    ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), this->_currentOperation, this->_currentMode, glm::value_ptr(model), nullptr,
+                         ImGui::GetIO().KeyCtrl ? snap : nullptr);
+    ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(transform.position), glm::value_ptr(transform.rotation), glm::value_ptr(transform.scale));
+    return true;
 }
 
 void GUISystem::drawFiles()
@@ -505,6 +597,11 @@ void GUISystem::drawFiles()
                 this->_fileExplorerPath = file.path().string();
         } else {
             ImGui::Button((ICON_FA_FILE "##" + file.path().string()).c_str(), ImVec2(50, 50));
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                ImGui::SetDragDropPayload("FILE", file.path().filename().string().c_str(), file.path().filename().string().size() + 1);
+                ImGui::Text("%s", file.path().filename().string().c_str());
+                ImGui::EndDragDropSource();
+            }
             if (ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
                 std::cout << "Opening file: " << file.path().string() << std::endl;
         }

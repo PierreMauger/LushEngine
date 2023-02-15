@@ -2,33 +2,27 @@
 #define SCRIPTSYSTEM_HPP
 
 #include "ComponentTypes.hpp"
-#include "ECS/System/ISystem.hpp"
-#include "Graphic/Graphic.hpp"
+#include "ECS/System/ASystem.hpp"
+#include "Graphic.hpp"
 #include "Includes.hpp"
+#include "ResourceManager.hpp"
 #include "Script/ScriptClass.hpp"
 #include "Script/ScriptGlue.hpp"
 #include "Script/ScriptInstance.hpp"
 
 namespace Lush
 {
-    class ScriptSystem : public ISystem
+    class ScriptSystem : public ASystem
     {
         private:
             std::shared_ptr<Graphic> _graphic;
-            std::vector<std::unique_ptr<ScriptClass>> _scripts;
-            std::vector<std::unique_ptr<ScriptInstance>> _instances;
-            bool _initialized = false;
-            MonoDomain *_domain;
-
-            bool buttonChanged();
-            void initScriptDomain();
-            void loadBaseScript();
+            std::shared_ptr<ResourceManager> _resourceManager;
 
         public:
-            ScriptSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager);
-            ~ScriptSystem();
+            ScriptSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
+            ~ScriptSystem() = default;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
     };
 }
 

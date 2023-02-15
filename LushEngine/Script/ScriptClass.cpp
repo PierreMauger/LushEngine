@@ -2,9 +2,9 @@
 
 using namespace Lush;
 
-ScriptClass::ScriptClass(std::string name, MonoDomain *domain)
+ScriptClass::ScriptClass(File &file) : Resource(ResourceType::SCRIPT, file)
 {
-    this->_domain = domain;
+    this->_domain = nullptr;
     this->_assembly = nullptr;
     this->_entityAssembly = nullptr;
     this->_image = nullptr;
@@ -13,28 +13,32 @@ ScriptClass::ScriptClass(std::string name, MonoDomain *domain)
     this->_entityClass = nullptr;
 
     try {
-        this->loadScript(name);
+        this->load(file);
         this->loadAttributes();
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
 }
 
-void ScriptClass::loadScript(std::string name)
+void ScriptClass::load(File &file)
 {
+    std::string name = file.getName();
     std::string scriptPath = "Resources/Scripts/" + name + ".cs";
     std::string assemblyPath = "Resources/Scripts/" + name + ".dll";
 
-    if (system(std::string("mcs -target:library -out:" + assemblyPath + " " + scriptPath + " -r:Resources/Scripts/Base.dll").c_str()))
+    if (system(std::string("mcs -target:library -out:" + assemblyPath + " " + scriptPath + " -r:Resources/CoreScripts/Core.dll").c_str()))
         throw std::runtime_error("mcs failed");
+
+    // Create a new domain
+    this->_domain = mono_domain_create_appdomain((char *)name.c_str(), nullptr);
 
     // Load the assembly
     this->_assembly = mono_domain_assembly_open(this->_domain, assemblyPath.c_str());
     if (!this->_assembly)
         throw std::runtime_error("mono_domain_assembly_open failed for " + name + ".dll");
-    this->_entityAssembly = mono_domain_assembly_open(this->_domain, "Resources/Scripts/Base.dll");
+    this->_entityAssembly = mono_domain_assembly_open(this->_domain, "Resources/CoreScripts/Core.dll");
     if (!this->_entityAssembly)
-        throw std::runtime_error("mono_domain_assembly_open failed for Base.dll");
+        throw std::runtime_error("mono_domain_assembly_open failed for Core.dll");
 
     // Create a new image from the assembly
     this->_image = mono_assembly_get_image(this->_assembly);
@@ -79,6 +83,20 @@ void ScriptClass::loadAttributes()
         if (fieldAttrs & MONO_FIELD_ATTR_PUBLIC)
             this->_attributes[fieldName] = fieldClassName;
     }
+}
+
+void ScriptClass::reload(File &file)
+{
+    this->_assembly = nullptr;
+    this->_entityAssembly = nullptr;
+    this->_image = nullptr;
+    this->_entityImage = nullptr;
+    this->_class = nullptr;
+    this->_entityClass = nullptr;
+    this->_methods.clear();
+
+    mono_domain_unload(this->_domain);
+    this->load(file);
 }
 
 MonoMethod *ScriptClass::getMethod(std::string name)

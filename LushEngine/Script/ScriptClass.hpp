@@ -1,6 +1,8 @@
 #ifndef SCRIPTCLASS_HPP
 #define SCRIPTCLASS_HPP
 
+#include "File/File.hpp"
+#include "File/Resource.hpp"
 #include "Includes.hpp"
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
@@ -9,10 +11,11 @@
 #include "mono/metadata/environment.h"
 #include "mono/metadata/metadata.h"
 #include "mono/metadata/mono-config.h"
+#include "mono/metadata/threads.h"
 
 namespace Lush
 {
-    class ScriptClass
+    class ScriptClass : public Resource
     {
         private:
             MonoDomain *_domain;
@@ -27,10 +30,12 @@ namespace Lush
             std::map<std::string, std::string> _attributes;
 
         public:
-            ScriptClass(std::string name, MonoDomain *domain);
+            ScriptClass(File &file);
+            ScriptClass() = default;
             ~ScriptClass() = default;
 
-            void loadScript(std::string name);
+            void load(File &file);
+            void reload(File &file);
             void loadAttributes();
 
             MonoMethod *getMethod(std::string name);

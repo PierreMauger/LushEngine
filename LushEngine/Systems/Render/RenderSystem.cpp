@@ -2,103 +2,110 @@
 
 using namespace Lush;
 
-RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, EntityManager &entityManager)
+RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
-    this->_graphic = graphic;
-    entityManager.addMaskCategory(MODEL_TAG);
-    entityManager.addMaskCategory(BILLBOARD_TAG);
-    entityManager.addMaskCategory(SKYBOX_TAG);
-    glm::vec2 windowSize = this->_graphic->getWindowSize();
+    Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
+    this->_graphic->getFrameBuffers()["render"] = this->_buffer;
 
-    glGenFramebuffers(1, &this->_buffer.framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
-    glGenTextures(1, &this->_buffer.texture);
-    glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, windowSize.x, windowSize.y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->_buffer.texture, 0);
-    glGenRenderbuffers(1, &this->_buffer.depthbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, this->_buffer.depthbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, windowSize.x, windowSize.y);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_buffer.depthbuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    this->_graphic->getFrameBuffers().push_back(this->_buffer);
-
-    glGenVertexArrays(1, &this->_skyboxVAO);
-    glGenBuffers(1, &this->_skyboxVBO);
-    glBindVertexArray(this->_skyboxVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_skyboxVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-
-    glGenVertexArrays(1, &this->_billboardVAO);
-    glGenBuffers(1, &this->_billboardVBO);
-    glBindVertexArray(this->_billboardVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_billboardVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(billboardVertices), &billboardVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
+    Shapes::setupSkyBox(this->_skybox);
+    Shapes::setupBillboard(this->_billboard);
 }
 
 RenderSystem::~RenderSystem()
 {
+    Shapes::deleteFrameBuffer(this->_buffer);
+    Shapes::deleteBufferObject(this->_skybox);
+    Shapes::deleteBufferObject(this->_billboard);
 }
 
-void RenderSystem::update(EntityManager &entityManager, ComponentManager &componentManager)
+void RenderSystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
 {
+    if (!this->shouldUpdate(deltaTime))
+        return;
     this->_graphic->getRenderView().setAspectRatio(this->_graphic->getGameViewPort().z / this->_graphic->getGameViewPort().w);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    this->_graphic->getRenderView().use("Camera");
+    this->drawSkybox(entityManager, componentManager);
+    this->drawMap(entityManager, componentManager);
+    this->drawModels(entityManager, componentManager);
+    this->drawBillboards(entityManager, componentManager);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void RenderSystem::drawModels(EntityManager &entityManager, ComponentManager &componentManager)
+{
+    this->_graphic->getRenderView().use("Model");
     this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(MODEL_TAG)) {
         Transform transform = componentManager.getComponent<Transform>(id);
         Model model = componentManager.getComponent<Model>(id);
 
         this->_graphic->getRenderView().setModel(transform);
-        if (this->_graphic->getModels().find(model.id) != this->_graphic->getModels().end())
-            this->_graphic->getModels()[model.id].draw(this->_graphic->getRenderView().getShader());
+        if (this->_resourceManager->getModels().find(model.name) != this->_resourceManager->getModels().end())
+            this->_resourceManager->getModels()[model.name].draw(this->_graphic->getRenderView().getShader());
     }
+}
 
+void RenderSystem::drawBillboards(EntityManager &entityManager, ComponentManager &componentManager)
+{
     this->_graphic->getRenderView().use("Billboard");
     this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(BILLBOARD_TAG)) {
         Transform transform = componentManager.getComponent<Transform>(id);
-        BillBoard billBoard = componentManager.getComponent<BillBoard>(id);
+        Billboard billboard = componentManager.getComponent<Billboard>(id);
 
         this->_graphic->getRenderView().setBillboard(transform);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, billBoard.textureId);
+        // TEMP : if texture not found, use black texture, but default texture should be better
+        if (this->_resourceManager->getTextures().find(billboard.name) != this->_resourceManager->getTextures().end())
+            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[billboard.name].getId());
+        else
+            glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("tex", 0);
-        glBindVertexArray(this->_billboardVAO);
+        glBindVertexArray(this->_billboard.vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
     }
+}
 
+void RenderSystem::drawMap(EntityManager &entityManager, ComponentManager &componentManager)
+{
+    this->_graphic->getRenderView().use("Map");
+    this->_graphic->getRenderView().setView();
+    for (auto id : entityManager.getMaskCategory(MAP_TAG)) {
+        Map map = componentManager.getComponent<Map>(id);
+
+        this->_graphic->getRenderView().getShader().setMat4("model", glm::mat4(1.0f));
+        glActiveTexture(GL_TEXTURE0);
+        if (this->_resourceManager->getTextures().find(map.name) != this->_resourceManager->getTextures().end())
+            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.name].getId());
+        else
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+        this->_resourceManager->getMap().draw();
+    }
+}
+
+void RenderSystem::drawSkybox(EntityManager &entityManager, ComponentManager &componentManager)
+{
     glDepthFunc(GL_LEQUAL);
     this->_graphic->getRenderView().use("Skybox");
     this->_graphic->getRenderView().setSkyBoxView();
     for (auto id : entityManager.getMaskCategory(SKYBOX_TAG)) {
-        CubeMap cubeMap = componentManager.getComponent<CubeMap>(id);
+        Cubemap cubemap = componentManager.getComponent<Cubemap>(id);
 
-        if (this->_graphic->getSkyboxes().find(cubeMap.id) != this->_graphic->getSkyboxes().end()) {
-            this->_graphic->getRenderView().setSkyBox(cubeMap);
+        if (this->_resourceManager->getSkyboxes().find(cubemap.name) != this->_resourceManager->getSkyboxes().end()) {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_graphic->getSkyboxes()[cubeMap.id]);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyboxes()[cubemap.name].getId());
             this->_graphic->getRenderView().getShader().setInt("skybox", 0);
-            glBindVertexArray(this->_skyboxVAO);
+            glBindVertexArray(this->_skybox.vao);
             glDrawArrays(GL_TRIANGLES, 0, 36);
             glBindVertexArray(0);
         }
     }
     glDepthFunc(GL_LESS);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

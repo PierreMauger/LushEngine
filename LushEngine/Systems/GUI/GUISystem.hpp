@@ -2,8 +2,9 @@
 #define GUISYSTEM_HPP
 
 #include "ComponentTypes.hpp"
-#include "ECS/System/ISystem.hpp"
-#include "Graphic/Graphic.hpp"
+#include "ECS/System/ASystem.hpp"
+#include "Graphic.hpp"
+#include "ResourceManager.hpp"
 #include "ImGui/IconsFontAwesome5.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_glfw.h"
@@ -18,21 +19,22 @@
 
 namespace Lush
 {
-    class GUISystem : public ISystem
+    class GUISystem : public ASystem
     {
         private:
             std::shared_ptr<Graphic> _graphic;
+            std::shared_ptr<ResourceManager> _resourceManager;
+
             bool _showSceneHierarchy = true;
             bool _showProperties = true;
             bool _showTools = true;
             bool _showConsole = true;
-            bool _showScene = true;
             bool _showGame = true;
+            bool _showScene = true;
             bool _showFileExplorer = true;
             bool _showProfiler = true;
             bool _reloading = false;
             bool _singleFrame = false;
-            std::size_t _selectedEntity = 0;
             ImGuizmo::OPERATION _currentOperation = ImGuizmo::OPERATION::TRANSLATE;
             ImGuizmo::MODE _currentMode = ImGuizmo::MODE::LOCAL;
 
@@ -52,18 +54,18 @@ namespace Lush
             void drawProperties(EntityManager &entityManager, ComponentManager &componentManager);
             void drawTools();
             void drawConsole();
-            void drawScene(EntityManager &entityManager, ComponentManager &componentManager);
-            void drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager);
             void drawGame();
+            void drawScene(EntityManager &entityManager, ComponentManager &componentManager);
+            bool drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager);
             void drawFiles();
             void drawProfiler();
             std::string formatBinary(std::size_t value, std::size_t size);
 
         public:
-            GUISystem(std::shared_ptr<Graphic> graphic);
+            GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~GUISystem();
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
     };
 }
 
