@@ -15,9 +15,10 @@ namespace Lush
             MonoMethod *_onInit;
             MonoMethod *_onUpdate;
             std::size_t _id;
+            std::map<std::string, std::any> _defaultFields;
 
         public:
-            ScriptInstance(ScriptClass &script, std::size_t id);
+            ScriptInstance(ScriptClass &script, std::size_t id, std::map<std::string, std::any> &defaultFields);
             ~ScriptInstance() = default;
 
             ScriptClass &getClass();
@@ -33,6 +34,7 @@ namespace Lush
                     return T();
                 return *(T *)value;
             }
+
             template <typename T> void setFieldValue(std::string name, T value)
             {
                 this->setFieldValueInternal(name, &value);

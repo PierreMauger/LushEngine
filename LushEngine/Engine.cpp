@@ -21,7 +21,6 @@ Engine::Engine()
     this->_ecs.getEntityManager().addMaskCategory(MAP_TAG);
     this->_ecs.getEntityManager().addMaskCategory(CAMERA_TAG);
     this->_ecs.getEntityManager().addMaskCategory(LIGHT_TAG);
-
     for (std::size_t i = 0; i < this->_resourceManager->getScripts().size(); i++)
         this->_ecs.getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << i);
 
@@ -33,6 +32,8 @@ Engine::Engine()
     this->_ecs.getComponentManager().bindComponent<Cubemap>();
     this->_ecs.getComponentManager().bindComponent<Billboard>();
     this->_ecs.getComponentManager().bindComponent<Map>();
+    for (auto &[name, script] : this->_resourceManager->getScripts())
+        this->_ecs.getComponentManager().bindInstanceFields(name);
 
     this->_ecs.getSystemManager().bindSystem(std::make_unique<ScriptSystem>(this->_graphic, this->_resourceManager));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<CameraSystem>(this->_graphic));

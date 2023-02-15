@@ -4,7 +4,7 @@
       <Components>
         <Transform position="0 0 0" rotation="0 0 0" scale="1 1 1" />
         <Model name="Maxwell" />
-        <Maxwell />
+        <Maxwell time="0" />
       </Components>
     </Entity>
     <Entity id="1">

@@ -79,8 +79,26 @@ void Scene::load(File &file, std::map<std::string, ScriptClass> &scripts)
             }
             std::size_t it = 0;
             for (auto &[scriptName, script] : scripts) {
-                if (scriptName == name)
+                if (scriptName == name) {
                     mask |= ComponentType::COMPONENT_TYPE_COUNT << it;
+                    std::map<std::string, std::any> fieldsValues;
+                    for (auto &[fieldName, field] : script.getFields()) {
+                        if (field.type == "Single")
+                            fieldsValues[fieldName] = 0.0f;
+                        if (field.type == "Entity" || field.type == "UInt64")
+                            fieldsValues[fieldName] = (unsigned long)0;
+                    }
+                    for (rapidxml::xml_attribute<> *attribute = componentNode->first_attribute(); attribute; attribute = attribute->next_attribute()) {
+                        std::string attributeName = attribute->name();
+                        if (scripts[scriptName].getFields().find(attributeName) != scripts[scriptName].getFields().end()) {
+                            if (scripts[scriptName].getFields()[attributeName].type == "Single")
+                                fieldsValues[attributeName] = std::stof(attribute->value());
+                            if (scripts[scriptName].getFields()[attributeName].type == "Entity" || scripts[scriptName].getFields()[attributeName].type == "UInt64")
+                                fieldsValues[attributeName] = std::stoull(attribute->value());
+                        }
+                    }
+                    this->_componentManager.addInstanceFields(scriptName, id, fieldsValues);
+                }
                 it++;
             }
         }

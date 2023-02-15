@@ -150,7 +150,7 @@ void GUISystem::drawActionBar(EntityManager &entityManager, ComponentManager &co
                     std::size_t it = 0;
                     for (auto &[name, script] : this->_resourceManager->getScripts()) {
                         for (auto id : entityManager.getMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << it))
-                            this->_resourceManager->getInstances().push_back(ScriptInstance(script, id));
+                            this->_resourceManager->getInstances().push_back(ScriptInstance(script, id, componentManager.getInstanceFields(name, id)));
                         it++;
                     }
                     for (auto &instance : this->_resourceManager->getInstances())
@@ -380,19 +380,26 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                         }
                         if (field.type == "Entity" || field.type == "UInt64") {
                             unsigned long value = this->_resourceManager->getInstances()[instance].getFieldValue<unsigned long>(fieldName);
-                            if (ImGui::InputScalar(fieldName.c_str(), ImGuiDataType_U64, &value))
+                            const ImU64 increment = 1;
+                            if (ImGui::InputScalar(fieldName.c_str(), ImGuiDataType_U64, &value, &increment))
                                 this->_resourceManager->getInstances()[instance].setFieldValue(fieldName, value);
                         }
                     } else {
-                        ImGui::Text("%s : %s", fieldName.c_str(), field.type.c_str());
-                        // if (field.type == "Single") {
-                        // float value = 0.0f;
-                        // ImGui::DragFloat(fieldName.c_str(), &value);
-                        // }
+                        if (field.type == "Single") {
+                            float &value = componentManager.getInstanceField<float>(name, fieldName, selectedEntity);
+                            ImGui::DragFloat(fieldName.c_str(), &value);
+                        }
+                        if (field.type == "Entity" || field.type == "UInt64") {
+                            unsigned long &value = componentManager.getInstanceField<unsigned long>(name, fieldName, selectedEntity);
+                            const ImU64 increment = 1;
+                            ImGui::InputScalar(fieldName.c_str(), ImGuiDataType_U64, &value, &increment);
+                        }
                     }
                 }
-                if (ImGui::Button(std::string("Remove##" + std::to_string(8 + it)).c_str()))
+                if (ImGui::Button(std::string("Remove##" + std::to_string(8 + it)).c_str())) {
                     entityManager.updateMask(selectedEntity, masks[selectedEntity].value() & ~(ComponentType::COMPONENT_TYPE_COUNT << it));
+                    componentManager.removeInstanceFields(name, selectedEntity);
+                }
             }
         it++;
     }
@@ -447,8 +454,17 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
         for (auto &[name, script] : this->_resourceManager->getScripts()) {
             if (!(masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it))) {
                 ImGui::PushID(8 + it);
-                if (ImGui::Selectable("##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
+                if (ImGui::Selectable("##selectable", false, ImGuiSelectableFlags_SpanAllColumns)) {
                     entityManager.updateMask(selectedEntity, masks[selectedEntity].value() | (ComponentType::COMPONENT_TYPE_COUNT << it));
+                    std::map<std::string, std::any> fieldsValues;
+                    for (auto &[fieldName, field] : script.getFields()) {
+                        if (field.type == "Single")
+                            fieldsValues[fieldName] = 0.0f;
+                        if (field.type == "Entity" || field.type == "UInt64")
+                            fieldsValues[fieldName] = (unsigned long)0;
+                    }
+                    componentManager.addInstanceFields(name, selectedEntity, fieldsValues);
+                }
                 ImGui::SameLine(10, 0);
                 ImGui::Text(ICON_FA_FILE_CODE);
                 ImGui::SameLine(30, 0);

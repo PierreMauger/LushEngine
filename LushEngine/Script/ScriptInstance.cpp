@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id) : _class(script)
+ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id, std::map<std::string, std::any> &defaultFields) : _class(script)
 {
     this->_instance = mono_object_new(script.getDomain(), script.getClass());
     this->_ctor = script.getMethod("ctor");
@@ -15,6 +15,7 @@ ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id) : _class(scr
         args[0] = &id;
         mono_runtime_invoke(this->_ctor, this->_instance, args, nullptr);
     }
+    this->_defaultFields = defaultFields;
 }
 
 ScriptClass &ScriptInstance::getClass()
@@ -48,6 +49,13 @@ void ScriptInstance::init()
     if (this->_onInit) {
         void *args[0];
         mono_runtime_invoke(this->_onInit, this->_instance, args, nullptr);
+    }
+    for (auto &[name, value] : this->_defaultFields) {
+        std::string type = this->_class.getFields()[name].type;
+        if (type == "Single")
+            this->setFieldValue<float>(name, std::any_cast<float>(value));
+        else if (type == "Entity" || type == "UInt64")
+            this->setFieldValue<unsigned long>(name, std::any_cast<unsigned long>(value));
     }
 }
 

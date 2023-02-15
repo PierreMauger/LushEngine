@@ -6,13 +6,14 @@ public class Controlable : Entity
     private Transform transform;
     private Camera camera;
     private Entity cameraEntity;
-    public ulong cameraEntityId;
+    // public ulong cameraEntityId;
 
     public void onInit()
     {
         transform = getComponent<Transform>();
-        cameraEntityId = 1;
-        cameraEntity = new Entity(cameraEntityId);
+        // cameraEntityId = 1;
+        // cameraEntity = new Entity(cameraEntityId);
+        cameraEntity = new Entity(1);
         camera = cameraEntity.getComponent<Camera>();
     }
 
