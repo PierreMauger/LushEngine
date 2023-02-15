@@ -49,14 +49,12 @@ ResourceManager::ResourceManager()
     this->_shaders["Grid"] = Shader(this->_files["Resources/Shaders/grid.vs"], this->_files["Resources/Shaders/grid.fs"]);
     this->_shaders["Map"] = Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/map.fs"], File(), this->_files["Resources/Shaders/map.tcs"], this->_files["Resources/Shaders/map.tes"]);
 
-    this->_files["right.jpg"] = File("Resources/Skybox/right.jpg");
-    this->_files["left.jpg"] = File("Resources/Skybox/left.jpg");
-    this->_files["top.jpg"] = File("Resources/Skybox/top.jpg");
-    this->_files["bottom.jpg"] = File("Resources/Skybox/bottom.jpg");
-    this->_files["front.jpg"] = File("Resources/Skybox/front.jpg");
-    this->_files["back.jpg"] = File("Resources/Skybox/back.jpg");
-    std::vector<File> files = {this->_files["right.jpg"],  this->_files["left.jpg"],  this->_files["top.jpg"],
-                               this->_files["bottom.jpg"], this->_files["front.jpg"], this->_files["back.jpg"]};
+    // Loading all skyboxes
+    this->loadDirectory("Resources/Skybox", [this](std::string path) {
+        this->_files[path] = File(path);
+    }, {".jpg"});
+    std::vector<File> files = {this->_files["Resources/Skybox/right.jpg"],  this->_files["Resources/Skybox/left.jpg"],  this->_files["Resources/Skybox/top.jpg"],
+                               this->_files["Resources/Skybox/bottom.jpg"], this->_files["Resources/Skybox/front.jpg"], this->_files["Resources/Skybox/back.jpg"]};
     this->_skyboxes["Sky"] = CubeMap(files);
 
     this->_map = std::make_unique<MapMesh>(2624, 1756);
