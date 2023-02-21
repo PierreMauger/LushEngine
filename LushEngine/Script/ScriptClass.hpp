@@ -25,11 +25,11 @@ namespace Lush
         private:
             MonoDomain *_domain;
             MonoAssembly *_assembly;
-            MonoAssembly *_entityAssembly;
+            MonoAssembly *_coreAssembly;
             MonoImage *_image;
-            MonoImage *_entityImage;
+            MonoImage *_coreImage;
             MonoClass *_class;
-            MonoClass *_entityClass;
+            MonoClass *_coreClass;
 
             std::map<std::string, MonoMethod *> _methods;
             std::map<std::string, FieldInfo> _fields;

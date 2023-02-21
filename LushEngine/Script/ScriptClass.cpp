@@ -6,11 +6,11 @@ ScriptClass::ScriptClass(File &file) : Resource(ResourceType::SCRIPT, file)
 {
     this->_domain = nullptr;
     this->_assembly = nullptr;
-    this->_entityAssembly = nullptr;
+    this->_coreAssembly = nullptr;
     this->_image = nullptr;
-    this->_entityImage = nullptr;
+    this->_coreImage = nullptr;
     this->_class = nullptr;
-    this->_entityClass = nullptr;
+    this->_coreClass = nullptr;
 
     try {
         this->load(file);
@@ -34,25 +34,25 @@ void ScriptClass::load(File &file)
     this->_assembly = mono_domain_assembly_open(this->_domain, assemblyPath.c_str());
     if (!this->_assembly)
         throw std::runtime_error("mono_domain_assembly_open failed for " + name + ".dll");
-    this->_entityAssembly = mono_domain_assembly_open(this->_domain, "Resources/CoreScripts/Core.dll");
-    if (!this->_entityAssembly)
+    this->_coreAssembly = mono_domain_assembly_open(this->_domain, "Resources/CoreScripts/Core.dll");
+    if (!this->_coreAssembly)
         throw std::runtime_error("mono_domain_assembly_open failed for Core.dll");
 
     this->_image = mono_assembly_get_image(this->_assembly);
     if (!this->_image)
         throw std::runtime_error("mono_assembly_get_image failed for " + name + ".dll");
-    this->_entityImage = mono_assembly_get_image(this->_entityAssembly);
-    if (!this->_entityImage)
-        throw std::runtime_error("mono_assembly_get_image failed for Entity");
+    this->_coreImage = mono_assembly_get_image(this->_coreAssembly);
+    if (!this->_coreImage)
+        throw std::runtime_error("mono_assembly_get_image failed for Core.dll");
 
-    this->_entityClass = mono_class_from_name(this->_entityImage, "", "Entity");
-    if (!this->_entityClass)
-        throw std::runtime_error("mono_class_from_name failed for Entity");
     this->_class = mono_class_from_name(this->_image, "", name.c_str());
     if (!this->_class)
         throw std::runtime_error("mono_class_from_name failed for " + name);
+    this->_coreClass = mono_class_from_name(this->_coreImage, "", "Entity");
+    if (!this->_coreClass)
+        throw std::runtime_error("mono_class_from_name failed for Entity in Core.dll");
 
-    this->_methods["ctor"] = mono_class_get_method_from_name(this->_entityClass, ".ctor", 1);
+    this->_methods["ctor"] = mono_class_get_method_from_name(this->_coreClass, ".ctor", 1);
     this->_methods["onInit"] = mono_class_get_method_from_name(this->_class, "onInit", 0);
     this->_methods["onUpdate"] = mono_class_get_method_from_name(this->_class, "onUpdate", 1);
 
@@ -84,11 +84,11 @@ void ScriptClass::loadAttributes()
 void ScriptClass::reload(File &file)
 {
     this->_assembly = nullptr;
-    this->_entityAssembly = nullptr;
+    this->_coreAssembly = nullptr;
     this->_image = nullptr;
-    this->_entityImage = nullptr;
+    this->_coreImage = nullptr;
     this->_class = nullptr;
-    this->_entityClass = nullptr;
+    this->_coreClass = nullptr;
     this->_methods.clear();
 
     mono_domain_unload(this->_domain);

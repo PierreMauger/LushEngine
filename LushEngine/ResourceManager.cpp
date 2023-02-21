@@ -61,6 +61,7 @@ ResourceManager::~ResourceManager()
 void ResourceManager::initScriptDomain()
 {
     unsetenv("TERM");
+    setenv("MONO_PATH", "Resources/CoreScripts", 1);
     this->_domain = mono_jit_init("LushJIT");
     if (!this->_domain)
         throw std::runtime_error("mono_jit_init failed");
