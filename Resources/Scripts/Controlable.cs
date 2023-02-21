@@ -5,15 +5,16 @@ public class Controlable : Entity
 {
     private Transform transform;
     private Camera camera;
-    private Entity cameraEntity;
-    // public ulong cameraEntityId;
+    public Entity cameraEntity = null;
+    public float speed = 10.0f;
 
     public void onInit()
     {
         transform = getComponent<Transform>();
-        // cameraEntityId = 1;
-        // cameraEntity = new Entity(cameraEntityId);
-        cameraEntity = new Entity(1);
+        if (cameraEntity == null) {
+            Console.WriteLine("No camera entity specified, using default camera (1).");
+            cameraEntity = new Entity(1);
+        }
         camera = cameraEntity.getComponent<Camera>();
     }
 
@@ -30,8 +31,8 @@ public class Controlable : Entity
 
         if (InternalCalls.IsKeyDown(0x57)) {
             Vector3 tmpPos = transform.position;
-            tmpPos.x += tmpCamForward.x * 10.0f * deltaTime;
-            tmpPos.z += tmpCamForward.z * 10.0f * deltaTime;
+            tmpPos.x += tmpCamForward.x * speed * deltaTime;
+            tmpPos.z += tmpCamForward.z * speed * deltaTime;
             transform.position = tmpPos;
         }
     }

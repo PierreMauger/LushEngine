@@ -94,7 +94,7 @@ void Scene::load(File &file, std::map<std::string, ScriptClass> &scripts)
                             if (scripts[scriptName].getFields()[attributeName].type == "Single")
                                 fieldsValues[attributeName] = std::stof(attribute->value());
                             if (scripts[scriptName].getFields()[attributeName].type == "Entity" || scripts[scriptName].getFields()[attributeName].type == "UInt64")
-                                fieldsValues[attributeName] = std::stoull(attribute->value());
+                                fieldsValues[attributeName] = std::stoul(attribute->value());
                         }
                     }
                     this->_componentManager.addInstanceFields(scriptName, id, fieldsValues);

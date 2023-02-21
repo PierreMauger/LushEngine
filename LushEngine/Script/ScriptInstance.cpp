@@ -34,6 +34,16 @@ bool ScriptInstance::getFieldValueInternal(std::string name, void *value)
         return false;
 
     FieldInfo field = this->_class.getFields()[name];
+    if (field.type == "Entity") {
+        MonoType *type = mono_field_get_type(field.field);
+        MonoClass *klass = mono_class_from_mono_type(type);
+        MonoObject *obj;
+        mono_field_get_value(this->_instance, field.field, &obj);
+        MonoClassField *idField = mono_class_get_field_from_name(klass, "id");
+        unsigned long *idPtr = (unsigned long *)mono_object_unbox(mono_field_get_value_object(mono_domain_get(), idField, obj));
+        *((unsigned long *)value) = *idPtr;
+        return true;
+    }
     mono_field_get_value(this->_instance, field.field, value);
     return true;
 }
@@ -41,11 +51,25 @@ bool ScriptInstance::getFieldValueInternal(std::string name, void *value)
 void ScriptInstance::setFieldValueInternal(std::string name, void *value)
 {
     FieldInfo field = this->_class.getFields()[name];
+    if (field.type == "Entity") {
+        MonoType *type = mono_field_get_type(field.field);
+        MonoClass *klass = mono_class_from_mono_type(type);
+        MonoObject *obj = mono_object_new(mono_domain_get(), klass);
+        MonoMethod *ctor = mono_class_get_method_from_name(klass, ".ctor", 1);
+        void *args[1];
+        args[0] = value;
+        mono_runtime_invoke(ctor, obj, args, nullptr);
+        mono_field_set_value(this->_instance, field.field, obj);
+        return;
+    }
     mono_field_set_value(this->_instance, field.field, value);
 }
 
 void ScriptInstance::init()
 {
+    for (auto &[name, value] : this->_defaultFields)
+        if (this->_class.getFields()[name].type == "Entity")
+            this->setFieldValue<unsigned long>(name, std::any_cast<unsigned long>(value));
     if (this->_onInit) {
         void *args[0];
         mono_runtime_invoke(this->_onInit, this->_instance, args, nullptr);
@@ -54,7 +78,7 @@ void ScriptInstance::init()
         std::string type = this->_class.getFields()[name].type;
         if (type == "Single")
             this->setFieldValue<float>(name, std::any_cast<float>(value));
-        else if (type == "Entity" || type == "UInt64")
+        else if (type == "UInt64")
             this->setFieldValue<unsigned long>(name, std::any_cast<unsigned long>(value));
     }
 }
