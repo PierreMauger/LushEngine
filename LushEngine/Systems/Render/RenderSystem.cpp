@@ -60,7 +60,6 @@ void RenderSystem::drawBillboards(EntityManager &entityManager, ComponentManager
 
         this->_graphic->getRenderView().setBillboard(transform);
         glActiveTexture(GL_TEXTURE0);
-        // TEMP : if texture not found, use black texture, but default texture should be better
         if (this->_resourceManager->getTextures().find(billboard.name) != this->_resourceManager->getTextures().end())
             glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[billboard.name].getId());
         else

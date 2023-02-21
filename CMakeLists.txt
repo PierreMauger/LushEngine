@@ -23,6 +23,7 @@ find_package(Threads REQUIRED)
 set(CMAKE_THREADS_LIBS_INIT Threads::Threads)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 set(BUILD_SHARED_LIBS TRUE)
+set(LIBS_PATH ${PROJECT_SOURCE_DIR}/libs)
 
 ################## BUILD ECS ##################
 
@@ -56,7 +57,7 @@ install(TARGETS ${ECS})
 
 set(IMGUI IMGUI)
 
-set(IMGUI_ROOT ${PROJECT_NAME}/ImGui/)
+set(IMGUI_ROOT ${LIBS_PATH}/ImGui/)
 
 set(IMGUI_INC
     ${IMGUI_ROOT}/
@@ -95,18 +96,19 @@ set(INC
     ${PROJECT_NAME}/Systems/Script/
     ${PROJECT_NAME}/Script/
     ${PROJECT_NAME}/File/
-    ${PROJECT_NAME}/ImGui/
-    ${PROJECT_NAME}/STB/
-    ${PROJECT_NAME}/mono/
-    ${PROJECT_NAME}/assimp/
-    ${PROJECT_NAME}/RapidXML/
+
+    ${LIBS_PATH}/
+    ${LIBS_PATH}/ImGui/
+    ${LIBS_PATH}/STB/
+    ${LIBS_PATH}/mono/
+    ${LIBS_PATH}/assimp/
+    ${LIBS_PATH}/RapidXML/
 )
 
 set(SRC
     ${PROJECT_NAME}/Engine.cpp
     ${PROJECT_NAME}/Graphic.cpp
     ${PROJECT_NAME}/ResourceManager.cpp
-    ${PROJECT_NAME}/Loader.cpp
     ${PROJECT_NAME}/Scene.cpp
     ${PROJECT_NAME}/UUID.cpp
     ${PROJECT_NAME}/Rendering/Shapes.cpp
@@ -130,7 +132,7 @@ set(SRC
     ${PROJECT_NAME}/File/File.cpp
     ${PROJECT_NAME}/File/Resource.cpp
 
-    ${PROJECT_NAME}/STB/stb.cpp
+    ${LIBS_PATH}/STB/stb.cpp
 )
 
 find_package(OpenGL REQUIRED)
@@ -158,8 +160,8 @@ target_link_libraries(${EXEC_NAME} PRIVATE
     ${IMGUI}
 )
 
-target_link_libraries(${EXEC_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/lib/libmonosgen-2.0.so.1.0.0)
-target_link_libraries(${EXEC_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/lib/libassimp.so.5.2.0)
+target_link_libraries(${EXEC_NAME} PRIVATE ${LIBS_PATH}/libmonosgen-2.0.so.1.0.0)
+target_link_libraries(${EXEC_NAME} PRIVATE ${LIBS_PATH}/libassimp.so.5.2.0)
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
 

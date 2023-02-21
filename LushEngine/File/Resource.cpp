@@ -6,11 +6,9 @@ static std::vector<Resource> resources;
 
 bool Resource::hasFile(File file) const
 {
-    for (auto &f : this->_files) {
-        // overload operator== for File
+    for (auto &f : this->_files)
         if (f.getPath() == file.getPath())
             return true;
-    }
     return false;
 }
 

@@ -37,7 +37,6 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
     mousePosition.x = (mousePosition.x - viewport.x) * windowSize.x / viewport.z;
     mousePosition.y = (mousePosition.y - viewport.y) * windowSize.y / viewport.w;
 
-    // read pixel from picking buffer
     std::size_t pixel = 0;
     if (this->_graphic->getSceneMovement()) {
         glReadPixels(mousePosition.x, windowSize.y - mousePosition.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);

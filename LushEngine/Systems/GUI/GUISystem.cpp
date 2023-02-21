@@ -16,7 +16,6 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceM
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
     io.Fonts->AddFontDefault();
 
-    // merge in icons from Font Awesome
     static const ImWchar iconsRanges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
     ImFontConfig iconsConfig;
     iconsConfig.MergeMode = true;
@@ -93,7 +92,7 @@ void GUISystem::setDock()
                                    ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
 
     ImGuiViewport *viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos({viewport->Pos.x, viewport->Pos.y + 19}); // 19 is the height of the action bar
+    ImGui::SetNextWindowPos({viewport->Pos.x, viewport->Pos.y + 19});
     ImGui::SetNextWindowSize({viewport->Size.x, viewport->Size.y - 19});
     ImGui::SetNextWindowViewport(viewport->ID);
 
@@ -647,7 +646,7 @@ void GUISystem::drawFiles()
         ImGui::Text("%s", file.path().filename().string().c_str());
         ImGui::NextColumn();
     }
-    ImGui::Columns(1); // reset columns
+    ImGui::Columns(1);
     ImGui::End();
 }
 

@@ -11,16 +11,9 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_sceneViewPort = glm::vec4(0.0f, 0.0f, sizeX, sizeY);
     this->_windowSize = glm::vec2(sizeX, sizeY);
 
-    // this->_renderView.setShaders(this->_shaders);
-
     this->_cursors[0] = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
     this->_cursors[1] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
     this->_cursors[2] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
-
-    // GLFWimage images[1];
-    // images[0].pixels = stbi_load("Resources/Icon/Lush.png", &images[0].width, &images[0].height, 0, 4);
-    // this->_cursors[...] = glfwCreateCursor(&images[0], 0, 0);
-    // stbi_image_free(images[0].pixels);
 }
 
 Graphic::~Graphic()
@@ -88,8 +81,6 @@ void Graphic::handleResizeFramebuffer(int width, int height)
 {
     this->_windowSize = glm::vec2(width, height);
     glViewport(0, 0, this->_windowSize.x, this->_windowSize.y);
-    // this->_gameViewPort = glm::vec4(0.0f, 0.0f, this->_windowSize.x, this->_windowSize.y);
-    // this->_sceneViewPort = glm::vec4(0.0f, 0.0f, this->_windowSize.x, this->_windowSize.y);
 
     for (auto [name, fb] : this->_frameBuffers) {
         glBindTexture(GL_TEXTURE_2D, fb.texture);

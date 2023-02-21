@@ -12,7 +12,6 @@ namespace Lush
     {
         public:
             static void Console_Log(std::size_t id, MonoString *message);
-            // static std::size_t Entity_FindEntity(std::size_t id);
 
             static void Transform_GetPosition(std::size_t id, glm::vec3 *position);
             static void Transform_SetPosition(std::size_t id, glm::vec3 *position);

@@ -9,10 +9,10 @@
 #include "Includes.hpp"
 #include "Rendering/Mesh.hpp"
 #include "Rendering/Texture.hpp"
-#include "STB/stb_image.h"
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
+#include "STB/stb_image.h"
 
 namespace Lush
 {

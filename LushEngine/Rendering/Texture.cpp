@@ -15,10 +15,9 @@ Texture::~Texture()
 
 void Texture::load(File &file)
 {
-    // std::string content = file.load();
-    // unsigned char *data = stbi_load_from_memory((const stbi_uc *)content.c_str(), content.length(), &this->_width, &this->_height, &this->_nrChannels, 0);
     glGenTextures(1, &this->_id);
-    unsigned char *data = stbi_load(file.getPath().c_str(), &this->_width, &this->_height, &this->_nrChannels, 0);
+    std::string content = file.load();
+    unsigned char *data = stbi_load_from_memory((const stbi_uc *)content.c_str(), content.length(), &this->_width, &this->_height, &this->_nrChannels, 0);
     if (data) {
         GLenum format = GL_RGB;
         if (this->_nrChannels == 1)

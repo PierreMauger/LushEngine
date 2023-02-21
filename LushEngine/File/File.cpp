@@ -15,7 +15,6 @@ std::string File::getPath() const
 
 std::string File::getName() const
 {
-    // get filename from path without extension
     return std::filesystem::path(this->_path).filename().replace_extension().string();
 }
 

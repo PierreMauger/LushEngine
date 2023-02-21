@@ -29,10 +29,8 @@ void ScriptClass::load(File &file)
     if (system(std::string("mcs -target:library -out:" + assemblyPath + " " + scriptPath + " -r:Resources/CoreScripts/Core.dll").c_str()))
         throw std::runtime_error("mcs failed");
 
-    // Create a new domain
     this->_domain = mono_domain_create_appdomain((char *)name.c_str(), nullptr);
 
-    // Load the assembly
     this->_assembly = mono_domain_assembly_open(this->_domain, assemblyPath.c_str());
     if (!this->_assembly)
         throw std::runtime_error("mono_domain_assembly_open failed for " + name + ".dll");
@@ -40,7 +38,6 @@ void ScriptClass::load(File &file)
     if (!this->_entityAssembly)
         throw std::runtime_error("mono_domain_assembly_open failed for Core.dll");
 
-    // Create a new image from the assembly
     this->_image = mono_assembly_get_image(this->_assembly);
     if (!this->_image)
         throw std::runtime_error("mono_assembly_get_image failed for " + name + ".dll");
@@ -48,7 +45,6 @@ void ScriptClass::load(File &file)
     if (!this->_entityImage)
         throw std::runtime_error("mono_assembly_get_image failed for Entity");
 
-    // Get the class from the image
     this->_entityClass = mono_class_from_name(this->_entityImage, "", "Entity");
     if (!this->_entityClass)
         throw std::runtime_error("mono_class_from_name failed for Entity");
@@ -60,7 +56,6 @@ void ScriptClass::load(File &file)
     this->_methods["onInit"] = mono_class_get_method_from_name(this->_class, "onInit", 0);
     this->_methods["onUpdate"] = mono_class_get_method_from_name(this->_class, "onUpdate", 1);
 
-    // Check if all methods were found
     for (auto it = this->_methods.begin(); it != this->_methods.end(); it++)
         if (!it->second)
             throw std::runtime_error("mono_class_get_method_from_name failed for " + it->first);

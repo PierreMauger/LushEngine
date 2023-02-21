@@ -4,14 +4,12 @@ using namespace Lush;
 
 ResourceManager::ResourceManager()
 {
-    // Loading all textures
     this->loadDirectory("Resources/Textures", [this](std::string path) {
         this->_files[path] = File(path);
         std::string name = std::filesystem::path(path).filename().string();
         this->_textures[name] = Texture(this->_files[path]);
     }, {".png", ".jpg", ".jpeg"});
 
-    // Loading all models
     this->loadDirectory("Resources/Models", [this](std::string path) {
         this->_files[path] = File(path);
         this->_models[this->_files[path].getName()] = RenderModel(this->_files[path], this->_textures);
@@ -23,22 +21,18 @@ ResourceManager::ResourceManager()
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
-    // Loading all scripts
     this->loadDirectory("Resources/Scripts", [this](std::string path) {
         this->_files[path] = File(path);
         this->_scripts[this->_files[path].getName()] = ScriptClass(this->_files[path]);
     }, {".cs"});
 
-    // Loading all scenes
     this->loadDirectory("Resources/Scenes", [this](std::string path) {
         this->_files[path] = File(path);
         this->_scene = std::make_shared<Scene>(this->_files[path], this->_scripts);
     }, {".xml"});
 
-    // Loading all shaders
     this->loadDirectory("Resources/Shaders", [this](std::string path) {
         this->_files[path] = File(path);
-        // this->_shaders[this->_files[path].getName()] = Shader(this->_files[path]);
     }, {".vs", ".fs", ".tcs", ".tes", ".gs", ".cs"});
     this->_shaders["Model"] = Shader(this->_files["Resources/Shaders/model.vs"], this->_files["Resources/Shaders/model.fs"]);
     this->_shaders["PickingModel"] = Shader(this->_files["Resources/Shaders/model.vs"], this->_files["Resources/Shaders/picking.fs"]);
@@ -49,7 +43,6 @@ ResourceManager::ResourceManager()
     this->_shaders["Grid"] = Shader(this->_files["Resources/Shaders/grid.vs"], this->_files["Resources/Shaders/grid.fs"]);
     this->_shaders["Map"] = Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/map.fs"], File(), this->_files["Resources/Shaders/map.tcs"], this->_files["Resources/Shaders/map.tes"]);
 
-    // Loading all skyboxes
     this->loadDirectory("Resources/Skybox", [this](std::string path) {
         this->_files[path] = File(path);
     }, {".jpg"});
