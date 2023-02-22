@@ -7,33 +7,33 @@ FileWatcherSystem::FileWatcherSystem(std::shared_ptr<Graphic> graphic, std::shar
 {
 }
 
-void FileWatcherSystem::update([[maybe_unused]] EntityManager &entityManager, [[maybe_unused]] ComponentManager &componentManager, float deltaTime)
+void FileWatcherSystem::update([[maybe_unused]] EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
 {
     if (!this->shouldUpdate(deltaTime))
         return;
     for (auto &[name, file] : this->_resourceManager->getFiles()) {
         if (file.isModified()) {
             file.update();
-            this->reloadResourcesFromFile(file);
+            this->reloadResourcesFromFile(file, componentManager);
         }
     }
     if (!this->_graphic->getRunning() && !this->_resourcesToReload.empty()) {
         for (auto &res : this->_resourcesToReload)
-            this->updateResource(res);
+            this->updateResource(res, componentManager);
         this->_resourcesToReload.clear();
     }
 }
 
-void FileWatcherSystem::reloadResourcesFromFile(File &file)
+void FileWatcherSystem::reloadResourcesFromFile(File &file, ComponentManager &componentManager)
 {
     for (auto &res : Resource::getResources())
         if (res.hasFile(file)) {
             std::cout << "Reloading resource " << res.getUUID() << " for file " << file.getPath() << std::endl;
-            this->updateResource(res);
+            this->updateResource(res, componentManager);
         }
 }
 
-void FileWatcherSystem::updateResource(Resource &resource)
+void FileWatcherSystem::updateResource(Resource &resource, ComponentManager &componentManager)
 {
     std::vector<File> files = resource.getFiles();
 
@@ -79,10 +79,30 @@ void FileWatcherSystem::updateResource(Resource &resource)
         try {
             std::shared_ptr<ScriptPack> scriptPack = this->_resourceManager->getScriptPack();
             scriptPack->reload(files);
-            std::cout << "Reloaded script pack " << resource.getUUID() << std::endl;
-            for (auto &[name, klass] : scriptPack->getClasses())
+            std::cout << "Reloaded script pack " << scriptPack->getName() << std::endl;
+            for (auto &[name, klass] : scriptPack->getClasses()) {
                 this->_resourceManager->getScripts()[name].reload(scriptPack->getDomain(), klass, scriptPack->getCoreClass());
 
+                SparseArray &sparseArray = componentManager.getAllInstanceFields(name);
+                for (std::size_t i = 0; i < sparseArray.getSize(); i++) {
+                    if (sparseArray.getValues(i).has_value()) {
+                        std::map<std::string, std::any> fieldsValues;
+                        for (auto &[fieldName, field] : this->_resourceManager->getScripts()[name].getFields()) {
+                            if (field.type == "Single")
+                                fieldsValues[fieldName] = 0.0f;
+                            if (field.type == "Entity" || field.type == "UInt64")
+                                fieldsValues[fieldName] = (unsigned long)0;
+                        }
+                        std::map<std::string, std::any> oldFieldsValues = std::any_cast<std::map<std::string, std::any> &>(sparseArray.getValues(i).value());
+                        for (auto &[fieldName, oldFieldValue] : oldFieldsValues) {
+                            if (fieldsValues.find(fieldName) != fieldsValues.end()) {
+                                fieldsValues[fieldName] = oldFieldValue;
+                            }
+                        }
+                        componentManager.addInstanceFields(name, i, fieldsValues);
+                    }
+                }
+            }
         } catch (const std::exception &e) {
             std::cout << e.what() << std::endl;
         }

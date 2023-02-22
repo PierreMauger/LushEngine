@@ -17,8 +17,8 @@ namespace Lush
             std::shared_ptr<ResourceManager> _resourceManager;
             std::vector<Resource> _resourcesToReload;
 
-            void reloadResourcesFromFile(File &file);
-            void updateResource(Resource &resource);
+            void reloadResourcesFromFile(File &file, ComponentManager &componentManager);
+            void updateResource(Resource &resource, ComponentManager &componentManager);
 
         public:
             FileWatcherSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);

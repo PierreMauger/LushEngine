@@ -49,6 +49,7 @@ namespace Lush
             }
 
             std::map<std::string, std::any> &getInstanceFields(std::string name, std::size_t id);
+            SparseArray &getAllInstanceFields(std::string name);
             void bindInstanceFields(std::string name);
             void addInstanceFields(std::string name, std::size_t id, std::any value);
             void removeInstanceFields(std::string name, std::size_t id);

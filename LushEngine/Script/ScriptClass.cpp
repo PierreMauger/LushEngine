@@ -50,6 +50,7 @@ void ScriptClass::loadAttributes()
 void ScriptClass::reload(MonoDomain *domain, MonoClass *sciptClass, MonoClass *coreClass)
 {
     this->_methods.clear();
+    this->_fields.clear();
     this->load(domain, sciptClass, coreClass);
     this->loadAttributes();
 }

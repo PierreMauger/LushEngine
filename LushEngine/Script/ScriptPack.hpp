@@ -35,6 +35,7 @@ namespace Lush
             void load(std::vector<File> &files);
             void reload(std::vector<File> &files);
 
+            std::string getName() const;
             MonoDomain *getDomain();
             std::map<std::string, MonoClass *> &getClasses();
             MonoClass *getCoreClass();

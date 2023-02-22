@@ -56,6 +56,11 @@ void ScriptPack::reload(std::vector<File> &files)
     this->load(files);
 }
 
+std::string ScriptPack::getName() const
+{
+    return this->_name;
+}
+
 MonoDomain *ScriptPack::getDomain()
 {
     return this->_domain;
