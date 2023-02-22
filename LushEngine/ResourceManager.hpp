@@ -16,6 +16,7 @@
 #include "Scene.hpp"
 #include "Script/ScriptClass.hpp"
 #include "Script/ScriptInstance.hpp"
+#include "Script/ScriptPack.hpp"
 
 namespace Lush
 {
@@ -30,6 +31,7 @@ namespace Lush
             std::map<std::string, CubeMap> _skyboxes;
             std::map<std::string, ScriptClass> _scripts;
             std::vector<ScriptInstance> _instances;
+            std::shared_ptr<ScriptPack> _nativeScriptPack;
 
             std::shared_ptr<Scene> _scene;
             std::unique_ptr<MapMesh> _map;
@@ -52,6 +54,7 @@ namespace Lush
             std::map<std::string, ScriptClass> &getScripts();
             std::vector<ScriptInstance> &getInstances();
 
+            std::shared_ptr<ScriptPack> getScriptPack();
             std::shared_ptr<Scene> getScene();
             MapMesh &getMap();
     };

@@ -20,14 +20,10 @@ namespace Lush
         MonoClassField *field;
     } FieldInfo;
 
-    class ScriptClass : public Resource
+    class ScriptClass
     {
         private:
             MonoDomain *_domain;
-            MonoAssembly *_assembly;
-            MonoAssembly *_coreAssembly;
-            MonoImage *_image;
-            MonoImage *_coreImage;
             MonoClass *_class;
             MonoClass *_coreClass;
 
@@ -35,12 +31,12 @@ namespace Lush
             std::map<std::string, FieldInfo> _fields;
 
         public:
-            ScriptClass(File &file);
+            ScriptClass(MonoDomain *domain, MonoClass *sciptClass, MonoClass *coreClass);
             ScriptClass() = default;
             ~ScriptClass() = default;
 
-            void load(File &file);
-            void reload(File &file);
+            void load(MonoDomain *domain, MonoClass *sciptClass, MonoClass *coreClass);
+            void reload(MonoDomain *domain, MonoClass *sciptClass, MonoClass *coreClass);
             void loadAttributes();
 
             MonoMethod *getMethod(std::string name);

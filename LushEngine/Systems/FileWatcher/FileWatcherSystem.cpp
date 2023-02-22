@@ -71,20 +71,20 @@ void FileWatcherSystem::updateResource(Resource &resource)
         }
         break;
     case ResourceType::SCRIPT:
-        for (auto &[name, script] : this->_resourceManager->getScripts()) {
-            if (script == resource) {
-                if (this->_graphic->getRunning()) {
-                    this->_resourcesToReload.push_back(resource);
-                    std::cout << "Scheduled reloading script " << name << std::endl;
-                    break;
-                }
-                try {
-                    script.reload(files[0]);
-                    std::cout << "Reloaded script " << name << std::endl;
-                } catch (const std::exception &e) {
-                    std::cout << e.what() << std::endl;
-                }
-            }
+        if (this->_graphic->getRunning()) {
+            this->_resourcesToReload.push_back(resource);
+            std::cout << "Scheduled reloading script " << resource.getUUID() << std::endl;
+            break;
+        }
+        try {
+            std::shared_ptr<ScriptPack> scriptPack = this->_resourceManager->getScriptPack();
+            scriptPack->reload(files);
+            std::cout << "Reloaded script pack " << resource.getUUID() << std::endl;
+            for (auto &[name, klass] : scriptPack->getClasses())
+                this->_resourceManager->getScripts()[name].reload(scriptPack->getDomain(), klass, scriptPack->getCoreClass());
+
+        } catch (const std::exception &e) {
+            std::cout << e.what() << std::endl;
         }
         break;
     default:

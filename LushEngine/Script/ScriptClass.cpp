@@ -2,55 +2,21 @@
 
 using namespace Lush;
 
-ScriptClass::ScriptClass(File &file) : Resource(ResourceType::SCRIPT, file)
+ScriptClass::ScriptClass(MonoDomain *domain, MonoClass *sciptClass, MonoClass *coreClass)
 {
-    this->_domain = nullptr;
-    this->_assembly = nullptr;
-    this->_coreAssembly = nullptr;
-    this->_image = nullptr;
-    this->_coreImage = nullptr;
-    this->_class = nullptr;
-    this->_coreClass = nullptr;
-
     try {
-        this->load(file);
+        this->load(domain, sciptClass, coreClass);
         this->loadAttributes();
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
 }
 
-void ScriptClass::load(File &file)
+void ScriptClass::load(MonoDomain *domain, MonoClass *sciptClass, MonoClass *coreClass)
 {
-    std::string name = file.getName();
-    std::string scriptPath = "Resources/Scripts/" + name + ".cs";
-    std::string assemblyPath = "Resources/Scripts/" + name + ".dll";
-
-    if (system(std::string("mcs -target:library -out:" + assemblyPath + " " + scriptPath + " -r:Resources/CoreScripts/Core.dll").c_str()))
-        throw std::runtime_error("mcs failed");
-
-    this->_domain = mono_domain_create_appdomain((char *)name.c_str(), nullptr);
-
-    this->_assembly = mono_domain_assembly_open(this->_domain, assemblyPath.c_str());
-    if (!this->_assembly)
-        throw std::runtime_error("mono_domain_assembly_open failed for " + name + ".dll");
-    this->_coreAssembly = mono_domain_assembly_open(this->_domain, "Resources/CoreScripts/Core.dll");
-    if (!this->_coreAssembly)
-        throw std::runtime_error("mono_domain_assembly_open failed for Core.dll");
-
-    this->_image = mono_assembly_get_image(this->_assembly);
-    if (!this->_image)
-        throw std::runtime_error("mono_assembly_get_image failed for " + name + ".dll");
-    this->_coreImage = mono_assembly_get_image(this->_coreAssembly);
-    if (!this->_coreImage)
-        throw std::runtime_error("mono_assembly_get_image failed for Core.dll");
-
-    this->_class = mono_class_from_name(this->_image, "", name.c_str());
-    if (!this->_class)
-        throw std::runtime_error("mono_class_from_name failed for " + name);
-    this->_coreClass = mono_class_from_name(this->_coreImage, "", "Entity");
-    if (!this->_coreClass)
-        throw std::runtime_error("mono_class_from_name failed for Entity in Core.dll");
+    this->_domain = domain;
+    this->_class = sciptClass;
+    this->_coreClass = coreClass;
 
     this->_methods["ctor"] = mono_class_get_method_from_name(this->_coreClass, ".ctor", 1);
     this->_methods["onInit"] = mono_class_get_method_from_name(this->_class, "onInit", 0);
@@ -81,18 +47,10 @@ void ScriptClass::loadAttributes()
     }
 }
 
-void ScriptClass::reload(File &file)
+void ScriptClass::reload(MonoDomain *domain, MonoClass *sciptClass, MonoClass *coreClass)
 {
-    this->_assembly = nullptr;
-    this->_coreAssembly = nullptr;
-    this->_image = nullptr;
-    this->_coreImage = nullptr;
-    this->_class = nullptr;
-    this->_coreClass = nullptr;
     this->_methods.clear();
-
-    mono_domain_unload(this->_domain);
-    this->load(file);
+    this->load(domain, sciptClass, coreClass);
     this->loadAttributes();
 }
 
