@@ -4,6 +4,11 @@ using namespace Lush;
 
 static std::vector<Resource> resources;
 
+std::vector<Resource> &Resource::getResources()
+{
+    return resources;
+}
+
 bool Resource::hasFile(File file) const
 {
     for (auto &f : this->_files)
@@ -25,11 +30,6 @@ std::string Resource::getUUID() const
 ResourceType Resource::getType() const
 {
     return this->_type;
-}
-
-std::vector<Resource> &Resource::getResources()
-{
-    return resources;
 }
 
 bool Resource::operator==(const Resource &other) const

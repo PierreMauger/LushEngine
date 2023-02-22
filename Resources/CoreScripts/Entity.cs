@@ -21,6 +21,12 @@ public class Entity
         return component;
     }
 
+    public T getScriptComponent<T>() where T : Entity, new()
+    {
+        object instance = InternalCalls.GetScriptInstance(this.id);
+        return instance as T;
+    }
+
     public void log(string message)
     {
         InternalCalls.Log(this.id, message);

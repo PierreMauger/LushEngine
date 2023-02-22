@@ -22,6 +22,7 @@ namespace Lush
             ~ScriptInstance() = default;
 
             ScriptClass &getClass();
+            MonoObject *getInstance();
             std::size_t getId();
             bool getFieldValueInternal(std::string name, void *value);
             void setFieldValueInternal(std::string name, void *value);

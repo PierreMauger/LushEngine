@@ -23,6 +23,11 @@ ScriptClass &ScriptInstance::getClass()
     return this->_class;
 }
 
+MonoObject *ScriptInstance::getInstance()
+{
+    return this->_instance;
+}
+
 std::size_t ScriptInstance::getId()
 {
     return this->_id;

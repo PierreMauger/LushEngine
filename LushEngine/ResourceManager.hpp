@@ -57,6 +57,9 @@ namespace Lush
             std::shared_ptr<ScriptPack> getScriptPack();
             std::shared_ptr<Scene> getScene();
             MapMesh &getMap();
+
+            static ResourceManager *getResourceManager();
+
     };
 }
 

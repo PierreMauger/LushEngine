@@ -2,8 +2,17 @@
 
 using namespace Lush;
 
+static ResourceManager *resourceManager = nullptr;
+
+ResourceManager *ResourceManager::getResourceManager()
+{
+    return resourceManager;
+}
+
 ResourceManager::ResourceManager()
 {
+    resourceManager = this;
+
     this->loadDirectory("Resources/Textures", [this](std::string path) {
         this->_files[path] = File(path);
         std::string name = std::filesystem::path(path).filename().string();
