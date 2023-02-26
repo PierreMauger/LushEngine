@@ -1,0 +1,54 @@
+#ifndef SCRIPTCLASS_HPP
+#define SCRIPTCLASS_HPP
+
+#include "File/File.hpp"
+#include "File/Resource.hpp"
+#include "Includes.hpp"
+#include "mono/jit/jit.h"
+#include "mono/metadata/assembly.h"
+#include "mono/metadata/attrdefs.h"
+#include "mono/metadata/debug-helpers.h"
+#include "mono/metadata/environment.h"
+#include "mono/metadata/metadata.h"
+#include "mono/metadata/mono-config.h"
+#include "mono/metadata/threads.h"
+
+namespace Lush
+{
+    typedef struct {
+        std::string type;
+        MonoClassField *field;
+    } FieldInfo;
+
+    class ScriptClass : public Resource
+    {
+        private:
+            MonoDomain *_domain;
+            MonoAssembly *_assembly;
+            MonoAssembly *_coreAssembly;
+            MonoImage *_image;
+            MonoImage *_coreImage;
+            MonoClass *_class;
+            MonoClass *_coreClass;
+
+            std::map<std::string, MonoMethod *> _methods;
+            std::map<std::string, FieldInfo> _fields;
+
+        public:
+            ScriptClass(File &file);
+            ScriptClass() = default;
+            ~ScriptClass() = default;
+
+            void load(File &file);
+            void reload(File &file);
+            void loadAttributes();
+
+            MonoMethod *getMethod(std::string name);
+            std::map<std::string, FieldInfo> &getFields();
+
+            MonoDomain *getDomain();
+            MonoClass *getClass();
+    };
+}
+
+#endif // SCRIPTCLASS_HPP

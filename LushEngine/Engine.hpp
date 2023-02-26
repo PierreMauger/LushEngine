@@ -1,49 +1,39 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
-#include "Audio.hpp"
-#include "Core.hpp"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include "ComponentTypes.hpp"
+#include "ECS/ECS.hpp"
+#include "Graphic.hpp"
 #include "Includes.hpp"
-#include "Input.hpp"
-#include "Loader.hpp"
-#include "MessageBus.hpp"
-#include "Node.hpp"
-#include "Render.hpp"
+#include "ResourceManager.hpp"
+#include "Systems/Camera/CameraSystem.hpp"
+#include "Systems/FileWatcher/FileWatcherSystem.hpp"
+#include "Systems/GUI/GUISystem.hpp"
+#include "Systems/Picking/PickingSystem.hpp"
+#include "Systems/Render/RenderSystem.hpp"
+#include "Systems/Scene/SceneSystem.hpp"
+#include "Systems/Script/ScriptSystem.hpp"
 
 namespace Lush
 {
     class Engine
     {
         private:
-            std::shared_ptr<MessageBus> _messageBus;
-            std::condition_variable _cv;
-            std::mutex _mutex;
-            int _count;
+            ECS _ecs;
+            std::shared_ptr<Graphic> _graphic;
+            std::shared_ptr<ResourceManager> _resourceManager;
+            float _lastTime = 0.0f;
+            float _deltaTime = 0.0f;
 
         public:
             Engine();
             ~Engine() = default;
 
             void run();
-
-            template <typename T> void launchModule()
-            {
-                try {
-                    T node(this->_messageBus);
-
-                    if (this->_count == 4) {
-                        this->_cv.notify_all();
-                    } else {
-                        std::unique_lock<std::mutex> lock(this->_mutex);
-                        this->_count++;
-                        this->_cv.wait(lock);
-                    }
-                    node.run();
-                } catch (const std::exception &e) {
-                    this->_messageBus->sendMessage(Message(Packet(), BaseCommand::QUIT, Module::BROADCAST));
-                    std::cerr << "Thread aborted: " << e.what() << std::endl;
-                }
-            }
+            void updateMouse();
     };
 }
 

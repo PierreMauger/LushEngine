@@ -1,9 +1,9 @@
 #include "Engine.hpp"
 #include "Includes.hpp"
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
+int main()
 {
-    Engine engine;
+    Lush::Engine engine;
 
     engine.run();
     return 0;

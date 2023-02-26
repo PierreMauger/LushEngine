@@ -1,100 +1,144 @@
-#init Cmake
-cmake_minimum_required(VERSION 3.16)
+################## CONFIG ##################
 
+#init Cmake
+cmake_minimum_required(VERSION 3.22)
 project(LushEngine LANGUAGES C CXX VERSION 1.0)
 
-#set standard flags
-set(CMAKE_CXX_STANDARD 17)
+#set flags
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "-std=c++17 -pedantic")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g")
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/")
-
-#set thread flags
-set(CMAKE_THREAD_LIBS_INIT "-lpthread")
-set(CMAKE_HAVE_THREADS_LIBRARY ON)
-set(CMAKE_USE_WIN32F_THREADS_INIT OFF)
-set(CMAKE_USE_PTHREADS_INIT ON)
-set(ASSIMP_BUILD_ASSIMP_VIEW OFF)
-set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
-set(ASSIMP_BUILD_SAMPLES OFF)
-set(ASSIMP_BUILD_TESTS OFF)
-
-set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
-set(ASSIMP_BUILD_COLLADA_IMPORTER ON)
-set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
-
 if(UNIX)
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
+    set(CMAKE_CXX_FLAGS "-std=c++20 -O3 -Wall -Wextra")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Werror")
 else()
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /Ox")
+    set(CMAKE_CXX_FLAGS "/std:c++20 /Ox /Wall /EHsc")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} /DEBUG:FULL")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /WX")
 endif()
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/")
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+set(CMAKE_THREADS_LIBS_INIT Threads::Threads)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+set(BUILD_SHARED_LIBS TRUE)
+set(LIBS_PATH ${PROJECT_SOURCE_DIR}/libs)
 
-#set binary/executable name
-set(EXEC_NAME lush)
+################## BUILD ECS ##################
 
-#fetch include paths
-set(INC
-    ${PROJECT_NAME}/
-    ${PROJECT_NAME}/Communication/
-    ${PROJECT_NAME}/Audio/
-    ${PROJECT_NAME}/Core/
-    ${PROJECT_NAME}/Input/
-    ${PROJECT_NAME}/Loader/
-    ${PROJECT_NAME}/Render/
-    ${PROJECT_NAME}/Render/Objects/
-    ${PROJECT_NAME}/IMGUI/
-    ${PROJECT_NAME}/STB/
+set(ECS ECS)
+
+set(ECS_ROOT ${PROJECT_NAME}/ECS/)
+
+set(ECS_INC
+    ${ECS_ROOT}/
+    ${ECS_ROOT}/Component/
+    ${ECS_ROOT}/Entity/
+    ${ECS_ROOT}/System/
 )
 
-#fetch source files
+set(ECS_SRC
+    ${ECS_ROOT}/ECS.cpp
+    ${ECS_ROOT}/Component/SparseArray.cpp
+    ${ECS_ROOT}/Component/ComponentManager.cpp
+    ${ECS_ROOT}/Entity/EntityManager.cpp
+    ${ECS_ROOT}/System/ASystem.cpp
+    ${ECS_ROOT}/System/SystemManager.cpp
+)
+
+include_directories(${ECS_INC})
+
+add_library(${ECS} ${ECS_SRC})
+
+install(TARGETS ${ECS})
+
+################## BUILD IMGUI ##################
+
+set(IMGUI IMGUI)
+
+set(IMGUI_ROOT ${LIBS_PATH}/ImGui/)
+
+set(IMGUI_INC
+    ${IMGUI_ROOT}/
+)
+
+set(IMGUI_SRC
+    ${IMGUI_ROOT}/imgui_demo.cpp
+    ${IMGUI_ROOT}/imgui_draw.cpp
+    ${IMGUI_ROOT}/imgui_tables.cpp
+    ${IMGUI_ROOT}/imgui_widgets.cpp
+    ${IMGUI_ROOT}/imgui.cpp
+    ${IMGUI_ROOT}/imgui_impl_glfw.cpp
+    ${IMGUI_ROOT}/imgui_impl_opengl3.cpp
+    ${IMGUI_ROOT}/ImGuizmo.cpp
+)
+
+include_directories(${IMGUI_INC})
+
+add_library(${IMGUI} ${IMGUI_SRC})
+
+install(TARGETS ${IMGUI})
+
+################## BUILD GAME ##################
+
+set(EXEC_NAME lush)
+
+set(INC
+    ${PROJECT_NAME}/
+    ${PROJECT_NAME}/Rendering/
+    ${PROJECT_NAME}/Systems/Camera/
+    ${PROJECT_NAME}/Systems/FileWatcher/
+    ${PROJECT_NAME}/Systems/GUI/
+    ${PROJECT_NAME}/Systems/Picking/
+    ${PROJECT_NAME}/Systems/Render/
+    ${PROJECT_NAME}/Systems/Scene/
+    ${PROJECT_NAME}/Systems/Script/
+    ${PROJECT_NAME}/Script/
+    ${PROJECT_NAME}/File/
+
+    ${LIBS_PATH}/
+    ${LIBS_PATH}/ImGui/
+    ${LIBS_PATH}/STB/
+    ${LIBS_PATH}/mono/
+    ${LIBS_PATH}/assimp/
+    ${LIBS_PATH}/RapidXML/
+)
+
 set(SRC
     ${PROJECT_NAME}/Engine.cpp
-    ${PROJECT_NAME}/Communication/SafeQueue.cpp
-    ${PROJECT_NAME}/Communication/Packet.cpp
-    ${PROJECT_NAME}/Communication/Message.cpp
-    ${PROJECT_NAME}/Communication/Node.cpp
-    ${PROJECT_NAME}/Communication/MessageBus.cpp
-    ${PROJECT_NAME}/Audio/Audio.cpp
-    ${PROJECT_NAME}/Core/Core.cpp
-    ${PROJECT_NAME}/Core/Scene.cpp
-    ${PROJECT_NAME}/Core/GameObject.cpp
-    ${PROJECT_NAME}/Input/Input.cpp
-    ${PROJECT_NAME}/Loader/Loader.cpp
-    ${PROJECT_NAME}/Render/Render.cpp
-    ${PROJECT_NAME}/Render/Camera.cpp
-    ${PROJECT_NAME}/Render/Shader.cpp
-    ${PROJECT_NAME}/Render/Map.cpp
-    ${PROJECT_NAME}/Render/RenderObject.cpp
-    ${PROJECT_NAME}/Render/Mesh.cpp
-    ${PROJECT_NAME}/Render/Bone.cpp
-    ${PROJECT_NAME}/Render/Model.cpp
-    ${PROJECT_NAME}/Render/Objects/AnimatedModel.cpp
-    ${PROJECT_NAME}/Render/Objects/StaticModel.cpp
-    ${PROJECT_NAME}/IMGUI/imgui_draw.cpp
-    ${PROJECT_NAME}/IMGUI/imgui_tables.cpp
-    ${PROJECT_NAME}/IMGUI/imgui_widgets.cpp
-    ${PROJECT_NAME}/IMGUI/imgui.cpp
-    ${PROJECT_NAME}/IMGUI/imgui_impl_glfw.cpp
-    ${PROJECT_NAME}/IMGUI/imgui_impl_opengl3.cpp
-    ${PROJECT_NAME}/STB/stb.cpp
+    ${PROJECT_NAME}/Graphic.cpp
+    ${PROJECT_NAME}/ResourceManager.cpp
+    ${PROJECT_NAME}/Scene.cpp
+    ${PROJECT_NAME}/UUID.cpp
+    ${PROJECT_NAME}/Rendering/Shapes.cpp
+    ${PROJECT_NAME}/Rendering/Texture.cpp
+    ${PROJECT_NAME}/Rendering/CubeMap.cpp
+    ${PROJECT_NAME}/Rendering/RenderView.cpp
+    ${PROJECT_NAME}/Rendering/Shader.cpp
+    ${PROJECT_NAME}/Rendering/Mesh.cpp
+    ${PROJECT_NAME}/Rendering/Map.cpp
+    ${PROJECT_NAME}/Rendering/RenderModel.cpp
+    ${PROJECT_NAME}/Systems/Camera/CameraSystem.cpp
+    ${PROJECT_NAME}/Systems/FileWatcher/FileWatcherSystem.cpp
+    ${PROJECT_NAME}/Systems/GUI/GUISystem.cpp
+    ${PROJECT_NAME}/Systems/Picking/PickingSystem.cpp
+    ${PROJECT_NAME}/Systems/Render/RenderSystem.cpp
+    ${PROJECT_NAME}/Systems/Scene/SceneSystem.cpp
+    ${PROJECT_NAME}/Systems/Script/ScriptSystem.cpp
+    ${PROJECT_NAME}/Script/ScriptClass.cpp
+    ${PROJECT_NAME}/Script/ScriptGlue.cpp
+    ${PROJECT_NAME}/Script/ScriptInstance.cpp
+    ${PROJECT_NAME}/File/File.cpp
+    ${PROJECT_NAME}/File/Resource.cpp
+
+    ${LIBS_PATH}/STB/stb.cpp
 )
 
 find_package(OpenGL REQUIRED)
-find_package(GLFW3 REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(ASSIMP REQUIRED)
 
-#set source files
-add_executable(${EXEC_NAME}
-    ${SRC}
-    ${PROJECT_NAME}/main.cpp
-)
-
-target_compile_options(${EXEC_NAME} PRIVATE  -Wall -Wextra -Werror -g)
-
-#set include paths
 include_directories(${INC}
     ${OpenGL_INCLUDE_DIRS}
     ${GLFW3_INCLUDE_DIRS}
@@ -102,26 +146,26 @@ include_directories(${INC}
     ${ASSIMP_INCLUDE_DIRS}
 )
 
-target_link_libraries(${EXEC_NAME}
-    ${CMAKE_THREAD_LIBS_INIT}
-    ${CMAKE_THREAD_LIBS_REQUIRED}
-    ${OPENGL_LIBRARIES}
-    ${GLFW3_LIBRARIES}
-    glfw
-    ${GLEW_LIBRARIES}
-    glew
-    ${ASSIMP_LIBRARIES}
-    assimp
+add_executable(${EXEC_NAME}
+    ${SRC}
+    ${PROJECT_NAME}/main.cpp
 )
 
-if(WIN32)
-    add_custom_command(
-        TARGET ${EXEC_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${EXEC_NAME}.exe ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-else()
-    add_custom_command(
-        TARGET ${EXEC_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${EXEC_NAME} ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-endif()
+target_link_libraries(${EXEC_NAME} PRIVATE
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${OPENGL_LIBRARIES}
+    glfw
+    ${GLEW_LIBRARY}
+    ${ECS}
+    ${IMGUI}
+)
+
+target_link_libraries(${EXEC_NAME} PRIVATE ${LIBS_PATH}/libmonosgen-2.0.so.1.0.0)
+target_link_libraries(${EXEC_NAME} PRIVATE ${LIBS_PATH}/libassimp.so.5.2.0)
+set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
+set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
+
+#install target
+install(TARGETS ${EXEC_NAME})
+
+################## POST BUILD ##################

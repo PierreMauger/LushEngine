@@ -1,0 +1,48 @@
+<Scene>
+  <Entities>
+    <Entity id="0">
+      <Components>
+        <Transform position="0 0 0" rotation="0 0 0" scale="1 1 1" />
+        <Model name="Maxwell" />
+        <Maxwell time="0" />
+      </Components>
+    </Entity>
+    <Entity id="1">
+      <Components>
+        <Transform position="0 1 10" rotation="-90 0 0" scale="0.5 0.5 0.5" />
+        <Camera />
+        <Billboard name="Camera.png" />
+      </Components>
+    </Entity>
+    <Entity id="2">
+      <Components>
+        <Transform position="3 0 0" rotation="-30 -30 -30" scale="0.5 0.5 0.5" />
+        <Light />
+        <Billboard name="DirectionalLight.png" />
+      </Components>
+    </Entity>
+    <Entity id="3">
+      <Components>
+        <Transform position="3 0 -2" rotation="0 0 0" scale="1 1 1" />
+        <Model name="Fox" />
+        <Controlable speed="10" cameraEntity="1" />
+      </Components>
+    </Entity>
+    <Entity id="4">
+      <Components>
+        <Cubemap name="Sky" />
+      </Components>
+    </Entity>
+    <Entity id="5">
+      <Components>
+        <Transform position="7 2 0" rotation="0 0 0" scale="1 1 1" />
+        <Billboard name="heightMap.png" />
+      </Components>
+    </Entity>
+    <Entity id="6">
+      <Components>
+        <Map name="heightMap.png" />
+      </Components>
+    </Entity>
+  </Entities>
+</Scene>
