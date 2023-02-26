@@ -44,6 +44,10 @@ void CameraSystem::update(EntityManager &entityManager, ComponentManager &compon
         this->_graphic->getRenderView().setDirLights(this->_dirLights);
         this->_graphic->getRenderView().setPointLights(this->_pointLights);
     }
+    this->_graphic->getRenderView().use("Map");
+    this->_graphic->getRenderView().setDirLights(this->_dirLights);
+    this->_graphic->getRenderView().setPointLights(this->_pointLights);
+
     this->_dirLights.clear();
     this->_pointLights.clear();
     this->_spotLights.clear();

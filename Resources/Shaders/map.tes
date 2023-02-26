@@ -5,9 +5,9 @@ layout (quads, fractional_odd_spacing, cw) in;
 out float Height;
 out vec3 Normal;
 out vec3 FragPos;
-out vec2 TexCoords;
 
-in vec2 TextureCoord[];
+in vec2 tc_TexCoord[];
+out vec2 te_TexCoord;
 
 uniform sampler2D heightMap;
 uniform mat4 model;
@@ -19,17 +19,16 @@ void main()
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
 
-    vec2 t00 = TextureCoord[0];
-    vec2 t01 = TextureCoord[1];
-    vec2 t10 = TextureCoord[2];
-    vec2 t11 = TextureCoord[3];
+    vec2 t00 = tc_TexCoord[0];
+    vec2 t01 = tc_TexCoord[1];
+    vec2 t10 = tc_TexCoord[2];
+    vec2 t11 = tc_TexCoord[3];
 
     vec2 t0 = (t01 - t00) * u + t00;
     vec2 t1 = (t11 - t10) * u + t10;
-    vec2 texCoord = (t1 - t0) * v + t0;
-    TexCoords = texCoord;
 
-    Height = texture(heightMap, texCoord).y * 64.0f - 16.0f;
+    te_TexCoord = (t1 - t0) * v + t0;
+    Height = texture(heightMap, te_TexCoord).y * 64.0f;
 
     vec4 p00 = gl_in[0].gl_Position;
     vec4 p01 = gl_in[1].gl_Position;

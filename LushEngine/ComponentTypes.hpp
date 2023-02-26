@@ -80,7 +80,12 @@ typedef struct {
 } Billboard;
 
 typedef struct {
-    std::string name = "";
+    std::string heightMap = "";
+    std::string diffuseTexture = "";
+    std::string normalTexture = "";
+    std::string specularTexture = "";
+    std::string diffuseTexture2 = "";
+    std::string diffuseTexture3 = "";
 } Map;
 
 #endif // COMPONENTTYPES_HPP

@@ -74,7 +74,12 @@ void Scene::load(File &file, std::map<std::string, ScriptClass> &scripts)
             } else if (name == "Map") {
                 mask |= ComponentType::MAP;
                 Map temp;
-                temp.name = componentNode->first_attribute("name")->value();
+                temp.heightMap = componentNode->first_attribute("heightMap")->value();
+                temp.diffuseTexture = componentNode->first_attribute("diffuseTexture")->value();
+                temp.normalTexture = componentNode->first_attribute("normalTexture")->value();
+                temp.specularTexture = componentNode->first_attribute("specularTexture")->value();
+                temp.diffuseTexture2 = componentNode->first_attribute("diffuseTexture2")->value();
+                temp.diffuseTexture3 = componentNode->first_attribute("diffuseTexture3")->value();
                 this->_componentManager.addComponent<Map>(id, temp);
             }
             std::size_t it = 0;

@@ -340,12 +340,12 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 }
                 case 7: {
                     Map &map = componentManager.getComponent<Map>(selectedEntity);
-                    std::string selectedItem = map.name;
+                    std::string selectedItem = map.heightMap;
                     if (ImGui::BeginCombo("Select Item##Map", selectedItem.c_str())) {
                         for (auto &[key, value] : this->_resourceManager->getTextures()) {
                             bool is_selected = (selectedItem == key);
                             if (ImGui::Selectable(key.c_str(), is_selected))
-                                map.name = key;
+                                map.heightMap = key;
                             if (is_selected)
                                 ImGui::SetItemDefaultFocus();
                         }

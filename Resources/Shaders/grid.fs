@@ -44,7 +44,7 @@ void main()
     vec3 fragPos3D = nearPoint + t * (farPoint - nearPoint);
 
     float linearDepth = computeLinearDepth(fragPos3D);
-    float fading = max(0, (0.5 - linearDepth));
+    float fading = max(0, (0.7 - linearDepth));
 
     gl_FragDepth = computeDepth(fragPos3D);
     FragColor = (grid(fragPos3D, 0.1) + grid(fragPos3D, 1)) * float(t > 0);
