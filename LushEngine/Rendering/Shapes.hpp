@@ -18,6 +18,7 @@ namespace Lush
             static void setupBillboard(BufferObject &bufferObject);
             static void setupPlane(BufferObject &bufferObject);
             static void setupSkyBox(BufferObject &bufferObject);
+            static void setupCube(BufferObject &bufferObject);
             static void deleteBufferObject(BufferObject &bufferObject);
     };
 }

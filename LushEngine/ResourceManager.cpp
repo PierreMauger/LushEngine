@@ -42,6 +42,7 @@ ResourceManager::ResourceManager()
     this->_shaders["Billboard"] = Shader(this->_files["Resources/Shaders/billboard.vs"], this->_files["Resources/Shaders/billboard.fs"]);
     this->_shaders["Grid"] = Shader(this->_files["Resources/Shaders/grid.vs"], this->_files["Resources/Shaders/grid.fs"]);
     this->_shaders["Map"] = Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/map.fs"], File(), this->_files["Resources/Shaders/map.tcs"], this->_files["Resources/Shaders/map.tes"]);
+    this->_shaders["CameraFrustum"] = Shader(this->_files["Resources/Shaders/cameraFrustum.vs"], this->_files["Resources/Shaders/cameraFrustum.fs"]);
 
     this->loadDirectory("Resources/Skybox", [this](std::string path) {
         this->_files[path] = File(path);
@@ -50,7 +51,7 @@ ResourceManager::ResourceManager()
                                this->_files["Resources/Skybox/bottom.jpg"], this->_files["Resources/Skybox/front.jpg"], this->_files["Resources/Skybox/back.jpg"]};
     this->_skyboxes["Sky"] = CubeMap(files);
 
-    this->_map = std::make_unique<MapMesh>(2624, 1756);
+    this->_map = std::make_unique<MapMesh>(256, 256);
 }
 
 ResourceManager::~ResourceManager()

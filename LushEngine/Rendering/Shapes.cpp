@@ -67,6 +67,17 @@ void Shapes::setupSkyBox(BufferObject &bufferObject)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
 }
 
+void Shapes::setupCube(BufferObject &bufferObject)
+{
+    glGenVertexArrays(1, &bufferObject.vao);
+    glGenBuffers(1, &bufferObject.vbo);
+    glBindVertexArray(bufferObject.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferObject.vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+}
+
 void Shapes::deleteBufferObject(BufferObject &bufferObject)
 {
     glBindVertexArray(bufferObject.vao);
