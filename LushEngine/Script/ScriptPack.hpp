@@ -19,6 +19,7 @@ namespace Lush
     {
         private:
             std::string _name;
+            std::vector<std::string> _linkedPacks;
             MonoDomain *_domain;
             MonoAssembly *_assembly;
             MonoAssembly *_coreAssembly;

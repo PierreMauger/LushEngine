@@ -12,8 +12,7 @@
 
 namespace Lush
 {
-    // TODO: Add as a resource
-    class Scene
+    class Scene : public Resource
     {
         private:
             EntityManager _entityManager;

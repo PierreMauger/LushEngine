@@ -5,6 +5,8 @@ using namespace Lush;
 ScriptPack::ScriptPack(std::vector<File> &files, std::string name, std::unordered_map<std::string, ScriptPack> &corePacks) : Resource(ResourceType::SCRIPT, files)
 {
     this->_name = name;
+    for (auto &[name, corePack] : corePacks)
+        this->_linkedPacks.push_back(name);
     try {
         this->load(files, corePacks);
     } catch (const std::exception &e) {
@@ -52,7 +54,11 @@ void ScriptPack::load(std::vector<File> &files, std::unordered_map<std::string, 
 void ScriptPack::reload(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &corePacks)
 {
     mono_domain_unload(this->_domain);
-    this->load(files, corePacks);
+
+    std::unordered_map<std::string, ScriptPack> linkedPacks;
+    for (auto &name : this->_linkedPacks)
+        linkedPacks[name] = corePacks[name];
+    this->load(files, linkedPacks);
 }
 
 std::string ScriptPack::getName() const

@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-Scene::Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts)
+Scene::Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts) : Resource(ResourceType::SCENE, file)
 {
     this->_componentManager.bindComponent<Transform>();
     this->_componentManager.bindComponent<Velocity>();

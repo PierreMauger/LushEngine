@@ -20,6 +20,11 @@ namespace Lush
             void reloadResourcesFromFile(File &file, ComponentManager &componentManager);
             void updateResource(Resource &resource, ComponentManager &componentManager);
 
+            void reloadModel(Resource &resource);
+            void reloadShader(Resource &resource);
+            void reloadScriptPack(Resource &resource, ComponentManager &componentManager);
+            void reloadScene(Resource &resource, ComponentManager &componentManager);
+
         public:
             FileWatcherSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~FileWatcherSystem() = default;
