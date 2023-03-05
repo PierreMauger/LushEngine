@@ -89,6 +89,28 @@ void ScriptGlue::Camera_SetForward(std::size_t id, glm::vec3 *forward)
         std::cout << "Entity " << id << " has no Camera component" << std::endl;
 }
 
+static std::size_t getScriptInstanceIndex(ResourceManager *resourceManager, std::size_t entityId)
+{
+    std::size_t i = 0;
+
+    for (auto &instance : resourceManager->getInstances()) {
+        if (instance.getId() == entityId)
+            return i;
+        i++;
+    }
+    return (std::size_t)-1;
+}
+
+MonoObject *ScriptGlue::GetScriptInstance(std::size_t id)
+{
+    ResourceManager *resourceManager = ResourceManager::getResourceManager();
+    std::size_t index = getScriptInstanceIndex(resourceManager, id);
+    if (index != (std::size_t)-1)
+        return resourceManager->getInstances().at(index).getInstance();
+    else
+        return nullptr;
+}
+
 bool ScriptGlue::IsKeyDown(int key)
 {
     GLFWwindow *window = glfwGetCurrentContext();
@@ -110,5 +132,6 @@ void ScriptGlue::registerFunctions()
     mono_add_internal_call("InternalCalls::Transform_SetScale", (void *)Transform_SetScale);
     mono_add_internal_call("InternalCalls::Camera_GetForward", (void *)Camera_GetForward);
     mono_add_internal_call("InternalCalls::Camera_SetForward", (void *)Camera_SetForward);
+    mono_add_internal_call("InternalCalls::GetScriptInstance", (void *)GetScriptInstance);
     mono_add_internal_call("InternalCalls::IsKeyDown", (void *)IsKeyDown);
 }

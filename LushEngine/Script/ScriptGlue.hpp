@@ -4,6 +4,7 @@
 #include "ECS/ECS.hpp"
 #include "Graphic.hpp"
 #include "Includes.hpp"
+#include "ResourceManager.hpp"
 #include "mono/jit/jit.h"
 
 namespace Lush
@@ -22,6 +23,8 @@ namespace Lush
 
             static void Camera_GetForward(std::size_t id, glm::vec3 *forward);
             static void Camera_SetForward(std::size_t id, glm::vec3 *forward);
+
+            static MonoObject *GetScriptInstance(std::size_t id);
 
             static bool IsKeyDown(int key);
             static void registerFunctions();

@@ -288,8 +288,8 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     ImGui::DragFloat3("Forward##Camera", (float *)&camera.forward, 0.01f, -1.0f, 1.0f);
                     ImGui::SliderInt("Mod##Camera", (int *)&camera.mod, 0, CameraMod::CAMERA_MOD_COUNT - 1, names[camera.mod]);
                     ImGui::SliderFloat("FOV##Camera", &camera.fov, 30.0f, 90.0f);
-                    ImGui::SliderFloat("Near##Camera", &camera.near, 0.0f, 100.0f);
-                    ImGui::SliderFloat("Far##Camera", &camera.far, 0.0f, 1000.0f);
+                    ImGui::SliderFloat("Near##Camera", &camera.near, 0.1f, 100.0f);
+                    ImGui::SliderFloat("Far##Camera", &camera.far, camera.near + 0.1f, 1000.0f);
                     ImGui::SliderFloat("Sensitivity##Camera", &camera.sensitivity, 0.0f, 1.0f);
                     if (camera.mod == CameraMod::THIRD_PERSON) {
                         ImGui::SliderFloat("Distance##Camera", &camera.distance, 0.0f, 100.0f);
@@ -455,7 +455,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 ImGui::PushID(8 + it);
                 if (ImGui::Selectable("##selectable", false, ImGuiSelectableFlags_SpanAllColumns)) {
                     entityManager.updateMask(selectedEntity, masks[selectedEntity].value() | (ComponentType::COMPONENT_TYPE_COUNT << it));
-                    std::map<std::string, std::any> fieldsValues;
+                    std::unordered_map<std::string, std::any> fieldsValues;
                     for (auto &[fieldName, field] : script.getFields()) {
                         if (field.type == "Single")
                             fieldsValues[fieldName] = 0.0f;

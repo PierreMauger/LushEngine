@@ -117,7 +117,7 @@ RenderView &Graphic::getRenderView()
     return this->_renderView;
 }
 
-std::map<std::string, FrameBuffer> &Graphic::getFrameBuffers()
+std::unordered_map<std::string, FrameBuffer> &Graphic::getFrameBuffers()
 {
     return this->_frameBuffers;
 }

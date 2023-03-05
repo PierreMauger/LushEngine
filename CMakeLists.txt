@@ -129,6 +129,7 @@ set(SRC
     ${PROJECT_NAME}/Script/ScriptClass.cpp
     ${PROJECT_NAME}/Script/ScriptGlue.cpp
     ${PROJECT_NAME}/Script/ScriptInstance.cpp
+    ${PROJECT_NAME}/Script/ScriptPack.cpp
     ${PROJECT_NAME}/File/File.cpp
     ${PROJECT_NAME}/File/Resource.cpp
 

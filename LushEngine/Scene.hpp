@@ -12,18 +12,17 @@
 
 namespace Lush
 {
-    // TODO: Add as a resource
-    class Scene
+    class Scene : public Resource
     {
         private:
             EntityManager _entityManager;
             ComponentManager _componentManager;
 
         public:
-            Scene(File &file, std::map<std::string, ScriptClass> &scripts);
+            Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
             ~Scene() = default;
 
-            void load(File &file, std::map<std::string, ScriptClass> &scripts);
+            void load(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
 
             void setScene(EntityManager &entityManager, ComponentManager &componentManager);
     };

@@ -2,6 +2,5 @@
 build/
 lush
 imgui.ini
-Resources/CoreScripts/*.dll
-Resources/Scripts/*.dll
+Resources/bin/*
 mono_crash*

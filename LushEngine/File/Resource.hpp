@@ -8,13 +8,10 @@
 namespace Lush
 {
     enum class ResourceType {
-        TEXTURE,
         MODEL,
         SHADER,
         SCRIPT,
-        FONT,
-        AUDIO,
-        VIDEO,
+        SCENE,
         UNKNOWN
     };
 

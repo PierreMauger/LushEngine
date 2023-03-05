@@ -22,8 +22,8 @@ void ComponentManager::addEntity(std::size_t id)
 {
     for (auto &[type, component] : this->_componentArray)
         component.addValue(id, std::nullopt);
-    for (auto &[name, component] : this->_instanceFields)
-        component.addValue(id, std::nullopt);
+    for (auto &[name, scriptComponent] : this->_instanceFields)
+        scriptComponent.addValue(id, std::nullopt);
 }
 
 void ComponentManager::removeSingleComponent(std::size_t id, std::type_index type)
@@ -45,9 +45,14 @@ void ComponentManager::updateComponent(std::size_t id)
         component.updateValue(id, std::nullopt);
 }
 
-std::map<std::string, std::any> &ComponentManager::getInstanceFields(std::string name, std::size_t id)
+std::unordered_map<std::string, std::any> &ComponentManager::getInstanceFields(std::string name, std::size_t id)
 {
-    return std::any_cast<std::map<std::string, std::any> &>(this->_instanceFields[name].getValues(id).value());
+    return std::any_cast<std::unordered_map<std::string, std::any> &>(this->_instanceFields[name].getValues(id).value());
+}
+
+SparseArray &ComponentManager::getAllInstanceFields(std::string name)
+{
+    return this->_instanceFields[name];
 }
 
 void ComponentManager::bindInstanceFields(std::string name)

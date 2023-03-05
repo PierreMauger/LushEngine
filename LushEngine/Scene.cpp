@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-Scene::Scene(File &file, std::map<std::string, ScriptClass> &scripts)
+Scene::Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts) : Resource(ResourceType::SCENE, file)
 {
     this->_componentManager.bindComponent<Transform>();
     this->_componentManager.bindComponent<Velocity>();
@@ -16,7 +16,7 @@ Scene::Scene(File &file, std::map<std::string, ScriptClass> &scripts)
     this->load(file, scripts);
 }
 
-void Scene::load(File &file, std::map<std::string, ScriptClass> &scripts)
+void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scripts)
 {
     rapidxml::xml_document<> doc;
     std::string xml = file.load();
@@ -86,7 +86,7 @@ void Scene::load(File &file, std::map<std::string, ScriptClass> &scripts)
             for (auto &[scriptName, script] : scripts) {
                 if (scriptName == name) {
                     mask |= ComponentType::COMPONENT_TYPE_COUNT << it;
-                    std::map<std::string, std::any> fieldsValues;
+                    std::unordered_map<std::string, std::any> fieldsValues;
                     for (auto &[fieldName, field] : script.getFields()) {
                         if (field.type == "Single")
                             fieldsValues[fieldName] = 0.0f;

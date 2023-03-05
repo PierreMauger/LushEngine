@@ -15,13 +15,14 @@ namespace Lush
             MonoMethod *_onInit;
             MonoMethod *_onUpdate;
             std::size_t _id;
-            std::map<std::string, std::any> _defaultFields;
+            std::unordered_map<std::string, std::any> _defaultFields;
 
         public:
-            ScriptInstance(ScriptClass &script, std::size_t id, std::map<std::string, std::any> &defaultFields);
+            ScriptInstance(ScriptClass &script, std::size_t id, std::unordered_map<std::string, std::any> &defaultFields);
             ~ScriptInstance() = default;
 
             ScriptClass &getClass();
+            MonoObject *getInstance();
             std::size_t getId();
             bool getFieldValueInternal(std::string name, void *value);
             void setFieldValueInternal(std::string name, void *value);

@@ -66,4 +66,43 @@ static const float quadVertices[] = {
     -1.0f,  1.0f, 0.0f, 1.0f,
 };
 
+static const float cubeVertices[] = {
+    // Back face
+    -1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+    // Front face
+    -1.0f, -1.0f, 1.0f,
+    1.0f, -1.0f, 1.0f,
+    1.0f,  1.0f, 1.0f,
+    -1.0f,  1.0f, 1.0f,
+
+    // Connecting lines
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f, 1.0f,
+
+    1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, 1.0f,
+
+    -1.0f, 1.0f, -1.0f,
+    -1.0f, 1.0f, 1.0f,
+
+    1.0f, 1.0f, -1.0f,
+    1.0f, 1.0f, 1.0f,
+
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, 1.0f, -1.0f,
+
+    1.0f, -1.0f, -1.0f,
+    1.0f, 1.0f, -1.0f,
+
+    -1.0f, -1.0f, 1.0f,
+    -1.0f, 1.0f, 1.0f,
+
+    1.0f, -1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+};
+
 #endif // VERTICES_HPP

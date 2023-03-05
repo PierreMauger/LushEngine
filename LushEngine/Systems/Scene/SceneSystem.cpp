@@ -17,6 +17,33 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Resou
     Shapes::setupSkyBox(this->_skybox);
     Shapes::setupBillboard(this->_billboard);
     Shapes::setupPlane(this->_grid);
+    Shapes::setupCube(this->_cameraFrustum);
+
+    glGenTextures(1, &this->texture);
+    glBindTexture(GL_TEXTURE_2D, this->texture);
+
+    int width = 256;
+    int height = 256;
+    unsigned char *data = new unsigned char[width * height * 3];
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            float x = (float)j / width;
+            float y = (float)i / height;
+            float value = glm::perlin(glm::vec2(x * 10.0f, y * 10.0f));
+            int index = (i * width + j) * 3;
+            data[index] = (unsigned char)(value * 128.0f + 127);
+            data[index + 1] = (unsigned char)(value * 128.0f + 127);
+            data[index + 2] = (unsigned char)(value * 128.0f + 127);
+        }
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    delete[] data;
 }
 
 SceneSystem::~SceneSystem()
@@ -41,6 +68,25 @@ void SceneSystem::update(EntityManager &entityManager, ComponentManager &compone
     this->handleMouse();
 
     this->drawSkybox(entityManager, componentManager);
+
+    glm::perlin(glm::vec3(0.0f, 0.0f, 0.0f));
+
+    this->_graphic->getRenderView().use("CameraFrustum");
+    this->_graphic->getRenderView().setView();
+
+    if (entityManager.hasMask(this->_graphic->getSelectedEntity(), ComponentType::CAMERA)) {
+        Transform transform = componentManager.getComponent<Transform>(1);
+        Camera camera = componentManager.getComponent<Camera>(1);
+        float aspectRatio = this->_graphic->getGameViewPort().z / this->_graphic->getGameViewPort().w;
+        glm::mat4 view = glm::lookAt(transform.position, transform.position + camera.forward, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 frustum = glm::inverse(glm::perspective(glm::radians(camera.fov), aspectRatio, camera.near, camera.far) * view);
+        this->_graphic->getRenderView().getShader().setMat4("frustum", frustum);
+
+        glBindVertexArray(this->_cameraFrustum.vao);
+        glDrawArrays(GL_LINES, 0, 24);
+        glBindVertexArray(0);
+    }
+
     this->drawMap(entityManager, componentManager);
     this->drawModels(entityManager, componentManager);
     this->drawBillboards(entityManager, componentManager);
@@ -112,10 +158,11 @@ void SceneSystem::drawMap(EntityManager &entityManager, ComponentManager &compon
 
         this->_graphic->getRenderView().getShader().setMat4("model", glm::mat4(1.0f));
         glActiveTexture(GL_TEXTURE0);
-        if (this->_resourceManager->getTextures().find(map.heightMap) != this->_resourceManager->getTextures().end())
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.heightMap].getId());
-        else
-            glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, this->texture);
+        // if (this->_resourceManager->getTextures().find(map.heightMap) != this->_resourceManager->getTextures().end())
+            // glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.heightMap].getId());
+        // else
+            // glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("heightMap", 0);
         glActiveTexture(GL_TEXTURE1);
         if (this->_resourceManager->getTextures().find(map.diffuseTexture) != this->_resourceManager->getTextures().end())

@@ -25,7 +25,7 @@ namespace Lush
             GLFWwindow *_window;
 
             RenderView _renderView;
-            std::map<std::string, FrameBuffer> _frameBuffers;
+            std::unordered_map<std::string, FrameBuffer> _frameBuffers;
 
             std::ostringstream _stringStream;
 
@@ -61,7 +61,7 @@ namespace Lush
             GLFWwindow *getWindow();
 
             RenderView &getRenderView();
-            std::map<std::string, FrameBuffer> &getFrameBuffers();
+            std::unordered_map<std::string, FrameBuffer> &getFrameBuffers();
             FrameBuffer &getFrameBuffer(std::string name);
 
             std::ostringstream &getStringStream();
