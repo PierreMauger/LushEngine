@@ -24,20 +24,20 @@ namespace Lush
             MonoAssembly *_coreAssembly;
             MonoImage *_image;
             MonoImage *_coreImage;
-            std::map<std::string, MonoClass *> _classes;
+            std::unordered_map<std::string, MonoClass *> _classes;
             MonoClass *_coreClass;
 
         public:
-            ScriptPack(std::vector<File> &files, std::string name);
+            ScriptPack(std::vector<File> &files, std::string name, std::unordered_map<std::string, ScriptPack> &corePacks);
             ScriptPack() = default;
             ~ScriptPack() = default;
 
-            void load(std::vector<File> &files);
-            void reload(std::vector<File> &files);
+            void load(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &corePacks);
+            void reload(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &corePacks);
 
             std::string getName() const;
             MonoDomain *getDomain();
-            std::map<std::string, MonoClass *> &getClasses();
+            std::unordered_map<std::string, MonoClass *> &getClasses();
             MonoClass *getCoreClass();
     };
 }

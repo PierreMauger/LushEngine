@@ -62,7 +62,7 @@ MonoMethod *ScriptClass::getMethod(std::string name)
     return nullptr;
 }
 
-std::map<std::string, FieldInfo> &ScriptClass::getFields()
+std::unordered_map<std::string, FieldInfo> &ScriptClass::getFields()
 {
     return this->_fields;
 }

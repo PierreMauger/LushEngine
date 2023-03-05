@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id, std::map<std::string, std::any> &defaultFields) : _class(script)
+ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id, std::unordered_map<std::string, std::any> &defaultFields) : _class(script)
 {
     this->_instance = mono_object_new(script.getDomain(), script.getClass());
     this->_ctor = script.getMethod("ctor");

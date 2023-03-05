@@ -455,7 +455,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 ImGui::PushID(8 + it);
                 if (ImGui::Selectable("##selectable", false, ImGuiSelectableFlags_SpanAllColumns)) {
                     entityManager.updateMask(selectedEntity, masks[selectedEntity].value() | (ComponentType::COMPONENT_TYPE_COUNT << it));
-                    std::map<std::string, std::any> fieldsValues;
+                    std::unordered_map<std::string, std::any> fieldsValues;
                     for (auto &[fieldName, field] : script.getFields()) {
                         if (field.type == "Single")
                             fieldsValues[fieldName] = 0.0f;

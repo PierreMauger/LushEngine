@@ -26,7 +26,7 @@ static glm::mat4 ConvertMatrixToGLMFormat(const aiMatrix4x4 &from)
     return to;
 }
 
-RenderModel::RenderModel(File &file, std::map<std::string, Texture> textures) : Resource(ResourceType::MODEL, file)
+RenderModel::RenderModel(File &file, std::unordered_map<std::string, Texture> textures) : Resource(ResourceType::MODEL, file)
 {
     this->load(file, textures);
 }
@@ -41,7 +41,7 @@ int &RenderModel::getBoneCount()
     return this->_boneCounter;
 }
 
-void RenderModel::load(File &file, std::map<std::string, Texture> textures)
+void RenderModel::load(File &file, std::unordered_map<std::string, Texture> textures)
 {
     std::string content = file.load();
     Assimp::Importer importer;
@@ -52,13 +52,13 @@ void RenderModel::load(File &file, std::map<std::string, Texture> textures)
     this->processNode(*scene->mRootNode, *scene, textures);
 }
 
-void RenderModel::reload(File &file, std::map<std::string, Texture> textures)
+void RenderModel::reload(File &file, std::unordered_map<std::string, Texture> textures)
 {
     this->_meshes.clear();
     this->load(file, textures);
 }
 
-void RenderModel::processNode(aiNode &node, const aiScene &scene, std::map<std::string, Texture> textures)
+void RenderModel::processNode(aiNode &node, const aiScene &scene, std::unordered_map<std::string, Texture> textures)
 {
     for (unsigned int i = 0; i < node.mNumMeshes; i++)
         this->_meshes.push_back(this->processMesh(*scene.mMeshes[node.mMeshes[i]], scene, textures));
@@ -115,7 +115,7 @@ void RenderModel::extractBoneWeightForVertices(std::vector<Vertex> &vertices, ai
     }
 }
 
-Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::string, Texture> textures)
+Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered_map<std::string, Texture> textures)
 {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
@@ -173,7 +173,7 @@ Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::
     return Mesh(vertices, indices, tex, material);
 }
 
-std::vector<Tex> RenderModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::map<std::string, Texture> textures)
+std::vector<Tex> RenderModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::unordered_map<std::string, Texture> textures)
 {
     std::vector<Tex> tex;
 

@@ -24,7 +24,7 @@ void RenderView::setAspectRatio(float aspectRatio)
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 }
 
-void RenderView::setShaders(std::map<std::string, Shader> &shaders)
+void RenderView::setShaders(std::unordered_map<std::string, Shader> &shaders)
 {
     this->_shaders = shaders;
 }

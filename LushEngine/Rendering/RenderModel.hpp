@@ -29,21 +29,21 @@ namespace Lush
             int _boneCounter = 0;
 
         public:
-            RenderModel(File &file, std::map<std::string, Texture> textures);
+            RenderModel(File &file, std::unordered_map<std::string, Texture> textures);
             RenderModel() = default;
             ~RenderModel() = default;
 
-            void load(File &file, std::map<std::string, Texture> textures);
-            void reload(File &file, std::map<std::string, Texture> textures);
+            void load(File &file, std::unordered_map<std::string, Texture> textures);
+            void reload(File &file, std::unordered_map<std::string, Texture> textures);
             void draw(Shader &shader);
 
         private:
             std::map<std::string, BoneInfo> &getBoneInfoMap();
             int &getBoneCount();
 
-            void processNode(aiNode &node, const aiScene &scene, std::map<std::string, Texture> textures);
-            Mesh processMesh(aiMesh &mesh, const aiScene &scene, std::map<std::string, Texture> textures);
-            std::vector<Tex> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::map<std::string, Texture> textures);
+            void processNode(aiNode &node, const aiScene &scene, std::unordered_map<std::string, Texture> textures);
+            Mesh processMesh(aiMesh &mesh, const aiScene &scene, std::unordered_map<std::string, Texture> textures);
+            std::vector<Tex> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::unordered_map<std::string, Texture> textures);
 
             void setVertexBoneDataToDefault(Vertex &vertex);
             void setVertexBoneData(Vertex &vertex, int boneID, float weight);

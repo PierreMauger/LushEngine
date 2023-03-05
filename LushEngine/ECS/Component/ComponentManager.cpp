@@ -45,9 +45,9 @@ void ComponentManager::updateComponent(std::size_t id)
         component.updateValue(id, std::nullopt);
 }
 
-std::map<std::string, std::any> &ComponentManager::getInstanceFields(std::string name, std::size_t id)
+std::unordered_map<std::string, std::any> &ComponentManager::getInstanceFields(std::string name, std::size_t id)
 {
-    return std::any_cast<std::map<std::string, std::any> &>(this->_instanceFields[name].getValues(id).value());
+    return std::any_cast<std::unordered_map<std::string, std::any> &>(this->_instanceFields[name].getValues(id).value());
 }
 
 SparseArray &ComponentManager::getAllInstanceFields(std::string name)

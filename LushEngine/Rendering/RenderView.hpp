@@ -23,7 +23,7 @@ namespace Lush
             float _near;
             float _far;
             float _sensitivity;
-            std::map<std::string, Shader> _shaders;
+            std::unordered_map<std::string, Shader> _shaders;
             std::string _actShader;
 
         public:
@@ -31,7 +31,7 @@ namespace Lush
             ~RenderView() = default;
 
             void setAspectRatio(float aspectRatio);
-            void setShaders(std::map<std::string, Shader> &shaders);
+            void setShaders(std::unordered_map<std::string, Shader> &shaders);
             Shader &getShader();
             Shader &getShader(std::string shaderName);
 

@@ -20,10 +20,10 @@ namespace Lush
             ComponentManager _componentManager;
 
         public:
-            Scene(File &file, std::map<std::string, ScriptClass> &scripts);
+            Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
             ~Scene() = default;
 
-            void load(File &file, std::map<std::string, ScriptClass> &scripts);
+            void load(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
 
             void setScene(EntityManager &entityManager, ComponentManager &componentManager);
     };
