@@ -1,6 +1,8 @@
 #ifndef SCENESYSTEM_HPP
 #define SCENESYSTEM_HPP
 
+#include <glm/gtc/noise.hpp>
+
 #include "ComponentTypes.hpp"
 #include "ECS/System/ASystem.hpp"
 #include "Graphic.hpp"
@@ -25,6 +27,9 @@ namespace Lush
             BufferObject _skybox;
             BufferObject _billboard;
             BufferObject _grid;
+
+            BufferObject _cameraFrustum;
+            GLuint texture;
 
             Transform _cameraTransform;
             Camera _camera;

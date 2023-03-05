@@ -26,7 +26,7 @@ ResourceManager::ResourceManager()
     this->loadScriptPacks("Resources/Scripts", "Native");
     this->loadScenes("Resources/Scenes");
 
-    this->_map = std::make_unique<MapMesh>(2624, 1756);
+    this->_map = std::make_unique<MapMesh>(256, 256);
 }
 
 ResourceManager::~ResourceManager()
@@ -85,6 +85,7 @@ void ResourceManager::loadShaders(std::string dir)
     this->_shaders["Billboard"] = Shader(this->_files["Resources/Shaders/billboard.vs"], this->_files["Resources/Shaders/billboard.fs"]);
     this->_shaders["Grid"] = Shader(this->_files["Resources/Shaders/grid.vs"], this->_files["Resources/Shaders/grid.fs"]);
     this->_shaders["Map"] = Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/map.fs"], File(), this->_files["Resources/Shaders/map.tcs"], this->_files["Resources/Shaders/map.tes"]);
+    this->_shaders["CameraFrustum"] = Shader(this->_files["Resources/Shaders/cameraFrustum.vs"], this->_files["Resources/Shaders/cameraFrustum.fs"]);
 }
 
 void ResourceManager::loadSkyboxes(std::string dir)
