@@ -85,6 +85,7 @@ void ResourceManager::loadShaders(std::string dir)
     this->_shaders["Billboard"] = Shader(this->_files["Resources/Shaders/billboard.vs"], this->_files["Resources/Shaders/billboard.fs"]);
     this->_shaders["Grid"] = Shader(this->_files["Resources/Shaders/grid.vs"], this->_files["Resources/Shaders/grid.fs"]);
     this->_shaders["Map"] = Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/map.fs"], File(), this->_files["Resources/Shaders/map.tcs"], this->_files["Resources/Shaders/map.tes"]);
+    this->_shaders["MapWireframe"] = Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/mapWireframe.fs"], this->_files["Resources/Shaders/mapWireframe.gs"], this->_files["Resources/Shaders/map.tcs"], this->_files["Resources/Shaders/map.tes"]);
     this->_shaders["CameraFrustum"] = Shader(this->_files["Resources/Shaders/cameraFrustum.vs"], this->_files["Resources/Shaders/cameraFrustum.fs"]);
 }
 

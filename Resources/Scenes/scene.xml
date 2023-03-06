@@ -41,7 +41,7 @@
     </Entity>
     <Entity id="6">
       <Components>
-        <Map heightMap="heightMap.png" diffuseTexture="grass0_DIF.jpg" normalTexture="grass0_NRM.jpg" specularTexture="grass0_DISP.jpg" diffuseTexture2="Ground_17_DIF.jpg" diffuseTexture3="Ground_21_DIF.jpg"/>
+        <Map heightMap="heightMap.png" diffuseTexture="grass0_DIF.jpg" normalTexture="grass0_NRM.jpg" diffuseTexture2="Ground_17_DIF.jpg" diffuseTexture3="Ground_21_DIF.jpg"/>
       </Components>
     </Entity>
   </Entities>

@@ -132,6 +132,16 @@ std::ostringstream &Graphic::getStringStream()
     return this->_stringStream;
 }
 
+void Graphic::setWireframe(bool drawWireframe)
+{
+    this->_drawWireframe = drawWireframe;
+}
+
+bool Graphic::isWireframe()
+{
+    return this->_drawWireframe;
+}
+
 void Graphic::setRunning(bool running)
 {
     this->_running = running;

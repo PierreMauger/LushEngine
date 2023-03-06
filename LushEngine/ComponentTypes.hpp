@@ -83,7 +83,6 @@ typedef struct {
     std::string heightMap = "";
     std::string diffuseTexture = "";
     std::string normalTexture = "";
-    std::string specularTexture = "";
     std::string diffuseTexture2 = "";
     std::string diffuseTexture3 = "";
 } Map;

@@ -151,18 +151,17 @@ void SceneSystem::drawBillboards(EntityManager &entityManager, ComponentManager 
 
 void SceneSystem::drawMap(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    this->_graphic->getRenderView().use("Map");
+    this->_graphic->getRenderView().use(this->_graphic->isWireframe() ? "MapWireframe" : "Map");
     this->_graphic->getRenderView().setView();
     for (auto id : entityManager.getMaskCategory(MAP_TAG)) {
         Map map = componentManager.getComponent<Map>(id);
 
         this->_graphic->getRenderView().getShader().setMat4("model", glm::mat4(1.0f));
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, this->texture);
         // if (this->_resourceManager->getTextures().find(map.heightMap) != this->_resourceManager->getTextures().end())
-            // glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.heightMap].getId());
+        //     glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.heightMap].getId());
         // else
-            // glBindTexture(GL_TEXTURE_2D, 0);
+            glBindTexture(GL_TEXTURE_2D, this->texture);
         this->_graphic->getRenderView().getShader().setInt("heightMap", 0);
         glActiveTexture(GL_TEXTURE1);
         if (this->_resourceManager->getTextures().find(map.diffuseTexture) != this->_resourceManager->getTextures().end())
@@ -177,23 +176,17 @@ void SceneSystem::drawMap(EntityManager &entityManager, ComponentManager &compon
             glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("normalTexture", 2);
         glActiveTexture(GL_TEXTURE3);
-        if (this->_resourceManager->getTextures().find(map.specularTexture) != this->_resourceManager->getTextures().end())
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.specularTexture].getId());
-        else
-            glBindTexture(GL_TEXTURE_2D, 0);
-        this->_graphic->getRenderView().getShader().setInt("specularTexture", 3);
-        glActiveTexture(GL_TEXTURE4);
         if (this->_resourceManager->getTextures().find(map.diffuseTexture2) != this->_resourceManager->getTextures().end())
             glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.diffuseTexture2].getId());
         else
             glBindTexture(GL_TEXTURE_2D, 0);
-        this->_graphic->getRenderView().getShader().setInt("diffuseTexture2", 4);
-        glActiveTexture(GL_TEXTURE5);
+        this->_graphic->getRenderView().getShader().setInt("diffuseTexture2", 3);
+        glActiveTexture(GL_TEXTURE4);
         if (this->_resourceManager->getTextures().find(map.diffuseTexture3) != this->_resourceManager->getTextures().end())
             glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.diffuseTexture3].getId());
         else
             glBindTexture(GL_TEXTURE_2D, 0);
-        this->_graphic->getRenderView().getShader().setInt("diffuseTexture3", 5);
+        this->_graphic->getRenderView().getShader().setInt("diffuseTexture3", 4);
         this->_resourceManager->getMap().draw();
     }
 }

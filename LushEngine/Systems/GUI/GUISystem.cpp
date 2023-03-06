@@ -125,6 +125,11 @@ void GUISystem::drawMenuBar()
             ImGui::MenuItem(ICON_FA_SYNC " Reload Layout", nullptr, &this->_reloading);
             ImGui::EndMenu();
         }
+        if (ImGui::BeginMenu("View")) {
+            if (ImGui::MenuItem(ICON_FA_BORDER_ALL " Wireframe"))
+                this->_graphic->setWireframe(!this->_graphic->isWireframe());
+            ImGui::EndMenu();
+        }
 
         ImGui::EndMainMenuBar();
     }
@@ -512,12 +517,13 @@ void GUISystem::drawConsole()
     }
     if (ImGui::SmallButton("Clear"))
         this->_consoleBuffer.clear();
-    if (this->_graphic->getStringStream().str().size() > 0)
+    if (this->_graphic->getStringStream().str().size() > 0) {
         this->_consoleBuffer += this->_graphic->getStringStream().str();
+        this->_graphic->getStringStream().str("");
+    }
     ImGui::Separator();
     if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar)) {
         ImGui::TextWrapped("%s", this->_consoleBuffer.c_str());
-        this->_graphic->getStringStream().str("");
         if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
             ImGui::SetScrollHereY(1.0f);
         ImGui::EndChild();

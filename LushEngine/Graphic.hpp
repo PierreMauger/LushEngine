@@ -33,6 +33,8 @@ namespace Lush
             glm::vec4 _sceneViewPort;
             glm::vec2 _windowSize;
 
+            bool _drawWireframe = false;
+
             bool _running = false;
             bool _paused = false;
 
@@ -65,6 +67,9 @@ namespace Lush
             FrameBuffer &getFrameBuffer(std::string name);
 
             std::ostringstream &getStringStream();
+
+            void setWireframe(bool drawWireframe);
+            bool isWireframe();
 
             void setRunning(bool running);
             bool getRunning();

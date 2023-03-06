@@ -77,7 +77,6 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
                 temp.heightMap = componentNode->first_attribute("heightMap")->value();
                 temp.diffuseTexture = componentNode->first_attribute("diffuseTexture")->value();
                 temp.normalTexture = componentNode->first_attribute("normalTexture")->value();
-                temp.specularTexture = componentNode->first_attribute("specularTexture")->value();
                 temp.diffuseTexture2 = componentNode->first_attribute("diffuseTexture2")->value();
                 temp.diffuseTexture3 = componentNode->first_attribute("diffuseTexture3")->value();
                 this->_componentManager.addComponent<Map>(id, temp);

@@ -56,7 +56,5 @@ MapMesh::MapMesh(int width, int height)
 void MapMesh::draw()
 {
     glBindVertexArray(this->_map.vao);
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDrawArrays(GL_PATCHES, 0, this->_rez * this->_rez * 4);
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
