@@ -2,10 +2,10 @@
 
 using namespace Lush;
 
-MapMesh::MapMesh(int width, int height)
+MapMesh::MapMesh()
 {
-    this->_width = width;
-    this->_height = height;
+    this->_width = 1;
+    this->_height = 1;
 
     std::vector<float> vertices;
 

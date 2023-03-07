@@ -330,32 +330,16 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 }
                 case 6: {
                     Billboard &bill = componentManager.getComponent<Billboard>(selectedEntity);
-                    std::string selectedItem = bill.name;
-                    if (ImGui::BeginCombo("Select Item##Billboard", selectedItem.c_str())) {
-                        for (auto &[key, value] : this->_resourceManager->getTextures()) {
-                            bool is_selected = (selectedItem == key);
-                            if (ImGui::Selectable(key.c_str(), is_selected))
-                                bill.name = key;
-                            if (is_selected)
-                                ImGui::SetItemDefaultFocus();
-                        }
-                        ImGui::EndCombo();
-                    }
+                    this->drawTextureSelect("Texture##Billboard", bill.name);
                     break;
                 }
                 case 7: {
                     Map &map = componentManager.getComponent<Map>(selectedEntity);
-                    std::string selectedItem = map.heightMap;
-                    if (ImGui::BeginCombo("Select Item##Map", selectedItem.c_str())) {
-                        for (auto &[key, value] : this->_resourceManager->getTextures()) {
-                            bool is_selected = (selectedItem == key);
-                            if (ImGui::Selectable(key.c_str(), is_selected))
-                                map.heightMap = key;
-                            if (is_selected)
-                                ImGui::SetItemDefaultFocus();
-                        }
-                        ImGui::EndCombo();
-                    }
+                    this->drawTextureSelect("Height Map##Map", map.heightMap);
+                    this->drawTextureSelect("Diffuse Texture##Map", map.diffuseTexture);
+                    this->drawTextureSelect("Diffuse Texture 2##Map", map.diffuseTexture2);
+                    this->drawTextureSelect("Diffuse Texture 3##Map", map.diffuseTexture3);
+
                     break;
                 }
                 default:
@@ -688,4 +672,21 @@ std::size_t GUISystem::getScriptInstanceIndex(std::size_t entityId)
         i++;
     }
     return (std::size_t)-1;
+}
+
+void GUISystem::drawTextureSelect(std::string fieldName, std::string &texture)
+{
+    std::string selectedItem = texture;
+    if (ImGui::BeginCombo(fieldName.c_str(), selectedItem.c_str())) {
+        for (auto &[key, value] : this->_resourceManager->getTextures()) {
+            bool is_selected = (selectedItem == key);
+            if (ImGui::Selectable(key.c_str(), is_selected))
+                texture = key;
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        if (ImGui::Selectable("None", selectedItem == "None"))
+            texture = "None";
+        ImGui::EndCombo();
+    }
 }

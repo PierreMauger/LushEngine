@@ -3,12 +3,17 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTex;
 
-out vec3 FragPos;
 out vec2 v_TexCoord;
+
+uniform sampler2D heightMap;
 
 void main()
 {
-    FragPos = aPos;
     v_TexCoord = aTex;
-    gl_Position = vec4(aPos, 1.0);
+    vec2 texSize = textureSize(heightMap, 0);
+    vec3 pos = aPos;
+    pos.x *= texSize.x;
+    pos.z *= texSize.y;
+
+    gl_Position = vec4(pos, 1.0);
 }

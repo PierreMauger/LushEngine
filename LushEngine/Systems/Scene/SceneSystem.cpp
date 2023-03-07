@@ -158,9 +158,9 @@ void SceneSystem::drawMap(EntityManager &entityManager, ComponentManager &compon
 
         this->_graphic->getRenderView().getShader().setMat4("model", glm::mat4(1.0f));
         glActiveTexture(GL_TEXTURE0);
-        // if (this->_resourceManager->getTextures().find(map.heightMap) != this->_resourceManager->getTextures().end())
-        //     glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.heightMap].getId());
-        // else
+        if (this->_resourceManager->getTextures().find(map.heightMap) != this->_resourceManager->getTextures().end())
+            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.heightMap].getId());
+        else
             glBindTexture(GL_TEXTURE_2D, this->texture);
         this->_graphic->getRenderView().getShader().setInt("heightMap", 0);
         glActiveTexture(GL_TEXTURE1);

@@ -61,6 +61,7 @@ namespace Lush
             void drawProfiler();
             std::string formatBinary(std::size_t value, std::size_t size);
             std::size_t getScriptInstanceIndex(std::size_t entityId);
+            void drawTextureSelect(std::string fieldName, std::string &texture);
 
         public:
             GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);

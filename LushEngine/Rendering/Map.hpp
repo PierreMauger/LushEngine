@@ -17,7 +17,7 @@ namespace Lush
             unsigned int _rez;
 
         public:
-            MapMesh(int width, int height);
+            MapMesh();
             ~MapMesh() = default;
             void draw();
     };

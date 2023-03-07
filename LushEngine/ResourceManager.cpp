@@ -26,7 +26,7 @@ ResourceManager::ResourceManager()
     this->loadScriptPacks("Resources/Scripts", "Native");
     this->loadScenes("Resources/Scenes");
 
-    this->_map = std::make_unique<MapMesh>(256, 256);
+    this->_map = std::make_unique<MapMesh>();
 }
 
 ResourceManager::~ResourceManager()
