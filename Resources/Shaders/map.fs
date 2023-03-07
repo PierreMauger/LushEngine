@@ -67,7 +67,10 @@ void main()
 
     vec3 diffuseMap;
     if (norm.y > 0.4f) {
+        vec3 normalMap = texture(normalTexture, te_TexCoord * heightTexSize / 8).rgb;
+        normalMap = normalize(normalMap * 2.0f - 1.0f);
         diffuseMap = texture(diffuseTexture, te_TexCoord * heightTexSize / 8).rgb;
+        diffuseMap = diffuseMap * (1.0f - normalMap.y);
     } else if (norm.y > 0.3f) {
         diffuseMap = texture(diffuseTexture2, te_TexCoord * heightTexSize / 8).rgb;
     } else {
