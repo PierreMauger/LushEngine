@@ -19,8 +19,8 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Resou
     Shapes::setupPlane(this->_grid);
     Shapes::setupCube(this->_cameraFrustum);
 
-    glGenTextures(1, &this->texture);
-    glBindTexture(GL_TEXTURE_2D, this->texture);
+    glGenTextures(1, &this->_prelinTexture);
+    glBindTexture(GL_TEXTURE_2D, this->_prelinTexture);
 
     int width = 256;
     int height = 256;
@@ -161,7 +161,7 @@ void SceneSystem::drawMap(EntityManager &entityManager, ComponentManager &compon
         if (this->_resourceManager->getTextures().find(map.heightMap) != this->_resourceManager->getTextures().end())
             glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.heightMap].getId());
         else
-            glBindTexture(GL_TEXTURE_2D, this->texture);
+            glBindTexture(GL_TEXTURE_2D, this->_prelinTexture);
         this->_graphic->getRenderView().getShader().setInt("heightMap", 0);
         glActiveTexture(GL_TEXTURE1);
         if (this->_resourceManager->getTextures().find(map.diffuseTexture) != this->_resourceManager->getTextures().end())

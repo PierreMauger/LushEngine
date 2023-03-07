@@ -29,7 +29,7 @@ namespace Lush
             BufferObject _grid;
 
             BufferObject _cameraFrustum;
-            GLuint texture;
+            GLuint _prelinTexture;
 
             Transform _cameraTransform;
             Camera _camera;

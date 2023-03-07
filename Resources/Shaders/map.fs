@@ -47,15 +47,16 @@ vec3 calcDirLight(vec3 color, DirLight light, vec3 normal, vec3 viewDir)
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0f);
 
-    vec3 ambient = light.ambient * 0.2f;
+    vec3 ambient = light.ambient * 0.6f;
     vec3 diffuse = light.diffuse * diff;
     return (ambient + diffuse) * color;
 }
 
 void main()
 {
-    float uTexelSizex = 1.0f / textureSize(heightMap, 0).x;
-    float uTexelSizey = 1.0f / textureSize(heightMap, 0).y;
+    vec2 heightTexSize = textureSize(heightMap, 0);
+    float uTexelSizex = 1.0f / heightTexSize.x;
+    float uTexelSizey = 1.0f / heightTexSize.y;
 
     float left = texture(heightMap, te_TexCoord + vec2(-uTexelSizex, 0.0f)).r * 32.0f - 1.0f;
     float right = texture(heightMap, te_TexCoord + vec2( uTexelSizex, 0.0f)).r * 32.0f - 1.0f;
@@ -66,11 +67,11 @@ void main()
 
     vec3 diffuseMap;
     if (norm.y > 0.4f) {
-        diffuseMap = texture(diffuseTexture, te_TexCoord * 128.0f).rgb;
+        diffuseMap = texture(diffuseTexture, te_TexCoord * heightTexSize / 8).rgb;
     } else if (norm.y > 0.3f) {
-        diffuseMap = texture(diffuseTexture2, te_TexCoord * 128.0f).rgb;
+        diffuseMap = texture(diffuseTexture2, te_TexCoord * heightTexSize / 8).rgb;
     } else {
-        diffuseMap = texture(diffuseTexture3, te_TexCoord * 128.0f).rgb;
+        diffuseMap = texture(diffuseTexture3, te_TexCoord * heightTexSize / 8).rgb;
     }
 
     vec3 result = vec3(0.0f);

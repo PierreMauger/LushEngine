@@ -16,32 +16,41 @@
     </Entity>
     <Entity id="2">
       <Components>
-        <Transform position="3 0 0" rotation="-30 -30 -30" scale="0.5 0.5 0.5" />
+        <Transform position="3 0 0" rotation="30 -30 30" scale="0.5 0.5 0.5" />
         <Light />
         <Billboard name="DirectionalLight.png" />
       </Components>
     </Entity>
     <Entity id="3">
       <Components>
+        <Transform position="2 2 0" rotation="0 0 0" scale="0.5 0.5 0.5" />
+        <Light type="1" />
+        <Billboard name="PointLight.png" />
+      </Components>
+    </Entity>
+    <Entity id="4">
+      <Components>
         <Transform position="3 0 -2" rotation="0 0 0" scale="1 1 1" />
         <Model name="Fox" />
         <Controlable speed="10" cameraEntity="1" />
       </Components>
     </Entity>
-    <Entity id="4">
+    <Entity id="5">
       <Components>
         <Cubemap name="Sky" />
       </Components>
     </Entity>
-    <Entity id="5">
+    <Entity id="6">
       <Components>
         <Transform position="7 2 0" rotation="0 0 0" scale="1 1 1" />
         <Billboard name="heightMap.png" />
       </Components>
     </Entity>
-    <Entity id="6">
+    <Entity id="7">
       <Components>
-        <Map heightMap="heightMap.png" diffuseTexture="grass0_DIF.jpg" normalTexture="grass0_NRM.jpg" diffuseTexture2="Ground_17_DIF.jpg" diffuseTexture3="Ground_21_DIF.jpg"/>
+        <Map heightMap="heightMap.png" diffuseTexture="grass0_DIF.jpg"
+          normalTexture="grass0_NRM.jpg" diffuseTexture2="Ground_17_DIF.jpg"
+          diffuseTexture3="Ground_21_DIF.jpg" />
       </Components>
     </Entity>
   </Entities>

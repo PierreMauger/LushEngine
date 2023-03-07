@@ -59,6 +59,8 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
             } else if (name == "Light") {
                 mask |= ComponentType::LIGHT;
                 Light temp;
+                if (componentNode->first_attribute("type"))
+                    temp.type = (LightType)std::atoi(componentNode->first_attribute("type")->value());
                 // attributs
                 this->_componentManager.addComponent<Light>(id, temp);
             } else if (name == "Cubemap") {
