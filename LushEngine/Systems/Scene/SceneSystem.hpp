@@ -35,6 +35,7 @@ namespace Lush
             Camera _camera;
 
             void handleMouse();
+            void generatePerlinTexture();
             void drawModels(EntityManager &entityManager, ComponentManager &componentManager);
             void drawBillboards(EntityManager &entityManager, ComponentManager &componentManager);
             void drawMap(EntityManager &entityManager, ComponentManager &componentManager);

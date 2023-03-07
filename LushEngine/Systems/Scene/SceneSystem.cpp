@@ -19,31 +19,7 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Resou
     Shapes::setupPlane(this->_grid);
     Shapes::setupCube(this->_cameraFrustum);
 
-    glGenTextures(1, &this->_prelinTexture);
-    glBindTexture(GL_TEXTURE_2D, this->_prelinTexture);
-
-    int width = 256;
-    int height = 256;
-    unsigned char *data = new unsigned char[width * height * 3];
-
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            float x = (float)j / width;
-            float y = (float)i / height;
-            float value = glm::perlin(glm::vec2(x * 10.0f, y * 10.0f));
-            int index = (i * width + j) * 3;
-            data[index] = (unsigned char)(value * 128.0f + 127);
-            data[index + 1] = (unsigned char)(value * 128.0f + 127);
-            data[index + 2] = (unsigned char)(value * 128.0f + 127);
-        }
-    }
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    delete[] data;
+    this->generatePerlinTexture();
 }
 
 SceneSystem::~SceneSystem()
@@ -69,8 +45,6 @@ void SceneSystem::update(EntityManager &entityManager, ComponentManager &compone
 
     this->drawSkybox(entityManager, componentManager);
 
-    glm::perlin(glm::vec3(0.0f, 0.0f, 0.0f));
-
     this->_graphic->getRenderView().use("CameraFrustum");
     this->_graphic->getRenderView().setView();
 
@@ -95,6 +69,40 @@ void SceneSystem::update(EntityManager &entityManager, ComponentManager &compone
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void SceneSystem::generatePerlinTexture()
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(1, 10000);
+    int seed = dis(gen);
+
+    glGenTextures(1, &this->_prelinTexture);
+    glBindTexture(GL_TEXTURE_2D, this->_prelinTexture);
+
+    int width = 256;
+    int height = 256;
+    unsigned char *data = new unsigned char[width * height * 3];
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            float x = (float)j / width;
+            float y = (float)i / height;
+            float value = glm::perlin(glm::vec3(x * 10.0f, y * 10.0f, seed));
+            int index = (i * width + j) * 3;
+            data[index] = (unsigned char)(value * 128.0f + 127);
+            data[index + 1] = (unsigned char)(value * 128.0f + 127);
+            data[index + 2] = (unsigned char)(value * 128.0f + 127);
+        }
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    delete[] data;
+}
+
 void SceneSystem::handleMouse()
 {
     if (this->_graphic->getSceneMovement()) {
@@ -108,6 +116,8 @@ void SceneSystem::handleMouse()
             this->_cameraTransform.position -= cameraRight * this->_graphic->getMouseOffset().x * 0.02f;
             this->_cameraTransform.position -= cameraUp * this->_graphic->getMouseOffset().y * 0.02f;
         }
+        if (this->_graphic->getMouseButton() == 3)
+            this->generatePerlinTexture();
         this->_camera.forward.x = cos(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
         this->_camera.forward.y = sin(glm::radians(this->_cameraTransform.rotation.y));
         this->_camera.forward.z = sin(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
