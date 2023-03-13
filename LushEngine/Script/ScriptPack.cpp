@@ -45,16 +45,18 @@ void ScriptPack::load(std::vector<File> &files, std::unordered_map<std::string, 
     }
 
     if (corePacks.find("Core") != corePacks.end()) {
-        this->_coreClass = corePacks["Core"].getClasses()["Entity"];
-        if (!this->_coreClass)
+        this->_entityClass = corePacks["Core"].getClasses()["Entity"];
+        if (!this->_entityClass)
             throw std::runtime_error("mono_class_from_name failed for Entity in Core.dll");
     }
 }
 
 void ScriptPack::reload(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &corePacks)
 {
+    // mono_domain_set(mono_get_root_domain(), false);
     mono_domain_unload(this->_domain);
 
+    this->_classes.clear();
     std::unordered_map<std::string, ScriptPack> linkedPacks;
     for (auto &name : this->_linkedPacks)
         linkedPacks[name] = corePacks[name];
@@ -64,6 +66,11 @@ void ScriptPack::reload(std::vector<File> &files, std::unordered_map<std::string
 std::string ScriptPack::getName() const
 {
     return this->_name;
+}
+
+const std::vector<std::string> &ScriptPack::getLinkedPacks() const
+{
+    return this->_linkedPacks;
 }
 
 MonoDomain *ScriptPack::getDomain()
@@ -76,7 +83,7 @@ std::unordered_map<std::string, MonoClass *> &ScriptPack::getClasses()
     return this->_classes;
 }
 
-MonoClass *ScriptPack::getCoreClass()
+MonoClass *ScriptPack::getEntityClass()
 {
-    return this->_coreClass;
+    return this->_entityClass;
 }

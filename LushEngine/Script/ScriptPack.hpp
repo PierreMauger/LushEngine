@@ -20,13 +20,12 @@ namespace Lush
         private:
             std::string _name;
             std::vector<std::string> _linkedPacks;
+
             MonoDomain *_domain;
             MonoAssembly *_assembly;
-            MonoAssembly *_coreAssembly;
             MonoImage *_image;
-            MonoImage *_coreImage;
+            MonoClass *_entityClass;
             std::unordered_map<std::string, MonoClass *> _classes;
-            MonoClass *_coreClass;
 
         public:
             ScriptPack(std::vector<File> &files, std::string name, std::unordered_map<std::string, ScriptPack> &corePacks);
@@ -37,9 +36,10 @@ namespace Lush
             void reload(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &corePacks);
 
             std::string getName() const;
+            const std::vector<std::string> &getLinkedPacks() const;
             MonoDomain *getDomain();
+            MonoClass *getEntityClass();
             std::unordered_map<std::string, MonoClass *> &getClasses();
-            MonoClass *getCoreClass();
     };
 }
 

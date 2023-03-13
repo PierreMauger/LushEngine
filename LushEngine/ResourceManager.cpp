@@ -24,6 +24,8 @@ ResourceManager::ResourceManager()
     this->loadSkyboxes("Resources/Skybox");
     this->loadScriptPacks("Resources/CoreScripts", "Core");
     this->loadScriptPacks("Resources/Scripts", "Native");
+    this->loadScriptPacks("Resources/Game", "Game");
+
     this->loadScenes("Resources/Scenes");
 
     this->_map = std::make_unique<MapMesh>();
@@ -41,6 +43,7 @@ void ResourceManager::initScriptDomain()
     this->_domain = mono_jit_init("LushJIT");
     if (!this->_domain)
         throw std::runtime_error("mono_jit_init failed");
+    mono_thread_set_main(mono_thread_current());
 }
 
 void ResourceManager::loadDirectory(const std::filesystem::path &path, std::function<void(std::string)> func, const std::vector<std::string> &extensions)
@@ -114,7 +117,7 @@ void ResourceManager::loadScriptPacks(std::string dir, std::string packName)
     if (packName == "Core")
         return;
     for (auto &[name, klass] : this->_scriptPacks[packName].getClasses())
-        this->_scripts[name] = ScriptClass(this->_scriptPacks[packName].getDomain(), klass, this->_scriptPacks[packName].getCoreClass());
+        this->_scripts[name] = ScriptClass(this->_scriptPacks[packName].getDomain(), klass, this->_scriptPacks[packName].getEntityClass());
 }
 
 void ResourceManager::loadScenes(std::string dir)

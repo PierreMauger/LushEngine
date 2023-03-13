@@ -25,18 +25,17 @@ namespace Lush
         private:
             MonoDomain *_domain;
             MonoClass *_class;
-            MonoClass *_coreClass;
 
             std::unordered_map<std::string, MonoMethod *> _methods;
             std::unordered_map<std::string, FieldInfo> _fields;
 
         public:
-            ScriptClass(MonoDomain *domain, MonoClass *sciptClass, MonoClass *coreClass);
+            ScriptClass(MonoDomain *domain, MonoClass *sciptClass, MonoClass *entityClass);
             ScriptClass() = default;
             ~ScriptClass() = default;
 
-            void load(MonoDomain *domain, MonoClass *sciptClass, MonoClass *coreClass);
-            void reload(MonoDomain *domain, MonoClass *sciptClass, MonoClass *coreClass);
+            void load(MonoDomain *domain, MonoClass *sciptClass, MonoClass *entityClass);
+            void reload(MonoDomain *domain, MonoClass *sciptClass, MonoClass *entityClass);
             void loadAttributes();
 
             MonoMethod *getMethod(std::string name);
