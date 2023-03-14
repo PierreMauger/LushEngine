@@ -29,16 +29,16 @@ void ScriptPack::load(std::vector<File> &files, std::unordered_map<std::string, 
 
     this->_domain = mono_domain_create_appdomain((char *)this->_name.c_str(), nullptr);
 
-    this->_assembly = mono_domain_assembly_open(this->_domain, assemblyPath.c_str());
-    if (!this->_assembly)
+    MonoAssembly *assembly = mono_domain_assembly_open(this->_domain, assemblyPath.c_str());
+    if (!assembly)
         throw std::runtime_error("mono_domain_assembly_open failed for " + this->_name + ".dll");
 
-    this->_image = mono_assembly_get_image(this->_assembly);
-    if (!this->_image)
+    MonoImage *image = mono_assembly_get_image(assembly);
+    if (!image)
         throw std::runtime_error("mono_assembly_get_image failed for " + this->_name + ".dll");
 
     for (auto &file : files) {
-        MonoClass *klass = mono_class_from_name(this->_image, "", file.getName().c_str());
+        MonoClass *klass = mono_class_from_name(image, "", file.getName().c_str());
         if (!klass)
             throw std::runtime_error("mono_class_from_name failed for " + file.getName());
         this->_classes[file.getName()] = klass;
@@ -53,10 +53,9 @@ void ScriptPack::load(std::vector<File> &files, std::unordered_map<std::string, 
 
 void ScriptPack::reload(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &corePacks)
 {
-    // mono_domain_set(mono_get_root_domain(), false);
     mono_domain_unload(this->_domain);
-
     this->_classes.clear();
+
     std::unordered_map<std::string, ScriptPack> linkedPacks;
     for (auto &name : this->_linkedPacks)
         linkedPacks[name] = corePacks[name];

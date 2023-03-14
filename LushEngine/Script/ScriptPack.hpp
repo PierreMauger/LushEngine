@@ -22,8 +22,6 @@ namespace Lush
             std::vector<std::string> _linkedPacks;
 
             MonoDomain *_domain;
-            MonoAssembly *_assembly;
-            MonoImage *_image;
             MonoClass *_entityClass;
             std::unordered_map<std::string, MonoClass *> _classes;
 

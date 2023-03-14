@@ -112,6 +112,7 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, ComponentManager &c
             continue;
         try {
             scriptPack.reload(files, this->_resourceManager->getScriptPacks());
+            std::cout << "Reloaded script pack " << name << std::endl;
             if (name != "Core") {
                 for (auto &[className, klass] : scriptPack.getClasses()) {
                     this->_resourceManager->getScripts()[className].reload(scriptPack.getDomain(), klass, scriptPack.getEntityClass());
@@ -137,10 +138,6 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, ComponentManager &c
                     }
                 }
             }
-
-            // for (auto &[tempName, tempScriptPack] : this->_resourceManager->getScriptPacks())
-            //     if (std::find(tempScriptPack.getLinkedPacks().begin(), tempScriptPack.getLinkedPacks().end(), name) != tempScriptPack.getLinkedPacks().end())
-            //         this->reloadScriptPack(tempScriptPack, componentManager);
         } catch (const std::exception &e) {
             std::cout << e.what() << std::endl;
         }

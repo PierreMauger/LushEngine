@@ -35,8 +35,8 @@ namespace Lush
             ~ScriptClass() = default;
 
             void load(MonoDomain *domain, MonoClass *sciptClass, MonoClass *entityClass);
-            void reload(MonoDomain *domain, MonoClass *sciptClass, MonoClass *entityClass);
             void loadAttributes();
+            void reload(MonoDomain *domain, MonoClass *sciptClass, MonoClass *entityClass);
 
             MonoMethod *getMethod(std::string name);
             std::unordered_map<std::string, FieldInfo> &getFields();

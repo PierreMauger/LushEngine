@@ -10,7 +10,6 @@ public class Maxwell : Entity
     {
         transform = getComponent<Transform>();
         time = 0.0f;
-        this.log("hello");
     }
 
     public void onUpdate(float deltaTime)
