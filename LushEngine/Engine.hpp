@@ -16,6 +16,7 @@
 #include "Systems/Render/RenderSystem.hpp"
 #include "Systems/Scene/SceneSystem.hpp"
 #include "Systems/Script/ScriptSystem.hpp"
+#include "Systems/Game/GameSystem.hpp"
 
 namespace Lush
 {
@@ -27,9 +28,10 @@ namespace Lush
             std::shared_ptr<ResourceManager> _resourceManager;
             float _lastTime = 0.0f;
             float _deltaTime = 0.0f;
+            bool _isEditor = false;
 
         public:
-            Engine();
+            Engine(bool isEditor = false);
             ~Engine() = default;
 
             void run();

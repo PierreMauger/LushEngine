@@ -90,6 +90,7 @@ void ResourceManager::loadShaders(std::string dir)
     this->_shaders["Map"] = Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/map.fs"], File(), this->_files["Resources/Shaders/map.tcs"], this->_files["Resources/Shaders/map.tes"]);
     this->_shaders["MapWireframe"] = Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/mapWireframe.fs"], this->_files["Resources/Shaders/mapWireframe.gs"], this->_files["Resources/Shaders/map.tcs"], this->_files["Resources/Shaders/map.tes"]);
     this->_shaders["CameraFrustum"] = Shader(this->_files["Resources/Shaders/cameraFrustum.vs"], this->_files["Resources/Shaders/cameraFrustum.fs"]);
+    this->_shaders["Game"] = Shader(this->_files["Resources/Shaders/outline.vs"], this->_files["Resources/Shaders/billboard.fs"]);
 }
 
 void ResourceManager::loadSkyboxes(std::string dir)

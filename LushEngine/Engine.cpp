@@ -9,10 +9,12 @@ using namespace Lush;
 #define CAMERA_TAG (ComponentType::TRANSFORM | ComponentType::CAMERA)
 #define LIGHT_TAG (ComponentType::TRANSFORM | ComponentType::LIGHT)
 
-Engine::Engine()
+Engine::Engine(bool isEditor)
 {
     this->_graphic = std::make_shared<Graphic>(1280, 720, "Lush Engine");
     this->_resourceManager = std::make_shared<ResourceManager>();
+    this->_isEditor = isEditor;
+
     this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());
 
     this->_ecs.getEntityManager().addMaskCategory(MODEL_TAG);
@@ -38,19 +40,20 @@ Engine::Engine()
     this->_ecs.getSystemManager().bindSystem(std::make_unique<ScriptSystem>(this->_graphic, this->_resourceManager));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<CameraSystem>(this->_graphic));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<RenderSystem>(this->_graphic, this->_resourceManager));
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<SceneSystem>(this->_graphic, this->_resourceManager));
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<PickingSystem>(this->_graphic, this->_resourceManager));
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<GUISystem>(this->_graphic, this->_resourceManager));
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<FileWatcherSystem>(this->_graphic, this->_resourceManager));
+    if (this->_isEditor) {
+        this->_ecs.getSystemManager().bindSystem(std::make_unique<SceneSystem>(this->_graphic, this->_resourceManager));
+        this->_ecs.getSystemManager().bindSystem(std::make_unique<PickingSystem>(this->_graphic, this->_resourceManager));
+        this->_ecs.getSystemManager().bindSystem(std::make_unique<GUISystem>(this->_graphic, this->_resourceManager));
+        this->_ecs.getSystemManager().bindSystem(std::make_unique<FileWatcherSystem>(this->_graphic, this->_resourceManager));
+    } else {
+        this->_ecs.getSystemManager().bindSystem(std::make_unique<GameSystem>(this->_graphic, this->_resourceManager));
+    }
 
     this->_resourceManager->getScene()->setScene(this->_ecs.getEntityManager(), this->_ecs.getComponentManager());
 }
 
 void Engine::run()
 {
-    std::streambuf *oldCoutStreamBuf = std::cout.rdbuf();
-    std::cout.rdbuf(this->_graphic->getStringStream().rdbuf());
-
     while (!glfwWindowShouldClose(this->_graphic->getWindow())) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -64,7 +67,6 @@ void Engine::run()
         this->_deltaTime = glfwGetTime() - this->_lastTime;
         this->_lastTime = glfwGetTime();
     }
-    std::cout.rdbuf(oldCoutStreamBuf);
 }
 
 void Engine::updateMouse()

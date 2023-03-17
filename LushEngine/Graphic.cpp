@@ -14,6 +14,8 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
     this->_cursors[0] = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
     this->_cursors[1] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
     this->_cursors[2] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+
+    std::cout.rdbuf(this->_stringStream.rdbuf());
 }
 
 Graphic::~Graphic()

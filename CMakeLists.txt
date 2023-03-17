@@ -94,6 +94,7 @@ set(INC
     ${PROJECT_NAME}/Systems/Render/
     ${PROJECT_NAME}/Systems/Scene/
     ${PROJECT_NAME}/Systems/Script/
+    ${PROJECT_NAME}/Systems/Game/
     ${PROJECT_NAME}/Script/
     ${PROJECT_NAME}/File/
 
@@ -126,6 +127,7 @@ set(SRC
     ${PROJECT_NAME}/Systems/Render/RenderSystem.cpp
     ${PROJECT_NAME}/Systems/Scene/SceneSystem.cpp
     ${PROJECT_NAME}/Systems/Script/ScriptSystem.cpp
+    ${PROJECT_NAME}/Systems/Game/GameSystem.cpp
     ${PROJECT_NAME}/Script/ScriptClass.cpp
     ${PROJECT_NAME}/Script/ScriptGlue.cpp
     ${PROJECT_NAME}/Script/ScriptInstance.cpp
