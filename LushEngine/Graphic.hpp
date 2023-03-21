@@ -85,7 +85,7 @@ namespace Lush
             bool getMouseMovement();
             void setSceneMovement(bool sceneMovement);
             bool getSceneMovement();
-            void setMouseButton(int mouseButton);
+            // void setMouseButton(int mouseButton);
             int getMouseButton();
             void setMousePosition(glm::vec2 mousePosition);
             void setMouseOffset(glm::vec2 mousePosition);

@@ -288,19 +288,19 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 }
                 case 3: {
                     Camera &camera = componentManager.getComponent<Camera>(selectedEntity);
-                    const char *names[CameraMod::CAMERA_MOD_COUNT] = {"First", "Third"};
+                    // const char *names[CameraMod::CAMERA_MOD_COUNT] = {"First", "Third"};
 
                     ImGui::DragFloat3("Forward##Camera", (float *)&camera.forward, 0.01f, -1.0f, 1.0f);
-                    ImGui::SliderInt("Mod##Camera", (int *)&camera.mod, 0, CameraMod::CAMERA_MOD_COUNT - 1, names[camera.mod]);
+                    // ImGui::SliderInt("Mod##Camera", (int *)&camera.mod, 0, CameraMod::CAMERA_MOD_COUNT - 1, names[camera.mod]);
                     ImGui::SliderFloat("FOV##Camera", &camera.fov, 30.0f, 90.0f);
                     ImGui::SliderFloat("Near##Camera", &camera.near, 0.1f, 100.0f);
                     ImGui::SliderFloat("Far##Camera", &camera.far, camera.near + 0.1f, 1000.0f);
                     ImGui::SliderFloat("Sensitivity##Camera", &camera.sensitivity, 0.0f, 1.0f);
-                    if (camera.mod == CameraMod::THIRD_PERSON) {
-                        ImGui::SliderFloat("Distance##Camera", &camera.distance, 0.0f, 100.0f);
-                        const ImU64 increment = 1;
-                        ImGui::InputScalar("Target ID##Camera", ImGuiDataType_U64, &camera.target, &increment);
-                    }
+                    // if (camera.mod == CameraMod::THIRD_PERSON) {
+                        // ImGui::SliderFloat("Distance##Camera", &camera.distance, 0.0f, 100.0f);
+                        // const ImU64 increment = 1;
+                        // ImGui::InputScalar("Target ID##Camera", ImGuiDataType_U64, &camera.target, &increment);
+                    // }
                     break;
                 }
                 case 4: {

@@ -24,7 +24,7 @@ ResourceManager::ResourceManager()
     this->loadSkyboxes("Resources/Skybox");
     this->loadScriptPacks("Resources/CoreScripts", "Core");
     this->loadScriptPacks("Resources/Scripts", "Native");
-    this->loadScriptPacks("Resources/Game", "Game");
+    // this->loadScriptPacks("Resources/Game", "Game");
 
     this->loadScenes("Resources/Scenes");
 

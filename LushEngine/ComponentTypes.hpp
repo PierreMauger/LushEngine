@@ -50,9 +50,9 @@ typedef struct {
     float near = 0.1f;
     float far = 100.0f;
     float sensitivity = 0.1f;
-    CameraMod mod = FIRST_PERSON;
-    float distance = 10.0f;
-    std::size_t target = 0;
+    // CameraMod mod = FIRST_PERSON;
+    // float distance = 10.0f;
+    // std::size_t target = 0;
 } Camera;
 
 enum LightType {

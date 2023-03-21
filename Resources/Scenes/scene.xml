@@ -9,9 +9,10 @@
     </Entity>
     <Entity id="1">
       <Components>
-        <Transform position="0 1 10" rotation="-90 0 0" scale="0.5 0.5 0.5" />
+        <Transform position="0 1 10" rotation="0 0 0" scale="0.5 0.5 0.5" />
         <Camera />
         <Billboard name="Camera.png" />
+        <ThirdPersonCamera distance="10" playerEntity="4" />
       </Components>
     </Entity>
     <Entity id="2">

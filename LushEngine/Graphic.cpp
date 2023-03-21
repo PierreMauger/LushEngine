@@ -204,10 +204,10 @@ bool Graphic::getSceneMovement()
     return this->_sceneMovement;
 }
 
-void Graphic::setMouseButton(int button)
-{
-    this->_mouseButton = button;
-}
+// void Graphic::setMouseButton(int button)
+// {
+//     this->_mouseButton = button;
+// }
 
 int Graphic::getMouseButton()
 {
