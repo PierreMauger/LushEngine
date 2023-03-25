@@ -2,8 +2,16 @@
 
 using namespace Lush;
 
+static Graphic *graphic = nullptr;
+
+Graphic *Graphic::getGraphic()
+{
+    return graphic;
+}
+
 Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / sizeY)
 {
+    graphic = this;
     this->setGLFWContext(sizeX, sizeY, title);
 
     this->_mousePosition = glm::vec2(sizeX / 2, sizeY / 2);

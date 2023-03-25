@@ -98,6 +98,8 @@ namespace Lush
             glm::vec4 getSceneViewPort();
             void setWindowSize(glm::vec2 windowSize);
             glm::vec2 getWindowSize();
+
+            static Graphic *getGraphic();
     };
 }
 

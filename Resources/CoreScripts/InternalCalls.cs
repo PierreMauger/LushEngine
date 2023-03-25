@@ -31,4 +31,9 @@ public static class InternalCalls
 
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
 	public extern static bool IsKeyDown(int key);
+
+	[MethodImplAttribute(MethodImplOptions.InternalCall)]
+	public extern static float GetMouseMovementX();
+	[MethodImplAttribute(MethodImplOptions.InternalCall)]
+	public extern static float GetMouseMovementY();
 }

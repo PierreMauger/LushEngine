@@ -121,6 +121,16 @@ bool ScriptGlue::IsKeyDown(int key)
         return false;
 }
 
+float ScriptGlue::GetMouseMovementX()
+{
+    return Graphic::getGraphic()->getMouseOffset().x;
+}
+
+float ScriptGlue::GetMouseMovementY()
+{
+    return Graphic::getGraphic()->getMouseOffset().y;
+}
+
 void ScriptGlue::registerFunctions()
 {
     mono_add_internal_call("InternalCalls::Log", (void *)Console_Log);
@@ -134,4 +144,6 @@ void ScriptGlue::registerFunctions()
     mono_add_internal_call("InternalCalls::Camera_SetForward", (void *)Camera_SetForward);
     mono_add_internal_call("InternalCalls::GetScriptInstance", (void *)GetScriptInstance);
     mono_add_internal_call("InternalCalls::IsKeyDown", (void *)IsKeyDown);
+    mono_add_internal_call("InternalCalls::GetMouseMovementX", (void *)GetMouseMovementX);
+    mono_add_internal_call("InternalCalls::GetMouseMovementY", (void *)GetMouseMovementY);
 }

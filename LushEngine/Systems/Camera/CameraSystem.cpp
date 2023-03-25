@@ -27,27 +27,6 @@ void CameraSystem::update(EntityManager &entityManager, ComponentManager &compon
         Transform &transform = componentManager.getComponent<Transform>(id);
         Camera &camera = componentManager.getComponent<Camera>(id);
 
-        if (this->_graphic->getMouseMovement()) {
-            glm::vec2 offset = this->_graphic->getMouseOffset();
-            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-            glm::vec3 right = glm::normalize(glm::cross(up, camera.forward));
-            glm::quat q;
-            q = glm::angleAxis(glm::radians(-offset.x) * camera.sensitivity, up);
-            camera.forward = glm::normalize(q * camera.forward);
-            q = glm::angleAxis(glm::radians(-offset.y) * camera.sensitivity, right);
-            glm::vec3 forward = glm::normalize(q * camera.forward);
-            if (glm::dot(forward, up) < 0.99f && glm::dot(forward, up) > -0.99f)
-                camera.forward = forward;
-            transform.rotation = glm::degrees(glm::eulerAngles(glm::quatLookAt(camera.forward, up)));
-        }
-
-        if (entityManager.hasMask(4, CONTROL_TAG)) {
-            Transform &target = componentManager.getComponent<Transform>(4);
-
-            transform.position = target.position - camera.forward * 10.0f;
-        }
-        glm::quat quaternion = glm::quat(glm::radians(transform.rotation));
-        camera.forward = glm::normalize(quaternion * glm::vec3(0.0f, 0.0f, -1.0f));
         this->_graphic->getRenderView().update(transform, camera);
 
         this->_graphic->getRenderView().setDirLights(this->_dirLights);

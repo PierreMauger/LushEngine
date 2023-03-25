@@ -27,6 +27,9 @@ namespace Lush
             static MonoObject *GetScriptInstance(std::size_t id);
 
             static bool IsKeyDown(int key);
+            static float GetMouseMovementX();
+            static float GetMouseMovementY();
+
             static void registerFunctions();
     };
 }

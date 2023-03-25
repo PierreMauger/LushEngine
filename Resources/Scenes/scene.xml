@@ -12,7 +12,7 @@
         <Transform position="0 1 10" rotation="0 0 0" scale="0.5 0.5 0.5" />
         <Camera />
         <Billboard name="Camera.png" />
-        <ThirdPersonCamera distance="10" playerEntity="4" />
+        <ThirdPersonCamera distance="10" playerEntity="4" sensibility="0.1" />
       </Components>
     </Entity>
     <Entity id="2">
