@@ -1,9 +1,19 @@
 #include "Engine.hpp"
 #include "Includes.hpp"
 
-int main(int argc, char **argv)
+#ifdef EDITOR_MODE
+    #if EDITOR_MODE == true
+        const bool editor = true;
+    #else
+        const bool editor = false;
+    #endif
+#else
+    const bool editor = false;
+#endif
+
+int main()
 {
-    Lush::Engine engine(argc > 1 && std::string(argv[1]) == "--editor");
+    Lush::Engine engine(editor);
 
     engine.run();
     return 0;

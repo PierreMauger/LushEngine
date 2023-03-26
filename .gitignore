@@ -1,6 +1,7 @@
 .vscode
 build/
 lush
+lushEditor
 imgui.ini
 Resources/bin/*
 mono_crash*

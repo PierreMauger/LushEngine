@@ -144,7 +144,7 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, ComponentManager &c
     }
 }
 
-void FileWatcherSystem::reloadScene(Resource &resource, ComponentManager &componentManager)
+void FileWatcherSystem::reloadScene(Resource &resource, [[maybe_unused]] ComponentManager &componentManager)
 {
     std::cout << "Reloading scene " << resource.getUUID() << std::endl;
 }

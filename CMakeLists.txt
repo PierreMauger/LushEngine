@@ -80,9 +80,9 @@ add_library(${IMGUI} ${IMGUI_SRC})
 
 install(TARGETS ${IMGUI})
 
-################## BUILD GAME ##################
+################## BUILD ENGINE ##################
 
-set(EXEC_NAME lush)
+set(ENGINE ENGINE)
 
 set(INC
     ${PROJECT_NAME}/
@@ -146,29 +146,58 @@ include_directories(${INC}
     ${OpenGL_INCLUDE_DIRS}
     ${GLFW3_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
-    ${ASSIMP_INCLUDE_DIRS}
 )
 
-add_executable(${EXEC_NAME}
-    ${SRC}
-    ${PROJECT_NAME}/main.cpp
-)
+add_library(${ENGINE} ${SRC})
 
-target_link_libraries(${EXEC_NAME} PRIVATE
+target_link_libraries(${ENGINE} PRIVATE
     ${CMAKE_THREAD_LIBS_INIT}
     ${OPENGL_LIBRARIES}
     glfw
     ${GLEW_LIBRARY}
-    ${ECS}
-    ${IMGUI}
 )
 
-target_link_libraries(${EXEC_NAME} PRIVATE ${LIBS_PATH}/libmonosgen-2.0.so.1.0.0)
-target_link_libraries(${EXEC_NAME} PRIVATE ${LIBS_PATH}/libassimp.so.5.2.0)
+install(TARGETS ${ENGINE})
+
+################## BUILD BINARIES ##################
+
+set(EXEC_NAME lush)
+set(EDITOR_NAME lushEditor)
+
+add_executable(${EXEC_NAME}
+    ${PROJECT_NAME}/main.cpp
+)
+target_compile_definitions(${EXEC_NAME} PRIVATE EDITOR_MODE=false)
+
+target_link_libraries(${EXEC_NAME} PRIVATE
+    ${ENGINE}
+    ${ECS}
+    ${IMGUI}
+    ${LIBS_PATH}/libmonosgen-2.0.so.1.0.0
+    ${LIBS_PATH}/libassimp.so.5.2.0
+)
+
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
 set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
 
+add_executable(${EDITOR_NAME}
+    ${PROJECT_NAME}/main.cpp
+)
+target_compile_definitions(${EDITOR_NAME} PRIVATE EDITOR_MODE=true)
+
+target_link_libraries(${EDITOR_NAME} PRIVATE
+    ${ENGINE}
+    ${ECS}
+    ${IMGUI}
+    ${LIBS_PATH}/libmonosgen-2.0.so.1.0.0
+    ${LIBS_PATH}/libassimp.so.5.2.0
+)
+
+set_target_properties(${EDITOR_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
+set_target_properties(${EDITOR_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
+
 #install target
 install(TARGETS ${EXEC_NAME})
+install(TARGETS ${EDITOR_NAME})
 
 ################## POST BUILD ##################

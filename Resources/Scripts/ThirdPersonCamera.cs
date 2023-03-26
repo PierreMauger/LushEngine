@@ -33,7 +33,7 @@ public class ThirdPersonCamera : Entity
         q = Quaternion.angleAxis(Vector3.degreesToRadians(-mouseX) * sensibility, up);
         camera.forward = (camera.forward * q).normalize();
         // movement Y
-        q = Quaternion.angleAxis(Vector3.degreesToRadians(-mouseY) * sensibility, right);
+        q = Quaternion.angleAxis(Vector3.degreesToRadians(mouseY) * sensibility, right);
         Vector3 forward = (camera.forward * q).normalize();
         if (Vector3.dot(forward, up) < 0.9f && Vector3.dot(forward, up) > -0.9f)
             camera.forward = forward;
