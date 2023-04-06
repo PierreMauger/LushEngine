@@ -18,7 +18,7 @@
 ## 🔍 About
 
 This project is about making a cross-platform 3D engine in C++, mainly as an excuse to work on cool 3D stuff and design paterns on my free time.\
-It uses an ECS achitecture and an implementation of ImGui for debuging.\
+It uses an ECS architecture and an implementation of ImGui for debugging.\
 The engine propose C# scripting for game logic implementation.\
 The rendering is made in OpenGL with the intent of staying as low level as possible. Implementation of Vulkan is planned in the future.
 
@@ -57,10 +57,11 @@ The project provide two scripts for building.\
 Use `build.sh` (Linux/MacOS) or `build.bat` (Windows) to start building the project.
 
 It will automatically:
-- Fetch the dependancies
+- Fetch the dependencies
 - Build the internal dynamic libraries (.so/.dll)
 - Build the code of the project
 - Create the executable (`lush` or `lush.exe` for Windows)
+- Create the executable (`lushEditor` or `lushEditor.exe` for Windows)
 
 ## 📉 Code
 
