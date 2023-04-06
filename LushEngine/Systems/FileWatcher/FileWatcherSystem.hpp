@@ -1,5 +1,5 @@
-#ifndef FILEWATCHERSYSTEM_HPP
-#define FILEWATCHERSYSTEM_HPP
+#ifndef FILE_WATCHER_SYSTEM_HPP
+#define FILE_WATCHER_SYSTEM_HPP
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ASystem.hpp"
@@ -15,6 +15,7 @@ namespace Lush
         private:
             std::shared_ptr<Graphic> _graphic;
             std::shared_ptr<ResourceManager> _resourceManager;
+
             std::vector<Resource> _resourcesToReload;
 
             void reloadResourcesFromFile(File &file, ComponentManager &componentManager);
@@ -27,10 +28,10 @@ namespace Lush
 
         public:
             FileWatcherSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
-            ~FileWatcherSystem() = default;
+            ~FileWatcherSystem() override = default;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) override;
     };
 }
 
-#endif // FILEWATCHERSYSTEM_HPP
+#endif // FILE_WATCHER_SYSTEM_HPP

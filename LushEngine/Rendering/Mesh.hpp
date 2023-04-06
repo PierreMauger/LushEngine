@@ -49,13 +49,13 @@ namespace Lush
             std::vector<Vertex> _vertices;
             std::vector<unsigned int> _indices;
             std::vector<Tex> _textures;
-            Material _material;
-            BufferObject _bufferObject;
+            Material _material{};
+            BufferObject _bufferObject{};
 
             void setupMesh();
 
         public:
-            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Tex> textures, Material material);
+            Mesh(std::vector<Vertex> &vertices, std::vector<unsigned int> &indices, std::vector<Tex> &textures, Material material);
             ~Mesh() = default;
             void draw(Shader &shader);
     };

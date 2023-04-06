@@ -1,5 +1,7 @@
 .vscode
-build/
+.idea
+build
+cmake-build-debug
 lush
 lushEditor
 imgui.ini

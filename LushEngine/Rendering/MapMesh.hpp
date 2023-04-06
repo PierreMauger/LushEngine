@@ -10,7 +10,7 @@ namespace Lush
     class MapMesh
     {
         private:
-            BufferObject _map;
+            BufferObject _map{};
 
             int _width;
             int _height;
@@ -19,7 +19,7 @@ namespace Lush
         public:
             MapMesh();
             ~MapMesh() = default;
-            void draw();
+            void draw() const;
     };
 }
 

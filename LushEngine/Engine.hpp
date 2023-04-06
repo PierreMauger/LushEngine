@@ -31,7 +31,7 @@ namespace Lush
             bool _isEditor = false;
 
         public:
-            Engine(bool isEditor = false);
+            explicit Engine(bool isEditor = false);
             ~Engine() = default;
 
             void run();

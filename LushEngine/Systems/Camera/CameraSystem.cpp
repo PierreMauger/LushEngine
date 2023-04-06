@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic) : ASystem(60.0f), _graphic(graphic)
+CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic) : ASystem(60.0f), _graphic(std::move(graphic))
 {
 }
 
@@ -15,17 +15,17 @@ void CameraSystem::update(EntityManager &entityManager, ComponentManager &compon
         Light light = componentManager.getComponent<Light>(id);
 
         if (light.type == LightType::DIRECTIONAL)
-            this->_dirLights.push_back({transform, light});
+            this->_dirLights.emplace_back(transform, light);
         else if (light.type == LightType::POINT)
-            this->_pointLights.push_back({transform, light});
+            this->_pointLights.emplace_back(transform, light);
         else if (light.type == LightType::SPOT)
-            this->_spotLights.push_back({transform, light});
+            this->_spotLights.emplace_back(transform, light);
     }
 
     this->_graphic->getRenderView().use("Model");
     for (auto id : entityManager.getMaskCategory(CAMERA_TAG)) {
-        Transform &transform = componentManager.getComponent<Transform>(id);
-        Camera &camera = componentManager.getComponent<Camera>(id);
+        auto &transform = componentManager.getComponent<Transform>(id);
+        auto &camera = componentManager.getComponent<Camera>(id);
 
         this->_graphic->getRenderView().update(transform, camera);
 

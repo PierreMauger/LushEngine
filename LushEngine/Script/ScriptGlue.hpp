@@ -1,5 +1,5 @@
-#ifndef SCRIPTGLUE_HPP
-#define SCRIPTGLUE_HPP
+#ifndef SCRIPT_GLUE_HPP
+#define SCRIPT_GLUE_HPP
 
 #include "ECS/ECS.hpp"
 #include "Graphic.hpp"
@@ -34,4 +34,4 @@ namespace Lush
     };
 }
 
-#endif // SCRIPTGLUE_HPP
+#endif // SCRIPT_GLUE_HPP

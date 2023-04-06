@@ -2,7 +2,8 @@
 
 using namespace Lush;
 
-GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
+GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
+    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
 {
     if (!IMGUI_CHECKVERSION())
         throw std::runtime_error("ImGui version is invalid");
@@ -25,8 +26,8 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceM
     ImGuizmo::Enable(true);
     ImGuizmo::AllowAxisFlip(false);
 
-    this->_fileExplorerPath = std::filesystem::current_path().string();
-    this->_fileExplorerRootPath = std::filesystem::current_path().string();
+    this->_fileBrowserPath = std::filesystem::current_path().string();
+    // this->_fileExplorerRootPath = std::filesystem::current_path().string();
 }
 
 GUISystem::~GUISystem()
@@ -68,6 +69,8 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
         this->drawFiles();
     if (this->_showProfiler)
         this->drawProfiler();
+    if (this->_showFileBrowser)
+        this->drawFileBrowser();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -83,6 +86,7 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
         this->_showGame = true;
         this->_showFileExplorer = true;
         this->_showProfiler = true;
+        this->_showFileBrowser = false;
     }
 }
 
@@ -109,6 +113,8 @@ void GUISystem::drawMenuBar()
 {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("Open..."))
+                this->_showFileBrowser = true;
             if (ImGui::MenuItem("Exit"))
                 glfwSetWindowShouldClose(this->_graphic->getWindow(), true);
             ImGui::EndMenu();
@@ -154,7 +160,7 @@ void GUISystem::drawActionBar(EntityManager &entityManager, ComponentManager &co
                     std::size_t it = 0;
                     for (auto &[name, script] : this->_resourceManager->getScripts()) {
                         for (auto id : entityManager.getMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << it))
-                            this->_resourceManager->getInstances().push_back(ScriptInstance(script, id, componentManager.getInstanceFields(name, id)));
+                            this->_resourceManager->getInstances().emplace_back(script, id, componentManager.getInstanceFields(name, id));
                         it++;
                     }
                     for (auto &instance : this->_resourceManager->getInstances())
@@ -185,6 +191,18 @@ void GUISystem::drawActionBar(EntityManager &entityManager, ComponentManager &co
 void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManager &componentManager)
 {
     if (!ImGui::Begin(ICON_FA_LIST " Scene Hierarchy", &this->_showSceneHierarchy)) {
+        ImGui::End();
+        return;
+    }
+    if (ImGui::CollapsingHeader("Scenes")) {
+        for (auto &[name, scene] : this->_resourceManager->getScenes()) {
+            if (name != this->_resourceManager->getActiveScene() && ImGui::Selectable(name.c_str(), this->_resourceManager->getActiveScene() == name)) {
+                this->_resourceManager->setActiveScene(name);
+                scene.setScene(entityManager, componentManager);
+            }
+        }
+    }
+    if (this->_resourceManager->getActiveScene().empty()) {
         ImGui::End();
         return;
     }
@@ -288,19 +306,10 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 }
                 case 3: {
                     Camera &camera = componentManager.getComponent<Camera>(selectedEntity);
-                    // const char *names[CameraMod::CAMERA_MOD_COUNT] = {"First", "Third"};
-
                     ImGui::DragFloat3("Forward##Camera", (float *)&camera.forward, 0.01f, -1.0f, 1.0f);
-                    // ImGui::SliderInt("Mod##Camera", (int *)&camera.mod, 0, CameraMod::CAMERA_MOD_COUNT - 1, names[camera.mod]);
                     ImGui::SliderFloat("FOV##Camera", &camera.fov, 30.0f, 90.0f);
                     ImGui::SliderFloat("Near##Camera", &camera.near, 0.1f, 100.0f);
                     ImGui::SliderFloat("Far##Camera", &camera.far, camera.near + 0.1f, 1000.0f);
-                    ImGui::SliderFloat("Sensitivity##Camera", &camera.sensitivity, 0.0f, 1.0f);
-                    // if (camera.mod == CameraMod::THIRD_PERSON) {
-                        // ImGui::SliderFloat("Distance##Camera", &camera.distance, 0.0f, 100.0f);
-                        // const ImU64 increment = 1;
-                        // ImGui::InputScalar("Target ID##Camera", ImGuiDataType_U64, &camera.target, &increment);
-                    // }
                     break;
                 }
                 case 4: {
@@ -314,13 +323,13 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     break;
                 }
                 case 5: {
-                    Cubemap &cubemap = componentManager.getComponent<Cubemap>(selectedEntity);
-                    std::string selectedItem = cubemap.name;
+                    Cubemap &cubeMap = componentManager.getComponent<Cubemap>(selectedEntity);
+                    std::string selectedItem = cubeMap.name;
                     if (ImGui::BeginCombo("Select Item##Cubemap", selectedItem.c_str())) {
                         for (auto &[key, value] : this->_resourceManager->getSkyboxes()) {
                             bool is_selected = (selectedItem == key);
                             if (ImGui::Selectable(key.c_str(), is_selected))
-                                cubemap.name = key;
+                                cubeMap.name = key;
                             if (is_selected)
                                 ImGui::SetItemDefaultFocus();
                         }
@@ -398,7 +407,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
     if (ImGui::CollapsingHeader("Add Component")) {
         for (std::size_t i = 0; i < componentManager.getComponentArray().size(); i++) {
             if (!(masks[selectedEntity].value() & (1 << i))) {
-                ImGui::PushID(i);
+                ImGui::PushID((int)i);
                 if (ImGui::Selectable("##selectable", false, ImGuiSelectableFlags_SpanAllColumns)) {
                     entityManager.updateMask(selectedEntity, masks[selectedEntity].value() | (1 << i));
                     switch (i) {
@@ -441,7 +450,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
         it = 0;
         for (auto &[name, script] : this->_resourceManager->getScripts()) {
             if (!(masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it))) {
-                ImGui::PushID(8 + it);
+                ImGui::PushID(8 + (int)it);
                 if (ImGui::Selectable("##selectable", false, ImGuiSelectableFlags_SpanAllColumns)) {
                     entityManager.updateMask(selectedEntity, masks[selectedEntity].value() | (ComponentType::COMPONENT_TYPE_COUNT << it));
                     std::unordered_map<std::string, std::any> fieldsValues;
@@ -501,7 +510,7 @@ void GUISystem::drawConsole()
     }
     if (ImGui::SmallButton("Clear"))
         this->_consoleBuffer.clear();
-    if (this->_graphic->getStringStream().str().size() > 0) {
+    if (!this->_graphic->getStringStream().str().empty()) {
         this->_consoleBuffer += this->_graphic->getStringStream().str();
         this->_graphic->getStringStream().str("");
     }
@@ -562,11 +571,11 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
     if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("FILE")) {
             std::string file = (char *)payload->Data;
-            if (file.substr(file.find_last_of(".") + 1) == "dae") {
+            if (file.substr(file.find_last_of('.') + 1) == "dae") {
                 std::size_t id = entityManager.getMasks().size();
                 entityManager.addMask(id, ComponentType::MODEL | ComponentType::TRANSFORM);
                 componentManager.addComponent<Transform>(id);
-                componentManager.addComponent<Model>(id, {file.substr(0, file.find_last_of("."))});
+                componentManager.addComponent<Model>(id, {file.substr(0, file.find_last_of('.'))});
             }
             std::cout << "Dropped file: " << file << std::endl;
         }
@@ -606,22 +615,35 @@ void GUISystem::drawFiles()
         ImGui::End();
         return;
     }
+    if (this->_projectPath.empty()) {
+        ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize("No scene loaded").x) / 2);
+        ImGui::SetCursorPosY((ImGui::GetWindowHeight() - ImGui::CalcTextSize("No scene loaded").y) / 2 - 20);
+        ImGui::Text("No project loaded");
+
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 - 20);
+        if (ImGui::Button(" " ICON_FA_PLUS, ImVec2(40, 40))) {
+            this->_showFileBrowser = true;
+        }
+        ImGui::End();
+        return;
+    }
+
     int columns = (int)ImGui::GetContentRegionAvail().x / (50 + 20);
     if (columns < 1)
         columns = 1;
 
-    if (ImGui::Button(ICON_FA_ARROW_LEFT " ..") && this->_fileExplorerPath != this->_fileExplorerRootPath)
-        this->_fileExplorerPath = std::filesystem::path(this->_fileExplorerPath).parent_path().string();
+    if (ImGui::Button(ICON_FA_ARROW_LEFT " ..") && this->_projectPath != this->_projectRootPath)
+        this->_projectPath = std::filesystem::path(this->_projectPath).parent_path().string();
     ImGui::SameLine();
-    ImGui::Text("%s", this->_fileExplorerPath.c_str());
+    ImGui::Text("%s", this->_projectPath.c_str());
 
     ImGui::Columns(columns, nullptr, false);
-    for (auto &file : std::filesystem::directory_iterator(this->_fileExplorerPath)) {
+    for (auto &file : std::filesystem::directory_iterator(this->_projectPath)) {
         ImGui::SetWindowFontScale(2.0f);
         if (file.is_directory()) {
             ImGui::Button((ICON_FA_FOLDER "##" + file.path().string()).c_str(), ImVec2(50, 50));
             if (ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
-                this->_fileExplorerPath = file.path().string();
+                this->_projectPath = file.path().string();
         } else {
             ImGui::Button((ICON_FA_FILE "##" + file.path().string()).c_str(), ImVec2(50, 50));
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
@@ -649,10 +671,50 @@ void GUISystem::drawProfiler()
     ImGui::End();
 }
 
+void GUISystem::drawFileBrowser()
+{
+    ImGuiWindowClass windowClass;
+    windowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingOverOther | ImGuiDockNodeFlags_NoDockingSplitOther;
+    ImGui::SetNextWindowClass(&windowClass);
+    if (!ImGui::Begin("Open Project", &this->_showFileBrowser)) {
+        ImGui::End();
+        return;
+    }
+    if (ImGui::Button(ICON_FA_ARROW_LEFT " .."))
+        this->_fileBrowserPath = std::filesystem::path(this->_fileBrowserPath).parent_path().string();
+    ImGui::SameLine();
+    ImGui::Text("%s", this->_fileBrowserPath.c_str());
+    for (const auto &entry : std::filesystem::directory_iterator(this->_fileBrowserPath)) {
+        const auto &path = entry.path();
+        const auto &filenameStr = path.filename().string();
+        if (entry.is_directory() && filenameStr[0] != '.') {
+            if (ImGui::Selectable(filenameStr.c_str(), false, ImGuiSelectableFlags_DontClosePopups)) {
+                this->_fileBrowserPath = path.string();
+            }
+        }
+    }
+    const float footerReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerReserve), false, ImGuiWindowFlags_HorizontalScrollbar);
+    ImGui::EndChild();
+    ImGui::Separator();
+    if (ImGui::Button("Cancel"))
+        this->_showFileBrowser = false;
+    ImGui::SameLine();
+    ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Open").x - ImGui::GetStyle().ItemSpacing.x * 2, 0));
+    ImGui::SameLine();
+    if (ImGui::Button("Open")) {
+        this->_projectRootPath = this->_fileBrowserPath;
+        this->_projectPath = this->_projectRootPath;
+        glfwSetWindowTitle(this->_graphic->getWindow(), std::string("Lush Engine - " + std::filesystem::path(this->_projectRootPath).filename().string()).c_str());
+        this->_showFileBrowser = false;
+    }
+    ImGui::End();
+}
+
 std::string GUISystem::formatBinary(std::size_t value, std::size_t size)
 {
     std::string binary = std::bitset<64>(value).to_string();
-    std::string result = "";
+    std::string result;
 
     for (std::size_t i = 64 - size; i < 64; i++) {
         result += binary[i];
@@ -674,7 +736,7 @@ std::size_t GUISystem::getScriptInstanceIndex(std::size_t entityId)
     return (std::size_t)-1;
 }
 
-void GUISystem::drawTextureSelect(std::string fieldName, std::string &texture)
+void GUISystem::drawTextureSelect(const std::string &fieldName, std::string &texture)
 {
     std::string selectedItem = texture;
     if (ImGui::BeginCombo(fieldName.c_str(), selectedItem.c_str())) {

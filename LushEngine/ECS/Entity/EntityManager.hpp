@@ -1,5 +1,5 @@
-#ifndef ENTITYMANAGER_HPP
-#define ENTITYMANAGER_HPP
+#ifndef ENTITY_MANAGER_HPP
+#define ENTITY_MANAGER_HPP
 
 #include "ECS/Component/ComponentManager.hpp"
 
@@ -12,7 +12,7 @@ namespace Lush
             std::map<std::size_t, std::vector<std::size_t>> _maskCategory;
 
         public:
-            EntityManager();
+            EntityManager() = default;
             ~EntityManager() = default;
 
             std::vector<std::optional<std::size_t>> &getMasks();
@@ -25,7 +25,9 @@ namespace Lush
             void updateMask(std::size_t id, std::optional<std::size_t> mask);
 
             bool hasMask(std::size_t id, std::size_t mask);
+
+            void clear();
     };
 }
 
-#endif // ENTITYMANAGER_HPP
+#endif // ENTITY_MANAGER_HPP

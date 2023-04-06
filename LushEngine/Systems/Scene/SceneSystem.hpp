@@ -1,5 +1,5 @@
-#ifndef SCENESYSTEM_HPP
-#define SCENESYSTEM_HPP
+#ifndef SCENE_SYSTEM_HPP
+#define SCENE_SYSTEM_HPP
 
 #include <glm/gtc/noise.hpp>
 
@@ -23,13 +23,13 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
             std::shared_ptr<ResourceManager> _resourceManager;
 
-            FrameBuffer _buffer;
-            BufferObject _skybox;
-            BufferObject _billboard;
-            BufferObject _grid;
+            FrameBuffer _buffer{};
+            BufferObject _skybox{};
+            BufferObject _billboard{};
+            BufferObject _grid{};
+            BufferObject _cameraFrustum{};
 
-            BufferObject _cameraFrustum;
-            GLuint _prelinTexture;
+            GLuint _perlinTexture = 0;
 
             Transform _cameraTransform;
             Camera _camera;
@@ -44,10 +44,10 @@ namespace Lush
 
         public:
             SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
-            ~SceneSystem();
+            ~SceneSystem() override;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) override;
     };
 }
 
-#endif // SCENESYSTEM_HPP
+#endif // SCENE_SYSTEM_HPP

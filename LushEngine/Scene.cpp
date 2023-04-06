@@ -44,7 +44,7 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
                 this->_componentManager.addComponent<Transform>(id, temp);
             } else if (name == "Velocity") {
                 mask |= ComponentType::VELOCITY;
-                // attributs
+                // attributes
                 this->_componentManager.addComponent<Velocity>(id);
             } else if (name == "Model") {
                 mask |= ComponentType::MODEL;
@@ -54,14 +54,14 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
             } else if (name == "Camera") {
                 mask |= ComponentType::CAMERA;
                 Camera temp;
-                // attributs
+                // attributes
                 this->_componentManager.addComponent<Camera>(id, temp);
             } else if (name == "Light") {
                 mask |= ComponentType::LIGHT;
                 Light temp;
                 if (componentNode->first_attribute("type"))
                     temp.type = (LightType)std::atoi(componentNode->first_attribute("type")->value());
-                // attributs
+                // attributes
                 this->_componentManager.addComponent<Light>(id, temp);
             } else if (name == "Cubemap") {
                 mask |= ComponentType::CUBEMAP;

@@ -2,34 +2,34 @@
 
 using namespace Lush;
 
-ScriptClass::ScriptClass(MonoDomain *domain, MonoClass *sciptClass, MonoClass *entityClass)
+ScriptClass::ScriptClass(MonoDomain *domain, MonoClass *scriptClass, MonoClass *entityClass)
 {
     try {
-        this->load(domain, sciptClass, entityClass);
+        this->load(domain, scriptClass, entityClass);
         this->loadAttributes();
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
 }
 
-void ScriptClass::load(MonoDomain *domain, MonoClass *sciptClass, MonoClass *entityClass)
+void ScriptClass::load(MonoDomain *domain, MonoClass *scriptClass, MonoClass *entityClass)
 {
     this->_domain = domain;
-    this->_class = sciptClass;
+    this->_class = scriptClass;
 
     this->_methods["ctor"] = mono_class_get_method_from_name(entityClass, ".ctor", 1);
     this->_methods["onInit"] = mono_class_get_method_from_name(this->_class, "onInit", 0);
     this->_methods["onUpdate"] = mono_class_get_method_from_name(this->_class, "onUpdate", 1);
 
-    for (auto it = this->_methods.begin(); it != this->_methods.end(); it++)
-        if (!it->second)
-            throw std::runtime_error("mono_class_get_method_from_name failed for " + it->first);
+    for (auto &[name, method] : this->_methods)
+        if (!method)
+            throw std::runtime_error("mono_class_get_method_from_name failed for " + name);
 }
 
 void ScriptClass::loadAttributes()
 {
     int fieldCount = mono_class_num_fields(this->_class);
-    void *iter = NULL;
+    void *iter = nullptr;
 
     for (int i = 0; i < fieldCount; i++) {
         MonoClassField *field = mono_class_get_fields(this->_class, &iter);
@@ -46,15 +46,15 @@ void ScriptClass::loadAttributes()
     }
 }
 
-void ScriptClass::reload(MonoDomain *domain, MonoClass *sciptClass, MonoClass *entityClass)
+void ScriptClass::reload(MonoDomain *domain, MonoClass *scriptClass, MonoClass *entityClass)
 {
     this->_methods.clear();
     this->_fields.clear();
-    this->load(domain, sciptClass, entityClass);
+    this->load(domain, scriptClass, entityClass);
     this->loadAttributes();
 }
 
-MonoMethod *ScriptClass::getMethod(std::string name)
+MonoMethod *ScriptClass::getMethod(const std::string &name)
 {
     if (this->_methods.find(name) != this->_methods.end())
         return this->_methods[name];

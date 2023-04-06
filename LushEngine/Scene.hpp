@@ -20,6 +20,7 @@ namespace Lush
 
         public:
             Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
+            Scene() = default;
             ~Scene() = default;
 
             void load(File &file, std::unordered_map<std::string, ScriptClass> &scripts);

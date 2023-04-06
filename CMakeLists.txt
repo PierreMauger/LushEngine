@@ -118,7 +118,7 @@ set(SRC
     ${PROJECT_NAME}/Rendering/RenderView.cpp
     ${PROJECT_NAME}/Rendering/Shader.cpp
     ${PROJECT_NAME}/Rendering/Mesh.cpp
-    ${PROJECT_NAME}/Rendering/Map.cpp
+    ${PROJECT_NAME}/Rendering/MapMesh.cpp
     ${PROJECT_NAME}/Rendering/RenderModel.cpp
     ${PROJECT_NAME}/Systems/Camera/CameraSystem.cpp
     ${PROJECT_NAME}/Systems/FileWatcher/FileWatcherSystem.cpp

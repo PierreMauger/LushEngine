@@ -69,13 +69,12 @@ void RenderView::update(Transform transform, Camera camera)
     this->_fov = camera.fov;
     this->_near = camera.near;
     this->_far = camera.far;
-    this->_sensitivity = camera.sensitivity;
 
     this->_view = glm::lookAt(this->_position, this->_position + this->_front, this->_up);
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 }
 
-void RenderView::rotate(Transform &transform, glm::vec2 offset)
+void RenderView::rotate(Transform &transform, glm::vec2 offset) const
 {
     // x is yaw, y is pitch
     transform.rotation.x += offset.x * this->_sensitivity;
@@ -100,7 +99,7 @@ void RenderView::setSkyBoxView()
 
 void RenderView::setDirLights(std::vector<std::pair<Transform, Light>> dirLights)
 {
-    this->_shaders[this->_actShader].setInt("dirLightCount", dirLights.size());
+    this->_shaders[this->_actShader].setInt("dirLightCount", (int)dirLights.size());
 
     for (std::size_t i = 0; i < dirLights.size() && i < 2; i++) {
         this->_shaders[this->_actShader].setVec3("dirLights[" + std::to_string(i) + "].direction", dirLights[i].first.rotation);
@@ -112,7 +111,7 @@ void RenderView::setDirLights(std::vector<std::pair<Transform, Light>> dirLights
 
 void RenderView::setPointLights(std::vector<std::pair<Transform, Light>> pointLights)
 {
-    this->_shaders[this->_actShader].setInt("pointLightCount", pointLights.size());
+    this->_shaders[this->_actShader].setInt("pointLightCount", (int)pointLights.size());
     for (std::size_t i = 0; i < pointLights.size() && i < 4; i++) {
         this->_shaders[this->_actShader].setVec3("pointLights[" + std::to_string(i) + "].position", pointLights[i].first.position);
         this->_shaders[this->_actShader].setVec3("pointLights[" + std::to_string(i) + "].ambient", pointLights[i].second.color);

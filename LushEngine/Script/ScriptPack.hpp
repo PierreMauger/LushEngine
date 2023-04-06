@@ -1,5 +1,5 @@
-#ifndef SCRIPTPACK_HPP
-#define SCRIPTPACK_HPP
+#ifndef SCRIPT_PACK_HPP
+#define SCRIPT_PACK_HPP
 
 #include "File/File.hpp"
 #include "File/Resource.hpp"
@@ -21,24 +21,24 @@ namespace Lush
             std::string _name;
             std::vector<std::string> _linkedPacks;
 
-            MonoDomain *_domain;
-            MonoClass *_entityClass;
+            MonoDomain *_domain = nullptr;
+            MonoClass *_entityClass = nullptr;
             std::unordered_map<std::string, MonoClass *> _classes;
 
         public:
-            ScriptPack(std::vector<File> &files, std::string name, std::unordered_map<std::string, ScriptPack> &corePacks);
+            ScriptPack(std::vector<File> &files, const std::string &name, std::unordered_map<std::string, ScriptPack> &linkedPacks);
             ScriptPack() = default;
             ~ScriptPack() = default;
 
-            void load(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &corePacks);
-            void reload(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &corePacks);
+            void load(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &linkedPacks);
+            void reload(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &linkedPacks);
 
             std::string getName() const;
-            const std::vector<std::string> &getLinkedPacks() const;
+//            const std::vector<std::string> &getLinkedPacks() const;
             MonoDomain *getDomain();
             MonoClass *getEntityClass();
             std::unordered_map<std::string, MonoClass *> &getClasses();
     };
 }
 
-#endif // SCRIPTPACK_HPP
+#endif // SCRIPT_PACK_HPP

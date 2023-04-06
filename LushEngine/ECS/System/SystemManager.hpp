@@ -1,5 +1,5 @@
-#ifndef SYSTEMMANAGER_HPP
-#define SYSTEMMANAGER_HPP
+#ifndef SYSTEM_MANAGER_HPP
+#define SYSTEM_MANAGER_HPP
 
 #include "ECS/System/ASystem.hpp"
 
@@ -11,7 +11,7 @@ namespace Lush
             std::vector<std::unique_ptr<ASystem>> _systems;
 
         public:
-            SystemManager();
+            SystemManager() = default;
             ~SystemManager();
 
             void bindSystem(std::unique_ptr<ASystem> system);
@@ -19,4 +19,4 @@ namespace Lush
     };
 }
 
-#endif // SYSTEMMANAGER_HPP
+#endif // SYSTEM_MANAGER_HPP

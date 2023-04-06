@@ -2,13 +2,14 @@
 
 using namespace Lush;
 
-SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
+SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
+    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
 {
     this->_cameraTransform.position = glm::vec3(10.0f, 5.0f, 15.0f);
     this->_cameraTransform.rotation = glm::vec3(-130.0f, -15.0f, 0.0f);
-    this->_camera.forward.x = cos(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
-    this->_camera.forward.y = sin(glm::radians(this->_cameraTransform.rotation.y));
-    this->_camera.forward.z = sin(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
+    this->_camera.forward.x = (float)(cos(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y)));
+    this->_camera.forward.y = (float)(sin(glm::radians(this->_cameraTransform.rotation.y)));
+    this->_camera.forward.z = (float)(sin(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y)));
     this->_camera.far = 1000.0f;
 
     Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
@@ -76,17 +77,17 @@ void SceneSystem::generatePerlinTexture()
     std::uniform_int_distribution<> dis(1, 10000);
     int seed = dis(gen);
 
-    glGenTextures(1, &this->_prelinTexture);
-    glBindTexture(GL_TEXTURE_2D, this->_prelinTexture);
+    glGenTextures(1, &this->_perlinTexture);
+    glBindTexture(GL_TEXTURE_2D, this->_perlinTexture);
 
     int width = 256;
     int height = 256;
-    unsigned char *data = new unsigned char[width * height * 3];
+    auto *data = new unsigned char[width * height * 3];
 
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            float x = (float)j / width;
-            float y = (float)i / height;
+            float x = (float)j / (float)width;
+            float y = (float)i / (float)height;
             float value = glm::perlin(glm::vec3(x * 10.0f, y * 10.0f, seed));
             int index = (i * width + j) * 3;
             data[index] = (unsigned char)(value * 128.0f + 127);
@@ -118,9 +119,9 @@ void SceneSystem::handleMouse()
         }
         if (this->_graphic->getMouseButton() == 3)
             this->generatePerlinTexture();
-        this->_camera.forward.x = cos(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
-        this->_camera.forward.y = sin(glm::radians(this->_cameraTransform.rotation.y));
-        this->_camera.forward.z = sin(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y));
+        this->_camera.forward.x = (float)(cos(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y)));
+        this->_camera.forward.y = (float)(sin(glm::radians(this->_cameraTransform.rotation.y)));
+        this->_camera.forward.z = (float)(sin(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y)));
     }
 }
 
@@ -171,7 +172,7 @@ void SceneSystem::drawMap(EntityManager &entityManager, ComponentManager &compon
         if (this->_resourceManager->getTextures().find(map.heightMap) != this->_resourceManager->getTextures().end())
             glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.heightMap].getId());
         else
-            glBindTexture(GL_TEXTURE_2D, this->_prelinTexture);
+            glBindTexture(GL_TEXTURE_2D, this->_perlinTexture);
         this->_graphic->getRenderView().getShader().setInt("heightMap", 0);
         glActiveTexture(GL_TEXTURE1);
         if (this->_resourceManager->getTextures().find(map.diffuseTexture) != this->_resourceManager->getTextures().end())
@@ -207,11 +208,11 @@ void SceneSystem::drawSkybox(EntityManager &entityManager, ComponentManager &com
     this->_graphic->getRenderView().use("Skybox");
     this->_graphic->getRenderView().setSkyBoxView();
     for (auto id : entityManager.getMaskCategory(SKYBOX_TAG)) {
-        Cubemap cubemap = componentManager.getComponent<Cubemap>(id);
+        Cubemap cubeMap = componentManager.getComponent<Cubemap>(id);
 
-        if (this->_resourceManager->getSkyboxes().find(cubemap.name) != this->_resourceManager->getSkyboxes().end()) {
+        if (this->_resourceManager->getSkyboxes().find(cubeMap.name) != this->_resourceManager->getSkyboxes().end()) {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyboxes()[cubemap.name].getId());
+            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyboxes()[cubeMap.name].getId());
             this->_graphic->getRenderView().getShader().setInt("skybox", 0);
             glBindVertexArray(this->_skybox.vao);
             glDrawArrays(GL_TRIANGLES, 0, 36);

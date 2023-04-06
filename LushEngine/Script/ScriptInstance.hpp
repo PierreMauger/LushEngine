@@ -1,5 +1,5 @@
-#ifndef SCRIPTINSTANCE_HPP
-#define SCRIPTINSTANCE_HPP
+#ifndef SCRIPT_INSTANCE_HPP
+#define SCRIPT_INSTANCE_HPP
 
 #include "Includes.hpp"
 #include "Script/ScriptClass.hpp"
@@ -21,13 +21,13 @@ namespace Lush
             ScriptInstance(ScriptClass &script, std::size_t id, std::unordered_map<std::string, std::any> &defaultFields);
             ~ScriptInstance() = default;
 
-            ScriptClass &getClass();
+//            ScriptClass &getClass();
             MonoObject *getInstance();
-            std::size_t getId();
-            bool getFieldValueInternal(std::string name, void *value);
-            void setFieldValueInternal(std::string name, void *value);
+            std::size_t getId() const;
+            bool getFieldValueInternal(const std::string &name, void *value);
+            void setFieldValueInternal(const std::string &name, void *value);
 
-            template <typename T> T getFieldValue(std::string name)
+            template <typename T> T getFieldValue(const std::string &name)
             {
                 char value[16];
 
@@ -36,7 +36,7 @@ namespace Lush
                 return *(T *)value;
             }
 
-            template <typename T> void setFieldValue(std::string name, T value)
+            template <typename T> void setFieldValue(const std::string &name, T value)
             {
                 this->setFieldValueInternal(name, &value);
             }
@@ -46,4 +46,4 @@ namespace Lush
     };
 }
 
-#endif // SCRIPTINSTANCE_HPP
+#endif // SCRIPT_INSTANCE_HPP

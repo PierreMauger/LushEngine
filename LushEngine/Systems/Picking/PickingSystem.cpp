@@ -2,7 +2,8 @@
 
 using namespace Lush;
 
-PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
+PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
+    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
 {
     Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
     this->_graphic->getFrameBuffers()["picking"] = this->_buffer;
@@ -96,7 +97,7 @@ void PickingSystem::drawOutline(std::size_t pixel)
     glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()["scene"].framebuffer);
     glEnable(GL_BLEND);
     this->_graphic->getRenderView().use("Outline");
-    this->_graphic->getRenderView().getShader().setInt("id", pixel);
+    this->_graphic->getRenderView().getShader().setInt("id", (int)pixel);
     glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
     glBindVertexArray(this->_plane.vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);

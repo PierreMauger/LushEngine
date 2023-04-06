@@ -2,11 +2,11 @@
 
 using namespace Lush;
 
-GameSystem::GameSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
+GameSystem::GameSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
+    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
 {
     Shapes::setupPlane(this->_screen);
     this->_graphic->setRunning(true);
-
 }
 
 void GameSystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)

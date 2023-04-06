@@ -2,10 +2,6 @@
 
 using namespace Lush;
 
-SystemManager::SystemManager()
-{
-}
-
 SystemManager::~SystemManager()
 {
     for (auto &system : this->_systems)

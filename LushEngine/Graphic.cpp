@@ -9,7 +9,7 @@ Graphic *Graphic::getGraphic()
     return graphic;
 }
 
-Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / sizeY)
+Graphic::Graphic(int sizeX, int sizeY, const std::string &title) : _renderView((float)sizeX / (float)sizeY)
 {
     graphic = this;
     this->setGLFWContext(sizeX, sizeY, title);
@@ -28,12 +28,12 @@ Graphic::Graphic(int sizeX, int sizeY, std::string title) : _renderView(sizeX / 
 
 Graphic::~Graphic()
 {
-    for (std::size_t i = 0; i < this->_cursors.size(); i++)
-        glfwDestroyCursor(this->_cursors[i]);
+    for (auto &cursor : this->_cursors)
+        glfwDestroyCursor(cursor);
     glfwDestroyWindow(this->_window);
 }
 
-void Graphic::setGLFWContext(int sizeX, int sizeY, std::string title)
+void Graphic::setGLFWContext(int sizeX, int sizeY, const std::string &title)
 {
     if (!glfwInit())
         throw std::runtime_error("Failed to initialize GLFW");
@@ -90,11 +90,11 @@ void Graphic::handleKeyboardPress(int key, [[maybe_unused]] int scancode, int ac
 void Graphic::handleResizeFramebuffer(int width, int height)
 {
     this->_windowSize = glm::vec2(width, height);
-    glViewport(0, 0, this->_windowSize.x, this->_windowSize.y);
+    glViewport(0, 0, width, height);
 
     for (auto [name, fb] : this->_frameBuffers) {
         glBindTexture(GL_TEXTURE_2D, fb.texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindRenderbuffer(GL_RENDERBUFFER, fb.depthbuffer);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
@@ -132,7 +132,7 @@ std::unordered_map<std::string, FrameBuffer> &Graphic::getFrameBuffers()
     return this->_frameBuffers;
 }
 
-FrameBuffer &Graphic::getFrameBuffer(std::string name)
+FrameBuffer &Graphic::getFrameBuffer(const std::string &name)
 {
     return this->_frameBuffers[name];
 }
@@ -147,7 +147,7 @@ void Graphic::setWireframe(bool drawWireframe)
     this->_drawWireframe = drawWireframe;
 }
 
-bool Graphic::isWireframe()
+bool Graphic::isWireframe() const
 {
     return this->_drawWireframe;
 }
@@ -157,7 +157,7 @@ void Graphic::setRunning(bool running)
     this->_running = running;
 }
 
-bool Graphic::getRunning()
+bool Graphic::getRunning() const
 {
     return this->_running;
 }
@@ -167,7 +167,7 @@ void Graphic::setPaused(bool paused)
     this->_paused = paused;
 }
 
-bool Graphic::getPaused()
+bool Graphic::getPaused() const
 {
     return this->_paused;
 }
@@ -177,27 +177,27 @@ void Graphic::setHoveredEntity(std::size_t hoveredEntity)
     this->_hoveredEntity = hoveredEntity;
 }
 
-std::size_t Graphic::getHoveredEntity()
-{
-    return this->_hoveredEntity;
-}
+//std::size_t Graphic::getHoveredEntity()
+//{
+//    return this->_hoveredEntity;
+//}
 
 void Graphic::setSelectedEntity(std::size_t selectedEntity)
 {
     this->_selectedEntity = selectedEntity;
 }
 
-std::size_t Graphic::getSelectedEntity()
+std::size_t Graphic::getSelectedEntity() const
 {
     return this->_selectedEntity;
 }
 
-void Graphic::setMouseMovement(bool mouseMovement)
-{
-    this->_mouseMovement = mouseMovement;
-}
+//void Graphic::setMouseMovement(bool mouseMovement)
+//{
+//    this->_mouseMovement = mouseMovement;
+//}
 
-bool Graphic::getMouseMovement()
+bool Graphic::getMouseMovement() const
 {
     return this->_mouseMovement;
 }
@@ -207,7 +207,7 @@ void Graphic::setSceneMovement(bool sceneMovement)
     this->_sceneMovement = sceneMovement;
 }
 
-bool Graphic::getSceneMovement()
+bool Graphic::getSceneMovement() const
 {
     return this->_sceneMovement;
 }
@@ -217,7 +217,7 @@ bool Graphic::getSceneMovement()
 //     this->_mouseButton = button;
 // }
 
-int Graphic::getMouseButton()
+int Graphic::getMouseButton() const
 {
     return this->_mouseButton;
 }
@@ -265,10 +265,10 @@ glm::vec4 Graphic::getSceneViewPort()
     return this->_sceneViewPort;
 }
 
-void Graphic::setWindowSize(glm::vec2 windowSize)
-{
-    this->_windowSize = windowSize;
-}
+//void Graphic::setWindowSize(glm::vec2 windowSize)
+//{
+//    this->_windowSize = windowSize;
+//}
 
 glm::vec2 Graphic::getWindowSize()
 {

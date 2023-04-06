@@ -1,5 +1,5 @@
-#ifndef SCRIPTSYSTEM_HPP
-#define SCRIPTSYSTEM_HPP
+#ifndef SCRIPT_SYSTEM_HPP
+#define SCRIPT_SYSTEM_HPP
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ASystem.hpp"
@@ -20,10 +20,10 @@ namespace Lush
 
         public:
             ScriptSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
-            ~ScriptSystem() = default;
+            ~ScriptSystem() override = default;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) override;
     };
 }
 
-#endif // SCRIPTSYSTEM_HPP
+#endif // SCRIPT_SYSTEM_HPP

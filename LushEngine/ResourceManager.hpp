@@ -1,5 +1,5 @@
-#ifndef RESOURCEMANAGER_HPP
-#define RESOURCEMANAGER_HPP
+#ifndef RESOURCE_MANAGER_HPP
+#define RESOURCE_MANAGER_HPP
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -8,7 +8,7 @@
 #include "File/Resource.hpp"
 #include "Includes.hpp"
 #include "Rendering/CubeMap.hpp"
-#include "Rendering/Map.hpp"
+#include "Rendering/MapMesh.hpp"
 #include "Rendering/RenderModel.hpp"
 #include "Rendering/RenderView.hpp"
 #include "Rendering/Shader.hpp"
@@ -32,20 +32,21 @@ namespace Lush
             std::unordered_map<std::string, ScriptPack> _scriptPacks;
             std::unordered_map<std::string, ScriptClass> _scripts;
             std::vector<ScriptInstance> _instances;
+            std::unordered_map<std::string, Scene> _scenes;
+            std::string _activeScene;
 
-            std::shared_ptr<Scene> _scene;
             std::unique_ptr<MapMesh> _map;
-            MonoDomain *_domain;
+            MonoDomain *_domain = nullptr;
 
             void initScriptDomain();
-            void loadDirectory(const std::filesystem::path &path, std::function<void(std::string)> func, const std::vector<std::string> &extensions);
+            void loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions);
 
-            void loadTextures(std::string dir);
-            void loadModels(std::string dir);
-            void loadShaders(std::string dir);
-            void loadSkyboxes(std::string dir);
-            void loadScriptPacks(std::string dir, std::string name);
-            void loadScenes(std::string dir);
+            void loadTextures(const std::string &dir);
+            void loadModels(const std::string &dir);
+            void loadShaders(const std::string &dir);
+            void loadSkyboxes(const std::string &dir);
+            void loadScriptPacks(const std::string &dir,const std::string &name);
+            void loadScenes(const std::string &dir);
 
         public:
             ResourceManager();
@@ -61,7 +62,9 @@ namespace Lush
             std::unordered_map<std::string, ScriptClass> &getScripts();
             std::vector<ScriptInstance> &getInstances();
 
-            std::shared_ptr<Scene> getScene();
+            std::unordered_map<std::string, Scene> &getScenes();
+            std::string getActiveScene();
+            void setActiveScene(const std::string &name);
             MapMesh &getMap();
 
             static ResourceManager *getResourceManager();
@@ -69,4 +72,4 @@ namespace Lush
     };
 }
 
-#endif // RESOURCEMANAGER_HPP
+#endif // RESOURCE_MANAGER_HPP

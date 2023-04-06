@@ -45,7 +45,8 @@ void RenderModel::load(File &file, std::unordered_map<std::string, Texture> text
 {
     std::string content = file.load();
     Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFileFromMemory(content.c_str(), content.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene *scene =
+        importer.ReadFileFromMemory(content.c_str(), content.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
     if (!scene)
         throw std::runtime_error(std::string("RenderModel loading: ") + importer.GetErrorString());

@@ -1,5 +1,5 @@
-#ifndef GAMESYSTEM_HPP
-#define GAMESYSTEM_HPP
+#ifndef GAME_SYSTEM_HPP
+#define GAME_SYSTEM_HPP
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ASystem.hpp"
@@ -15,17 +15,19 @@ namespace Lush
         private:
             std::shared_ptr<Graphic> _graphic;
             std::shared_ptr<ResourceManager> _resourceManager;
-            BufferObject _screen;
+
+            BufferObject _screen{};
+
             bool _started = false;
 
             void initInstances(EntityManager &entityManager, ComponentManager &componentManager);
 
         public:
             GameSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
-            ~GameSystem() = default;
+            ~GameSystem() override = default;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) override;
     };
 }
 
-#endif // GAMESYSTEM_HPP
+#endif // GAME_SYSTEM_HPP

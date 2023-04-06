@@ -49,7 +49,7 @@ Engine::Engine(bool isEditor)
         this->_ecs.getSystemManager().bindSystem(std::make_unique<GameSystem>(this->_graphic, this->_resourceManager));
     }
 
-    this->_resourceManager->getScene()->setScene(this->_ecs.getEntityManager(), this->_ecs.getComponentManager());
+     this->_resourceManager->getScenes()["scene"].setScene(this->_ecs.getEntityManager(), this->_ecs.getComponentManager());
 }
 
 void Engine::run()
@@ -64,8 +64,8 @@ void Engine::run()
 
         glfwSwapBuffers(this->_graphic->getWindow());
         glfwPollEvents();
-        this->_deltaTime = glfwGetTime() - this->_lastTime;
-        this->_lastTime = glfwGetTime();
+        this->_deltaTime = (float)glfwGetTime() - this->_lastTime;
+        this->_lastTime = (float)glfwGetTime();
     }
 }
 

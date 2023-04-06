@@ -1,5 +1,5 @@
-#ifndef CUBEMAP_HPP
-#define CUBEMAP_HPP
+#ifndef CUBE_MAP_HPP
+#define CUBE_MAP_HPP
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -14,19 +14,19 @@ namespace Lush
     {
         private:
             unsigned int _id = 0;
-            int _width;
-            int _height;
-            int _nrChannels;
+            int _width = 0;
+            int _height = 0;
+            int _nrChannels = 0;
 
         public:
-            CubeMap(std::vector<File> &files);
+            explicit CubeMap(std::vector<File> &files);
             CubeMap() = default;
-            ~CubeMap();
+            ~CubeMap() = default;
 
             void load(std::vector<File> &files);
 
-            unsigned int getId();
+            [[nodiscard]] unsigned int getId() const;
     };
 }
 
-#endif // CUBEMAP_HPP
+#endif // CUBE_MAP_HPP

@@ -1,5 +1,5 @@
-#ifndef CAMERASYSTEM_HPP
-#define CAMERASYSTEM_HPP
+#ifndef CAMERA_SYSTEM_HPP
+#define CAMERA_SYSTEM_HPP
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ASystem.hpp"
@@ -8,7 +8,7 @@
 
 #define CAMERA_TAG (ComponentType::TRANSFORM | ComponentType::CAMERA)
 #define LIGHT_TAG (ComponentType::TRANSFORM | ComponentType::LIGHT)
-#define CONTROL_TAG (ComponentType::TRANSFORM)
+// #define CONTROL_TAG (ComponentType::TRANSFORM)
 
 namespace Lush
 {
@@ -23,11 +23,11 @@ namespace Lush
             // std::vector<std::pair<Transform, Light>> _areaLights;
 
         public:
-            CameraSystem(std::shared_ptr<Graphic> graphic);
-            ~CameraSystem() = default;
+            explicit CameraSystem(std::shared_ptr<Graphic> graphic);
+            ~CameraSystem() override = default;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) override;
     };
 }
 
-#endif // CAMERASYSTEM_HPP
+#endif // CAMERA_SYSTEM_HPP

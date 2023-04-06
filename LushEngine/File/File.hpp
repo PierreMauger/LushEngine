@@ -12,16 +12,16 @@ namespace Lush
             std::filesystem::file_time_type _lastModify;
 
         public:
-            File(const std::string &path);
-            File() {};
+            explicit File(const std::string &path);
+            File() = default;
             ~File() = default;
 
-            std::string getPath() const;
-            std::string getName() const;
-            bool isModified() const;
+            [[nodiscard]] std::string getPath() const;
+            [[nodiscard]] std::string getName() const;
+            [[nodiscard]] bool isModified() const;
             void update();
 
-            std::string load() const;
+            [[nodiscard]] std::string load() const;
     };
 }
 

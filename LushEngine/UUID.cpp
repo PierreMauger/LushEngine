@@ -16,7 +16,7 @@ UUID::UUID()
     this->_id = (((unsigned long long)uuid_high) << 32) | (now << 32) | uuid_low;
 }
 
-std::string UUID::to_string() const
+std::string UUID::toString() const
 {
     std::stringstream ss;
     ss << std::hex << this->_id;

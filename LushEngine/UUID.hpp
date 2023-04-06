@@ -12,7 +12,7 @@ namespace Lush
 
         public:
             UUID();
-            std::string to_string() const;
+            [[nodiscard]] std::string toString() const;
 
             bool operator==(const UUID &other) const;
     };

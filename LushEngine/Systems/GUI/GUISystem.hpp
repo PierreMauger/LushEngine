@@ -1,5 +1,5 @@
-#ifndef GUISYSTEM_HPP
-#define GUISYSTEM_HPP
+#ifndef GUI_SYSTEM_HPP
+#define GUI_SYSTEM_HPP
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ASystem.hpp"
@@ -13,7 +13,7 @@
 #include "ImGui/ImGuizmo.h"
 #include "Includes.hpp"
 
-#define FORMAT_NAME(name) name + std::to_string(std::stoi(name)).length()
+#define FORMAT_NAME(name) (name + std::to_string(std::stoi(name)).length())
 #define BUTTON_COLOR ImVec4(0.26f, 0.59f, 0.98f, 0.40f)
 #define BUTTON_COLOR_SELECTED ImVec4(0.26f, 0.59f, 0.98f, 0.80f)
 
@@ -33,6 +33,7 @@ namespace Lush
             bool _showScene = true;
             bool _showFileExplorer = true;
             bool _showProfiler = true;
+            bool _showFileBrowser = false;
             bool _reloading = false;
             bool _singleFrame = false;
             ImGuizmo::OPERATION _currentOperation = ImGuizmo::OPERATION::TRANSLATE;
@@ -43,8 +44,10 @@ namespace Lush
 
             std::string _consoleBuffer;
 
-            std::string _fileExplorerPath;
-            std::string _fileExplorerRootPath;
+            std::string _fileBrowserPath;
+
+            std::string _projectPath;
+            std::string _projectRootPath;
 
             void setDock();
             void drawMenuBar();
@@ -59,16 +62,17 @@ namespace Lush
             bool drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager);
             void drawFiles();
             void drawProfiler();
+            void drawFileBrowser();
             std::string formatBinary(std::size_t value, std::size_t size);
             std::size_t getScriptInstanceIndex(std::size_t entityId);
-            void drawTextureSelect(std::string fieldName, std::string &texture);
+            void drawTextureSelect(const std::string &fieldName, std::string &texture);
 
         public:
             GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
-            ~GUISystem();
+            ~GUISystem() override;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) override;
     };
 }
 
-#endif // GUISYSTEM_HPP
+#endif // GUI_SYSTEM_HPP

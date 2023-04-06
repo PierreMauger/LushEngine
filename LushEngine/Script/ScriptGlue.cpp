@@ -115,10 +115,7 @@ bool ScriptGlue::IsKeyDown(int key)
 {
     GLFWwindow *window = glfwGetCurrentContext();
 
-    if (window)
-        return glfwGetKey(window, key) == GLFW_PRESS;
-    else
-        return false;
+    return window != nullptr && glfwGetKey(window, key) == GLFW_PRESS;
 }
 
 float ScriptGlue::GetMouseMovementX()

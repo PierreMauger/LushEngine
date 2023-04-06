@@ -2,13 +2,13 @@
 
 using namespace Lush;
 
-ScriptPack::ScriptPack(std::vector<File> &files, std::string name, std::unordered_map<std::string, ScriptPack> &corePacks) : Resource(ResourceType::SCRIPT, files)
+ScriptPack::ScriptPack(std::vector<File> &files, const std::string &name, std::unordered_map<std::string, ScriptPack> &linkedPacks) : Resource(ResourceType::SCRIPT, files)
 {
     this->_name = name;
-    for (auto &[name, corePack] : corePacks)
-        this->_linkedPacks.push_back(name);
+    for (auto &[packName, corePack] : linkedPacks)
+        this->_linkedPacks.push_back(packName);
     try {
-        this->load(files, corePacks);
+        this->load(files, linkedPacks);
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
@@ -67,10 +67,10 @@ std::string ScriptPack::getName() const
     return this->_name;
 }
 
-const std::vector<std::string> &ScriptPack::getLinkedPacks() const
-{
-    return this->_linkedPacks;
-}
+//const std::vector<std::string> &ScriptPack::getLinkedPacks() const
+//{
+//    return this->_linkedPacks;
+//}
 
 MonoDomain *ScriptPack::getDomain()
 {

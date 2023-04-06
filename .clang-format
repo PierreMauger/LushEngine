@@ -6,14 +6,14 @@
   IncludeCategories:
     [{ Regex: "<.*>", Priority: 0 }, { Regex: '".*"', Priority: 1 }],
   IncludeBlocks: Regroup,
-  SortIncludes: true,
+  SortIncludes: CaseSensitive,
   IndentPPDirectives: BeforeHash,
 
   BreakBeforeBraces: Custom,
   BraceWrapping:
     {
       AfterClass: true,
-      AfterControlStatement: false,
+      AfterControlStatement: Never,
       AfterEnum: false,
       AfterFunction: true,
       AfterNamespace: true,

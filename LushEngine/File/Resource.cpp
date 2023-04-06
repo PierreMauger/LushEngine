@@ -9,12 +9,9 @@ std::vector<Resource> &Resource::getResources()
     return resources;
 }
 
-bool Resource::hasFile(File file) const
+bool Resource::hasFile(File &file) const
 {
-    for (auto &f : this->_files)
-        if (f.getPath() == file.getPath())
-            return true;
-    return false;
+    return std::ranges::any_of(this->_files, [&file](const File &f) { return f.getPath() == file.getPath(); });
 }
 
 std::vector<File> &Resource::getFiles()
@@ -24,7 +21,7 @@ std::vector<File> &Resource::getFiles()
 
 std::string Resource::getUUID() const
 {
-    return this->_uuid.to_string();
+    return this->_uuid.toString();
 }
 
 ResourceType Resource::getType() const

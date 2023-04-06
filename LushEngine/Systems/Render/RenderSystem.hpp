@@ -1,5 +1,5 @@
-#ifndef RENDERSYSTEM_HPP
-#define RENDERSYSTEM_HPP
+#ifndef RENDER_SYSTEM_HPP
+#define RENDER_SYSTEM_HPP
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ASystem.hpp"
@@ -21,9 +21,9 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
             std::shared_ptr<ResourceManager> _resourceManager;
 
-            FrameBuffer _buffer;
-            BufferObject _skybox;
-            BufferObject _billboard;
+            FrameBuffer _buffer{};
+            BufferObject _skybox{};
+            BufferObject _billboard{};
 
             void drawModels(EntityManager &entityManager, ComponentManager &componentManager);
             void drawBillboards(EntityManager &entityManager, ComponentManager &componentManager);
@@ -32,10 +32,10 @@ namespace Lush
 
         public:
             RenderSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
-            ~RenderSystem();
+            ~RenderSystem() override;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) override;
     };
 }
 
-#endif // RENDERSYSTEM_HPP
+#endif // RENDER_SYSTEM_HPP

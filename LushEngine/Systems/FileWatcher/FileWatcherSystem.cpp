@@ -3,7 +3,7 @@
 using namespace Lush;
 
 FileWatcherSystem::FileWatcherSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
-    : ASystem(3.0f), _graphic(graphic), _resourceManager(resourceManager)
+    : ASystem(3.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
 {
 }
 

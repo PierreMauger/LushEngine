@@ -19,11 +19,11 @@ namespace Lush
     {
         private:
             UUID _uuid;
-            ResourceType _type;
+            ResourceType _type = ResourceType::UNKNOWN;
             std::vector<File> _files;
 
         public:
-            template <typename... Args> Resource(ResourceType type = ResourceType::UNKNOWN, Args... args)
+            template <typename... Args> explicit Resource(ResourceType type = ResourceType::UNKNOWN, Args... args)
             {
                 this->_type = type;
                 this->_files = {args...};
@@ -34,10 +34,10 @@ namespace Lush
             Resource() = default;
             ~Resource() = default;
 
-            bool hasFile(File file) const;
+            bool hasFile(File &file) const;
             std::vector<File> &getFiles();
-            std::string getUUID() const;
-            ResourceType getType() const;
+            [[nodiscard]] std::string getUUID() const;
+            [[nodiscard]] ResourceType getType() const;
 
             bool operator==(const Resource &other) const;
 

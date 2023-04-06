@@ -1,5 +1,5 @@
-#ifndef SCRIPTCLASS_HPP
-#define SCRIPTCLASS_HPP
+#ifndef SCRIPT_CLASS_HPP
+#define SCRIPT_CLASS_HPP
 
 #include "File/File.hpp"
 #include "File/Resource.hpp"
@@ -23,22 +23,22 @@ namespace Lush
     class ScriptClass
     {
         private:
-            MonoDomain *_domain;
-            MonoClass *_class;
+            MonoDomain *_domain = nullptr;
+            MonoClass *_class = nullptr;
 
             std::unordered_map<std::string, MonoMethod *> _methods;
             std::unordered_map<std::string, FieldInfo> _fields;
 
         public:
-            ScriptClass(MonoDomain *domain, MonoClass *sciptClass, MonoClass *entityClass);
+            ScriptClass(MonoDomain *domain, MonoClass *scriptClass, MonoClass *entityClass);
             ScriptClass() = default;
             ~ScriptClass() = default;
 
-            void load(MonoDomain *domain, MonoClass *sciptClass, MonoClass *entityClass);
+            void load(MonoDomain *domain, MonoClass *scriptClass, MonoClass *entityClass);
             void loadAttributes();
-            void reload(MonoDomain *domain, MonoClass *sciptClass, MonoClass *entityClass);
+            void reload(MonoDomain *domain, MonoClass *scriptClass, MonoClass *entityClass);
 
-            MonoMethod *getMethod(std::string name);
+            MonoMethod *getMethod(const std::string &name);
             std::unordered_map<std::string, FieldInfo> &getFields();
 
             MonoDomain *getDomain();
@@ -46,4 +46,4 @@ namespace Lush
     };
 }
 
-#endif // SCRIPTCLASS_HPP
+#endif // SCRIPT_CLASS_HPP

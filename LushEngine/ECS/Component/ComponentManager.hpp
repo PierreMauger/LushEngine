@@ -1,5 +1,5 @@
-#ifndef COMPONENTMANAGER_HPP
-#define COMPONENTMANAGER_HPP
+#ifndef COMPONENT_MANAGER_HPP
+#define COMPONENT_MANAGER_HPP
 
 #include "ECS/Component/SparseArray.hpp"
 #include "Includes.hpp"
@@ -15,7 +15,7 @@ namespace Lush
             std::unordered_map<std::string, SparseArray> _instanceFields;
 
         public:
-            ComponentManager();
+            ComponentManager() = default;
             ~ComponentManager() = default;
 
             std::map<std::type_index, SparseArray> &getComponentArray();
@@ -34,26 +34,28 @@ namespace Lush
 
             template <typename T> void addComponent(std::size_t id, T value = T())
             {
-                this->_componentArray[std::type_index(typeid(T))].addValue(id, value);
+                std::any temp = value;
+                this->_componentArray[std::type_index(typeid(T))].addValue(id, temp);
             }
 
-            void addEntity(std::size_t id);
+            // void addEntity(std::size_t id);
             void removeSingleComponent(std::size_t id, std::type_index type);
             void removeAllComponents(std::size_t id);
-            void updateComponent(std::size_t id);
 
-            template <typename T> T &getInstanceField(std::string name, std::string fieldName, std::size_t id)
+            // void updateComponent(std::size_t id);
+
+            template <typename T> T &getInstanceField(const std::string &name, const std::string &fieldName, std::size_t id)
             {
-                std::unordered_map<std::string, std::any> &fields = std::any_cast<std::unordered_map<std::string, std::any> &>(this->_instanceFields[name].getValues(id).value());
+                auto &fields = std::any_cast<std::unordered_map<std::string, std::any> &>(this->_instanceFields[name].getValues(id).value());
                 return std::any_cast<T &>(fields[fieldName]);
             }
 
-            std::unordered_map<std::string, std::any> &getInstanceFields(std::string name, std::size_t id);
-            SparseArray &getAllInstanceFields(std::string name);
-            void bindInstanceFields(std::string name);
-            void addInstanceFields(std::string name, std::size_t id, std::any value);
-            void removeInstanceFields(std::string name, std::size_t id);
+            std::unordered_map<std::string, std::any> &getInstanceFields(const std::string &name, std::size_t id);
+            SparseArray &getAllInstanceFields(const std::string &name);
+            void bindInstanceFields(const std::string &name);
+            void addInstanceFields(const std::string &name, std::size_t id, std::any value);
+            void removeInstanceFields(const std::string &name, std::size_t id);
     };
 }
 
-#endif // COMPONENTMANAGER_HPP
+#endif // COMPONENT_MANAGER_HPP

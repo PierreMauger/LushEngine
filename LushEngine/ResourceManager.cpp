@@ -46,7 +46,7 @@ void ResourceManager::initScriptDomain()
     mono_thread_set_main(mono_thread_current());
 }
 
-void ResourceManager::loadDirectory(const std::filesystem::path &path, std::function<void(std::string)> func, const std::vector<std::string> &extensions)
+void ResourceManager::loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions)
 {
     for (const auto &entry : std::filesystem::directory_iterator(path)) {
         if (entry.is_regular_file()) {
@@ -58,25 +58,25 @@ void ResourceManager::loadDirectory(const std::filesystem::path &path, std::func
     }
 }
 
-void ResourceManager::loadTextures(std::string dir)
+void ResourceManager::loadTextures(const std::string &dir)
 {
-    this->loadDirectory(dir, [this](std::string path) {
+    this->loadDirectory(dir, [this](const std::string &path) {
         this->_files[path] = File(path);
         this->_textures[std::filesystem::path(path).filename()] = Texture(this->_files[path]);
     }, {".png", ".jpg", ".jpeg"});
 }
 
-void ResourceManager::loadModels(std::string dir)
+void ResourceManager::loadModels(const std::string &dir)
 {
-    this->loadDirectory(dir, [this](std::string path) {
+    this->loadDirectory(dir, [this](const std::string &path) {
         this->_files[path] = File(path);
         this->_models[this->_files[path].getName()] = RenderModel(this->_files[path], this->_textures);
     }, {".dae"});
 }
 
-void ResourceManager::loadShaders(std::string dir)
+void ResourceManager::loadShaders(const std::string &dir)
 {
-    this->loadDirectory(dir, [this](std::string path) {
+    this->loadDirectory(dir, [this](const std::string &path) {
         this->_files[path] = File(path);
     }, {".vs", ".fs", ".tcs", ".tes", ".gs", ".cs"});
 
@@ -93,9 +93,9 @@ void ResourceManager::loadShaders(std::string dir)
     this->_shaders["Game"] = Shader(this->_files["Resources/Shaders/outline.vs"], this->_files["Resources/Shaders/billboard.fs"]);
 }
 
-void ResourceManager::loadSkyboxes(std::string dir)
+void ResourceManager::loadSkyboxes(const std::string &dir)
 {
-    this->loadDirectory(dir, [this](std::string path) {
+    this->loadDirectory(dir, [this](const std::string &path) {
         this->_files[path] = File(path);
     }, {".jpg"});
 
@@ -104,9 +104,9 @@ void ResourceManager::loadSkyboxes(std::string dir)
     this->_skyboxes["Sky"] = CubeMap(files);
 }
 
-void ResourceManager::loadScriptPacks(std::string dir, std::string packName)
+void ResourceManager::loadScriptPacks(const std::string &dir, const std::string &packName)
 {
-    this->loadDirectory(dir, [this](std::string path) {
+    this->loadDirectory(dir, [this](const std::string &path) {
         this->_files[path] = File(path);
     }, {".cs"});
 
@@ -121,11 +121,11 @@ void ResourceManager::loadScriptPacks(std::string dir, std::string packName)
         this->_scripts[name] = ScriptClass(this->_scriptPacks[packName].getDomain(), klass, this->_scriptPacks[packName].getEntityClass());
 }
 
-void ResourceManager::loadScenes(std::string dir)
+void ResourceManager::loadScenes(const std::string &dir)
 {
-    this->loadDirectory(dir, [this](std::string path) {
+    this->loadDirectory(dir, [this](const std::string &path) {
         this->_files[path] = File(path);
-        this->_scene = std::make_shared<Scene>(this->_files[path], this->_scripts);
+        this->_scenes[this->_files[path].getName()] = Scene(this->_files[path], this->_scripts);
     }, {".xml"});
 }
 
@@ -169,9 +169,19 @@ std::vector<ScriptInstance> &ResourceManager::getInstances()
     return this->_instances;
 }
 
-std::shared_ptr<Scene> ResourceManager::getScene()
+std::unordered_map<std::string, Scene> &ResourceManager::getScenes()
 {
-    return this->_scene;
+    return this->_scenes;
+}
+
+std::string ResourceManager::getActiveScene()
+{
+    return this->_activeScene;
+}
+
+void ResourceManager::setActiveScene(const std::string &name)
+{
+    this->_activeScene = name;
 }
 
 MapMesh &ResourceManager::getMap()

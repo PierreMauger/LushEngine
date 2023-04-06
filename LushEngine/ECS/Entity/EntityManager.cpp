@@ -2,10 +2,6 @@
 
 using namespace Lush;
 
-EntityManager::EntityManager()
-{
-}
-
 std::vector<std::optional<std::size_t>> &EntityManager::getMasks()
 {
     return this->_masks;
@@ -60,4 +56,9 @@ bool EntityManager::hasMask(std::size_t id, std::size_t mask)
     if (id >= this->_masks.size())
         return false;
     return this->_masks[id].has_value() && (this->_masks[id].value() & mask) == mask;
+}
+
+void EntityManager::clear()
+{
+    this->_masks.clear();
 }

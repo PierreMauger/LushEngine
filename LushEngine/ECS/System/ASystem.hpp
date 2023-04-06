@@ -1,5 +1,5 @@
-#ifndef ASYSTEM_HPP
-#define ASYSTEM_HPP
+#ifndef A_SYSTEM_HPP
+#define A_SYSTEM_HPP
 
 #include "ECS/Component/ComponentManager.hpp"
 #include "ECS/Entity/EntityManager.hpp"
@@ -14,13 +14,13 @@ namespace Lush
             float _updateInterval = 0.0f;
 
         public:
-            ASystem(float updateFrequency);
+            explicit ASystem(float updateFrequency);
             virtual ~ASystem() = default;
             virtual void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) = 0;
 
             bool shouldUpdate(float deltaTime);
-            float getDeltaTime() const;
+            [[nodiscard]] float getDeltaTime() const;
     };
 }
 
-#endif // ASYSTEM_HPP
+#endif // A_SYSTEM_HPP

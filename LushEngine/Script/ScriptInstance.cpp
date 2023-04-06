@@ -18,22 +18,22 @@ ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id, std::unorder
     this->_defaultFields = defaultFields;
 }
 
-ScriptClass &ScriptInstance::getClass()
-{
-    return this->_class;
-}
+//ScriptClass &ScriptInstance::getClass()
+//{
+//    return this->_class;
+//}
 
 MonoObject *ScriptInstance::getInstance()
 {
     return this->_instance;
 }
 
-std::size_t ScriptInstance::getId()
+std::size_t ScriptInstance::getId() const
 {
     return this->_id;
 }
 
-bool ScriptInstance::getFieldValueInternal(std::string name, void *value)
+bool ScriptInstance::getFieldValueInternal(const std::string &name, void *value)
 {
     if (this->_class.getFields().find(name) == this->_class.getFields().end())
         return false;
@@ -45,7 +45,7 @@ bool ScriptInstance::getFieldValueInternal(std::string name, void *value)
         MonoObject *obj;
         mono_field_get_value(this->_instance, field.field, &obj);
         MonoClassField *idField = mono_class_get_field_from_name(klass, "id");
-        unsigned long *idPtr = (unsigned long *)mono_object_unbox(mono_field_get_value_object(mono_domain_get(), idField, obj));
+        auto *idPtr = (unsigned long *)mono_object_unbox(mono_field_get_value_object(mono_domain_get(), idField, obj));
         *((unsigned long *)value) = *idPtr;
         return true;
     }
@@ -53,7 +53,7 @@ bool ScriptInstance::getFieldValueInternal(std::string name, void *value)
     return true;
 }
 
-void ScriptInstance::setFieldValueInternal(std::string name, void *value)
+void ScriptInstance::setFieldValueInternal(const std::string& name, void *value)
 {
     FieldInfo field = this->_class.getFields()[name];
     if (field.type == "Entity") {

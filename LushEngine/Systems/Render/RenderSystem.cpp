@@ -1,8 +1,10 @@
 #include "Systems/Render/RenderSystem.hpp"
+#include <utility>
 
 using namespace Lush;
 
-RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
+RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
+    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
 {
     Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
     this->_graphic->getFrameBuffers()["render"] = this->_buffer;
@@ -119,11 +121,11 @@ void RenderSystem::drawSkybox(EntityManager &entityManager, ComponentManager &co
     this->_graphic->getRenderView().use("Skybox");
     this->_graphic->getRenderView().setSkyBoxView();
     for (auto id : entityManager.getMaskCategory(SKYBOX_TAG)) {
-        Cubemap cubemap = componentManager.getComponent<Cubemap>(id);
+        Cubemap cubeMap = componentManager.getComponent<Cubemap>(id);
 
-        if (this->_resourceManager->getSkyboxes().find(cubemap.name) != this->_resourceManager->getSkyboxes().end()) {
+        if (this->_resourceManager->getSkyboxes().find(cubeMap.name) != this->_resourceManager->getSkyboxes().end()) {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyboxes()[cubemap.name].getId());
+            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyboxes()[cubeMap.name].getId());
             this->_graphic->getRenderView().getShader().setInt("skybox", 0);
             glBindVertexArray(this->_skybox.vao);
             glDrawArrays(GL_TRIANGLES, 0, 36);

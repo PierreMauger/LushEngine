@@ -1,4 +1,4 @@
-#include "Rendering/Map.hpp"
+#include "Rendering/MapMesh.hpp"
 
 using namespace Lush;
 
@@ -44,7 +44,7 @@ MapMesh::MapMesh()
     glBindBuffer(GL_ARRAY_BUFFER, this->_map.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
 
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(sizeof(float) * 3));
@@ -53,7 +53,7 @@ MapMesh::MapMesh()
     glPatchParameteri(GL_PATCH_VERTICES, 4);
 }
 
-void MapMesh::draw()
+void MapMesh::draw() const
 {
     glBindVertexArray(this->_map.vao);
     glDrawArrays(GL_PATCHES, 0, this->_rez * this->_rez * 4);

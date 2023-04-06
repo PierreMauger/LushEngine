@@ -1,5 +1,5 @@
-#ifndef PICKINGSYSTEM_HPP
-#define PICKINGSYSTEM_HPP
+#ifndef PICKING_SYSTEM_HPP
+#define PICKING_SYSTEM_HPP
 
 #include "ComponentTypes.hpp"
 #include "ECS/System/ASystem.hpp"
@@ -19,9 +19,9 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
             std::shared_ptr<ResourceManager> _resourceManager;
 
-            FrameBuffer _buffer;
-            BufferObject _billboard;
-            BufferObject _plane;
+            FrameBuffer _buffer{};
+            BufferObject _billboard{};
+            BufferObject _plane{};
 
             void drawModels(EntityManager &entityManager, ComponentManager &componentManager);
             void drawBillboards(EntityManager &entityManager, ComponentManager &componentManager);
@@ -29,10 +29,10 @@ namespace Lush
 
         public:
             PickingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
-            ~PickingSystem();
+            ~PickingSystem() override;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime);
+            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) override;
     };
 }
 
-#endif // PICKINGSYSTEM_HPP
+#endif // PICKING_SYSTEM_HPP
