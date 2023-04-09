@@ -55,7 +55,8 @@ SparseArray &ComponentManager::getAllInstanceFields(const std::string &name)
 
 void ComponentManager::bindInstanceFields(const std::string &name)
 {
-    this->_instanceFields.try_emplace(name, SparseArray());
+    if (this->_instanceFields.find(name) == this->_instanceFields.end())
+        this->_instanceFields[name] = SparseArray();
 }
 
 void ComponentManager::addInstanceFields(const std::string &name, std::size_t id, std::any value)

@@ -4,14 +4,14 @@
 #include "ComponentTypes.hpp"
 #include "ECS/System/ASystem.hpp"
 #include "Graphic.hpp"
-#include "ResourceManager.hpp"
 #include "ImGui/IconsFontAwesome5.h"
+#include "ImGui/ImGuizmo.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
 #include "ImGui/imgui_internal.h"
-#include "ImGui/ImGuizmo.h"
 #include "Includes.hpp"
+#include "ResourceManager.hpp"
 
 #define FORMAT_NAME(name) (name + std::to_string(std::stoi(name)).length())
 #define BUTTON_COLOR ImVec4(0.26f, 0.59f, 0.98f, 0.40f)
@@ -49,7 +49,7 @@ namespace Lush
             std::string _projectPath;
             std::string _projectRootPath;
 
-            void setDock();
+            static void setDock();
             void drawMenuBar();
             void drawActionBar(EntityManager &entityManager, ComponentManager &componentManager);
 
@@ -63,9 +63,10 @@ namespace Lush
             void drawFiles();
             void drawProfiler();
             void drawFileBrowser();
-            std::string formatBinary(std::size_t value, std::size_t size);
             std::size_t getScriptInstanceIndex(std::size_t entityId);
             void drawTextureSelect(const std::string &fieldName, std::string &texture);
+
+            static std::string formatBinary(std::size_t value, std::size_t size);
 
         public:
             GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);

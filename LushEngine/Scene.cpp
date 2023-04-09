@@ -83,7 +83,7 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
                 temp.diffuseTexture3 = componentNode->first_attribute("diffuseTexture3")->value();
                 this->_componentManager.addComponent<Map>(id, temp);
             }
-            std::size_t it = 0;
+            std::size_t it = scripts.size() - 1;
             for (auto &[scriptName, script] : scripts) {
                 if (scriptName == name) {
                     mask |= ComponentType::COMPONENT_TYPE_COUNT << it;
@@ -105,7 +105,7 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
                     }
                     this->_componentManager.addInstanceFields(scriptName, id, fieldsValues);
                 }
-                it++;
+                it--;
             }
         }
         this->_entityManager.updateMask(id, mask);

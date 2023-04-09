@@ -49,7 +49,7 @@ Engine::Engine(bool isEditor)
         this->_ecs.getSystemManager().bindSystem(std::make_unique<GameSystem>(this->_graphic, this->_resourceManager));
     }
 
-     this->_resourceManager->getScenes()["scene"].setScene(this->_ecs.getEntityManager(), this->_ecs.getComponentManager());
+//     this->_resourceManager->getScenes()["scene"].setScene(this->_ecs.getEntityManager(), this->_ecs.getComponentManager());
 }
 
 void Engine::run()

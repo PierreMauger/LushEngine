@@ -27,7 +27,6 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceM
     ImGuizmo::AllowAxisFlip(false);
 
     this->_fileBrowserPath = std::filesystem::current_path().string();
-    // this->_fileExplorerRootPath = std::filesystem::current_path().string();
 }
 
 GUISystem::~GUISystem()
@@ -49,7 +48,7 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    this->setDock();
+    setDock();
     this->drawMenuBar();
     this->drawActionBar(entityManager, componentManager);
 
@@ -157,11 +156,11 @@ void GUISystem::drawActionBar(EntityManager &entityManager, ComponentManager &co
                 if (this->_graphic->getRunning()) {
                     this->_entityManagerCopy = entityManager;
                     this->_componentManagerCopy = componentManager;
-                    std::size_t it = 0;
+                    std::size_t it = this->_resourceManager->getScripts().size() - 1;
                     for (auto &[name, script] : this->_resourceManager->getScripts()) {
                         for (auto id : entityManager.getMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << it))
                             this->_resourceManager->getInstances().emplace_back(script, id, componentManager.getInstanceFields(name, id));
-                        it++;
+                        it--;
                     }
                     for (auto &instance : this->_resourceManager->getInstances())
                         instance.init();
@@ -218,7 +217,7 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager, ComponentManage
             ImGui::Text("%lu", i);
             ImGui::TableNextColumn();
             masks[i].has_value()
-                ? ImGui::Text("%s", this->formatBinary(masks[i].value(), componentManager.getComponentArray().size() + this->_resourceManager->getScripts().size()).c_str())
+                ? ImGui::Text("%s", formatBinary(masks[i].value(), componentManager.getComponentArray().size() + this->_resourceManager->getScripts().size()).c_str())
                 : ImGui::Text("None");
             ImGui::TableNextColumn();
             if (masks[i].has_value()) {
@@ -326,7 +325,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     Cubemap &cubeMap = componentManager.getComponent<Cubemap>(selectedEntity);
                     std::string selectedItem = cubeMap.name;
                     if (ImGui::BeginCombo("Select Item##Cubemap", selectedItem.c_str())) {
-                        for (auto &[key, value] : this->_resourceManager->getSkyboxes()) {
+                        for (auto &[key, value] : this->_resourceManager->getSkyBoxes()) {
                             bool is_selected = (selectedItem == key);
                             if (ImGui::Selectable(key.c_str(), is_selected))
                                 cubeMap.name = key;
@@ -363,7 +362,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
             ImGui::Separator();
         }
     }
-    std::size_t it = 0;
+    std::size_t it = this->_resourceManager->getScripts().size() - 1;
     for (auto &[name, script] : this->_resourceManager->getScripts()) {
         if (masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it))
             if (ImGui::CollapsingHeader((ICON_FA_FILE_CODE " " + name).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -398,7 +397,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     componentManager.removeInstanceFields(name, selectedEntity);
                 }
             }
-        it++;
+        it--;
     }
     const float footerReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerReserve), false, ImGuiWindowFlags_HorizontalScrollbar);
@@ -447,7 +446,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 ImGui::PopID();
             }
         }
-        it = 0;
+        it = this->_resourceManager->getScripts().size() - 1;
         for (auto &[name, script] : this->_resourceManager->getScripts()) {
             if (!(masks[selectedEntity].value() & (ComponentType::COMPONENT_TYPE_COUNT << it))) {
                 ImGui::PushID(8 + (int)it);
@@ -468,7 +467,7 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                 ImGui::Text("%s", name.c_str());
                 ImGui::PopID();
             }
-            it++;
+            it--;
         }
     }
     ImGui::End();
@@ -621,7 +620,7 @@ void GUISystem::drawFiles()
         ImGui::Text("No project loaded");
 
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 - 20);
-        if (ImGui::Button(" " ICON_FA_PLUS, ImVec2(40, 40))) {
+        if (ImGui::Button(ICON_FA_PLUS, ImVec2(40, 40))) {
             this->_showFileBrowser = true;
         }
         ImGui::End();
@@ -707,6 +706,8 @@ void GUISystem::drawFileBrowser()
         this->_projectPath = this->_projectRootPath;
         glfwSetWindowTitle(this->_graphic->getWindow(), std::string("Lush Engine - " + std::filesystem::path(this->_projectRootPath).filename().string()).c_str());
         this->_showFileBrowser = false;
+        // Open project
+        this->_resourceManager->loadProject(this->_projectRootPath);
     }
     ImGui::End();
 }

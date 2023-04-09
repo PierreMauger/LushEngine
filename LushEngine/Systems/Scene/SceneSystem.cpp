@@ -198,7 +198,7 @@ void SceneSystem::drawMap(EntityManager &entityManager, ComponentManager &compon
         else
             glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("diffuseTexture3", 4);
-        this->_resourceManager->getMap().draw();
+        this->_resourceManager->getMapMesh().draw();
     }
 }
 
@@ -210,9 +210,9 @@ void SceneSystem::drawSkybox(EntityManager &entityManager, ComponentManager &com
     for (auto id : entityManager.getMaskCategory(SKYBOX_TAG)) {
         Cubemap cubeMap = componentManager.getComponent<Cubemap>(id);
 
-        if (this->_resourceManager->getSkyboxes().find(cubeMap.name) != this->_resourceManager->getSkyboxes().end()) {
+        if (this->_resourceManager->getSkyBoxes().find(cubeMap.name) != this->_resourceManager->getSkyBoxes().end()) {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyboxes()[cubeMap.name].getId());
+            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyBoxes()[cubeMap.name].getId());
             this->_graphic->getRenderView().getShader().setInt("skybox", 0);
             glBindVertexArray(this->_skybox.vao);
             glDrawArrays(GL_TRIANGLES, 0, 36);

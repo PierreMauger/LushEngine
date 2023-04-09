@@ -21,19 +21,28 @@ ResourceManager::ResourceManager()
     this->loadTextures("Resources/Textures");
     this->loadModels("Resources/Models");
     this->loadShaders("Resources/Shaders");
-    this->loadSkyboxes("Resources/Skybox");
+    this->loadSkyBoxes("Resources/Skybox");
     this->loadScriptPacks("Resources/CoreScripts", "Core");
     this->loadScriptPacks("Resources/Scripts", "Native");
     // this->loadScriptPacks("Resources/Game", "Game");
-
     this->loadScenes("Resources/Scenes");
 
-    this->_map = std::make_unique<MapMesh>();
+    this->_mapMesh = std::make_unique<MapMesh>();
 }
 
 ResourceManager::~ResourceManager()
 {
     mono_jit_cleanup(this->_domain);
+}
+
+void ResourceManager::loadProject(const std::string &dir)
+{
+    this->loadTextures(dir + "/Textures");
+    this->loadModels(dir + "/Models");
+//    this->loadShaders(dir + "/Shaders");
+//    this->loadSkyBoxes(dir + "/Skybox");
+    this->loadScriptPacks(dir + "/Scripts", std::filesystem::path(dir).filename());
+    this->loadScenes(dir + "/Scenes");
 }
 
 void ResourceManager::initScriptDomain()
@@ -48,6 +57,8 @@ void ResourceManager::initScriptDomain()
 
 void ResourceManager::loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions)
 {
+    if (!std::filesystem::exists(path))
+        return;
     for (const auto &entry : std::filesystem::directory_iterator(path)) {
         if (entry.is_regular_file()) {
             if (std::find(extensions.begin(), extensions.end(), entry.path().extension().string()) != extensions.end())
@@ -93,7 +104,7 @@ void ResourceManager::loadShaders(const std::string &dir)
     this->_shaders["Game"] = Shader(this->_files["Resources/Shaders/outline.vs"], this->_files["Resources/Shaders/billboard.fs"]);
 }
 
-void ResourceManager::loadSkyboxes(const std::string &dir)
+void ResourceManager::loadSkyBoxes(const std::string &dir)
 {
     this->loadDirectory(dir, [this](const std::string &path) {
         this->_files[path] = File(path);
@@ -101,7 +112,7 @@ void ResourceManager::loadSkyboxes(const std::string &dir)
 
     std::vector<File> files = {this->_files[dir + "/right.jpg"],  this->_files[dir + "/left.jpg"],  this->_files[dir + "/top.jpg"],
                                this->_files[dir + "/bottom.jpg"], this->_files[dir + "/front.jpg"], this->_files[dir + "/back.jpg"]};
-    this->_skyboxes["Sky"] = CubeMap(files);
+    this->_skyBoxes["Sky"] = CubeMap(files);
 }
 
 void ResourceManager::loadScriptPacks(const std::string &dir, const std::string &packName)
@@ -117,8 +128,11 @@ void ResourceManager::loadScriptPacks(const std::string &dir, const std::string 
     this->_scriptPacks[packName] = ScriptPack(tempFiles, packName, this->_scriptPacks);
     if (packName == "Core")
         return;
-    for (auto &[name, klass] : this->_scriptPacks[packName].getClasses())
+    for (auto &[name, klass] : this->_scriptPacks[packName].getClasses()) {
         this->_scripts[name] = ScriptClass(this->_scriptPacks[packName].getDomain(), klass, this->_scriptPacks[packName].getEntityClass());
+        ECS::getECS()->getComponentManager().bindInstanceFields(name);
+        ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
+    }
 }
 
 void ResourceManager::loadScenes(const std::string &dir)
@@ -149,9 +163,9 @@ std::unordered_map<std::string, RenderModel> &ResourceManager::getModels()
     return this->_models;
 }
 
-std::unordered_map<std::string, CubeMap> &ResourceManager::getSkyboxes()
+std::unordered_map<std::string, CubeMap> &ResourceManager::getSkyBoxes()
 {
-    return this->_skyboxes;
+    return this->_skyBoxes;
 }
 
 std::unordered_map<std::string, ScriptPack> &ResourceManager::getScriptPacks()
@@ -174,7 +188,7 @@ std::unordered_map<std::string, Scene> &ResourceManager::getScenes()
     return this->_scenes;
 }
 
-std::string ResourceManager::getActiveScene()
+std::string ResourceManager::getActiveScene() const
 {
     return this->_activeScene;
 }
@@ -184,7 +198,7 @@ void ResourceManager::setActiveScene(const std::string &name)
     this->_activeScene = name;
 }
 
-MapMesh &ResourceManager::getMap()
+MapMesh &ResourceManager::getMapMesh()
 {
-    return *this->_map;
+    return *this->_mapMesh;
 }

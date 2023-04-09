@@ -29,11 +29,11 @@ void GameSystem::update(EntityManager &entityManager, ComponentManager &componen
 
 void GameSystem::initInstances(EntityManager &entityManager, ComponentManager &componentManager)
 {
-    std::size_t it = 0;
+    std::size_t it = this->_resourceManager->getScripts().size() - 1;
     for (auto &[name, script] : this->_resourceManager->getScripts()) {
         for (auto id : entityManager.getMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << it))
-            this->_resourceManager->getInstances().push_back(ScriptInstance(script, id, componentManager.getInstanceFields(name, id)));
-        it++;
+            this->_resourceManager->getInstances().emplace_back(script, id, componentManager.getInstanceFields(name, id));
+        it--;
     }
     for (auto &instance : this->_resourceManager->getInstances())
         instance.init();

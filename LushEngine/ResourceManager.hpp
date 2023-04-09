@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "ECS.hpp"
 #include "File/File.hpp"
 #include "File/Resource.hpp"
 #include "Includes.hpp"
@@ -28,14 +29,14 @@ namespace Lush
             std::unordered_map<std::string, Shader> _shaders;
             std::unordered_map<std::string, Texture> _textures;
             std::unordered_map<std::string, RenderModel> _models;
-            std::unordered_map<std::string, CubeMap> _skyboxes;
+            std::unordered_map<std::string, CubeMap> _skyBoxes;
             std::unordered_map<std::string, ScriptPack> _scriptPacks;
             std::unordered_map<std::string, ScriptClass> _scripts;
             std::vector<ScriptInstance> _instances;
             std::unordered_map<std::string, Scene> _scenes;
             std::string _activeScene;
 
-            std::unique_ptr<MapMesh> _map;
+            std::unique_ptr<MapMesh> _mapMesh;
             MonoDomain *_domain = nullptr;
 
             void initScriptDomain();
@@ -44,31 +45,31 @@ namespace Lush
             void loadTextures(const std::string &dir);
             void loadModels(const std::string &dir);
             void loadShaders(const std::string &dir);
-            void loadSkyboxes(const std::string &dir);
-            void loadScriptPacks(const std::string &dir,const std::string &name);
+            void loadSkyBoxes(const std::string &dir);
+            void loadScriptPacks(const std::string &dir, const std::string &name);
             void loadScenes(const std::string &dir);
 
         public:
             ResourceManager();
             ~ResourceManager();
 
+            void loadProject(const std::string &dir);
             std::unordered_map<std::string, File> &getFiles();
 
             std::unordered_map<std::string, Shader> &getShaders();
             std::unordered_map<std::string, Texture> &getTextures();
             std::unordered_map<std::string, RenderModel> &getModels();
-            std::unordered_map<std::string, CubeMap> &getSkyboxes();
+            std::unordered_map<std::string, CubeMap> &getSkyBoxes();
             std::unordered_map<std::string, ScriptPack> &getScriptPacks();
             std::unordered_map<std::string, ScriptClass> &getScripts();
             std::vector<ScriptInstance> &getInstances();
 
             std::unordered_map<std::string, Scene> &getScenes();
-            std::string getActiveScene();
+            std::string getActiveScene() const;
             void setActiveScene(const std::string &name);
-            MapMesh &getMap();
+            MapMesh &getMapMesh();
 
             static ResourceManager *getResourceManager();
-
     };
 }
 
