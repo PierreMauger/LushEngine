@@ -61,4 +61,6 @@ bool EntityManager::hasMask(std::size_t id, std::size_t mask)
 void EntityManager::clear()
 {
     this->_masks.clear();
+    for (auto &[id, category] : this->_maskCategory)
+        category.clear();
 }

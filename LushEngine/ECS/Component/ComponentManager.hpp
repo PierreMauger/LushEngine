@@ -55,6 +55,8 @@ namespace Lush
             void bindInstanceFields(const std::string &name);
             void addInstanceFields(const std::string &name, std::size_t id, std::any value);
             void removeInstanceFields(const std::string &name, std::size_t id);
+
+            ComponentManager &operator=(const ComponentManager &other);
     };
 }
 

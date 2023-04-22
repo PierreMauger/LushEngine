@@ -66,6 +66,8 @@ namespace Lush
             std::size_t getScriptInstanceIndex(std::size_t entityId);
             void drawTextureSelect(const std::string &fieldName, std::string &texture);
 
+            void build();
+
             static std::string formatBinary(std::size_t value, std::size_t size);
 
         public:

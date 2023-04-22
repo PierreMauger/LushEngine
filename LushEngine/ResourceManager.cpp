@@ -37,12 +37,12 @@ ResourceManager::~ResourceManager()
 
 void ResourceManager::loadProject(const std::string &dir)
 {
-    this->loadTextures(dir + "/Textures");
-    this->loadModels(dir + "/Models");
-//    this->loadShaders(dir + "/Shaders");
-//    this->loadSkyBoxes(dir + "/Skybox");
-    this->loadScriptPacks(dir + "/Scripts", std::filesystem::path(dir).filename());
-    this->loadScenes(dir + "/Scenes");
+    this->loadTextures(dir + "/Resources/Textures");
+    this->loadModels(dir + "/Resources/Models");
+//    this->loadShaders(dir + "/Resources/Shaders");
+//    this->loadSkyBoxes(dir + "/Resources/Skybox");
+    this->loadScriptPacks(dir + "/Resources/Scripts", std::filesystem::path(dir).filename());
+    this->loadScenes(dir + "/Resources/Scenes");
 }
 
 void ResourceManager::initScriptDomain()

@@ -117,6 +117,7 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
 void Scene::setScene(EntityManager &entityManager, ComponentManager &componentManager)
 {
     // can't use copy constructor because of mask category
+    entityManager.clear();
     for (std::size_t i = 0; i < this->_entityManager.getMasks().size(); i++)
         if (this->_entityManager.getMasks()[i].has_value())
             entityManager.addMask(i, this->_entityManager.getMasks()[i].value());

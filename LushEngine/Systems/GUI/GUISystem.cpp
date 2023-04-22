@@ -114,6 +114,8 @@ void GUISystem::drawMenuBar()
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Open..."))
                 this->_showFileBrowser = true;
+            if (ImGui::MenuItem("Build"))
+                this->build();
             if (ImGui::MenuItem("Exit"))
                 glfwSetWindowShouldClose(this->_graphic->getWindow(), true);
             ImGui::EndMenu();
@@ -752,4 +754,15 @@ void GUISystem::drawTextureSelect(const std::string &fieldName, std::string &tex
             texture = "None";
         ImGui::EndCombo();
     }
+}
+
+void GUISystem::build()
+{
+    if (this->_projectPath.empty()) {
+        std::cout << "No project opened" << std::endl;
+        return;
+    }
+    std::filesystem::copy_file("lush", std::filesystem::path(this->_projectRootPath) / (std::filesystem::path(this->_projectRootPath).filename().string()),
+                               std::filesystem::copy_options::overwrite_existing);
+    std::filesystem::copy("Resources", std::filesystem::path(this->_projectRootPath) / "Resources", std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
 }

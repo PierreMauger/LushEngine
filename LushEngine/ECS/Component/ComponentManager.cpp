@@ -68,3 +68,11 @@ void ComponentManager::removeInstanceFields(const std::string &name, std::size_t
 {
     this->_instanceFields[name].removeValue(id);
 }
+
+ComponentManager &ComponentManager::operator=(const ComponentManager &other)
+{
+    this->_componentArray = other._componentArray;
+    this->_orderedMap = other._orderedMap;
+    this->_instanceFields = other._instanceFields;
+    return *this;
+}
