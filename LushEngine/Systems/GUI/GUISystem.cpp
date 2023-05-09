@@ -295,10 +295,10 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     std::string selectedItem = model.name;
                     if (ImGui::BeginCombo("Select Item##Model", selectedItem.c_str())) {
                         for (auto &[key, value] : this->_resourceManager->getModels()) {
-                            bool is_selected = (selectedItem == key);
-                            if (ImGui::Selectable(key.c_str(), is_selected))
+                            bool isSelected = (selectedItem == key);
+                            if (ImGui::Selectable(key.c_str(), isSelected))
                                 model.name = key;
-                            if (is_selected)
+                            if (isSelected)
                                 ImGui::SetItemDefaultFocus();
                         }
                         ImGui::EndCombo();
@@ -328,10 +328,10 @@ void GUISystem::drawProperties(EntityManager &entityManager, ComponentManager &c
                     std::string selectedItem = cubeMap.name;
                     if (ImGui::BeginCombo("Select Item##Cubemap", selectedItem.c_str())) {
                         for (auto &[key, value] : this->_resourceManager->getSkyBoxes()) {
-                            bool is_selected = (selectedItem == key);
-                            if (ImGui::Selectable(key.c_str(), is_selected))
+                            bool isSelected = (selectedItem == key);
+                            if (ImGui::Selectable(key.c_str(), isSelected))
                                 cubeMap.name = key;
-                            if (is_selected)
+                            if (isSelected)
                                 ImGui::SetItemDefaultFocus();
                         }
                         ImGui::EndCombo();
@@ -607,7 +607,7 @@ bool GUISystem::drawGuizmo(EntityManager &entityManager, ComponentManager &compo
     ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), this->_currentOperation, this->_currentMode, glm::value_ptr(model), nullptr,
                          ImGui::GetIO().KeyCtrl ? snap : nullptr);
     ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(transform.position), glm::value_ptr(transform.rotation), glm::value_ptr(transform.scale));
-    return true;
+    return ImGuizmo::IsUsing();
 }
 
 void GUISystem::drawFiles()
@@ -744,10 +744,10 @@ void GUISystem::drawTextureSelect(const std::string &fieldName, std::string &tex
     std::string selectedItem = texture;
     if (ImGui::BeginCombo(fieldName.c_str(), selectedItem.c_str())) {
         for (auto &[key, value] : this->_resourceManager->getTextures()) {
-            bool is_selected = (selectedItem == key);
-            if (ImGui::Selectable(key.c_str(), is_selected))
+            bool isSelected = (selectedItem == key);
+            if (ImGui::Selectable(key.c_str(), isSelected))
                 texture = key;
-            if (is_selected)
+            if (isSelected)
                 ImGui::SetItemDefaultFocus();
         }
         if (ImGui::Selectable("None", selectedItem == "None"))
@@ -762,7 +762,8 @@ void GUISystem::build()
         std::cout << "No project opened" << std::endl;
         return;
     }
+    this->_resourceManager->build();
     std::filesystem::copy_file("lush", std::filesystem::path(this->_projectRootPath) / (std::filesystem::path(this->_projectRootPath).filename().string()),
                                std::filesystem::copy_options::overwrite_existing);
-    std::filesystem::copy("Resources", std::filesystem::path(this->_projectRootPath) / "Resources", std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+    std::filesystem::copy_file("AssetPack.data", std::filesystem::path(this->_projectRootPath) / "Resources" / "AssetPack.data", std::filesystem::copy_options::overwrite_existing);
 }

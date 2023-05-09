@@ -41,6 +41,7 @@ namespace Lush
 
             void initScriptDomain();
             void loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions);
+            void deserialize();
 
             void loadTextures(const std::string &dir);
             void loadModels(const std::string &dir);
@@ -54,6 +55,10 @@ namespace Lush
             ~ResourceManager();
 
             void loadProject(const std::string &dir);
+            void loadEditor();
+            void loadGame();
+            void build();
+
             std::unordered_map<std::string, File> &getFiles();
 
             std::unordered_map<std::string, Shader> &getShaders();

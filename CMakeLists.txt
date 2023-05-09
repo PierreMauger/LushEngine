@@ -141,11 +141,13 @@ set(SRC
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(Boost REQUIRED COMPONENTS serialization)
 
 include_directories(${INC}
     ${OpenGL_INCLUDE_DIRS}
     ${GLFW3_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(${ENGINE} ${SRC})
@@ -155,6 +157,7 @@ target_link_libraries(${ENGINE} PRIVATE
     ${OPENGL_LIBRARIES}
     glfw
     ${GLEW_LIBRARY}
+    ${Boost_LIBRARIES}
 )
 
 install(TARGETS ${ENGINE})
@@ -173,6 +176,7 @@ target_link_libraries(${EXEC_NAME} PRIVATE
     ${ENGINE}
     ${ECS}
     ${IMGUI}
+    ${Boost_LIBRARIES}
     ${LIBS_PATH}/libmonosgen-2.0.so.1.0.0
     ${LIBS_PATH}/libassimp.so.5.2.0
 )
@@ -189,6 +193,7 @@ target_link_libraries(${EDITOR_NAME} PRIVATE
     ${ENGINE}
     ${ECS}
     ${IMGUI}
+    ${Boost_LIBRARIES}
     ${LIBS_PATH}/libmonosgen-2.0.so.1.0.0
     ${LIBS_PATH}/libassimp.so.5.2.0
 )

@@ -13,7 +13,7 @@ RenderView::RenderView(float aspectRatio)
     this->_aspectRatio = aspectRatio;
     this->_near = 0.1f;
     this->_far = 100.0f;
-    this->_sensitivity = 0.2f;
+    this->_sensitivity = 0.1f;
 
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 }

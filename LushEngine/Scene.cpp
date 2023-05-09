@@ -110,8 +110,12 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
         }
         this->_entityManager.updateMask(id, mask);
     }
-
     delete[] xmlCopy;
+}
+
+void Scene::reload(File &file, std::unordered_map<std::string, ScriptClass> &scripts)
+{
+    this->load(file, scripts);
 }
 
 void Scene::setScene(EntityManager &entityManager, ComponentManager &componentManager)

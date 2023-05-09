@@ -23,7 +23,7 @@ bool File::isModified() const
     return this->_lastModify != std::filesystem::last_write_time(this->_path);
 }
 
-void File::update()
+void File::updateLastModify()
 {
     this->_lastModify = std::filesystem::last_write_time(this->_path);
 }

@@ -1,5 +1,5 @@
-#ifndef MAP_HPP
-#define MAP_HPP
+#ifndef MAP_MESH_HPP
+#define MAP_MESH_HPP
 
 #include "Includes.hpp"
 #include "Rendering/Mesh.hpp"
@@ -23,4 +23,4 @@ namespace Lush
     };
 }
 
-#endif // MAP_HPP
+#endif // MAP_MESH_HPP

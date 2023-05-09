@@ -13,6 +13,11 @@ Engine::Engine(bool isEditor)
 {
     this->_graphic = std::make_shared<Graphic>(1280, 720, "Lush Engine");
     this->_resourceManager = std::make_shared<ResourceManager>();
+    if (isEditor)
+        this->_resourceManager->loadEditor();
+    else
+        this->_resourceManager->loadGame();
+
     this->_isEditor = isEditor;
 
     this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());
@@ -51,6 +56,8 @@ Engine::Engine(bool isEditor)
 
     if (!this->_isEditor && this->_resourceManager->getScenes().find("main") != this->_resourceManager->getScenes().end())
         this->_resourceManager->getScenes()["main"].setScene(this->_ecs.getEntityManager(), this->_ecs.getComponentManager());
+    else
+        this->_resourceManager->getScenes().begin()->second.setScene(this->_ecs.getEntityManager(), this->_ecs.getComponentManager());
 }
 
 void Engine::run()

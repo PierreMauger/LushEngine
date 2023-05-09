@@ -7,33 +7,35 @@ FileWatcherSystem::FileWatcherSystem(std::shared_ptr<Graphic> graphic, std::shar
 {
 }
 
-void FileWatcherSystem::update([[maybe_unused]] EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
+void FileWatcherSystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
 {
     if (!this->shouldUpdate(deltaTime))
         return;
+    // handle modified files
     for (auto &[name, file] : this->_resourceManager->getFiles()) {
         if (file.isModified()) {
-            file.update();
-            this->reloadResourcesFromFile(file, componentManager);
+            file.updateLastModify();
+            this->reloadResourcesFromFile(file, entityManager, componentManager);
         }
     }
-    if (!this->_graphic->getRunning() && !this->_resourcesToReload.empty()) {
-        for (auto &res : this->_resourcesToReload)
-            this->updateResource(res, componentManager);
-        this->_resourcesToReload.clear();
+    // handle scheduled resources
+    if (!this->_graphic->getRunning() && !this->_scheduledReload.empty()) {
+        for (auto &res : this->_scheduledReload)
+            this->updateResource(res, entityManager, componentManager);
+        this->_scheduledReload.clear();
     }
 }
 
-void FileWatcherSystem::reloadResourcesFromFile(File &file, ComponentManager &componentManager)
+void FileWatcherSystem::reloadResourcesFromFile(File &file, EntityManager &entityManager, ComponentManager &componentManager)
 {
     for (auto &res : Resource::getResources())
         if (res.hasFile(file)) {
             std::cout << "Reloading resource " << res.getUUID() << " for file " << file.getPath() << std::endl;
-            this->updateResource(res, componentManager);
+            this->updateResource(res, entityManager, componentManager);
         }
 }
 
-void FileWatcherSystem::updateResource(Resource &resource, ComponentManager &componentManager)
+void FileWatcherSystem::updateResource(Resource &resource, EntityManager &entityManager, ComponentManager &componentManager)
 {
     switch (resource.getType()) {
     case ResourceType::MODEL:
@@ -43,24 +45,26 @@ void FileWatcherSystem::updateResource(Resource &resource, ComponentManager &com
         this->reloadShader(resource);
         break;
     case ResourceType::SCRIPT:
-        if (this->_graphic->getRunning()) {
-            this->_resourcesToReload.push_back(resource);
-            std::cout << "Scheduled reloading script " << resource.getUUID() << std::endl;
-            break;
-        }
-        this->reloadScriptPack(resource, componentManager);
+        if (!handleScheduleReload(resource))
+            this->reloadScriptPack(resource, componentManager);
         break;
     case ResourceType::SCENE:
-        if (this->_graphic->getRunning()) {
-            this->_resourcesToReload.push_back(resource);
-            std::cout << "Scheduled reloading scene " << resource.getUUID() << std::endl;
-            break;
-        }
-        this->reloadScene(resource, componentManager);
+        if (!handleScheduleReload(resource))
+            this->reloadScene(resource, entityManager, componentManager);
         break;
     default:
         break;
     }
+}
+
+bool FileWatcherSystem::handleScheduleReload(Resource &resource)
+{
+    if (this->_graphic->getRunning()) {
+        this->_scheduledReload.push_back(resource);
+        std::cout << "Scheduled reloading scene " << resource.getUUID() << std::endl;
+        return true;
+    }
+    return false;
 }
 
 void FileWatcherSystem::reloadModel(Resource &resource)
@@ -76,6 +80,7 @@ void FileWatcherSystem::reloadModel(Resource &resource)
         } catch (const std::exception &e) {
             std::cout << e.what() << std::endl;
         }
+        break;
     }
 }
 
@@ -100,6 +105,7 @@ void FileWatcherSystem::reloadShader(Resource &resource)
         } catch (const std::exception &e) {
             std::cout << e.what() << std::endl;
         }
+        break;
     }
 }
 
@@ -113,38 +119,46 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, ComponentManager &c
         try {
             scriptPack.reload(files, this->_resourceManager->getScriptPacks());
             std::cout << "Reloaded script pack " << name << std::endl;
-            if (name != "Core") {
-                for (auto &[className, klass] : scriptPack.getClasses()) {
-                    this->_resourceManager->getScripts()[className].reload(scriptPack.getDomain(), klass, scriptPack.getEntityClass());
+            if (name == "Core")
+                continue;
+            for (auto &[className, klass] : scriptPack.getClasses()) {
+                this->_resourceManager->getScripts()[className].reload(scriptPack.getDomain(), klass, scriptPack.getEntityClass());
 
-                    SparseArray &sparseArray = componentManager.getAllInstanceFields(className);
-                    for (std::size_t i = 0; i < sparseArray.getSize(); i++) {
-                        if (sparseArray.getValues(i).has_value()) {
-                            std::unordered_map<std::string, std::any> fieldsValues;
-                            for (auto &[fieldName, field] : this->_resourceManager->getScripts()[className].getFields()) {
-                                std::cout << "Adding field " << fieldName << " to " << className << std::endl;
-                                if (field.type == "Single")
-                                    fieldsValues[fieldName] = 0.0f;
-                                if (field.type == "Entity" || field.type == "UInt64")
-                                    fieldsValues[fieldName] = (unsigned long)0;
-                            }
-                            std::unordered_map<std::string, std::any> oldFieldsValues =
-                                std::any_cast<std::unordered_map<std::string, std::any> &>(sparseArray.getValues(i).value());
-                            for (auto &[fieldName, oldFieldValue] : oldFieldsValues)
-                                if (fieldsValues.find(fieldName) != fieldsValues.end())
-                                    fieldsValues[fieldName] = oldFieldValue;
-                            componentManager.addInstanceFields(className, i, fieldsValues);
-                        }
+                SparseArray &sparseArray = componentManager.getAllInstanceFields(className);
+                for (std::size_t i = 0; i < sparseArray.getSize(); i++) {
+                    if (!sparseArray.getValues(i).has_value())
+                        continue;
+                    std::unordered_map<std::string, std::any> fieldsValues;
+                    for (auto &[fieldName, field] : this->_resourceManager->getScripts()[className].getFields()) {
+                        std::cout << "Adding field " << fieldName << " to " << className << std::endl;
+                        if (field.type == "Single")
+                            fieldsValues[fieldName] = 0.0f;
+                        if (field.type == "Entity" || field.type == "UInt64")
+                            fieldsValues[fieldName] = (unsigned long)0;
                     }
+                    std::unordered_map<std::string, std::any> oldFieldsValues = std::any_cast<std::unordered_map<std::string, std::any> &>(sparseArray.getValues(i).value());
+                    for (auto &[fieldName, oldFieldValue] : oldFieldsValues)
+                        if (fieldsValues.find(fieldName) != fieldsValues.end())
+                            fieldsValues[fieldName] = oldFieldValue;
+                    componentManager.addInstanceFields(className, i, fieldsValues);
                 }
             }
         } catch (const std::exception &e) {
             std::cout << e.what() << std::endl;
         }
+        break;
     }
 }
 
-void FileWatcherSystem::reloadScene(Resource &resource, [[maybe_unused]] ComponentManager &componentManager)
+void FileWatcherSystem::reloadScene(Resource &resource, EntityManager &entityManager, ComponentManager &componentManager)
 {
     std::cout << "Reloading scene " << resource.getUUID() << std::endl;
+    for (auto &[name, scene] : this->_resourceManager->getScenes()) {
+        if (scene != resource)
+            continue;
+        std::vector<File> files = resource.getFiles();
+        scene.reload(files[0], this->_resourceManager->getScripts());
+        scene.setScene(entityManager, componentManager);
+        break;
+    }
 }

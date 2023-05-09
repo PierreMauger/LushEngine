@@ -106,12 +106,12 @@ void Graphic::handleResizeFramebuffer(int width, int height)
 void Graphic::handleMousePress(int button, int action, [[maybe_unused]] int mods)
 {
     if (this->_sceneMovement && action == GLFW_PRESS) {
-        if (button == GLFW_MOUSE_BUTTON_LEFT)
-            this->_selectedEntity = this->_hoveredEntity;
         this->_mouseButton = button;
         glfwSetCursor(this->_window, this->_cursors[button]);
     }
     if (action == GLFW_RELEASE) {
+        if (this->_sceneMovement && button == GLFW_MOUSE_BUTTON_LEFT)
+            this->_selectedEntity = this->_hoveredEntity;
         this->_mouseButton = -1;
         glfwSetCursor(this->_window, nullptr);
     }

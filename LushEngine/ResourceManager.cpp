@@ -1,4 +1,9 @@
 #include "ResourceManager.hpp"
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/serialization/vector.hpp>
+
+#include "Serialization.hpp"
 
 using namespace Lush;
 
@@ -18,15 +23,6 @@ ResourceManager::ResourceManager()
         std::cerr << e.what() << std::endl;
     }
 
-    this->loadTextures("Resources/Textures");
-    this->loadModels("Resources/Models");
-    this->loadShaders("Resources/Shaders");
-    this->loadSkyBoxes("Resources/Skybox");
-    this->loadScriptPacks("Resources/CoreScripts", "Core");
-    this->loadScriptPacks("Resources/Scripts", "Native");
-    // this->loadScriptPacks("Resources/Game", "Game");
-    this->loadScenes("Resources/Scenes");
-
     this->_mapMesh = std::make_unique<MapMesh>();
 }
 
@@ -39,16 +35,61 @@ void ResourceManager::loadProject(const std::string &dir)
 {
     this->loadTextures(dir + "/Resources/Textures");
     this->loadModels(dir + "/Resources/Models");
-//    this->loadShaders(dir + "/Resources/Shaders");
-//    this->loadSkyBoxes(dir + "/Resources/Skybox");
+    // this->loadShaders(dir + "/Resources/Shaders");
+    // this->loadSkyBoxes(dir + "/Resources/Skybox");
     this->loadScriptPacks(dir + "/Resources/Scripts", std::filesystem::path(dir).filename());
     this->loadScenes(dir + "/Resources/Scenes");
+}
+
+void ResourceManager::build()
+{
+    std::ofstream ofs("AssetPack.data", std::ios::binary);
+    boost::archive::binary_oarchive oa(ofs, boost::archive::no_header);
+
+    oa << this->_models.size();
+    for (auto &[name, model] : this->_models) {
+        oa << name;
+        oa << model;
+    }
+
+    //    oa << this->_textures.size();
+    //    for (auto &[name, texture] : this->_textures) {
+    //        oa << name;
+    //        oa << texture;
+    //    }
+
+    //    oa << this->_shaders.size();
+    //    for (auto &[name, shader] : this->_shaders) {
+    //        oa << name;
+    //        oa << shader;
+    //    }
+
+    //    oa << this->_scenes.size();
+    //    for (auto &[name, scene] : this->_scenes) {
+    //        oa << name;
+    //        oa << scene;
+    //    }
+}
+
+void ResourceManager::deserialize()
+{
+    std::ifstream ifs("AssetPack.data", std::ios::binary);
+    boost::archive::binary_iarchive ia(ifs, boost::archive::no_header);
+
+    size_t size;
+    ia >> size;
+    for (size_t i = 0; i < size; i++) {
+        std::string name;
+        ia >> name;
+        ia >> this->_models[name];
+    }
 }
 
 void ResourceManager::initScriptDomain()
 {
     unsetenv("TERM");
     // setenv("MONO_PATH", "Resources/bin", 1);
+
     this->_domain = mono_jit_init("LushJIT");
     if (!this->_domain)
         throw std::runtime_error("mono_jit_init failed");
@@ -71,25 +112,27 @@ void ResourceManager::loadDirectory(const std::filesystem::path &path, const std
 
 void ResourceManager::loadTextures(const std::string &dir)
 {
-    this->loadDirectory(dir, [this](const std::string &path) {
-        this->_files[path] = File(path);
-        this->_textures[std::filesystem::path(path).filename()] = Texture(this->_files[path]);
-    }, {".png", ".jpg", ".jpeg"});
+    this->loadDirectory(dir,
+                        [this](const std::string &path) {
+                            this->_files[path] = File(path);
+                            this->_textures[std::filesystem::path(path).filename()] = Texture(this->_files[path]);
+                        },
+                        {".png", ".jpg", ".jpeg"});
 }
 
 void ResourceManager::loadModels(const std::string &dir)
 {
-    this->loadDirectory(dir, [this](const std::string &path) {
-        this->_files[path] = File(path);
-        this->_models[this->_files[path].getName()] = RenderModel(this->_files[path], this->_textures);
-    }, {".dae"});
+    this->loadDirectory(dir,
+                        [this](const std::string &path) {
+                            this->_files[path] = File(path);
+                            this->_models[this->_files[path].getName()] = RenderModel(this->_files[path], this->_textures);
+                        },
+                        {".dae"});
 }
 
 void ResourceManager::loadShaders(const std::string &dir)
 {
-    this->loadDirectory(dir, [this](const std::string &path) {
-        this->_files[path] = File(path);
-    }, {".vs", ".fs", ".tcs", ".tes", ".gs", ".cs"});
+    this->loadDirectory(dir, [this](const std::string &path) { this->_files[path] = File(path); }, {".vs", ".fs", ".tcs", ".tes", ".gs", ".cs"});
 
     this->_shaders["Model"] = Shader(this->_files["Resources/Shaders/model.vs"], this->_files["Resources/Shaders/model.fs"]);
     this->_shaders["PickingModel"] = Shader(this->_files["Resources/Shaders/model.vs"], this->_files["Resources/Shaders/picking.fs"]);
@@ -98,17 +141,18 @@ void ResourceManager::loadShaders(const std::string &dir)
     this->_shaders["Skybox"] = Shader(this->_files["Resources/Shaders/skybox.vs"], this->_files["Resources/Shaders/skybox.fs"]);
     this->_shaders["Billboard"] = Shader(this->_files["Resources/Shaders/billboard.vs"], this->_files["Resources/Shaders/billboard.fs"]);
     this->_shaders["Grid"] = Shader(this->_files["Resources/Shaders/grid.vs"], this->_files["Resources/Shaders/grid.fs"]);
-    this->_shaders["Map"] = Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/map.fs"], File(), this->_files["Resources/Shaders/map.tcs"], this->_files["Resources/Shaders/map.tes"]);
-    this->_shaders["MapWireframe"] = Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/mapWireframe.fs"], this->_files["Resources/Shaders/mapWireframe.gs"], this->_files["Resources/Shaders/map.tcs"], this->_files["Resources/Shaders/map.tes"]);
+    this->_shaders["Map"] = Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/map.fs"], File(), this->_files["Resources/Shaders/map.tcs"],
+                                   this->_files["Resources/Shaders/map.tes"]);
+    this->_shaders["MapWireframe"] =
+        Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/mapWireframe.fs"], this->_files["Resources/Shaders/mapWireframe.gs"],
+               this->_files["Resources/Shaders/map.tcs"], this->_files["Resources/Shaders/map.tes"]);
     this->_shaders["CameraFrustum"] = Shader(this->_files["Resources/Shaders/cameraFrustum.vs"], this->_files["Resources/Shaders/cameraFrustum.fs"]);
     this->_shaders["Game"] = Shader(this->_files["Resources/Shaders/outline.vs"], this->_files["Resources/Shaders/billboard.fs"]);
 }
 
 void ResourceManager::loadSkyBoxes(const std::string &dir)
 {
-    this->loadDirectory(dir, [this](const std::string &path) {
-        this->_files[path] = File(path);
-    }, {".jpg"});
+    this->loadDirectory(dir, [this](const std::string &path) { this->_files[path] = File(path); }, {".jpg"});
 
     std::vector<File> files = {this->_files[dir + "/right.jpg"],  this->_files[dir + "/left.jpg"],  this->_files[dir + "/top.jpg"],
                                this->_files[dir + "/bottom.jpg"], this->_files[dir + "/front.jpg"], this->_files[dir + "/back.jpg"]};
@@ -117,9 +161,7 @@ void ResourceManager::loadSkyBoxes(const std::string &dir)
 
 void ResourceManager::loadScriptPacks(const std::string &dir, const std::string &packName)
 {
-    this->loadDirectory(dir, [this](const std::string &path) {
-        this->_files[path] = File(path);
-    }, {".cs"});
+    this->loadDirectory(dir, [this](const std::string &path) { this->_files[path] = File(path); }, {".cs"});
 
     std::vector<File> tempFiles;
     for (auto &[name, file] : this->_files)
@@ -137,10 +179,12 @@ void ResourceManager::loadScriptPacks(const std::string &dir, const std::string 
 
 void ResourceManager::loadScenes(const std::string &dir)
 {
-    this->loadDirectory(dir, [this](const std::string &path) {
-        this->_files[path] = File(path);
-        this->_scenes[this->_files[path].getName()] = Scene(this->_files[path], this->_scripts);
-    }, {".xml"});
+    this->loadDirectory(dir,
+                        [this](const std::string &path) {
+                            this->_files[path] = File(path);
+                            this->_scenes[this->_files[path].getName()] = Scene(this->_files[path], this->_scripts);
+                        },
+                        {".xml"});
 }
 
 std::unordered_map<std::string, File> &ResourceManager::getFiles()
@@ -201,4 +245,29 @@ void ResourceManager::setActiveScene(const std::string &name)
 MapMesh &ResourceManager::getMapMesh()
 {
     return *this->_mapMesh;
+}
+
+void ResourceManager::loadEditor()
+{
+    this->loadTextures("Resources/Textures");
+    this->loadModels("Resources/Models");
+    this->loadShaders("Resources/Shaders");
+    this->loadSkyBoxes("Resources/Skybox");
+    this->loadScriptPacks("Resources/CoreScripts", "Core");
+    this->loadScriptPacks("Resources/Scripts", "Native");
+    // this->loadScriptPacks("Resources/Game", "Game");
+    this->loadScenes("Resources/Scenes");
+}
+
+void ResourceManager::loadGame()
+{
+    this->loadTextures("Resources/Textures");
+    this->loadShaders("Resources/Shaders");
+    this->loadSkyBoxes("Resources/Skybox");
+    this->loadScriptPacks("Resources/CoreScripts", "Core");
+    this->loadScriptPacks("Resources/Scripts", "Native");
+    // this->loadScriptPacks("Resources/Game", "Game");
+    this->loadScenes("Resources/Scenes");
+
+    this->deserialize();
 }

@@ -1,5 +1,5 @@
-#ifndef RENDERVIEW_HPP
-#define RENDERVIEW_HPP
+#ifndef RENDER_VIEW_HPP
+#define RENDER_VIEW_HPP
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -50,4 +50,4 @@ namespace Lush
     };
 }
 
-#endif // RENDERVIEW_HPP
+#endif // RENDER_VIEW_HPP

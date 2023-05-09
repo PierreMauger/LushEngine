@@ -16,15 +16,16 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
             std::shared_ptr<ResourceManager> _resourceManager;
 
-            std::vector<Resource> _resourcesToReload;
+            std::vector<Resource> _scheduledReload;
 
-            void reloadResourcesFromFile(File &file, ComponentManager &componentManager);
-            void updateResource(Resource &resource, ComponentManager &componentManager);
+            void reloadResourcesFromFile(File &file, EntityManager &entityManager, ComponentManager &componentManager);
+            void updateResource(Resource &resource, EntityManager &entityManager, ComponentManager &componentManager);
+            bool handleScheduleReload(Resource &resource);
 
             void reloadModel(Resource &resource);
             void reloadShader(Resource &resource);
             void reloadScriptPack(Resource &resource, ComponentManager &componentManager);
-            void reloadScene(Resource &resource, ComponentManager &componentManager);
+            void reloadScene(Resource &resource, EntityManager &entityManager, ComponentManager &componentManager);
 
         public:
             FileWatcherSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);

@@ -31,17 +31,17 @@ RenderModel::RenderModel(File &file, std::unordered_map<std::string, Texture> te
     this->load(file, textures);
 }
 
-std::map<std::string, BoneInfo> &RenderModel::getBoneInfoMap()
-{
-    return this->_boneInfoMap;
-}
+// std::map<std::string, BoneInfo> &RenderModel::getBoneInfoMap()
+//{
+//     return this->_boneInfoMap;
+// }
 
-int &RenderModel::getBoneCount()
-{
-    return this->_boneCounter;
-}
+// int &RenderModel::getBoneCount()
+//{
+//     return this->_boneCounter;
+// }
 
-void RenderModel::load(File &file, std::unordered_map<std::string, Texture> textures)
+void RenderModel::load(File &file, std::unordered_map<std::string, Texture> &textures)
 {
     std::string content = file.load();
     Assimp::Importer importer;
@@ -53,13 +53,13 @@ void RenderModel::load(File &file, std::unordered_map<std::string, Texture> text
     this->processNode(*scene->mRootNode, *scene, textures);
 }
 
-void RenderModel::reload(File &file, std::unordered_map<std::string, Texture> textures)
+void RenderModel::reload(File &file, std::unordered_map<std::string, Texture> &textures)
 {
     this->_meshes.clear();
     this->load(file, textures);
 }
 
-void RenderModel::processNode(aiNode &node, const aiScene &scene, std::unordered_map<std::string, Texture> textures)
+void RenderModel::processNode(aiNode &node, const aiScene &scene, std::unordered_map<std::string, Texture> &textures)
 {
     for (unsigned int i = 0; i < node.mNumMeshes; i++)
         this->_meshes.push_back(this->processMesh(*scene.mMeshes[node.mMeshes[i]], scene, textures));
@@ -105,7 +105,7 @@ void RenderModel::extractBoneWeightForVertices(std::vector<Vertex> &vertices, ai
         if (boneID == -1)
             continue;
         auto weights = mesh.mBones[boneIndex]->mWeights;
-        int numWeights = mesh.mBones[boneIndex]->mNumWeights;
+        int numWeights = (int)mesh.mBones[boneIndex]->mNumWeights;
 
         for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex) {
             unsigned int vertexId = weights[weightIndex].mVertexId;
@@ -116,14 +116,14 @@ void RenderModel::extractBoneWeightForVertices(std::vector<Vertex> &vertices, ai
     }
 }
 
-Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered_map<std::string, Texture> textures)
+Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered_map<std::string, Texture> &textures)
 {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Tex> tex;
 
     for (unsigned int i = 0; i < mesh.mNumVertices; i++) {
-        Vertex vertex;
+        Vertex vertex{};
         this->setVertexBoneDataToDefault(vertex);
         vertex.position = glm::vec3(mesh.mVertices[i].x, mesh.mVertices[i].y, mesh.mVertices[i].z);
         vertex.normal = glm::vec3(mesh.mNormals[i].x, mesh.mNormals[i].y, mesh.mNormals[i].z);
@@ -145,7 +145,7 @@ Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered
     aiColor3D color(0.0f, 0.0f, 0.0f);
     float shininess = 0.0f;
 
-    Material material;
+    Material material{};
 
     materialLoaded->Get(AI_MATKEY_COLOR_DIFFUSE, color);
     material.diffuse = glm::vec3(color.r, color.g, color.b);
@@ -160,21 +160,21 @@ Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered
 
     this->extractBoneWeightForVertices(vertices, mesh);
 
-    std::vector<Tex> diffuseMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_DIFFUSE, "tex.diffuse", textures);
+    std::vector<Tex> diffuseMaps = Lush::RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_DIFFUSE, "tex.diffuse", textures);
     tex.insert(tex.end(), diffuseMaps.begin(), diffuseMaps.end());
-    std::vector<Tex> specularMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_SPECULAR, "tex.specular", textures);
+    std::vector<Tex> specularMaps = Lush::RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_SPECULAR, "tex.specular", textures);
     tex.insert(tex.end(), specularMaps.begin(), specularMaps.end());
-    std::vector<Tex> emissiveMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_EMISSIVE, "tex.emission", textures);
+    std::vector<Tex> emissiveMaps = Lush::RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_EMISSIVE, "tex.emission", textures);
     tex.insert(tex.end(), emissiveMaps.begin(), emissiveMaps.end());
-    std::vector<Tex> normalMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_NORMALS, "tex.normal", textures);
+    std::vector<Tex> normalMaps = Lush::RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_NORMALS, "tex.normal", textures);
     tex.insert(tex.end(), normalMaps.begin(), normalMaps.end());
-    std::vector<Tex> heightMaps = this->loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "tex.height", textures);
+    std::vector<Tex> heightMaps = Lush::RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "tex.height", textures);
     tex.insert(tex.end(), heightMaps.begin(), heightMaps.end());
 
-    return Mesh(vertices, indices, tex, material);
+    return {vertices, indices, tex, material};
 }
 
-std::vector<Tex> RenderModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::unordered_map<std::string, Texture> textures)
+std::vector<Tex> RenderModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string &typeName, std::unordered_map<std::string, Texture> &textures)
 {
     std::vector<Tex> tex;
 
@@ -190,6 +190,6 @@ std::vector<Tex> RenderModel::loadMaterialTextures(aiMaterial *mat, aiTextureTyp
 
 void RenderModel::draw(Shader &shader)
 {
-    for (unsigned int i = 0; i < this->_meshes.size(); i++)
-        this->_meshes[i].draw(shader);
+    for (auto &mesh : this->_meshes)
+        mesh.draw(shader);
 }

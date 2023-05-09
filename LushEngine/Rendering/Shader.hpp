@@ -6,15 +6,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "File/Resource.hpp"
 #include "Includes.hpp"
+#include "File/Resource.hpp"
 
 namespace Lush
 {
     class Shader : public Resource
     {
         private:
-            unsigned int _ID;
+            unsigned int _ID = 0;
 
         public:
             Shader(const File &vertexFile, const File &fragmentFile, const File &geometryFile = File(), const File &tessControlFile = File(), const File &tessEvalFile = File());
@@ -26,7 +26,6 @@ namespace Lush
                         const File &tessEvalFile = File());
 
             void use() const;
-            unsigned int getID() const;
             void setBool(const std::string &name, bool value) const;
             void setInt(const std::string &name, int value) const;
             void setFloat(const std::string &name, float value) const;
@@ -38,7 +37,7 @@ namespace Lush
             void setMat4(const std::string &name, const glm::mat4 &mat) const;
 
         private:
-            void checkCompileErrors(GLuint shader, std::string type);
+            void checkCompileErrors(GLuint shader, const std::string &type);
     };
 }
 

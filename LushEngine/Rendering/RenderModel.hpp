@@ -1,5 +1,5 @@
-#ifndef RENDERMODEL_HPP
-#define RENDERMODEL_HPP
+#ifndef RENDER_MODEL_HPP
+#define RENDER_MODEL_HPP
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -9,17 +9,23 @@
 #include "Includes.hpp"
 #include "Rendering/Mesh.hpp"
 #include "Rendering/Texture.hpp"
+#include "STB/stb_image.h"
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
-#include "STB/stb_image.h"
 
 namespace Lush
 {
-    typedef struct {
+    struct BoneInfo {
             int id;
             glm::mat4 offset;
-    } BoneInfo;
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &id;
+                ar &offset;
+            }
+    };
 
     class RenderModel : public Resource
     {
@@ -31,24 +37,31 @@ namespace Lush
         public:
             RenderModel(File &file, std::unordered_map<std::string, Texture> textures);
             RenderModel() = default;
-            ~RenderModel() = default;
+            ~RenderModel() override = default;
 
-            void load(File &file, std::unordered_map<std::string, Texture> textures);
-            void reload(File &file, std::unordered_map<std::string, Texture> textures);
+            void load(File &file, std::unordered_map<std::string, Texture> &textures);
+            void reload(File &file, std::unordered_map<std::string, Texture> &textures);
             void draw(Shader &shader);
 
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &_meshes;
+                ar &_boneInfoMap;
+                ar &_boneCounter;
+            }
+
         private:
-            std::map<std::string, BoneInfo> &getBoneInfoMap();
-            int &getBoneCount();
+            // std::map<std::string, BoneInfo> &getBoneInfoMap();
+            // int &getBoneCount();
 
-            void processNode(aiNode &node, const aiScene &scene, std::unordered_map<std::string, Texture> textures);
-            Mesh processMesh(aiMesh &mesh, const aiScene &scene, std::unordered_map<std::string, Texture> textures);
-            std::vector<Tex> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::unordered_map<std::string, Texture> textures);
+            void processNode(aiNode &node, const aiScene &scene, std::unordered_map<std::string, Texture> &textures);
+            Mesh processMesh(aiMesh &mesh, const aiScene &scene, std::unordered_map<std::string, Texture> &textures);
+            static std::vector<Tex> loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string &typeName, std::unordered_map<std::string, Texture> &textures);
 
-            void setVertexBoneDataToDefault(Vertex &vertex);
-            void setVertexBoneData(Vertex &vertex, int boneID, float weight);
+            static void setVertexBoneDataToDefault(Vertex &vertex);
+            static void setVertexBoneData(Vertex &vertex, int boneID, float weight);
             void extractBoneWeightForVertices(std::vector<Vertex> &vertices, aiMesh &mesh);
     };
 }
 
-#endif // RENDERMODEL_HPP
+#endif // RENDER_MODEL_HPP
