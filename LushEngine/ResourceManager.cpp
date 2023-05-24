@@ -30,7 +30,7 @@ void ResourceManager::loadProject(const std::string &dir)
 {
     this->loadTextures(dir + "/Resources/Textures");
     this->loadModels(dir + "/Resources/Models");
-    this->loadScriptPacks(dir + "/Resources/Scripts", std::filesystem::path(dir).filename());
+    // this->loadScriptPacks(dir + "/Resources/Scripts", std::filesystem::path(dir).filename());
     this->loadScenes(dir + "/Resources/Scenes");
 }
 

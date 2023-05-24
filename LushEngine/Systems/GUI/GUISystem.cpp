@@ -758,14 +758,16 @@ void GUISystem::drawTextureSelect(const std::string &fieldName, std::string &tex
 
 void GUISystem::build()
 {
-    if (this->_projectPath.empty()) {
+    if (this->_projectRootPath.empty()) {
         std::cout << "No project opened" << std::endl;
         return;
     }
+    std::filesystem::create_directories(this->_projectRootPath + "/Resources/bin");
+
     this->_resourceManager->buildAssetPack();
     std::filesystem::copy_file("lush", std::filesystem::path(this->_projectRootPath) / (std::filesystem::path(this->_projectRootPath).filename().string()),
                                std::filesystem::copy_options::overwrite_existing);
     std::filesystem::copy_file("AssetPack.data", std::filesystem::path(this->_projectRootPath) / "Resources" / "AssetPack.data", std::filesystem::copy_options::overwrite_existing);
-    std::filesystem::copy_file("Resource/bin", std::filesystem::path(this->_projectRootPath) / "Resources" / "bin",
-                               std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+    std::filesystem::copy("Resources/bin", std::filesystem::path(this->_projectRootPath) / "Resources" / "bin",
+                          std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 }
