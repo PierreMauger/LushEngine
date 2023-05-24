@@ -3,6 +3,9 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/serialization/vector.hpp>
 
 #include "ECS.hpp"
 #include "File/File.hpp"
@@ -18,6 +21,7 @@
 #include "Script/ScriptClass.hpp"
 #include "Script/ScriptInstance.hpp"
 #include "Script/ScriptPack.hpp"
+#include "Serialization.hpp"
 
 namespace Lush
 {
@@ -42,12 +46,14 @@ namespace Lush
             void initScriptDomain();
             void loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions);
             void deserialize();
+            void loadScriptsDll(const std::string &dir);
 
             void loadTextures(const std::string &dir);
             void loadModels(const std::string &dir);
             void loadShaders(const std::string &dir);
             void loadSkyBoxes(const std::string &dir);
             void loadScriptPacks(const std::string &dir, const std::string &name);
+            void loadScriptPacksFromAssembly(const std::string &dir, const std::string &name);
             void loadScenes(const std::string &dir);
 
         public:
@@ -57,7 +63,7 @@ namespace Lush
             void loadProject(const std::string &dir);
             void loadEditor();
             void loadGame();
-            void build();
+            void buildAssetPack();
 
             std::unordered_map<std::string, File> &getFiles();
 

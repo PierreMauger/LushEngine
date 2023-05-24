@@ -34,7 +34,7 @@ namespace Lush
             bool _showFileExplorer = true;
             bool _showProfiler = true;
             bool _showFileBrowser = false;
-            bool _reloading = false;
+            bool _resetLayout = false;
             bool _singleFrame = false;
             ImGuizmo::OPERATION _currentOperation = ImGuizmo::OPERATION::TRANSLATE;
             ImGuizmo::MODE _currentMode = ImGuizmo::MODE::LOCAL;

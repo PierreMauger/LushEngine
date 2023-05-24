@@ -12,6 +12,7 @@
 #include "mono/metadata/metadata.h"
 #include "mono/metadata/mono-config.h"
 #include "mono/metadata/threads.h"
+#include "mono/metadata/tokentype.h"
 
 namespace Lush
 {
@@ -19,7 +20,6 @@ namespace Lush
     {
         private:
             std::string _name;
-            std::vector<std::string> _linkedPacks;
 
             MonoDomain *_domain = nullptr;
             MonoClass *_entityClass = nullptr;
@@ -27,14 +27,15 @@ namespace Lush
 
         public:
             ScriptPack(std::vector<File> &files, const std::string &name, std::unordered_map<std::string, ScriptPack> &linkedPacks);
+            ScriptPack(File &file, const std::string &name, std::unordered_map<std::string, ScriptPack> &linkedPacks);
             ScriptPack() = default;
             ~ScriptPack() = default;
 
             void load(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &linkedPacks);
             void reload(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &linkedPacks);
+            void loadFromAssembly(const std::string &assemblyPath, std::unordered_map<std::string, ScriptPack> &linkedPacks);
 
             std::string getName() const;
-//            const std::vector<std::string> &getLinkedPacks() const;
             MonoDomain *getDomain();
             MonoClass *getEntityClass();
             std::unordered_map<std::string, MonoClass *> &getClasses();

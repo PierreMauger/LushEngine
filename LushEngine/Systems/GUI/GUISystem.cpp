@@ -74,9 +74,9 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-    if (this->_reloading) {
+    if (this->_resetLayout) {
         ImGui::LoadIniSettingsFromDisk("Resources/Config/dockConfig.ini");
-        this->_reloading = false;
+        this->_resetLayout = false;
         this->_showSceneHierarchy = true;
         this->_showProperties = true;
         this->_showTools = true;
@@ -129,7 +129,7 @@ void GUISystem::drawMenuBar()
             ImGui::MenuItem(ICON_FA_GAMEPAD " Game", "Ctrl+6", &this->_showGame);
             ImGui::MenuItem(ICON_FA_FOLDER_OPEN " File Explorer", "Ctrl+7", &this->_showFileExplorer);
             ImGui::MenuItem(ICON_FA_STOPWATCH " Profiler", "Ctrl+8", &this->_showProfiler);
-            ImGui::MenuItem(ICON_FA_SYNC " Reload Layout", nullptr, &this->_reloading);
+            ImGui::MenuItem(ICON_FA_SYNC " Reset Layout", nullptr, &this->_resetLayout);
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("View")) {
@@ -762,8 +762,10 @@ void GUISystem::build()
         std::cout << "No project opened" << std::endl;
         return;
     }
-    this->_resourceManager->build();
+    this->_resourceManager->buildAssetPack();
     std::filesystem::copy_file("lush", std::filesystem::path(this->_projectRootPath) / (std::filesystem::path(this->_projectRootPath).filename().string()),
                                std::filesystem::copy_options::overwrite_existing);
     std::filesystem::copy_file("AssetPack.data", std::filesystem::path(this->_projectRootPath) / "Resources" / "AssetPack.data", std::filesystem::copy_options::overwrite_existing);
+    std::filesystem::copy_file("Resource/bin", std::filesystem::path(this->_projectRootPath) / "Resources" / "bin",
+                               std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 }

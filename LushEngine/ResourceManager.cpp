@@ -1,9 +1,4 @@
 #include "ResourceManager.hpp"
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/serialization/vector.hpp>
-
-#include "Serialization.hpp"
 
 using namespace Lush;
 
@@ -37,11 +32,11 @@ void ResourceManager::loadProject(const std::string &dir)
     this->loadModels(dir + "/Resources/Models");
     // this->loadShaders(dir + "/Resources/Shaders");
     // this->loadSkyBoxes(dir + "/Resources/Skybox");
-    this->loadScriptPacks(dir + "/Resources/Scripts", std::filesystem::path(dir).filename());
+    // this->loadScriptPacks(dir + "/Resources/Scripts", std::filesystem::path(dir).filename());
     this->loadScenes(dir + "/Resources/Scenes");
 }
 
-void ResourceManager::build()
+void ResourceManager::buildAssetPack()
 {
     std::ofstream ofs("AssetPack.data", std::ios::binary);
     boost::archive::binary_oarchive oa(ofs, boost::archive::no_header);
@@ -69,6 +64,9 @@ void ResourceManager::build()
     //        oa << name;
     //        oa << scene;
     //    }
+
+    ofs.flush();
+    ofs.close();
 }
 
 void ResourceManager::deserialize()
@@ -83,6 +81,7 @@ void ResourceManager::deserialize()
         ia >> name;
         ia >> this->_models[name];
     }
+    ifs.close();
 }
 
 void ResourceManager::initScriptDomain()
@@ -101,12 +100,25 @@ void ResourceManager::loadDirectory(const std::filesystem::path &path, const std
     if (!std::filesystem::exists(path))
         return;
     for (const auto &entry : std::filesystem::directory_iterator(path)) {
-        if (entry.is_regular_file()) {
-            if (std::find(extensions.begin(), extensions.end(), entry.path().extension().string()) != extensions.end())
-                func(entry.path().string());
-        } else if (entry.is_directory()) {
+        if (entry.is_regular_file() && std::find(extensions.begin(), extensions.end(), entry.path().extension().string()) != extensions.end())
+            func(entry.path().string());
+        else if (entry.is_directory())
             this->loadDirectory(entry.path(), func, extensions);
-        }
+    }
+}
+
+void ResourceManager::loadScriptsDll(const std::string &dir)
+{
+    File coreFile = File(dir + "/Core.dll");
+    File file = File(dir + "/Game.dll");
+
+    this->_scriptPacks["Core"] = ScriptPack(coreFile, "Core", this->_scriptPacks);
+    this->_scriptPacks["Game"] = ScriptPack(file, "Game", this->_scriptPacks);
+
+    for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
+        this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_scriptPacks["Game"].getEntityClass());
+        ECS::getECS()->getComponentManager().bindInstanceFields(name);
+        ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
     }
 }
 
@@ -161,20 +173,24 @@ void ResourceManager::loadSkyBoxes(const std::string &dir)
 
 void ResourceManager::loadScriptPacks(const std::string &dir, const std::string &packName)
 {
-    this->loadDirectory(dir, [this](const std::string &path) { this->_files[path] = File(path); }, {".cs"});
-
-    std::vector<File> tempFiles;
-    for (auto &[name, file] : this->_files)
-        if (name.find(dir) != std::string::npos)
-            tempFiles.push_back(file);
-    this->_scriptPacks[packName] = ScriptPack(tempFiles, packName, this->_scriptPacks);
-    if (packName == "Core")
-        return;
-    for (auto &[name, klass] : this->_scriptPacks[packName].getClasses()) {
-        this->_scripts[name] = ScriptClass(this->_scriptPacks[packName].getDomain(), klass, this->_scriptPacks[packName].getEntityClass());
-        ECS::getECS()->getComponentManager().bindInstanceFields(name);
-        ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
+    static std::vector<File> tempFiles;
+    this->loadDirectory(dir,
+                        [this](const std::string &path) {
+                            this->_files[path] = File(path);
+                            tempFiles.push_back(this->_files[path]);
+                        },
+                        {".cs"});
+    if (packName != "Core") {
+        this->_scriptPacks["Game"] = ScriptPack(tempFiles, "Game", this->_scriptPacks);
+        for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
+            this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_scriptPacks["Game"].getEntityClass());
+            ECS::getECS()->getComponentManager().bindInstanceFields(name);
+            ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
+        }
+    } else {
+        this->_scriptPacks[packName] = ScriptPack(tempFiles, packName, this->_scriptPacks);
     }
+    tempFiles.clear();
 }
 
 void ResourceManager::loadScenes(const std::string &dir)
@@ -255,7 +271,6 @@ void ResourceManager::loadEditor()
     this->loadSkyBoxes("Resources/Skybox");
     this->loadScriptPacks("Resources/CoreScripts", "Core");
     this->loadScriptPacks("Resources/Scripts", "Native");
-    // this->loadScriptPacks("Resources/Game", "Game");
     this->loadScenes("Resources/Scenes");
 }
 
@@ -264,10 +279,10 @@ void ResourceManager::loadGame()
     this->loadTextures("Resources/Textures");
     this->loadShaders("Resources/Shaders");
     this->loadSkyBoxes("Resources/Skybox");
-    this->loadScriptPacks("Resources/CoreScripts", "Core");
-    this->loadScriptPacks("Resources/Scripts", "Native");
-    // this->loadScriptPacks("Resources/Game", "Game");
+    this->loadScriptsDll("Resources/bin");
     this->loadScenes("Resources/Scenes");
 
     this->deserialize();
+
+    // load scripts
 }

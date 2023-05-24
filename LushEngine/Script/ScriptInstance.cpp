@@ -18,11 +18,6 @@ ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id, std::unorder
     this->_defaultFields = defaultFields;
 }
 
-//ScriptClass &ScriptInstance::getClass()
-//{
-//    return this->_class;
-//}
-
 MonoObject *ScriptInstance::getInstance()
 {
     return this->_instance;

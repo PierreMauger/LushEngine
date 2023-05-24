@@ -117,32 +117,32 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, ComponentManager &c
         if (scriptPack != resource)
             continue;
         try {
-            scriptPack.reload(files, this->_resourceManager->getScriptPacks());
-            std::cout << "Reloaded script pack " << name << std::endl;
-            if (name == "Core")
-                continue;
-            for (auto &[className, klass] : scriptPack.getClasses()) {
-                this->_resourceManager->getScripts()[className].reload(scriptPack.getDomain(), klass, scriptPack.getEntityClass());
-
-                SparseArray &sparseArray = componentManager.getAllInstanceFields(className);
-                for (std::size_t i = 0; i < sparseArray.getSize(); i++) {
-                    if (!sparseArray.getValues(i).has_value())
-                        continue;
-                    std::unordered_map<std::string, std::any> fieldsValues;
-                    for (auto &[fieldName, field] : this->_resourceManager->getScripts()[className].getFields()) {
-                        std::cout << "Adding field " << fieldName << " to " << className << std::endl;
-                        if (field.type == "Single")
-                            fieldsValues[fieldName] = 0.0f;
-                        if (field.type == "Entity" || field.type == "UInt64")
-                            fieldsValues[fieldName] = (unsigned long)0;
-                    }
-                    std::unordered_map<std::string, std::any> oldFieldsValues = std::any_cast<std::unordered_map<std::string, std::any> &>(sparseArray.getValues(i).value());
-                    for (auto &[fieldName, oldFieldValue] : oldFieldsValues)
-                        if (fieldsValues.find(fieldName) != fieldsValues.end())
-                            fieldsValues[fieldName] = oldFieldValue;
-                    componentManager.addInstanceFields(className, i, fieldsValues);
-                }
-            }
+            // scriptPack.reload(files, this->_resourceManager->getScriptPacks());
+            // std::cout << "Reloaded script pack " << name << std::endl;
+            // if (name == "Core")
+            // continue;
+            // for (auto &[className, klass] : scriptPack.getClasses()) {
+            // this->_resourceManager->getScripts()[className].reload(scriptPack.getDomain(), klass, scriptPack.getEntityClass());
+            //
+            // SparseArray &sparseArray = componentManager.getAllInstanceFields(className);
+            // for (std::size_t i = 0; i < sparseArray.getSize(); i++) {
+            // if (!sparseArray.getValues(i).has_value())
+            // continue;
+            // std::unordered_map<std::string, std::any> fieldsValues;
+            // for (auto &[fieldName, field] : this->_resourceManager->getScripts()[className].getFields()) {
+            // std::cout << "Adding field " << fieldName << " to " << className << std::endl;
+            // if (field.type == "Single")
+            // fieldsValues[fieldName] = 0.0f;
+            // if (field.type == "Entity" || field.type == "UInt64")
+            // fieldsValues[fieldName] = (unsigned long)0;
+            // }
+            // std::unordered_map<std::string, std::any> oldFieldsValues = std::any_cast<std::unordered_map<std::string, std::any> &>(sparseArray.getValues(i).value());
+            // for (auto &[fieldName, oldFieldValue] : oldFieldsValues)
+            // if (fieldsValues.find(fieldName) != fieldsValues.end())
+            // fieldsValues[fieldName] = oldFieldValue;
+            // componentManager.addInstanceFields(className, i, fieldsValues);
+            // }
+            // }
         } catch (const std::exception &e) {
             std::cout << e.what() << std::endl;
         }

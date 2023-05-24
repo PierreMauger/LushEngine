@@ -21,7 +21,6 @@ namespace Lush
             ScriptInstance(ScriptClass &script, std::size_t id, std::unordered_map<std::string, std::any> &defaultFields);
             ~ScriptInstance() = default;
 
-//            ScriptClass &getClass();
             MonoObject *getInstance();
             std::size_t getId() const;
             bool getFieldValueInternal(const std::string &name, void *value);
