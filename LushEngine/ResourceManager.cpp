@@ -36,7 +36,7 @@ void ResourceManager::loadProject(const std::string &dir)
 
 void ResourceManager::buildAssetPack()
 {
-    std::ofstream ofs("AssetPack.data", std::ios::binary);
+    std::ofstream ofs("Resources/AssetPack.data", std::ios::binary);
     boost::archive::binary_oarchive oa(ofs, boost::archive::no_header);
 
     oa << this->_models.size();
@@ -69,7 +69,7 @@ void ResourceManager::buildAssetPack()
 
 void ResourceManager::deserialize()
 {
-    std::ifstream ifs("AssetPack.data", std::ios::binary);
+    std::ifstream ifs("Resources/AssetPack.data", std::ios::binary);
     boost::archive::binary_iarchive ia(ifs, boost::archive::no_header);
 
     size_t size;
@@ -281,6 +281,4 @@ void ResourceManager::loadGame()
     this->loadScenes("Resources/Scenes");
 
     this->deserialize();
-
-    // load scripts
 }

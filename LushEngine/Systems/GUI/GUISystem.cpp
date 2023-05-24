@@ -767,7 +767,7 @@ void GUISystem::build()
     this->_resourceManager->buildAssetPack();
     std::filesystem::copy_file("lush", std::filesystem::path(this->_projectRootPath) / (std::filesystem::path(this->_projectRootPath).filename().string()),
                                std::filesystem::copy_options::overwrite_existing);
-    std::filesystem::copy_file("AssetPack.data", std::filesystem::path(this->_projectRootPath) / "Resources" / "AssetPack.data", std::filesystem::copy_options::overwrite_existing);
+    std::filesystem::copy_file("Resources/AssetPack.data", std::filesystem::path(this->_projectRootPath) / "Resources" / "AssetPack.data", std::filesystem::copy_options::overwrite_existing);
     std::filesystem::copy("Resources/bin", std::filesystem::path(this->_projectRootPath) / "Resources" / "bin",
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 }
