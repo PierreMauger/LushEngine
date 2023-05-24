@@ -18,6 +18,11 @@ std::string File::getName() const
     return std::filesystem::path(this->_path).filename().replace_extension().string();
 }
 
+std::string File::getExtension() const
+{
+    return std::filesystem::path(this->_path).extension().string();
+}
+
 bool File::isModified() const
 {
     return this->_lastModify != std::filesystem::last_write_time(this->_path);

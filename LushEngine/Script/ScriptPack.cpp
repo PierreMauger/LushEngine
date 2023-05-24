@@ -2,27 +2,20 @@
 
 using namespace Lush;
 
-ScriptPack::ScriptPack(std::vector<File> &files, const std::string &name, std::unordered_map<std::string, ScriptPack> &linkedPacks) : Resource(ResourceType::SCRIPT, files)
+ScriptPack::ScriptPack(std::vector<File> &files, const std::string &name, MonoClass *entityClass) : Resource(ResourceType::SCRIPT, files)
 {
     this->_name = name;
     try {
-        this->load(files, linkedPacks);
+        if (files.size() > 1)
+            this->load(files, entityClass);
+        else
+            this->loadFromAssembly(files[0].getPath(), entityClass);
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
 }
 
-ScriptPack::ScriptPack(File &file, const std::string &name, std::unordered_map<std::string, ScriptPack> &linkedPacks) : Resource(ResourceType::SCRIPT, file)
-{
-    this->_name = name;
-    try {
-        this->loadFromAssembly(file.getPath(), linkedPacks);
-    } catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
-    }
-}
-
-void ScriptPack::load(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &linkedPacks)
+void ScriptPack::load(std::vector<File> &files, MonoClass *entityClass)
 {
     std::string assemblyPath = "Resources/bin/" + this->_name + ".dll";
 
@@ -30,8 +23,8 @@ void ScriptPack::load(std::vector<File> &files, std::unordered_map<std::string, 
     for (auto &file : files)
         command += " " + file.getPath();
 
-    for (auto &[name, pack] : linkedPacks)
-        command += " -r:Resources/bin/" + pack.getName() + ".dll";
+    if (entityClass != nullptr)
+        command += " -r:Resources/bin/Core.dll";
 
     if (system(command.c_str()))
         throw std::runtime_error("mcs failed for " + command);
@@ -53,14 +46,11 @@ void ScriptPack::load(std::vector<File> &files, std::unordered_map<std::string, 
         this->_classes[file.getName()] = klass;
     }
 
-    if (linkedPacks.find("Core") != linkedPacks.end()) {
-        this->_entityClass = linkedPacks["Core"].getClasses()["Entity"];
-        if (!this->_entityClass)
-            throw std::runtime_error("mono_class_from_name failed for Entity in Core.dll");
-    }
+    if (entityClass != nullptr)
+        this->_entityClass = entityClass;
 }
 
-void ScriptPack::loadFromAssembly(const std::string &assemblyPath, std::unordered_map<std::string, ScriptPack> &linkedPacks)
+void ScriptPack::loadFromAssembly(const std::string &assemblyPath, MonoClass *entityClass)
 {
     this->_domain = mono_domain_create_appdomain((char *)this->_name.c_str(), nullptr);
 
@@ -89,19 +79,16 @@ void ScriptPack::loadFromAssembly(const std::string &assemblyPath, std::unordere
         this->_classes[name] = klass;
     }
 
-    if (linkedPacks.find("Core") != linkedPacks.end()) {
-        this->_entityClass = linkedPacks["Core"].getClasses()["Entity"];
-        if (!this->_entityClass)
-            throw std::runtime_error("mono_class_from_name failed for Entity in Core.dll");
-    }
+    if (entityClass != nullptr)
+        this->_entityClass = entityClass;
 }
 
-void ScriptPack::reload(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &linkedPacks)
+void ScriptPack::reload(std::vector<File> &files, MonoClass *entityClass)
 {
     mono_domain_unload(this->_domain);
     this->_classes.clear();
 
-    this->load(files, linkedPacks);
+    this->load(files, entityClass);
 }
 
 std::string ScriptPack::getName() const

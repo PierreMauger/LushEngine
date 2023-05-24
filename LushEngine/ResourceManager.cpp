@@ -30,9 +30,7 @@ void ResourceManager::loadProject(const std::string &dir)
 {
     this->loadTextures(dir + "/Resources/Textures");
     this->loadModels(dir + "/Resources/Models");
-    // this->loadShaders(dir + "/Resources/Shaders");
-    // this->loadSkyBoxes(dir + "/Resources/Skybox");
-    // this->loadScriptPacks(dir + "/Resources/Scripts", std::filesystem::path(dir).filename());
+    this->loadScriptPacks(dir + "/Resources/Scripts", std::filesystem::path(dir).filename());
     this->loadScenes(dir + "/Resources/Scenes");
 }
 
@@ -109,11 +107,11 @@ void ResourceManager::loadDirectory(const std::filesystem::path &path, const std
 
 void ResourceManager::loadScriptsDll(const std::string &dir)
 {
-    File coreFile = File(dir + "/Core.dll");
-    File file = File(dir + "/Game.dll");
+    std::vector<File> coreFiles = {File(dir + "/Core.dll")};
+    std::vector<File> files = {File(dir + "/Game.dll")};
 
-    this->_scriptPacks["Core"] = ScriptPack(coreFile, "Core", this->_scriptPacks);
-    this->_scriptPacks["Game"] = ScriptPack(file, "Game", this->_scriptPacks);
+    this->_scriptPacks["Core"] = ScriptPack(coreFiles, "Core", nullptr);
+    this->_scriptPacks["Game"] = ScriptPack(files, "Game", this->_scriptPacks["Core"].getClasses()["Entity"]);
 
     for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
         this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_scriptPacks["Game"].getEntityClass());
@@ -181,14 +179,14 @@ void ResourceManager::loadScriptPacks(const std::string &dir, const std::string 
                         },
                         {".cs"});
     if (packName != "Core") {
-        this->_scriptPacks["Game"] = ScriptPack(tempFiles, "Game", this->_scriptPacks);
+        this->_scriptPacks["Game"] = ScriptPack(tempFiles, "Game", this->_scriptPacks["Core"].getClasses()["Entity"]);
         for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
             this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_scriptPacks["Game"].getEntityClass());
             ECS::getECS()->getComponentManager().bindInstanceFields(name);
             ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
         }
     } else {
-        this->_scriptPacks[packName] = ScriptPack(tempFiles, packName, this->_scriptPacks);
+        this->_scriptPacks[packName] = ScriptPack(tempFiles, packName, nullptr);
     }
     tempFiles.clear();
 }

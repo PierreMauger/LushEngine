@@ -18,6 +18,7 @@ namespace Lush
 
             [[nodiscard]] std::string getPath() const;
             [[nodiscard]] std::string getName() const;
+            [[nodiscard]] std::string getExtension() const;
             [[nodiscard]] bool isModified() const;
             void updateLastModify();
 

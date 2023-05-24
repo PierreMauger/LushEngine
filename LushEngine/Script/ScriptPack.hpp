@@ -26,14 +26,13 @@ namespace Lush
             std::unordered_map<std::string, MonoClass *> _classes;
 
         public:
-            ScriptPack(std::vector<File> &files, const std::string &name, std::unordered_map<std::string, ScriptPack> &linkedPacks);
-            ScriptPack(File &file, const std::string &name, std::unordered_map<std::string, ScriptPack> &linkedPacks);
+            ScriptPack(std::vector<File> &files, const std::string &name, MonoClass *entityClass);
             ScriptPack() = default;
             ~ScriptPack() = default;
 
-            void load(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &linkedPacks);
-            void reload(std::vector<File> &files, std::unordered_map<std::string, ScriptPack> &linkedPacks);
-            void loadFromAssembly(const std::string &assemblyPath, std::unordered_map<std::string, ScriptPack> &linkedPacks);
+            void load(std::vector<File> &files, MonoClass *entityClass);
+            void reload(std::vector<File> &files, MonoClass *entityClass);
+            void loadFromAssembly(const std::string &assemblyPath, MonoClass *entityClass);
 
             std::string getName() const;
             MonoDomain *getDomain();
