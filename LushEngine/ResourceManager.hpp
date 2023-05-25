@@ -34,6 +34,7 @@ namespace Lush
             std::unordered_map<std::string, Texture> _textures;
             std::unordered_map<std::string, RenderModel> _models;
             std::unordered_map<std::string, CubeMap> _skyBoxes;
+            std::unique_ptr<ScriptPack> _corePack;
             std::unordered_map<std::string, ScriptPack> _scriptPacks;
             std::unordered_map<std::string, ScriptClass> _scripts;
             std::vector<ScriptInstance> _instances;
@@ -45,15 +46,14 @@ namespace Lush
 
             void initScriptDomain();
             void loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions);
-            void deserialize();
-            void loadScriptsDll(const std::string &dir);
 
             void loadTextures(const std::string &dir);
             void loadModels(const std::string &dir);
             void loadShaders(const std::string &dir);
             void loadSkyBoxes(const std::string &dir);
-            void loadScriptPacks(const std::string &dir, const std::string &name);
-            void loadScriptPacksFromAssembly(const std::string &dir, const std::string &name);
+            void loadScriptDll(const std::string &dir);
+            void loadScriptPack(const std::string &dir, const std::string &name);
+            void reloadScripts(const std::string &dir);
             void loadScenes(const std::string &dir);
 
         public:
@@ -63,7 +63,8 @@ namespace Lush
             void loadProject(const std::string &dir);
             void loadEditor();
             void loadGame();
-            void buildAssetPack();
+            void serializeAssetPack();
+            void deserializeAssetPack();
 
             std::unordered_map<std::string, File> &getFiles();
 

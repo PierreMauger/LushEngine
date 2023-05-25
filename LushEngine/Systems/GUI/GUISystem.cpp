@@ -708,7 +708,6 @@ void GUISystem::drawFileBrowser()
         this->_projectPath = this->_projectRootPath;
         glfwSetWindowTitle(this->_graphic->getWindow(), std::string("Lush Engine - " + std::filesystem::path(this->_projectRootPath).filename().string()).c_str());
         this->_showFileBrowser = false;
-        // Open project
         this->_resourceManager->loadProject(this->_projectRootPath);
     }
     ImGui::End();
@@ -764,7 +763,7 @@ void GUISystem::build()
     }
     std::filesystem::create_directories(this->_projectRootPath + "/Resources/bin");
 
-    this->_resourceManager->buildAssetPack();
+    this->_resourceManager->serializeAssetPack();
     std::filesystem::copy_file("lush", std::filesystem::path(this->_projectRootPath) / (std::filesystem::path(this->_projectRootPath).filename().string()),
                                std::filesystem::copy_options::overwrite_existing);
     std::filesystem::copy_file("Resources/AssetPack.data", std::filesystem::path(this->_projectRootPath) / "Resources" / "AssetPack.data", std::filesystem::copy_options::overwrite_existing);

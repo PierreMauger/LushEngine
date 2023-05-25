@@ -22,21 +22,19 @@ namespace Lush
             std::string _name;
 
             MonoDomain *_domain = nullptr;
-            MonoClass *_entityClass = nullptr;
             std::unordered_map<std::string, MonoClass *> _classes;
 
         public:
-            ScriptPack(std::vector<File> &files, const std::string &name, MonoClass *entityClass);
+            ScriptPack(std::vector<File> &files, const std::string &name);
             ScriptPack() = default;
             ~ScriptPack() = default;
 
-            void load(std::vector<File> &files, MonoClass *entityClass);
-            void reload(std::vector<File> &files, MonoClass *entityClass);
-            void loadFromAssembly(const std::string &assemblyPath, MonoClass *entityClass);
+            void load(std::vector<File> &files);
+            void reload(std::vector<File> &files);
+            void loadFromAssembly(const std::string &assemblyPath);
 
             std::string getName() const;
             MonoDomain *getDomain();
-            MonoClass *getEntityClass();
             std::unordered_map<std::string, MonoClass *> &getClasses();
     };
 }

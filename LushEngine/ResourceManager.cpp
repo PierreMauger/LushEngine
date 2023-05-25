@@ -30,11 +30,33 @@ void ResourceManager::loadProject(const std::string &dir)
 {
     this->loadTextures(dir + "/Resources/Textures");
     this->loadModels(dir + "/Resources/Models");
-    // this->loadScriptPacks(dir + "/Resources/Scripts", std::filesystem::path(dir).filename());
     this->loadScenes(dir + "/Resources/Scenes");
+    // this->reloadScripts(dir + "/Resources/Scripts");
 }
 
-void ResourceManager::buildAssetPack()
+void ResourceManager::loadEditor()
+{
+    this->loadTextures("Resources/Textures");
+    this->loadModels("Resources/Models");
+    this->loadShaders("Resources/Shaders");
+    this->loadSkyBoxes("Resources/Skybox");
+    this->loadScriptPack("Resources/CoreScripts", "Core");
+    this->loadScriptPack("Resources/Scripts", "Native");
+    this->loadScenes("Resources/Scenes");
+}
+
+void ResourceManager::loadGame()
+{
+    this->loadTextures("Resources/Textures");
+    this->loadShaders("Resources/Shaders");
+    this->loadSkyBoxes("Resources/Skybox");
+    this->loadScriptDll("Resources/bin");
+    this->loadScenes("Resources/Scenes");
+
+    this->deserializeAssetPack();
+}
+
+void ResourceManager::serializeAssetPack()
 {
     std::ofstream ofs("Resources/AssetPack.data", std::ios::binary);
     boost::archive::binary_oarchive oa(ofs, boost::archive::no_header);
@@ -67,7 +89,7 @@ void ResourceManager::buildAssetPack()
     ofs.close();
 }
 
-void ResourceManager::deserialize()
+void ResourceManager::deserializeAssetPack()
 {
     std::ifstream ifs("Resources/AssetPack.data", std::ios::binary);
     boost::archive::binary_iarchive ia(ifs, boost::archive::no_header);
@@ -102,21 +124,6 @@ void ResourceManager::loadDirectory(const std::filesystem::path &path, const std
             func(entry.path().string());
         else if (entry.is_directory())
             this->loadDirectory(entry.path(), func, extensions);
-    }
-}
-
-void ResourceManager::loadScriptsDll(const std::string &dir)
-{
-    std::vector<File> coreFiles = {File(dir + "/Core.dll")};
-    std::vector<File> files = {File(dir + "/Game.dll")};
-
-    this->_scriptPacks["Core"] = ScriptPack(coreFiles, "Core", nullptr);
-    this->_scriptPacks["Game"] = ScriptPack(files, "Game", this->_scriptPacks["Core"].getClasses()["Entity"]);
-
-    for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
-        this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_scriptPacks["Game"].getEntityClass());
-        ECS::getECS()->getComponentManager().bindInstanceFields(name);
-        ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
     }
 }
 
@@ -169,7 +176,22 @@ void ResourceManager::loadSkyBoxes(const std::string &dir)
     this->_skyBoxes["Sky"] = CubeMap(files);
 }
 
-void ResourceManager::loadScriptPacks(const std::string &dir, const std::string &packName)
+void ResourceManager::loadScriptDll(const std::string &dir)
+{
+    std::vector<File> coreFiles = {File(dir + "/Core.dll")};
+    std::vector<File> files = {File(dir + "/Game.dll")};
+
+    this->_corePack = std::make_unique<ScriptPack>(coreFiles, "Core", nullptr);
+    this->_scriptPacks["Game"] = ScriptPack(files, "Game");
+
+    for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
+        this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_corePack->getClasses()["Entity"]);
+        ECS::getECS()->getComponentManager().bindInstanceFields(name);
+        ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
+    }
+}
+
+void ResourceManager::loadScriptPack(const std::string &dir, const std::string &packName)
 {
     static std::vector<File> tempFiles;
     this->loadDirectory(dir,
@@ -179,14 +201,34 @@ void ResourceManager::loadScriptPacks(const std::string &dir, const std::string 
                         },
                         {".cs"});
     if (packName != "Core") {
-        this->_scriptPacks["Game"] = ScriptPack(tempFiles, "Game", this->_scriptPacks["Core"].getClasses()["Entity"]);
+        this->_scriptPacks["Game"] = ScriptPack(tempFiles, "Game");
         for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
-            this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_scriptPacks["Game"].getEntityClass());
+            this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_corePack->getClasses()["Entity"]);
             ECS::getECS()->getComponentManager().bindInstanceFields(name);
             ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
         }
     } else {
-        this->_scriptPacks[packName] = ScriptPack(tempFiles, packName, nullptr);
+        this->_corePack = std::make_unique<ScriptPack>(tempFiles, packName, nullptr);
+    }
+    tempFiles.clear();
+}
+
+void ResourceManager::reloadScripts(const std::string &dir)
+{
+    static std::vector<File> tempFiles;
+    this->loadDirectory(dir,
+                        [this](const std::string &path) {
+                            this->_files[path] = File(path);
+                            tempFiles.push_back(this->_files[path]);
+                        },
+                        {".cs"});
+    for (auto &file : this->_scriptPacks["Game"].getFiles())
+        tempFiles.push_back(file);
+    this->_scriptPacks["Game"].reload(tempFiles);
+    for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
+        this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_corePack->getClasses()["Entity"]);
+        ECS::getECS()->getComponentManager().bindInstanceFields(name);
+        ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
     }
     tempFiles.clear();
 }
@@ -259,26 +301,4 @@ void ResourceManager::setActiveScene(const std::string &name)
 MapMesh &ResourceManager::getMapMesh()
 {
     return *this->_mapMesh;
-}
-
-void ResourceManager::loadEditor()
-{
-    this->loadTextures("Resources/Textures");
-    this->loadModels("Resources/Models");
-    this->loadShaders("Resources/Shaders");
-    this->loadSkyBoxes("Resources/Skybox");
-    this->loadScriptPacks("Resources/CoreScripts", "Core");
-    this->loadScriptPacks("Resources/Scripts", "Native");
-    this->loadScenes("Resources/Scenes");
-}
-
-void ResourceManager::loadGame()
-{
-    this->loadTextures("Resources/Textures");
-    this->loadShaders("Resources/Shaders");
-    this->loadSkyBoxes("Resources/Skybox");
-    this->loadScriptsDll("Resources/bin");
-    this->loadScenes("Resources/Scenes");
-
-    this->deserialize();
 }
