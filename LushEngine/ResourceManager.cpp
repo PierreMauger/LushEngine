@@ -181,7 +181,7 @@ void ResourceManager::loadScriptDll(const std::string &dir)
     std::vector<File> coreFiles = {File(dir + "/Core.dll")};
     std::vector<File> files = {File(dir + "/Game.dll")};
 
-    this->_corePack = std::make_unique<ScriptPack>(coreFiles, "Core", nullptr);
+    this->_corePack = std::make_unique<ScriptPack>(coreFiles, "Core");
     this->_scriptPacks["Game"] = ScriptPack(files, "Game");
 
     for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
@@ -208,7 +208,7 @@ void ResourceManager::loadScriptPack(const std::string &dir, const std::string &
             ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
         }
     } else {
-        this->_corePack = std::make_unique<ScriptPack>(tempFiles, packName, nullptr);
+        this->_corePack = std::make_unique<ScriptPack>(tempFiles, packName);
     }
     tempFiles.clear();
 }
