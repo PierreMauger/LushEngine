@@ -83,6 +83,9 @@ void ScriptPack::reload(std::vector<File> &files)
     this->_classes.clear();
 
     this->load(files);
+    for (auto &res : getResources())
+        if (res == *this)
+            res.setFiles(files);
 }
 
 std::string ScriptPack::getName() const

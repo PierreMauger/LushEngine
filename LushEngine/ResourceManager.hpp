@@ -72,6 +72,7 @@ namespace Lush
             std::unordered_map<std::string, Texture> &getTextures();
             std::unordered_map<std::string, RenderModel> &getModels();
             std::unordered_map<std::string, CubeMap> &getSkyBoxes();
+            MonoClass *getEntityClass();
             std::unordered_map<std::string, ScriptPack> &getScriptPacks();
             std::unordered_map<std::string, ScriptClass> &getScripts();
             std::vector<ScriptInstance> &getInstances();

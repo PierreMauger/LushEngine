@@ -14,6 +14,11 @@ bool Resource::hasFile(File &file) const
     return std::ranges::any_of(this->_files, [&file](const File &f) { return f.getPath() == file.getPath(); });
 }
 
+void Resource::setFiles(std::vector<File> &files)
+{
+    this->_files = files;
+}
+
 std::vector<File> &Resource::getFiles()
 {
     return this->_files;
