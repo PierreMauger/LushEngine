@@ -47,7 +47,6 @@ void ResourceManager::loadEditor()
 
 void ResourceManager::loadGame()
 {
-    this->loadTextures("Resources/Textures");
     this->loadShaders("Resources/Shaders");
     this->loadSkyBoxes("Resources/Skybox");
     this->loadScriptDll("Resources/bin");
@@ -61,17 +60,17 @@ void ResourceManager::serializeAssetPack()
     std::ofstream ofs("Resources/AssetPack.data", std::ios::binary);
     boost::archive::binary_oarchive oa(ofs, boost::archive::no_header);
 
+    oa << this->_textures.size();
+    for (auto &[name, texture] : this->_textures) {
+        oa << name;
+        oa << texture;
+    }
+
     oa << this->_models.size();
     for (auto &[name, model] : this->_models) {
         oa << name;
         oa << model;
     }
-
-    //    oa << this->_textures.size();
-    //    for (auto &[name, texture] : this->_textures) {
-    //        oa << name;
-    //        oa << texture;
-    //    }
 
     //    oa << this->_shaders.size();
     //    for (auto &[name, shader] : this->_shaders) {
@@ -85,7 +84,6 @@ void ResourceManager::serializeAssetPack()
     //        oa << scene;
     //    }
 
-    ofs.flush();
     ofs.close();
 }
 
@@ -93,14 +91,24 @@ void ResourceManager::deserializeAssetPack()
 {
     std::ifstream ifs("Resources/AssetPack.data", std::ios::binary);
     boost::archive::binary_iarchive ia(ifs, boost::archive::no_header);
+    std::size_t size;
 
-    size_t size;
     ia >> size;
-    for (size_t i = 0; i < size; i++) {
+    for (std::size_t i = 0; i < size; i++) {
+        std::string name;
+        ia >> name;
+        ia >> this->_textures[name];
+    }
+
+    ia >> size;
+    for (std::size_t i = 0; i < size; i++) {
         std::string name;
         ia >> name;
         ia >> this->_models[name];
+        for (auto &mesh : this->_models[name].getMeshes())
+            mesh.rebindTexIds(this->_textures);
     }
+
     ifs.close();
 }
 

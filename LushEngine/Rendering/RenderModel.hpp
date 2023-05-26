@@ -43,6 +43,8 @@ namespace Lush
             void reload(File &file, std::unordered_map<std::string, Texture> &textures);
             void draw(Shader &shader);
 
+            std::vector<Mesh> &getMeshes();
+
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
                 ar &_meshes;
@@ -53,7 +55,6 @@ namespace Lush
         private:
             // std::map<std::string, BoneInfo> &getBoneInfoMap();
             // int &getBoneCount();
-
             void processNode(aiNode &node, const aiScene &scene, std::unordered_map<std::string, Texture> &textures);
             Mesh processMesh(aiMesh &mesh, const aiScene &scene, std::unordered_map<std::string, Texture> &textures);
             static std::vector<Tex> loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string &typeName, std::unordered_map<std::string, Texture> &textures);

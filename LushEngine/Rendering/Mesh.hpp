@@ -9,6 +9,7 @@
 
 #include "Includes.hpp"
 #include "Rendering/Shader.hpp"
+#include "Rendering/Texture.hpp"
 #include "Serialization.hpp"
 
 #define MAX_BONE_INFLUENCE 4
@@ -31,8 +32,8 @@ namespace Lush
                 ar &texCoords;
                 ar &tangent;
                 ar &bitangent;
-                //                ar &boneIDs;
-                //                ar &weights;
+                // ar &boneIDs;
+                // ar &weights;
             }
     };
 
@@ -55,11 +56,13 @@ namespace Lush
 
     struct Tex {
             unsigned int id;
+            std::string name;
             std::string type;
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
                 ar &id;
+                ar &name;
                 ar &type;
             }
     };
@@ -98,6 +101,8 @@ namespace Lush
             Mesh(std::vector<Vertex> &vertices, std::vector<unsigned int> &indices, std::vector<Tex> &textures, Material material);
             Mesh() = default;
             ~Mesh() = default;
+
+            void rebindTexIds(std::unordered_map<std::string, Texture> &textures);
             void draw(Shader &shader);
 
             void serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version)

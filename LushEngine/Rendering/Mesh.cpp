@@ -41,6 +41,14 @@ void Mesh::setupMesh()
     glBindVertexArray(0);
 }
 
+void Mesh::rebindTexIds(std::unordered_map<std::string, Texture> &textures)
+{
+    for (auto &texture : this->_textures) {
+        if (textures.find(texture.name) != textures.end())
+            texture.id = textures[texture.name].getId();
+    }
+}
+
 void Mesh::draw(Shader &shader)
 {
     shader.setBool("hasTexture", !this->_textures.empty());

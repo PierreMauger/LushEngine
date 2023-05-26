@@ -183,7 +183,7 @@ std::vector<Tex> RenderModel::loadMaterialTextures(aiMaterial *mat, aiTextureTyp
         mat->GetTexture(type, i, &str);
         if (textures.find(str.C_Str()) == textures.end())
             throw std::runtime_error("Couldn't find texture: " + std::string(str.C_Str()));
-        tex.push_back({textures[str.C_Str()].getId(), typeName});
+        tex.push_back({textures[str.C_Str()].getId(), str.C_Str(), typeName});
     }
     return tex;
 }
@@ -192,4 +192,9 @@ void RenderModel::draw(Shader &shader)
 {
     for (auto &mesh : this->_meshes)
         mesh.draw(shader);
+}
+
+std::vector<Mesh> &RenderModel::getMeshes()
+{
+    return this->_meshes;
 }

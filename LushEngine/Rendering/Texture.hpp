@@ -3,6 +3,9 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/serialization/vector.hpp>
 
 #include "File.hpp"
 #include "Includes.hpp"
@@ -17,6 +20,9 @@ namespace Lush
             int _width;
             int _height;
             int _nrChannels;
+            std::vector<unsigned char> _pixels;
+
+            void setupTexture();
 
         public:
             Texture(File &file);
@@ -26,6 +32,23 @@ namespace Lush
             void load(File &file);
 
             unsigned int getId();
+
+            void serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &_width;
+                ar &_height;
+                ar &_nrChannels;
+                ar &_pixels;
+                this->setupTexture();
+            }
+
+            void serialize(boost::archive::binary_oarchive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &_width;
+                ar &_height;
+                ar &_nrChannels;
+                ar &_pixels;
+            }
     };
 }
 
