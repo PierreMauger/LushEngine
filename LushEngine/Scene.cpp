@@ -16,6 +16,16 @@ Scene::Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts) 
     this->load(file, scripts);
 }
 
+EntityManager &Scene::getEntityManager()
+{
+    return this->_entityManager;
+}
+
+ComponentManager &Scene::getComponentManager()
+{
+    return this->_componentManager;
+}
+
 void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scripts)
 {
     rapidxml::xml_document<> doc;

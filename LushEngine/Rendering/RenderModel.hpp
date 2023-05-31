@@ -9,6 +9,7 @@
 #include "Includes.hpp"
 #include "Rendering/Mesh.hpp"
 #include "Rendering/Texture.hpp"
+#include "Scene.hpp"
 #include "STB/stb_image.h"
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
@@ -38,6 +39,8 @@ namespace Lush
             RenderModel(File &file, std::unordered_map<std::string, Texture> textures);
             RenderModel() = default;
             ~RenderModel() override = default;
+
+            bool isUsed(std::string name, std::unordered_map<std::string, Scene> &scenes) const;
 
             void load(File &file, std::unordered_map<std::string, Texture> &textures);
             void reload(File &file, std::unordered_map<std::string, Texture> &textures);

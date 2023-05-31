@@ -23,6 +23,9 @@ namespace Lush
             Scene() = default;
             ~Scene() = default;
 
+            EntityManager &getEntityManager();
+            ComponentManager &getComponentManager();
+
             void load(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
             void reload(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
 

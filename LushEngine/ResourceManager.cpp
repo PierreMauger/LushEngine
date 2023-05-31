@@ -68,8 +68,10 @@ void ResourceManager::serializeAssetPack()
 
     oa << this->_models.size();
     for (auto &[name, model] : this->_models) {
-        oa << name;
-        oa << model;
+        if (model.isUsed(name, this->_scenes)) {
+            oa << name;
+            oa << model;
+        }
     }
 
     //    oa << this->_shaders.size();
