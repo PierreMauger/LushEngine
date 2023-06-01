@@ -16,7 +16,7 @@ void ScriptGlue::Transform_GetPosition(std::size_t id, glm::vec3 *position)
     if (ecs->getEntityManager().hasMask(id, ComponentType::TRANSFORM))
         *position = ecs->getComponentManager().getComponent<Transform>(id).position;
     else
-        std::cout << "Entity " << id << " has no Transform component" << std::endl;
+        std::cout << "Error Entity " << id << " has no Transform component" << std::endl;
 }
 
 void ScriptGlue::Transform_SetPosition(std::size_t id, glm::vec3 *position)
@@ -26,7 +26,7 @@ void ScriptGlue::Transform_SetPosition(std::size_t id, glm::vec3 *position)
     if (ecs->getEntityManager().hasMask(id, ComponentType::TRANSFORM))
         ecs->getComponentManager().getComponent<Transform>(id).position = *position;
     else
-        std::cout << "Entity " << id << " has no Transform component" << std::endl;
+        std::cout << "Error Entity " << id << " has no Transform component" << std::endl;
 }
 
 void ScriptGlue::Transform_GetRotation(std::size_t id, glm::vec3 *rotation)
@@ -36,7 +36,7 @@ void ScriptGlue::Transform_GetRotation(std::size_t id, glm::vec3 *rotation)
     if (ecs->getEntityManager().hasMask(id, ComponentType::TRANSFORM))
         *rotation = ecs->getComponentManager().getComponent<Transform>(id).rotation;
     else
-        std::cout << "Entity " << id << " has no Transform component" << std::endl;
+        std::cout << "Error Entity " << id << " has no Transform component" << std::endl;
 }
 
 void ScriptGlue::Transform_SetRotation(std::size_t id, glm::vec3 *rotation)
@@ -46,7 +46,7 @@ void ScriptGlue::Transform_SetRotation(std::size_t id, glm::vec3 *rotation)
     if (ecs->getEntityManager().hasMask(id, ComponentType::TRANSFORM))
         ecs->getComponentManager().getComponent<Transform>(id).rotation = *rotation;
     else
-        std::cout << "Entity " << id << " has no Transform component" << std::endl;
+        std::cout << "Error Entity " << id << " has no Transform component" << std::endl;
 }
 
 void ScriptGlue::Transform_GetScale(std::size_t id, glm::vec3 *scale)
@@ -56,7 +56,7 @@ void ScriptGlue::Transform_GetScale(std::size_t id, glm::vec3 *scale)
     if (ecs->getEntityManager().hasMask(id, ComponentType::TRANSFORM))
         *scale = ecs->getComponentManager().getComponent<Transform>(id).scale;
     else
-        std::cout << "Entity " << id << " has no Transform component" << std::endl;
+        std::cout << "Error Entity " << id << " has no Transform component" << std::endl;
 }
 
 void ScriptGlue::Transform_SetScale(std::size_t id, glm::vec3 *scale)
@@ -66,7 +66,7 @@ void ScriptGlue::Transform_SetScale(std::size_t id, glm::vec3 *scale)
     if (ecs->getEntityManager().hasMask(id, ComponentType::TRANSFORM))
         ecs->getComponentManager().getComponent<Transform>(id).scale = *scale;
     else
-        std::cout << "Entity " << id << " has no Transform component" << std::endl;
+        std::cout << "Error Entity " << id << " has no Transform component" << std::endl;
 }
 
 void ScriptGlue::Camera_GetForward(std::size_t id, glm::vec3 *forward)
@@ -76,7 +76,7 @@ void ScriptGlue::Camera_GetForward(std::size_t id, glm::vec3 *forward)
     if (ecs->getEntityManager().hasMask(id, ComponentType::CAMERA))
         *forward = ecs->getComponentManager().getComponent<Camera>(id).forward;
     else
-        std::cout << "Entity " << id << " has no Camera component" << std::endl;
+        std::cout << "Error Entity " << id << " has no Camera component" << std::endl;
 }
 
 void ScriptGlue::Camera_SetForward(std::size_t id, glm::vec3 *forward)
@@ -86,7 +86,7 @@ void ScriptGlue::Camera_SetForward(std::size_t id, glm::vec3 *forward)
     if (ecs->getEntityManager().hasMask(id, ComponentType::CAMERA))
         ecs->getComponentManager().getComponent<Camera>(id).forward = *forward;
     else
-        std::cout << "Entity " << id << " has no Camera component" << std::endl;
+        std::cout << "Error Entity " << id << " has no Camera component" << std::endl;
 }
 
 static std::size_t getScriptInstanceIndex(ResourceManager *resourceManager, std::size_t entityId)

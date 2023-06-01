@@ -44,6 +44,9 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
         this->_singleFrame = false;
         this->_graphic->setPaused(true);
     }
+    this->handleConsole();
+    UpdateToasts(deltaTime);
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -70,6 +73,7 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
         this->drawProfiler();
     if (this->_showFileBrowser)
         this->drawFileBrowser();
+    DrawToasts();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -86,6 +90,31 @@ void GUISystem::update(EntityManager &entityManager, ComponentManager &component
         this->_showFileExplorer = true;
         this->_showProfiler = true;
         this->_showFileBrowser = false;
+    }
+}
+
+void GUISystem::handleConsole()
+{
+    if (!this->_graphic->getStringStream().str().empty()) {
+        std::istringstream iss(this->_graphic->getStringStream().str());
+        for (std::string line; std::getline(iss, line);) {
+            if (line.substr(0, 5) == "Error")
+                CreateToast(ICON_FA_STOP_CIRCLE " Error", line.substr(6), ToastType::ERROR);
+            else if (line.substr(0, 7) == "Warning")
+                CreateToast(ICON_FA_EXCLAMATION_TRIANGLE " Warning", line.substr(8), ToastType::WARNING);
+            else if (line.substr(0, 4) == "Info")
+                CreateToast(ICON_FA_INFO_CIRCLE " Info", line.substr(5), ToastType::INFO);
+            else if (line.substr(0, 7) == "Success")
+                CreateToast(ICON_FA_CHECK_CIRCLE " Success", line.substr(8), ToastType::SUCCESS);
+
+            std::time_t t = std::time(nullptr);
+            std::tm tm = *std::localtime(&t);
+            std::stringstream ss;
+            ss << std::put_time(&tm, "[%H:%M:%S] ");
+
+            this->_consoleBuffer += ss.str() + line + '\n';
+        }
+        this->_graphic->getStringStream().str("");
     }
 }
 
@@ -511,10 +540,6 @@ void GUISystem::drawConsole()
     }
     if (ImGui::SmallButton("Clear"))
         this->_consoleBuffer.clear();
-    if (!this->_graphic->getStringStream().str().empty()) {
-        this->_consoleBuffer += this->_graphic->getStringStream().str();
-        this->_graphic->getStringStream().str("");
-    }
     ImGui::Separator();
     if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar)) {
         ImGui::TextWrapped("%s", this->_consoleBuffer.c_str());
@@ -578,7 +603,7 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
                 componentManager.addComponent<Transform>(id);
                 componentManager.addComponent<Model>(id, {file.substr(0, file.find_last_of('.'))});
             }
-            std::cout << "Dropped file: " << file << std::endl;
+            std::cout << "Info Dropped file: " << file << std::endl;
         }
         ImGui::EndDragDropTarget();
     }
@@ -653,7 +678,7 @@ void GUISystem::drawFiles()
                 ImGui::EndDragDropSource();
             }
             if (ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
-                std::cout << "Opening file: " << file.path().string() << std::endl;
+                std::cout << "Info Opening file: " << file.path().string() << std::endl;
         }
         ImGui::SetWindowFontScale(1.0f);
         ImGui::Text("%s", file.path().filename().string().c_str());
@@ -758,7 +783,7 @@ void GUISystem::drawTextureSelect(const std::string &fieldName, std::string &tex
 void GUISystem::build()
 {
     if (this->_projectRootPath.empty()) {
-        std::cout << "No project opened" << std::endl;
+        std::cout << "Warning No project opened" << std::endl;
         return;
     }
     std::filesystem::create_directories(this->_projectRootPath + "/Resources/bin");
@@ -766,7 +791,8 @@ void GUISystem::build()
     this->_resourceManager->serializeAssetPack();
     std::filesystem::copy_file("lush", std::filesystem::path(this->_projectRootPath) / (std::filesystem::path(this->_projectRootPath).filename().string()),
                                std::filesystem::copy_options::overwrite_existing);
-    std::filesystem::copy_file("Resources/AssetPack.data", std::filesystem::path(this->_projectRootPath) / "Resources" / "AssetPack.data", std::filesystem::copy_options::overwrite_existing);
+    std::filesystem::copy_file("Resources/AssetPack.data", std::filesystem::path(this->_projectRootPath) / "Resources" / "AssetPack.data",
+                               std::filesystem::copy_options::overwrite_existing);
     std::filesystem::copy("Resources/bin", std::filesystem::path(this->_projectRootPath) / "Resources" / "bin",
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 }

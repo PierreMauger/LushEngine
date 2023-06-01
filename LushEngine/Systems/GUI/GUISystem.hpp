@@ -10,6 +10,7 @@
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
 #include "ImGui/imgui_internal.h"
+#include "ImGui/toast.h"
 #include "Includes.hpp"
 #include "ResourceManager.hpp"
 
@@ -48,6 +49,8 @@ namespace Lush
 
             std::string _projectPath;
             std::string _projectRootPath;
+
+            void handleConsole();
 
             static void setDock();
             void drawMenuBar();
