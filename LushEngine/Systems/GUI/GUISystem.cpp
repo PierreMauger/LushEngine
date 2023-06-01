@@ -98,13 +98,13 @@ void GUISystem::handleConsole()
     if (!this->_graphic->getStringStream().str().empty()) {
         std::istringstream iss(this->_graphic->getStringStream().str());
         for (std::string line; std::getline(iss, line);) {
-            if (line.substr(0, 5) == "Error")
+            if (line.substr(0, 6) == "Error ")
                 CreateToast(ICON_FA_STOP_CIRCLE " Error", line.substr(6), ToastType::ERROR);
-            else if (line.substr(0, 7) == "Warning")
+            else if (line.substr(0, 8) == "Warning ")
                 CreateToast(ICON_FA_EXCLAMATION_TRIANGLE " Warning", line.substr(8), ToastType::WARNING);
-            else if (line.substr(0, 4) == "Info")
+            else if (line.substr(0, 5) == "Info ")
                 CreateToast(ICON_FA_INFO_CIRCLE " Info", line.substr(5), ToastType::INFO);
-            else if (line.substr(0, 7) == "Success")
+            else if (line.substr(0, 8) == "Success ")
                 CreateToast(ICON_FA_CHECK_CIRCLE " Success", line.substr(8), ToastType::SUCCESS);
 
             std::time_t t = std::time(nullptr);
