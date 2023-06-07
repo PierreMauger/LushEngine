@@ -27,8 +27,8 @@ public class Entity
         return instance as T;
     }
 
-    public void log(string message)
+    public void log(string message, Toast type = Toast.None)
     {
-        InternalCalls.Log(this.id, message);
+        InternalCalls.Log(this.id, message, (int)type);
     }
 }

@@ -9,7 +9,7 @@ public class Maxwell : Entity
     {
         transform = getComponent<Transform>();
         time = 0.0f;
-        this.log("hello");
+        this.log("hello", Toast.Success);
     }
 
     public void onUpdate(float deltaTime)
@@ -19,7 +19,7 @@ public class Maxwell : Entity
         Vector3 tmpPos = transform.position;
 
         float sin = (float)(Math.Asin(Math.Sin(time * 8.0f + Math.PI / 2.0f)));
-        sin = sin > 0.5f || sin < -0.5f ? sin : 0.0f;
+        sin = sin > 0.5f || sin < -0.4f ? sin : 0.0f;
 
         float sinBis = (float)(Math.Asin(Math.Sin(time * 16.0f)));
         sinBis = sinBis > 0.5f || sinBis < -0.5f ? sinBis : 0.0f;

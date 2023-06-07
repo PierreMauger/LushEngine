@@ -12,7 +12,7 @@ namespace Lush
     class ScriptGlue
     {
         public:
-            static void Console_Log(std::size_t id, MonoString *message);
+            static void Console_Log(std::size_t id, MonoString *message, int type);
 
             static void Transform_GetPosition(std::size_t id, glm::vec3 *position);
             static void Transform_SetPosition(std::size_t id, glm::vec3 *position);

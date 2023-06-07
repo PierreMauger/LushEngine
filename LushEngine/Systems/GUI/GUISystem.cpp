@@ -98,14 +98,14 @@ void GUISystem::handleConsole()
     if (!this->_graphic->getStringStream().str().empty()) {
         std::istringstream iss(this->_graphic->getStringStream().str());
         for (std::string line; std::getline(iss, line);) {
-            if (line.substr(0, 6) == "Error ")
-                CreateToast(ICON_FA_STOP_CIRCLE " Error", line.substr(6), ToastType::ERROR);
-            else if (line.substr(0, 8) == "Warning ")
-                CreateToast(ICON_FA_EXCLAMATION_TRIANGLE " Warning", line.substr(8), ToastType::WARNING);
-            else if (line.substr(0, 5) == "Info ")
-                CreateToast(ICON_FA_INFO_CIRCLE " Info", line.substr(5), ToastType::INFO);
-            else if (line.substr(0, 8) == "Success ")
-                CreateToast(ICON_FA_CHECK_CIRCLE " Success", line.substr(8), ToastType::SUCCESS);
+            if (line.substr(0, 13) == "[Toast Error]")
+                CreateToast(ICON_FA_STOP_CIRCLE " Error", line.substr(13), ToastType::ERROR);
+            else if (line.substr(0, 15) == "[Toast Warning]")
+                CreateToast(ICON_FA_EXCLAMATION_TRIANGLE " Warning", line.substr(15), ToastType::WARNING);
+            else if (line.substr(0, 12) == "[Toast Info]")
+                CreateToast(ICON_FA_INFO_CIRCLE " Info", line.substr(12), ToastType::INFO);
+            else if (line.substr(0, 15) == "[Toast Success]")
+                CreateToast(ICON_FA_CHECK_CIRCLE " Success", line.substr(15), ToastType::SUCCESS);
 
             std::time_t t = std::time(nullptr);
             std::tm tm = *std::localtime(&t);
@@ -603,7 +603,7 @@ void GUISystem::drawScene(EntityManager &entityManager, ComponentManager &compon
                 componentManager.addComponent<Transform>(id);
                 componentManager.addComponent<Model>(id, {file.substr(0, file.find_last_of('.'))});
             }
-            std::cout << "Info Dropped file: " << file << std::endl;
+            std::cout << "[Toast Info]Dropped file: " << file << std::endl;
         }
         ImGui::EndDragDropTarget();
     }
@@ -678,7 +678,7 @@ void GUISystem::drawFiles()
                 ImGui::EndDragDropSource();
             }
             if (ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
-                std::cout << "Info Opening file: " << file.path().string() << std::endl;
+                std::cout << "[Toast Info]Opening file: " << file.path().string() << std::endl;
         }
         ImGui::SetWindowFontScale(1.0f);
         ImGui::Text("%s", file.path().filename().string().c_str());
@@ -783,7 +783,7 @@ void GUISystem::drawTextureSelect(const std::string &fieldName, std::string &tex
 void GUISystem::build()
 {
     if (this->_projectRootPath.empty()) {
-        std::cout << "Warning No project opened" << std::endl;
+        std::cout << "[Toast Warning]No project opened" << std::endl;
         return;
     }
     std::filesystem::create_directories(this->_projectRootPath + "/Resources/bin");

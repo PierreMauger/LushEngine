@@ -1,10 +1,19 @@
 using System;
 using System.Runtime.CompilerServices;
 
+public enum Toast
+{
+	None = 0,
+	Success = 1,
+	Info = 2,
+	Warning = 3,
+	Error = 4
+}
+
 public static class InternalCalls
 {
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
-	internal extern static void Log(ulong id, string message);
+	internal extern static void Log(ulong id, string message, int type = 0);
 
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
 	internal extern static void Transform_GetPosition(ulong id, out Vector3 position);

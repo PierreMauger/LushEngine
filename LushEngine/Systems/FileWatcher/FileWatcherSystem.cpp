@@ -30,7 +30,7 @@ void FileWatcherSystem::reloadResourcesFromFile(File &file, EntityManager &entit
 {
     for (auto &res : Resource::getResources())
         if (res.hasFile(file)) {
-            std::cout << "Info Reloading resource " << res.getUUID() << " for file " << file.getPath() << std::endl;
+            std::cout << "[Toast Info]Reloading resource " << res.getUUID() << " for file " << file.getPath() << std::endl;
             this->updateResource(res, entityManager, componentManager);
         }
 }
@@ -61,7 +61,7 @@ bool FileWatcherSystem::handleScheduleReload(Resource &resource)
 {
     if (this->_graphic->getRunning()) {
         this->_scheduledReload.push_back(resource);
-        std::cout << "Info Scheduled reloading scene " << resource.getUUID() << std::endl;
+        std::cout << "[Toast Info]Scheduled reloading scene " << resource.getUUID() << std::endl;
         return true;
     }
     return false;
@@ -76,9 +76,9 @@ void FileWatcherSystem::reloadModel(Resource &resource)
             continue;
         try {
             model.reload(files[0], this->_resourceManager->getTextures());
-            std::cout << "Success Reloaded model " << name << std::endl;
+            std::cout << "[Toast Success]Reloaded model " << name << std::endl;
         } catch (const std::exception &e) {
-            std::cout << "Error " << e.what() << std::endl;
+            std::cout << "[Toast Error]" << e.what() << std::endl;
         }
         break;
     }
@@ -101,9 +101,9 @@ void FileWatcherSystem::reloadShader(Resource &resource)
             else if (files.size() == 5)
                 shader.reload(files[0], files[1], files[2], files[3], files[4]);
             this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());
-            std::cout << "Success Reloaded shader " << name << std::endl;
+            std::cout << "[Toast Success]Reloaded shader " << name << std::endl;
         } catch (const std::exception &e) {
-            std::cout << "Error " << e.what() << std::endl;
+            std::cout << "[Toast Error]" << e.what() << std::endl;
         }
         break;
     }
@@ -120,7 +120,7 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, ComponentManager &c
             if (name == "Core")
                 continue;
             scriptPack.reload(files);
-            std::cout << "Success Reloaded script pack " << name << std::endl;
+            std::cout << "[Toast Success]Reloaded script pack " << name << std::endl;
             for (auto &[className, klass] : scriptPack.getClasses()) {
                 this->_resourceManager->getScripts()[className].reload(scriptPack.getDomain(), klass, this->_resourceManager->getEntityClass());
 
@@ -144,7 +144,7 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, ComponentManager &c
                 }
             }
         } catch (const std::exception &e) {
-            std::cout << "Error " << e.what() << std::endl;
+            std::cout << "[Toast Error]" << e.what() << std::endl;
         }
         break;
     }
@@ -158,7 +158,7 @@ void FileWatcherSystem::reloadScene(Resource &resource, EntityManager &entityMan
         std::vector<File> files = resource.getFiles();
         scene.reload(files[0], this->_resourceManager->getScripts());
         scene.setScene(entityManager, componentManager);
-        std::cout << "Success Reloaded scene " << name << std::endl;
+        std::cout << "[Toast Success]Reloaded scene " << name << std::endl;
         break;
     }
 }

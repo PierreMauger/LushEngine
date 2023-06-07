@@ -117,7 +117,9 @@ void ResourceManager::deserializeAssetPack()
 void ResourceManager::initScriptDomain()
 {
     unsetenv("TERM");
-    // setenv("MONO_PATH", "Resources/bin", 1);
+    mono_set_dirs("libs", "libs");
+    // setenv("MONO_LOG_LEVEL", "debug", 1);
+    // setenv("MONO_LOG_MASK", "dll,cfg", 1);
 
     this->_domain = mono_jit_init("LushJIT");
     if (!this->_domain)
