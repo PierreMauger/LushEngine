@@ -45,29 +45,10 @@ void SceneSystem::update(EntityManager &entityManager, float deltaTime)
     this->handleMouse();
 
     this->drawSkybox(entityManager);
-
-    this->_graphic->getRenderView().use("CameraFrustum");
-    this->_graphic->getRenderView().setView();
-
-    // TODO : clean this
-    for (auto &[id, entity] : entityManager.getEntities()) {
-        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Camera>())
-            continue;
-        Transform transform = entity.getComponent<Transform>();
-        Camera camera = entity.getComponent<Camera>();
-        float aspectRatio = this->_graphic->getGameViewPort().z / this->_graphic->getGameViewPort().w;
-        glm::mat4 view = glm::lookAt(transform.position, transform.position + camera.forward, glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 frustum = glm::inverse(glm::perspective(glm::radians(camera.fov), aspectRatio, camera.near, camera.far) * view);
-        this->_graphic->getRenderView().getShader().setMat4("frustum", frustum);
-
-        glBindVertexArray(this->_cameraFrustum.vao);
-        glDrawArrays(GL_LINES, 0, 24);
-        glBindVertexArray(0);
-    }
-
     this->drawMap(entityManager);
     this->drawModels(entityManager);
     this->drawBillboards(entityManager);
+    this->drawCameraFrustum(entityManager);
     this->drawGrid();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -243,4 +224,27 @@ void SceneSystem::drawGrid()
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
     glDisable(GL_BLEND);
+}
+
+void SceneSystem::drawCameraFrustum(EntityManager &entityManager)
+{
+    if (this->_graphic->getSelectedEntity() == (std::size_t)-1)
+        return;
+    Entity &entity = entityManager.getEntity(this->_graphic->getSelectedEntity());
+    if (!entity.hasComponent<Transform>() || !entity.hasComponent<Camera>())
+        return;
+
+    this->_graphic->getRenderView().use("CameraFrustum");
+    this->_graphic->getRenderView().setView();
+
+    Transform transform = entity.getComponent<Transform>();
+    Camera camera = entity.getComponent<Camera>();
+    float aspectRatio = this->_graphic->getGameViewPort().z / this->_graphic->getGameViewPort().w;
+    glm::mat4 view = glm::lookAt(transform.position, transform.position + camera.forward, glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 frustum = glm::inverse(glm::perspective(glm::radians(camera.fov), aspectRatio, camera.near, camera.far) * view);
+    this->_graphic->getRenderView().getShader().setMat4("frustum", frustum);
+
+    glBindVertexArray(this->_cameraFrustum.vao);
+    glDrawArrays(GL_LINES, 0, 24);
+    glBindVertexArray(0);
 }

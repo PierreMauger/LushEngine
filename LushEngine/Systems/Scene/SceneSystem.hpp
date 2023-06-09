@@ -35,6 +35,7 @@ namespace Lush
             void drawBillboards(EntityManager &entityManager);
             void drawMap(EntityManager &entityManager);
             void drawSkybox(EntityManager &entityManager);
+            void drawCameraFrustum(EntityManager &entityManager);
             void drawGrid();
 
         public:

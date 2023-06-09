@@ -13,7 +13,7 @@ namespace Lush
         private:
             std::string _uuid;
             std::string _name;
-            std::unordered_map<std::type_index, std::shared_ptr<Component>> _components;
+            std::unordered_map<std::type_index, Component *> _components;
             std::unordered_map<std::string, ScriptComponent> _scriptComponents;
 
         public:
@@ -27,14 +27,14 @@ namespace Lush
             {
                 auto it = this->_components.find(typeid(T));
                 if (it != this->_components.end()) {
-                    return static_cast<T &>(*it->second.get());
+                    return static_cast<T &>(*it->second);
                 }
                 throw std::runtime_error("Component not found");
             }
 
             template <typename T> void addComponent(const T &component)
             {
-                this->_components[typeid(T)] = std::make_shared<T>(component);
+                this->_components[typeid(T)] = new T(component);
             }
 
             template <typename T> void removeComponent()
