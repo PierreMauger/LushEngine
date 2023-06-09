@@ -19,11 +19,6 @@ EntityManager &ECS::getEntityManager()
     return this->_entityManager;
 }
 
-ComponentManager &ECS::getComponentManager()
-{
-    return this->_componentManager;
-}
-
 SystemManager &ECS::getSystemManager()
 {
     return this->_systemManager;

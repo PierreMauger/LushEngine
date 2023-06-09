@@ -4,26 +4,12 @@ using namespace Lush;
 
 Scene::Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts) : Resource(ResourceType::SCENE, file)
 {
-    this->_componentManager.bindComponent<Transform>();
-    this->_componentManager.bindComponent<Velocity>();
-    this->_componentManager.bindComponent<Model>();
-    this->_componentManager.bindComponent<Camera>();
-    this->_componentManager.bindComponent<Light>();
-    this->_componentManager.bindComponent<Cubemap>();
-    this->_componentManager.bindComponent<Billboard>();
-    this->_componentManager.bindComponent<Map>();
-
     this->load(file, scripts);
 }
 
 EntityManager &Scene::getEntityManager()
 {
     return this->_entityManager;
-}
-
-ComponentManager &Scene::getComponentManager()
-{
-    return this->_componentManager;
 }
 
 void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scripts)
@@ -39,86 +25,71 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
     rapidxml::xml_node<> *entitiesNode = rootNode->first_node("Entities");
     for (rapidxml::xml_node<> *entityNode = entitiesNode->first_node("Entity"); entityNode; entityNode = entityNode->next_sibling("Entity")) {
         int id = std::atoi(entityNode->first_attribute("id")->value());
-        int mask = 0;
-        this->_entityManager.addMask(id, mask);
+        Entity entity;
 
         rapidxml::xml_node<> *componentsNode = entityNode->first_node("Components");
         for (rapidxml::xml_node<> *componentNode = componentsNode->first_node(); componentNode; componentNode = componentNode->next_sibling()) {
             std::string name = componentNode->name();
             if (name == "Transform") {
-                mask |= ComponentType::TRANSFORM;
                 Transform temp;
                 std::sscanf(componentNode->first_attribute("position")->value(), "%f %f %f", &temp.position.x, &temp.position.y, &temp.position.z);
                 std::sscanf(componentNode->first_attribute("rotation")->value(), "%f %f %f", &temp.rotation.x, &temp.rotation.y, &temp.rotation.z);
                 std::sscanf(componentNode->first_attribute("scale")->value(), "%f %f %f", &temp.scale.x, &temp.scale.y, &temp.scale.z);
-                this->_componentManager.addComponent<Transform>(id, temp);
-            } else if (name == "Velocity") {
-                mask |= ComponentType::VELOCITY;
-                // attributes
-                this->_componentManager.addComponent<Velocity>(id);
+                entity.addComponent(temp);
             } else if (name == "Model") {
-                mask |= ComponentType::MODEL;
                 Model temp;
                 temp.name = componentNode->first_attribute("name")->value();
-                this->_componentManager.addComponent<Model>(id, temp);
+                entity.addComponent(temp);
             } else if (name == "Camera") {
-                mask |= ComponentType::CAMERA;
                 Camera temp;
                 // attributes
-                this->_componentManager.addComponent<Camera>(id, temp);
+                entity.addComponent(temp);
             } else if (name == "Light") {
-                mask |= ComponentType::LIGHT;
                 Light temp;
                 if (componentNode->first_attribute("type"))
                     temp.type = (LightType)std::atoi(componentNode->first_attribute("type")->value());
                 // attributes
-                this->_componentManager.addComponent<Light>(id, temp);
+                entity.addComponent(temp);
             } else if (name == "Cubemap") {
-                mask |= ComponentType::CUBEMAP;
                 Cubemap temp;
                 temp.name = componentNode->first_attribute("name")->value();
-                this->_componentManager.addComponent<Cubemap>(id, temp);
+                entity.addComponent(temp);
             } else if (name == "Billboard") {
-                mask |= ComponentType::BILLBOARD;
                 Billboard temp;
                 temp.name = componentNode->first_attribute("name")->value();
-                this->_componentManager.addComponent<Billboard>(id, temp);
+                entity.addComponent(temp);
             } else if (name == "Map") {
-                mask |= ComponentType::MAP;
                 Map temp;
                 temp.heightMap = componentNode->first_attribute("heightMap")->value();
                 temp.diffuseTexture = componentNode->first_attribute("diffuseTexture")->value();
                 temp.normalTexture = componentNode->first_attribute("normalTexture")->value();
                 temp.diffuseTexture2 = componentNode->first_attribute("diffuseTexture2")->value();
                 temp.diffuseTexture3 = componentNode->first_attribute("diffuseTexture3")->value();
-                this->_componentManager.addComponent<Map>(id, temp);
+                entity.addComponent(temp);
             }
-            std::size_t it = scripts.size() - 1;
             for (auto &[scriptName, script] : scripts) {
                 if (scriptName == name) {
-                    mask |= ComponentType::COMPONENT_TYPE_COUNT << it;
-                    std::unordered_map<std::string, std::any> fieldsValues;
+                    ScriptComponent scriptComponent;
                     for (auto &[fieldName, field] : script.getFields()) {
                         if (field.type == "Single")
-                            fieldsValues[fieldName] = 0.0f;
+                            scriptComponent.addField(fieldName, 0.0f);
                         if (field.type == "Entity" || field.type == "UInt64")
-                            fieldsValues[fieldName] = (unsigned long)0;
+                            scriptComponent.addField(fieldName, (unsigned long)0);
                     }
                     for (rapidxml::xml_attribute<> *attribute = componentNode->first_attribute(); attribute; attribute = attribute->next_attribute()) {
                         std::string attributeName = attribute->name();
                         if (scripts[scriptName].getFields().find(attributeName) != scripts[scriptName].getFields().end()) {
                             if (scripts[scriptName].getFields()[attributeName].type == "Single")
-                                fieldsValues[attributeName] = std::stof(attribute->value());
+                                scriptComponent.addField(attributeName, std::stof(attribute->value()));
                             if (scripts[scriptName].getFields()[attributeName].type == "Entity" || scripts[scriptName].getFields()[attributeName].type == "UInt64")
-                                fieldsValues[attributeName] = std::stoul(attribute->value());
+                                scriptComponent.addField(attributeName, std::stoul(attribute->value()));
                         }
                     }
-                    this->_componentManager.addInstanceFields(scriptName, id, fieldsValues);
+                    entity.addScriptComponent(scriptName, scriptComponent);
                 }
-                it--;
             }
         }
-        this->_entityManager.updateMask(id, mask);
+        this->_entityManager.addEntity(entity, id);
     }
     delete[] xmlCopy;
 }
@@ -128,12 +99,9 @@ void Scene::reload(File &file, std::unordered_map<std::string, ScriptClass> &scr
     this->load(file, scripts);
 }
 
-void Scene::setScene(EntityManager &entityManager, ComponentManager &componentManager)
+void Scene::setScene(EntityManager &entityManager)
 {
-    // can't use copy constructor because of mask category
     entityManager.clear();
-    for (std::size_t i = 0; i < this->_entityManager.getMasks().size(); i++)
-        if (this->_entityManager.getMasks()[i].has_value())
-            entityManager.addMask(i, this->_entityManager.getMasks()[i].value());
-    componentManager = this->_componentManager;
+    for (auto &[id, entity] : this->_entityManager.getEntities())
+        entityManager.addEntity(entity, id);
 }

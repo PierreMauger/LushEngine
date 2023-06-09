@@ -203,12 +203,13 @@ bool RenderModel::isUsed(std::string modelName, std::unordered_map<std::string, 
 {
     for (auto &[name, scene] : scenes) {
         EntityManager &entityManager = scene.getEntityManager();
-        ComponentManager &componentManager = scene.getComponentManager();
 
-        for (std::size_t it = 0; it < entityManager.getMasks().size(); it++)
-            if (entityManager.hasMask(it, ComponentType::MODEL))
-                if (componentManager.getComponent<Model>(it).name == modelName)
-                    return true;
+        for (auto &[id, entity] : entityManager.getEntities()) {
+            if (!entity.hasComponent<Model>())
+                continue;
+            if (entity.getComponent<Model>().name == modelName)
+                return true;
+        }
     }
     return false;
 }

@@ -20,7 +20,7 @@ RenderSystem::~RenderSystem()
     Shapes::deleteBufferObject(this->_billboard);
 }
 
-void RenderSystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
+void RenderSystem::update(EntityManager &entityManager, float deltaTime)
 {
     if (!this->shouldUpdate(deltaTime))
         return;
@@ -30,21 +30,23 @@ void RenderSystem::update(EntityManager &entityManager, ComponentManager &compon
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    this->drawSkybox(entityManager, componentManager);
-    this->drawMap(entityManager, componentManager);
-    this->drawModels(entityManager, componentManager);
-    this->drawBillboards(entityManager, componentManager);
+    this->drawSkybox(entityManager);
+    this->drawMap(entityManager);
+    this->drawModels(entityManager);
+    this->drawBillboards(entityManager);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderSystem::drawModels(EntityManager &entityManager, ComponentManager &componentManager)
+void RenderSystem::drawModels(EntityManager &entityManager)
 {
     this->_graphic->getRenderView().use("Model");
     this->_graphic->getRenderView().setView();
-    for (auto id : entityManager.getMaskCategory(MODEL_TAG)) {
-        Transform transform = componentManager.getComponent<Transform>(id);
-        Model model = componentManager.getComponent<Model>(id);
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
+            continue;
+        Transform transform = entity.getComponent<Transform>();
+        Model model = entity.getComponent<Model>();
 
         this->_graphic->getRenderView().setModel(transform);
         if (this->_resourceManager->getModels().find(model.name) != this->_resourceManager->getModels().end())
@@ -52,13 +54,15 @@ void RenderSystem::drawModels(EntityManager &entityManager, ComponentManager &co
     }
 }
 
-void RenderSystem::drawBillboards(EntityManager &entityManager, ComponentManager &componentManager)
+void RenderSystem::drawBillboards(EntityManager &entityManager)
 {
     this->_graphic->getRenderView().use("Billboard");
     this->_graphic->getRenderView().setView();
-    for (auto id : entityManager.getMaskCategory(BILLBOARD_TAG)) {
-        Transform transform = componentManager.getComponent<Transform>(id);
-        Billboard billboard = componentManager.getComponent<Billboard>(id);
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Billboard>())
+            continue;
+        Transform transform = entity.getComponent<Transform>();
+        Billboard billboard = entity.getComponent<Billboard>();
 
         this->_graphic->getRenderView().setBillboard(transform);
         glActiveTexture(GL_TEXTURE0);
@@ -73,12 +77,14 @@ void RenderSystem::drawBillboards(EntityManager &entityManager, ComponentManager
     }
 }
 
-void RenderSystem::drawMap(EntityManager &entityManager, ComponentManager &componentManager)
+void RenderSystem::drawMap(EntityManager &entityManager)
 {
     this->_graphic->getRenderView().use("Map");
     this->_graphic->getRenderView().setView();
-    for (auto id : entityManager.getMaskCategory(MAP_TAG)) {
-        Map map = componentManager.getComponent<Map>(id);
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Map>())
+            continue;
+        Map map = entity.getComponent<Map>();
 
         this->_graphic->getRenderView().getShader().setMat4("model", glm::mat4(1.0f));
         glActiveTexture(GL_TEXTURE0);
@@ -115,17 +121,19 @@ void RenderSystem::drawMap(EntityManager &entityManager, ComponentManager &compo
     }
 }
 
-void RenderSystem::drawSkybox(EntityManager &entityManager, ComponentManager &componentManager)
+void RenderSystem::drawSkybox(EntityManager &entityManager)
 {
     glDepthFunc(GL_LEQUAL);
     this->_graphic->getRenderView().use("Skybox");
     this->_graphic->getRenderView().setSkyBoxView();
-    for (auto id : entityManager.getMaskCategory(SKYBOX_TAG)) {
-        Cubemap cubeMap = componentManager.getComponent<Cubemap>(id);
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Cubemap>())
+            continue;
+        Cubemap cubemap = entity.getComponent<Cubemap>();
 
-        if (this->_resourceManager->getSkyBoxes().find(cubeMap.name) != this->_resourceManager->getSkyBoxes().end()) {
+        if (this->_resourceManager->getSkyBoxes().find(cubemap.name) != this->_resourceManager->getSkyBoxes().end()) {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyBoxes()[cubeMap.name].getId());
+            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyBoxes()[cubemap.name].getId());
             this->_graphic->getRenderView().getShader().setInt("skybox", 0);
             glBindVertexArray(this->_skybox.vao);
             glDrawArrays(GL_TRIANGLES, 0, 36);

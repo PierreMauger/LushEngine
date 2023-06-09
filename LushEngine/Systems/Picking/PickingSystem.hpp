@@ -1,15 +1,12 @@
 #ifndef PICKING_SYSTEM_HPP
 #define PICKING_SYSTEM_HPP
 
-#include "ComponentTypes.hpp"
+#include "ECS/Component/Component.hpp"
 #include "ECS/System/ASystem.hpp"
 #include "Graphic.hpp"
 #include "Includes.hpp"
 #include "Rendering/Shapes.hpp"
 #include "ResourceManager.hpp"
-
-#define MODEL_TAG (ComponentType::TRANSFORM | ComponentType::MODEL)
-#define BILLBOARD_TAG (ComponentType::TRANSFORM | ComponentType::BILLBOARD)
 
 namespace Lush
 {
@@ -23,15 +20,15 @@ namespace Lush
             BufferObject _billboard{};
             BufferObject _plane{};
 
-            void drawModels(EntityManager &entityManager, ComponentManager &componentManager);
-            void drawBillboards(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawModels(EntityManager &entityManager);
+            void drawBillboards(EntityManager &entityManager);
             void drawOutline(std::size_t pixel);
 
         public:
             PickingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~PickingSystem() override;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) override;
+            void update(EntityManager &entityManager, float deltaTime) override;
     };
 }
 

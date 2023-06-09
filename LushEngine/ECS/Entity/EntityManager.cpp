@@ -2,65 +2,63 @@
 
 using namespace Lush;
 
-std::vector<std::optional<std::size_t>> &EntityManager::getMasks()
+void EntityManager::addEntity(Entity &entity)
 {
-    return this->_masks;
+    this->_entities[this->_entities.size()] = entity;
 }
 
-void EntityManager::addMaskCategory(std::size_t category)
+void EntityManager::addEntity(Entity &entity, std::size_t index)
 {
-    this->_maskCategory[category] = std::vector<std::size_t>();
+    this->_entities[index] = entity;
 }
 
-std::vector<std::size_t> &EntityManager::getMaskCategory(std::size_t category)
+void EntityManager::removeEntity(Entity &entity)
 {
-    return this->_maskCategory[category];
-}
-
-void EntityManager::addMask(std::size_t id, std::optional<std::size_t> mask)
-{
-    if (id >= this->_masks.size())
-        this->_masks.resize(id + 1);
-    this->_masks[id] = mask;
-
-    for (auto &[key, value] : this->_maskCategory)
-        if (mask.has_value() && (mask.value() & key) == key)
-            value.push_back(id);
-}
-
-void EntityManager::removeMask(std::size_t id)
-{
-    if (id >= this->_masks.size())
-        return;
-    this->_masks[id] = std::nullopt;
-
-    for (auto &[key, value] : this->_maskCategory)
-        value.erase(std::remove(value.begin(), value.end(), id), value.end());
-}
-
-void EntityManager::updateMask(std::size_t id, std::optional<std::size_t> mask)
-{
-    if (id >= this->_masks.size())
-        return;
-    this->_masks[id] = mask;
-
-    for (auto &[key, value] : this->_maskCategory) {
-        value.erase(std::remove(value.begin(), value.end(), id), value.end());
-        if (mask.has_value() && (mask.value() & key) == key)
-            value.push_back(id);
+    for (auto it = this->_entities.begin(); it != this->_entities.end(); it++) {
+        if (it->second == entity) {
+            this->_entities.erase(it);
+            break;
+        }
     }
 }
 
-bool EntityManager::hasMask(std::size_t id, std::size_t mask)
+void EntityManager::removeEntity(const std::string &name)
 {
-    if (id >= this->_masks.size())
-        return false;
-    return this->_masks[id].has_value() && (this->_masks[id].value() & mask) == mask;
+    for (auto it = this->_entities.begin(); it != this->_entities.end(); it++) {
+        if (it->second.getName() == name) {
+            this->_entities.erase(it);
+            break;
+        }
+    }
+}
+
+void EntityManager::removeEntity(std::size_t index)
+{
+    this->_entities.erase(index);
+}
+
+Entity &EntityManager::getEntity(const std::string &name)
+{
+    for (auto it = this->_entities.begin(); it != this->_entities.end(); it++) {
+        if (it->second.getName() == name)
+            return it->second;
+    }
+    throw std::runtime_error("getEntity: Entity not found " + name);
+}
+
+Entity &EntityManager::getEntity(std::size_t index)
+{
+    if (this->_entities.find(index) == this->_entities.end())
+        throw std::runtime_error("getEntity: Entity not found " + std::to_string(index));
+    return this->_entities[index];
+}
+
+std::map<std::size_t, Entity> &EntityManager::getEntities()
+{
+    return this->_entities;
 }
 
 void EntityManager::clear()
 {
-    this->_masks.clear();
-    for (auto &[id, category] : this->_maskCategory)
-        category.clear();
+    this->_entities.clear();
 }

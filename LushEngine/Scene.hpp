@@ -1,8 +1,7 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
-#include "ComponentTypes.hpp"
-#include "ECS/Component/ComponentManager.hpp"
+#include "ECS/Component/Component.hpp"
 #include "ECS/Entity/EntityManager.hpp"
 #include "File/File.hpp"
 #include "Includes.hpp"
@@ -16,7 +15,6 @@ namespace Lush
     {
         private:
             EntityManager _entityManager;
-            ComponentManager _componentManager;
 
         public:
             Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
@@ -24,12 +22,11 @@ namespace Lush
             ~Scene() = default;
 
             EntityManager &getEntityManager();
-            ComponentManager &getComponentManager();
 
             void load(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
             void reload(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
 
-            void setScene(EntityManager &entityManager, ComponentManager &componentManager);
+            void setScene(EntityManager &entityManager);
     };
 }
 

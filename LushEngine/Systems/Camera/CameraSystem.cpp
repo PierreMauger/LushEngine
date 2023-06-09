@@ -6,13 +6,23 @@ CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic) : ASystem(60.0f), _
 {
 }
 
-void CameraSystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
+void CameraSystem::update(EntityManager &entityManager, float deltaTime)
 {
     if (!this->shouldUpdate(deltaTime))
         return;
-    for (auto id : entityManager.getMaskCategory(LIGHT_TAG)) {
-        Transform transform = componentManager.getComponent<Transform>(id);
-        Light light = componentManager.getComponent<Light>(id);
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Camera>())
+            continue;
+        auto &transform = entity.getComponent<Transform>();
+        auto &camera = entity.getComponent<Camera>();
+
+        this->_graphic->getRenderView().update(transform, camera);
+    }
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Light>())
+            continue;
+        auto &transform = entity.getComponent<Transform>();
+        auto &light = entity.getComponent<Light>();
 
         if (light.type == LightType::DIRECTIONAL)
             this->_dirLights.emplace_back(transform, light);
@@ -23,9 +33,11 @@ void CameraSystem::update(EntityManager &entityManager, ComponentManager &compon
     }
 
     this->_graphic->getRenderView().use("Model");
-    for (auto id : entityManager.getMaskCategory(CAMERA_TAG)) {
-        auto &transform = componentManager.getComponent<Transform>(id);
-        auto &camera = componentManager.getComponent<Camera>(id);
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Camera>())
+            continue;
+        auto &transform = entity.getComponent<Transform>();
+        auto &camera = entity.getComponent<Camera>();
 
         this->_graphic->getRenderView().update(transform, camera);
 

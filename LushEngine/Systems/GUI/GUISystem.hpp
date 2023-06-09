@@ -1,7 +1,7 @@
 #ifndef GUI_SYSTEM_HPP
 #define GUI_SYSTEM_HPP
 
-#include "ComponentTypes.hpp"
+#include "ECS/Component/Component.hpp"
 #include "ECS/System/ASystem.hpp"
 #include "Graphic.hpp"
 #include "ImGui/IconsFontAwesome5.h"
@@ -41,7 +41,6 @@ namespace Lush
             ImGuizmo::MODE _currentMode = ImGuizmo::MODE::LOCAL;
 
             EntityManager _entityManagerCopy;
-            ComponentManager _componentManagerCopy;
 
             std::string _consoleBuffer;
 
@@ -54,15 +53,15 @@ namespace Lush
 
             static void setDock();
             void drawMenuBar();
-            void drawActionBar(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawActionBar(EntityManager &entityManager);
 
-            void drawSceneHierarchy(EntityManager &entityManager, ComponentManager &componentManager);
-            void drawProperties(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawSceneHierarchy(EntityManager &entityManager);
+            void drawProperties(EntityManager &entityManager);
             void drawTools();
             void drawConsole();
             void drawGame();
-            void drawScene(EntityManager &entityManager, ComponentManager &componentManager);
-            bool drawGuizmo(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawScene(EntityManager &entityManager);
+            bool drawGuizmo(EntityManager &entityManager);
             void drawFiles();
             void drawProfiler();
             void drawFileBrowser();
@@ -77,7 +76,7 @@ namespace Lush
             GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~GUISystem() override;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) override;
+            void update(EntityManager &entityManager, float deltaTime) override;
     };
 }
 

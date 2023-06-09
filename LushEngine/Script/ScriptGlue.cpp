@@ -27,80 +27,80 @@ void ScriptGlue::Console_Log(std::size_t id, MonoString *message, int type)
 
 void ScriptGlue::Transform_GetPosition(std::size_t id, glm::vec3 *position)
 {
-    ECS *ecs = ECS::getECS();
+    Entity &entity = ECS::getECS()->getEntityManager().getEntity(id);
 
-    if (ecs->getEntityManager().hasMask(id, ComponentType::TRANSFORM))
-        *position = ecs->getComponentManager().getComponent<Transform>(id).position;
+    if (entity.hasComponent<Transform>())
+        *position = entity.getComponent<Transform>().position;
     else
         std::cout << "[Toast Error]Entity " << id << " has no Transform component" << std::endl;
 }
 
 void ScriptGlue::Transform_SetPosition(std::size_t id, glm::vec3 *position)
 {
-    ECS *ecs = ECS::getECS();
+    Entity &entity = ECS::getECS()->getEntityManager().getEntity(id);
 
-    if (ecs->getEntityManager().hasMask(id, ComponentType::TRANSFORM))
-        ecs->getComponentManager().getComponent<Transform>(id).position = *position;
+    if (entity.hasComponent<Transform>())
+        entity.getComponent<Transform>().position = *position;
     else
         std::cout << "[Toast Error]Entity " << id << " has no Transform component" << std::endl;
 }
 
 void ScriptGlue::Transform_GetRotation(std::size_t id, glm::vec3 *rotation)
 {
-    ECS *ecs = ECS::getECS();
+    Entity &entity = ECS::getECS()->getEntityManager().getEntity(id);
 
-    if (ecs->getEntityManager().hasMask(id, ComponentType::TRANSFORM))
-        *rotation = ecs->getComponentManager().getComponent<Transform>(id).rotation;
+    if (entity.hasComponent<Transform>())
+        *rotation = entity.getComponent<Transform>().rotation;
     else
         std::cout << "[Toast Error]Entity " << id << " has no Transform component" << std::endl;
 }
 
 void ScriptGlue::Transform_SetRotation(std::size_t id, glm::vec3 *rotation)
 {
-    ECS *ecs = ECS::getECS();
+    Entity &entity = ECS::getECS()->getEntityManager().getEntity(id);
 
-    if (ecs->getEntityManager().hasMask(id, ComponentType::TRANSFORM))
-        ecs->getComponentManager().getComponent<Transform>(id).rotation = *rotation;
+    if (entity.hasComponent<Transform>())
+        entity.getComponent<Transform>().rotation = *rotation;
     else
         std::cout << "[Toast Error]Entity " << id << " has no Transform component" << std::endl;
 }
 
 void ScriptGlue::Transform_GetScale(std::size_t id, glm::vec3 *scale)
 {
-    ECS *ecs = ECS::getECS();
+    Entity &entity = ECS::getECS()->getEntityManager().getEntity(id);
 
-    if (ecs->getEntityManager().hasMask(id, ComponentType::TRANSFORM))
-        *scale = ecs->getComponentManager().getComponent<Transform>(id).scale;
+    if (entity.hasComponent<Transform>())
+        *scale = entity.getComponent<Transform>().scale;
     else
         std::cout << "[Toast Error]Entity " << id << " has no Transform component" << std::endl;
 }
 
 void ScriptGlue::Transform_SetScale(std::size_t id, glm::vec3 *scale)
 {
-    ECS *ecs = ECS::getECS();
+    Entity &entity = ECS::getECS()->getEntityManager().getEntity(id);
 
-    if (ecs->getEntityManager().hasMask(id, ComponentType::TRANSFORM))
-        ecs->getComponentManager().getComponent<Transform>(id).scale = *scale;
+    if (entity.hasComponent<Transform>())
+        entity.getComponent<Transform>().scale = *scale;
     else
         std::cout << "[Toast Error]Entity " << id << " has no Transform component" << std::endl;
 }
 
 void ScriptGlue::Camera_GetForward(std::size_t id, glm::vec3 *forward)
 {
-    ECS *ecs = ECS::getECS();
+    Entity &entity = ECS::getECS()->getEntityManager().getEntity(id);
 
-    if (ecs->getEntityManager().hasMask(id, ComponentType::CAMERA))
-        *forward = ecs->getComponentManager().getComponent<Camera>(id).forward;
+    if (entity.hasComponent<Camera>())
+        *forward = entity.getComponent<Camera>().forward;
     else
         std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
 }
 
 void ScriptGlue::Camera_SetForward(std::size_t id, glm::vec3 *forward)
 {
-    ECS *ecs = ECS::getECS();
+    Entity &entity = ECS::getECS()->getEntityManager().getEntity(id);
 
-    if (ecs->getEntityManager().hasMask(id, ComponentType::CAMERA))
-        ecs->getComponentManager().getComponent<Camera>(id).forward = *forward;
+    if (entity.hasComponent<Camera>())
+        entity.getComponent<Camera>().forward = *forward;
     else
         std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
 }

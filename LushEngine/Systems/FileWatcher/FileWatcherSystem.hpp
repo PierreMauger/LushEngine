@@ -1,7 +1,7 @@
 #ifndef FILE_WATCHER_SYSTEM_HPP
 #define FILE_WATCHER_SYSTEM_HPP
 
-#include "ComponentTypes.hpp"
+#include "ECS/Component/Component.hpp"
 #include "ECS/System/ASystem.hpp"
 #include "File/File.hpp"
 #include "Graphic.hpp"
@@ -18,20 +18,20 @@ namespace Lush
 
             std::vector<Resource> _scheduledReload;
 
-            void reloadResourcesFromFile(File &file, EntityManager &entityManager, ComponentManager &componentManager);
-            void updateResource(Resource &resource, EntityManager &entityManager, ComponentManager &componentManager);
+            void reloadResourcesFromFile(File &file, EntityManager &entityManager);
+            void updateResource(Resource &resource, EntityManager &entityManager);
             bool handleScheduleReload(Resource &resource);
 
             void reloadModel(Resource &resource);
             void reloadShader(Resource &resource);
-            void reloadScriptPack(Resource &resource, ComponentManager &componentManager);
-            void reloadScene(Resource &resource, EntityManager &entityManager, ComponentManager &componentManager);
+            void reloadScriptPack(Resource &resource, EntityManager &entityManager);
+            void reloadScene(Resource &resource, EntityManager &entityManager);
 
         public:
             FileWatcherSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~FileWatcherSystem() override = default;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) override;
+            void update(EntityManager &entityManager, float deltaTime) override;
     };
 }
 

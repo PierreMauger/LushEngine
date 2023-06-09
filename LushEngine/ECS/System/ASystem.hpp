@@ -1,7 +1,6 @@
 #ifndef A_SYSTEM_HPP
 #define A_SYSTEM_HPP
 
-#include "ECS/Component/ComponentManager.hpp"
 #include "ECS/Entity/EntityManager.hpp"
 #include "Includes.hpp"
 
@@ -16,7 +15,8 @@ namespace Lush
         public:
             explicit ASystem(float updateFrequency);
             virtual ~ASystem() = default;
-            virtual void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) = 0;
+
+            virtual void update(EntityManager &entityManager, float deltaTime) = 0;
 
             bool shouldUpdate(float deltaTime);
             [[nodiscard]] float getDeltaTime() const;

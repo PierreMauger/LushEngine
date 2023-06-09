@@ -8,7 +8,7 @@ ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Res
     ScriptGlue::registerFunctions();
 }
 
-void ScriptSystem::update([[maybe_unused]] EntityManager &entityManager, [[maybe_unused]] ComponentManager &componentManager, float deltaTime)
+void ScriptSystem::update([[maybe_unused]] EntityManager &entityManager, float deltaTime)
 {
     if (this->_graphic->getPaused() || !this->_graphic->getRunning())
         return;

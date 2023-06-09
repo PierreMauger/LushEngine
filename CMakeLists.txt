@@ -40,8 +40,8 @@ set(ECS_INC
 
 set(ECS_SRC
     ${ECS_ROOT}/ECS.cpp
-    ${ECS_ROOT}/Component/SparseArray.cpp
-    ${ECS_ROOT}/Component/ComponentManager.cpp
+    ${ECS_ROOT}/Component/ScriptComponent.cpp
+    ${ECS_ROOT}/Entity/Entity.cpp
     ${ECS_ROOT}/Entity/EntityManager.cpp
     ${ECS_ROOT}/System/ASystem.cpp
     ${ECS_ROOT}/System/SystemManager.cpp

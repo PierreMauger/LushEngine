@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "ComponentTypes.hpp"
+#include "ECS/Component/Component.hpp"
 #include "Includes.hpp"
 #include "Rendering/Shader.hpp"
 

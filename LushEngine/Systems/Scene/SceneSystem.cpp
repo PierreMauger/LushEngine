@@ -31,7 +31,7 @@ SceneSystem::~SceneSystem()
     Shapes::deleteBufferObject(this->_grid);
 }
 
-void SceneSystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
+void SceneSystem::update(EntityManager &entityManager, float deltaTime)
 {
     if (!this->shouldUpdate(deltaTime))
         return;
@@ -44,14 +44,17 @@ void SceneSystem::update(EntityManager &entityManager, ComponentManager &compone
 
     this->handleMouse();
 
-    this->drawSkybox(entityManager, componentManager);
+    this->drawSkybox(entityManager);
 
     this->_graphic->getRenderView().use("CameraFrustum");
     this->_graphic->getRenderView().setView();
 
-    if (entityManager.hasMask(this->_graphic->getSelectedEntity(), ComponentType::CAMERA)) {
-        Transform transform = componentManager.getComponent<Transform>(1);
-        Camera camera = componentManager.getComponent<Camera>(1);
+    // TODO : clean this
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Camera>())
+            continue;
+        Transform transform = entity.getComponent<Transform>();
+        Camera camera = entity.getComponent<Camera>();
         float aspectRatio = this->_graphic->getGameViewPort().z / this->_graphic->getGameViewPort().w;
         glm::mat4 view = glm::lookAt(transform.position, transform.position + camera.forward, glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 frustum = glm::inverse(glm::perspective(glm::radians(camera.fov), aspectRatio, camera.near, camera.far) * view);
@@ -62,9 +65,9 @@ void SceneSystem::update(EntityManager &entityManager, ComponentManager &compone
         glBindVertexArray(0);
     }
 
-    this->drawMap(entityManager, componentManager);
-    this->drawModels(entityManager, componentManager);
-    this->drawBillboards(entityManager, componentManager);
+    this->drawMap(entityManager);
+    this->drawModels(entityManager);
+    this->drawBillboards(entityManager);
     this->drawGrid();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -125,13 +128,15 @@ void SceneSystem::handleMouse()
     }
 }
 
-void SceneSystem::drawModels(EntityManager &entityManager, ComponentManager &componentManager)
+void SceneSystem::drawModels(EntityManager &entityManager)
 {
     this->_graphic->getRenderView().use("Model");
     this->_graphic->getRenderView().setView();
-    for (auto id : entityManager.getMaskCategory(MODEL_TAG)) {
-        Transform transform = componentManager.getComponent<Transform>(id);
-        Model model = componentManager.getComponent<Model>(id);
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
+            continue;
+        Transform transform = entity.getComponent<Transform>();
+        Model model = entity.getComponent<Model>();
 
         this->_graphic->getRenderView().setModel(transform);
         if (this->_resourceManager->getModels().find(model.name) != this->_resourceManager->getModels().end())
@@ -139,13 +144,15 @@ void SceneSystem::drawModels(EntityManager &entityManager, ComponentManager &com
     }
 }
 
-void SceneSystem::drawBillboards(EntityManager &entityManager, ComponentManager &componentManager)
+void SceneSystem::drawBillboards(EntityManager &entityManager)
 {
     this->_graphic->getRenderView().use("Billboard");
     this->_graphic->getRenderView().setView();
-    for (auto id : entityManager.getMaskCategory(BILLBOARD_TAG)) {
-        Transform transform = componentManager.getComponent<Transform>(id);
-        Billboard billboard = componentManager.getComponent<Billboard>(id);
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Billboard>())
+            continue;
+        Transform transform = entity.getComponent<Transform>();
+        Billboard billboard = entity.getComponent<Billboard>();
 
         this->_graphic->getRenderView().setBillboard(transform);
         glActiveTexture(GL_TEXTURE0);
@@ -160,13 +167,16 @@ void SceneSystem::drawBillboards(EntityManager &entityManager, ComponentManager 
     }
 }
 
-void SceneSystem::drawMap(EntityManager &entityManager, ComponentManager &componentManager)
+void SceneSystem::drawMap(EntityManager &entityManager)
 {
     this->_graphic->getRenderView().use(this->_graphic->isWireframe() ? "MapWireframe" : "Map");
     this->_graphic->getRenderView().setView();
-    for (auto id : entityManager.getMaskCategory(MAP_TAG)) {
-        Map map = componentManager.getComponent<Map>(id);
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Map>())
+            continue;
+        Map map = entity.getComponent<Map>();
 
+        // TODO : clean this and add it to render system
         this->_graphic->getRenderView().getShader().setMat4("model", glm::mat4(1.0f));
         glActiveTexture(GL_TEXTURE0);
         if (this->_resourceManager->getTextures().find(map.heightMap) != this->_resourceManager->getTextures().end())
@@ -202,13 +212,15 @@ void SceneSystem::drawMap(EntityManager &entityManager, ComponentManager &compon
     }
 }
 
-void SceneSystem::drawSkybox(EntityManager &entityManager, ComponentManager &componentManager)
+void SceneSystem::drawSkybox(EntityManager &entityManager)
 {
     glDepthFunc(GL_LEQUAL);
     this->_graphic->getRenderView().use("Skybox");
     this->_graphic->getRenderView().setSkyBoxView();
-    for (auto id : entityManager.getMaskCategory(SKYBOX_TAG)) {
-        Cubemap cubeMap = componentManager.getComponent<Cubemap>(id);
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Cubemap>())
+            continue;
+        Cubemap cubeMap = entity.getComponent<Cubemap>();
 
         if (this->_resourceManager->getSkyBoxes().find(cubeMap.name) != this->_resourceManager->getSkyBoxes().end()) {
             glActiveTexture(GL_TEXTURE0);

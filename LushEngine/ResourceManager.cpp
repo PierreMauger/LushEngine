@@ -198,8 +198,8 @@ void ResourceManager::loadScriptDll(const std::string &dir)
 
     for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
         this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_corePack->getClasses()["Entity"]);
-        ECS::getECS()->getComponentManager().bindInstanceFields(name);
-        ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
+        // ECS::getECS()->getComponentManager().bindInstanceFields(name);
+        // ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
     }
 }
 
@@ -216,8 +216,8 @@ void ResourceManager::loadScriptPack(const std::string &dir, const std::string &
         this->_scriptPacks["Game"] = ScriptPack(tempFiles, "Game");
         for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
             this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_corePack->getClasses()["Entity"]);
-            ECS::getECS()->getComponentManager().bindInstanceFields(name);
-            ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
+            // ECS::getECS()->getComponentManager().bindInstanceFields(name);
+            // ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
         }
     } else {
         this->_corePack = std::make_unique<ScriptPack>(tempFiles, packName);
@@ -239,8 +239,8 @@ void ResourceManager::reloadScripts(const std::string &dir)
     this->_scriptPacks["Game"].reload(tempFiles);
     for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
         this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_corePack->getClasses()["Entity"]);
-        ECS::getECS()->getComponentManager().bindInstanceFields(name);
-        ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
+        // ECS::getECS()->getComponentManager().bindInstanceFields(name);
+        // ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
     }
     tempFiles.clear();
 }

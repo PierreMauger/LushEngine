@@ -18,7 +18,7 @@ namespace Lush
             std::unordered_map<std::string, std::any> _defaultFields;
 
         public:
-            ScriptInstance(ScriptClass &script, std::size_t id, std::unordered_map<std::string, std::any> &defaultFields);
+            ScriptInstance(ScriptClass &script, std::size_t entityId, std::unordered_map<std::string, std::any> &defaultFields);
             ~ScriptInstance() = default;
 
             MonoObject *getInstance();

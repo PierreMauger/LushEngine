@@ -1,17 +1,12 @@
 #ifndef RENDER_SYSTEM_HPP
 #define RENDER_SYSTEM_HPP
 
-#include "ComponentTypes.hpp"
+#include "ECS/Component/Component.hpp"
 #include "ECS/System/ASystem.hpp"
 #include "Graphic.hpp"
 #include "Includes.hpp"
 #include "Rendering/Shapes.hpp"
 #include "ResourceManager.hpp"
-
-#define MODEL_TAG (ComponentType::TRANSFORM | ComponentType::MODEL)
-#define BILLBOARD_TAG (ComponentType::TRANSFORM | ComponentType::BILLBOARD)
-#define SKYBOX_TAG (ComponentType::CUBEMAP)
-#define MAP_TAG (ComponentType::MAP)
 
 namespace Lush
 {
@@ -25,16 +20,16 @@ namespace Lush
             BufferObject _skybox{};
             BufferObject _billboard{};
 
-            void drawModels(EntityManager &entityManager, ComponentManager &componentManager);
-            void drawBillboards(EntityManager &entityManager, ComponentManager &componentManager);
-            void drawMap(EntityManager &entityManager, ComponentManager &componentManager);
-            void drawSkybox(EntityManager &entityManager, ComponentManager &componentManager);
+            void drawModels(EntityManager &entityManager);
+            void drawBillboards(EntityManager &entityManager);
+            void drawMap(EntityManager &entityManager);
+            void drawSkybox(EntityManager &entityManager);
 
         public:
             RenderSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~RenderSystem() override;
 
-            void update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime) override;
+            void update(EntityManager &entityManager, float deltaTime) override;
     };
 }
 

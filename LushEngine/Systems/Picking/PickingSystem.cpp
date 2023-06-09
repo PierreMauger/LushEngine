@@ -19,7 +19,7 @@ PickingSystem::~PickingSystem()
     Shapes::deleteBufferObject(this->_plane);
 }
 
-void PickingSystem::update(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
+void PickingSystem::update(EntityManager &entityManager, float deltaTime)
 {
     if (!this->shouldUpdate(deltaTime))
         return;
@@ -30,8 +30,8 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    this->drawModels(entityManager, componentManager);
-    this->drawBillboards(entityManager, componentManager);
+    this->drawModels(entityManager);
+    this->drawBillboards(entityManager);
 
     // convert from viewport coord to screen coord (picking buffer is drawn on whole screen and resized later to viewport)
     glm::vec2 mousePosition = this->_graphic->getMousePosition();
@@ -49,13 +49,15 @@ void PickingSystem::update(EntityManager &entityManager, ComponentManager &compo
     this->drawOutline(pixel);
 }
 
-void PickingSystem::drawModels(EntityManager &entityManager, ComponentManager &componentManager)
+void PickingSystem::drawModels(EntityManager &entityManager)
 {
     this->_graphic->getRenderView().use("PickingModel");
     this->_graphic->getRenderView().setView();
-    for (auto id : entityManager.getMaskCategory(MODEL_TAG)) {
-        Transform transform = componentManager.getComponent<Transform>(id);
-        Model model = componentManager.getComponent<Model>(id);
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
+            continue;
+        Transform transform = entity.getComponent<Transform>();
+        Model model = entity.getComponent<Model>();
 
         glm::vec4 color;
         color.r = (((id + 1) & 0x000000FF) >> 0) / 255.0f;
@@ -70,13 +72,15 @@ void PickingSystem::drawModels(EntityManager &entityManager, ComponentManager &c
     }
 }
 
-void PickingSystem::drawBillboards(EntityManager &entityManager, ComponentManager &componentManager)
+void PickingSystem::drawBillboards(EntityManager &entityManager)
 {
     this->_graphic->getRenderView().use("PickingBillboard");
     this->_graphic->getRenderView().setView();
-    for (auto id : entityManager.getMaskCategory(BILLBOARD_TAG)) {
-        Transform transform = componentManager.getComponent<Transform>(id);
-        Billboard billboard = componentManager.getComponent<Billboard>(id);
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Billboard>())
+            continue;
+        Transform transform = entity.getComponent<Transform>();
+        Billboard billboard = entity.getComponent<Billboard>();
 
         glm::vec4 color;
         color.r = (((id + 1) & 0x000000FF) >> 0) / 255.0f;

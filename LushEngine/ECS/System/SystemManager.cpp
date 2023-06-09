@@ -13,8 +13,8 @@ void SystemManager::bindSystem(std::unique_ptr<ASystem> system)
     this->_systems.push_back(std::move(system));
 }
 
-void SystemManager::updateSystems(EntityManager &entityManager, ComponentManager &componentManager, float deltaTime)
+void SystemManager::updateSystems(EntityManager &entityManager, float deltaTime)
 {
     for (auto &system : this->_systems)
-        system->update(entityManager, componentManager, deltaTime);
+        system->update(entityManager, deltaTime);
 }
