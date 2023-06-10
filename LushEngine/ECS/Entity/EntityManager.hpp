@@ -20,6 +20,9 @@ namespace Lush
             void removeEntity(const std::string &name);
             void removeEntity(std::size_t index);
 
+            bool hasEntity(const std::string &name);
+            bool hasEntity(std::size_t index);
+
             Entity &getEntity(const std::string &name);
             Entity &getEntity(std::size_t index);
 

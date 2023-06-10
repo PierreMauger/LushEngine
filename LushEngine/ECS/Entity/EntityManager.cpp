@@ -37,6 +37,20 @@ void EntityManager::removeEntity(std::size_t index)
     this->_entities.erase(index);
 }
 
+bool EntityManager::hasEntity(const std::string &name)
+{
+    for (auto it = this->_entities.begin(); it != this->_entities.end(); it++) {
+        if (it->second.getName() == name)
+            return true;
+    }
+    return false;
+}
+
+bool EntityManager::hasEntity(std::size_t index)
+{
+    return this->_entities.find(index) != this->_entities.end();
+}
+
 Entity &EntityManager::getEntity(const std::string &name)
 {
     for (auto it = this->_entities.begin(); it != this->_entities.end(); it++) {

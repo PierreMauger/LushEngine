@@ -29,7 +29,7 @@ namespace Lush
                 if (it != this->_components.end()) {
                     return static_cast<T &>(*it->second);
                 }
-                throw std::runtime_error("Component not found");
+                throw std::runtime_error("getComponent: Component not found " + std::string(typeid(T).name()));
             }
 
             template <typename T> void addComponent(const T &component)

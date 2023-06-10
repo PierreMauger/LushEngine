@@ -228,7 +228,7 @@ void SceneSystem::drawGrid()
 
 void SceneSystem::drawCameraFrustum(EntityManager &entityManager)
 {
-    if (this->_graphic->getSelectedEntity() == (std::size_t)-1)
+    if (entityManager.getEntities().find(this->_graphic->getSelectedEntity()) == entityManager.getEntities().end())
         return;
     Entity &entity = entityManager.getEntity(this->_graphic->getSelectedEntity());
     if (!entity.hasComponent<Transform>() || !entity.hasComponent<Camera>())
