@@ -77,15 +77,12 @@ namespace Lush
             bool getPaused() const;
 
             void setHoveredEntity(std::size_t hoveredEntity);
-//            std::size_t getHoveredEntity();
             void setSelectedEntity(std::size_t selectedEntity);
             std::size_t getSelectedEntity() const;
 
-//            void setMouseMovement(bool mouseMovement);
             bool getMouseMovement() const;
             void setSceneMovement(bool sceneMovement);
             bool getSceneMovement() const;
-            // void setMouseButton(int mouseButton);
             int getMouseButton() const;
             void setMousePosition(glm::vec2 mousePosition);
             void setMouseOffset(glm::vec2 mousePosition);

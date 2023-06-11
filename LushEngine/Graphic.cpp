@@ -177,11 +177,6 @@ void Graphic::setHoveredEntity(std::size_t hoveredEntity)
     this->_hoveredEntity = hoveredEntity;
 }
 
-//std::size_t Graphic::getHoveredEntity()
-//{
-//    return this->_hoveredEntity;
-//}
-
 void Graphic::setSelectedEntity(std::size_t selectedEntity)
 {
     this->_selectedEntity = selectedEntity;
@@ -191,11 +186,6 @@ std::size_t Graphic::getSelectedEntity() const
 {
     return this->_selectedEntity;
 }
-
-//void Graphic::setMouseMovement(bool mouseMovement)
-//{
-//    this->_mouseMovement = mouseMovement;
-//}
 
 bool Graphic::getMouseMovement() const
 {
@@ -211,11 +201,6 @@ bool Graphic::getSceneMovement() const
 {
     return this->_sceneMovement;
 }
-
-// void Graphic::setMouseButton(int button)
-// {
-//     this->_mouseButton = button;
-// }
 
 int Graphic::getMouseButton() const
 {
@@ -265,10 +250,10 @@ glm::vec4 Graphic::getSceneViewPort()
     return this->_sceneViewPort;
 }
 
-//void Graphic::setWindowSize(glm::vec2 windowSize)
+// void Graphic::setWindowSize(glm::vec2 windowSize)
 //{
-//    this->_windowSize = windowSize;
-//}
+//     this->_windowSize = windowSize;
+// }
 
 glm::vec2 Graphic::getWindowSize()
 {

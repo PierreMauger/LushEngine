@@ -68,10 +68,10 @@ void ResourceManager::serializeAssetPack()
 
     oa << this->_models.size();
     for (auto &[name, model] : this->_models) {
-        if (model.isUsed(name, this->_scenes)) {
+        // if (model.isUsed(name, this->_scenes)) {
             oa << name;
             oa << model;
-        }
+        // }
     }
 
     //    oa << this->_shaders.size();
@@ -196,11 +196,8 @@ void ResourceManager::loadScriptDll(const std::string &dir)
     this->_corePack = std::make_unique<ScriptPack>(coreFiles, "Core");
     this->_scriptPacks["Game"] = ScriptPack(files, "Game");
 
-    for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
+    for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses())
         this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_corePack->getClasses()["Entity"]);
-        // ECS::getECS()->getComponentManager().bindInstanceFields(name);
-        // ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
-    }
 }
 
 void ResourceManager::loadScriptPack(const std::string &dir, const std::string &packName)
@@ -214,11 +211,8 @@ void ResourceManager::loadScriptPack(const std::string &dir, const std::string &
                         {".cs"});
     if (packName != "Core") {
         this->_scriptPacks["Game"] = ScriptPack(tempFiles, "Game");
-        for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
+        for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses())
             this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_corePack->getClasses()["Entity"]);
-            // ECS::getECS()->getComponentManager().bindInstanceFields(name);
-            // ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
-        }
     } else {
         this->_corePack = std::make_unique<ScriptPack>(tempFiles, packName);
     }
@@ -237,11 +231,8 @@ void ResourceManager::reloadScripts(const std::string &dir)
     for (auto &file : this->_scriptPacks["Game"].getFiles())
         tempFiles.push_back(file);
     this->_scriptPacks["Game"].reload(tempFiles);
-    for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses()) {
+    for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses())
         this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_corePack->getClasses()["Entity"]);
-        // ECS::getECS()->getComponentManager().bindInstanceFields(name);
-        // ECS::getECS()->getEntityManager().addMaskCategory(ComponentType::COMPONENT_TYPE_COUNT << this->getScripts().size());
-    }
     tempFiles.clear();
 }
 

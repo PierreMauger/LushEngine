@@ -7,11 +7,11 @@ CubeMap::CubeMap(std::vector<File> &files)
     this->load(files);
 }
 
-//CubeMap::~CubeMap()
-//{
-    // dtor is called when the Texture is inserted in the map
-    // glDeleteTextures(1, &this->_id);
-//}
+// CubeMap::~CubeMap()
+// {
+//     // dtor is called when the Texture is inserted in the map
+//     glDeleteTextures(1, &this->_id);
+// }
 
 void CubeMap::load(std::vector<File> &files)
 {

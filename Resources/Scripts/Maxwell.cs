@@ -4,11 +4,12 @@ public class Maxwell : Entity
 {
     private Transform transform;
     public float time;
+    public float time2;
 
     public void onInit()
     {
         transform = getComponent<Transform>();
-        time = 0.0f;
+        time = 5.0f;
         this.log("hello", Toast.Success);
     }
 

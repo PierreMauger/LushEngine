@@ -26,6 +26,8 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
     for (rapidxml::xml_node<> *entityNode = entitiesNode->first_node("Entity"); entityNode; entityNode = entityNode->next_sibling("Entity")) {
         int id = std::atoi(entityNode->first_attribute("id")->value());
         Entity entity;
+        if (entityNode->first_attribute("name"))
+            entity.setName(entityNode->first_attribute("name")->value());
 
         rapidxml::xml_node<> *componentsNode = entityNode->first_node("Components");
         for (rapidxml::xml_node<> *componentNode = componentsNode->first_node(); componentNode; componentNode = componentNode->next_sibling()) {

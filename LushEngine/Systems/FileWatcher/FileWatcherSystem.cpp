@@ -127,9 +127,22 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, EntityManager &enti
                 for (auto &[id, entity] : entityManager.getEntities()) {
                     if (!entity.hasScriptComponent(className))
                         continue;
-                    ScriptComponent &scriptComponent = entity.getScriptComponent(className);
-                    auto &fields = scriptComponent.getFields();
 
+                    ScriptComponent scriptComponent;
+                    for (auto &[fieldName, field] : this->_resourceManager->getScripts()[className].getFields()) {
+                        if (field.type == "Single")
+                            scriptComponent.addField(fieldName, 0.0f);
+                        if (field.type == "Entity" || field.type == "UInt64")
+                            scriptComponent.addField(fieldName, (unsigned long)0);
+                    }
+
+                    ScriptComponent &oldScriptComponent = entity.getScriptComponent(className);
+                    auto &oldFields = oldScriptComponent.getFields();
+                    for (auto &[fieldName, field] : oldFields) {
+                        if (scriptComponent.hasField(fieldName))
+                            scriptComponent.addField(fieldName, field);
+                    }
+                    entity.addScriptComponent(className, scriptComponent);
                 }
             }
         } catch (const std::exception &e) {
