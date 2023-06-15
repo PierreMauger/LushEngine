@@ -70,11 +70,13 @@ void GUISystem::update(EntityManager &entityManager, float deltaTime)
     if (this->_showScene)
         this->drawScene(entityManager);
     if (this->_showFileExplorer)
-        this->drawFiles();
+        this->drawFileExplorer();
     if (this->_showProfiler)
         this->drawProfiler();
-    if (this->_showFileBrowser)
-        this->drawFileBrowser();
+    if (this->_showProjectBrowser)
+        this->drawProjectBrowser();
+    if (this->_showBuildBrowser)
+        this->drawBuildBrowser();
     DrawToasts();
 
     ImGui::Render();
@@ -91,7 +93,7 @@ void GUISystem::update(EntityManager &entityManager, float deltaTime)
         this->_showGame = true;
         this->_showFileExplorer = true;
         this->_showProfiler = true;
-        this->_showFileBrowser = false;
+        this->_showProjectBrowser = false;
     }
 }
 
@@ -143,8 +145,10 @@ void GUISystem::drawMenuBar()
 {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
-            if (ImGui::MenuItem("Open..."))
-                this->_showFileBrowser = true;
+            if (ImGui::MenuItem("Open Project..."))
+                this->_showProjectBrowser = true;
+            if (ImGui::MenuItem("Build Settings..."))
+                this->_showBuildBrowser = true;
             if (ImGui::MenuItem("Build"))
                 this->build();
             if (ImGui::MenuItem("Exit"))
@@ -644,20 +648,20 @@ bool GUISystem::drawGuizmo(EntityManager &entityManager)
     return ImGuizmo::IsUsing();
 }
 
-void GUISystem::drawFiles()
+void GUISystem::drawFileExplorer()
 {
     if (!ImGui::Begin(ICON_FA_FOLDER_OPEN " File Explorer", &this->_showFileExplorer)) {
         ImGui::End();
         return;
     }
-    if (this->_projectPath.empty()) {
+    if (this->_currentPath.empty()) {
         ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize("No scene loaded").x) / 2);
         ImGui::SetCursorPosY((ImGui::GetWindowHeight() - ImGui::CalcTextSize("No scene loaded").y) / 2 - 20);
         ImGui::Text("No project loaded");
 
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 - 20);
         if (ImGui::Button(ICON_FA_PLUS, ImVec2(40, 40))) {
-            this->_showFileBrowser = true;
+            this->_showProjectBrowser = true;
         }
         ImGui::End();
         return;
@@ -667,18 +671,26 @@ void GUISystem::drawFiles()
     if (columns < 1)
         columns = 1;
 
-    if (ImGui::Button(ICON_FA_ARROW_LEFT " ..") && this->_projectPath != this->_projectRootPath)
-        this->_projectPath = std::filesystem::path(this->_projectPath).parent_path().string();
+    if (this->_currentPath == this->_projectPath) {
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, this->_currentPath == this->_projectPath);
+        ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_COLOR_DISABLED);
+        ImGui::Button(ICON_FA_ARROW_LEFT " ..");
+        ImGui::PopStyleColor();
+        ImGui::PopItemFlag();
+    } else {
+        if (ImGui::Button(ICON_FA_ARROW_LEFT " .."))
+            this->_currentPath = std::filesystem::path(this->_currentPath).parent_path().string();
+    }
     ImGui::SameLine();
-    ImGui::Text("%s", this->_projectPath.c_str());
+    ImGui::Text("%s", this->_currentPath.c_str());
 
     ImGui::Columns(columns, nullptr, false);
-    for (auto &file : std::filesystem::directory_iterator(this->_projectPath)) {
+    for (auto &file : std::filesystem::directory_iterator(this->_currentPath)) {
         ImGui::SetWindowFontScale(2.0f);
         if (file.is_directory()) {
             ImGui::Button((ICON_FA_FOLDER "##" + file.path().string()).c_str(), ImVec2(50, 50));
             if (ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
-                this->_projectPath = file.path().string();
+                this->_currentPath = file.path().string();
         } else {
             ImGui::Button((ICON_FA_FILE "##" + file.path().string()).c_str(), ImVec2(50, 50));
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
@@ -706,12 +718,12 @@ void GUISystem::drawProfiler()
     ImGui::End();
 }
 
-void GUISystem::drawFileBrowser()
+void GUISystem::drawProjectBrowser()
 {
     ImGuiWindowClass windowClass;
     windowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingOverOther | ImGuiDockNodeFlags_NoDockingSplitOther;
     ImGui::SetNextWindowClass(&windowClass);
-    if (!ImGui::Begin("Open Project", &this->_showFileBrowser)) {
+    if (!ImGui::Begin("Open Project", &this->_showProjectBrowser)) {
         ImGui::End();
         return;
     }
@@ -733,31 +745,57 @@ void GUISystem::drawFileBrowser()
     ImGui::EndChild();
     ImGui::Separator();
     if (ImGui::Button("Cancel"))
-        this->_showFileBrowser = false;
+        this->_showProjectBrowser = false;
     ImGui::SameLine();
     ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Open").x - ImGui::GetStyle().ItemSpacing.x * 2, 0));
     ImGui::SameLine();
     if (ImGui::Button("Open")) {
-        this->_projectRootPath = this->_fileBrowserPath;
-        this->_projectPath = this->_projectRootPath;
-        glfwSetWindowTitle(this->_graphic->getWindow(), std::string("Lush Engine - " + std::filesystem::path(this->_projectRootPath).filename().string()).c_str());
-        this->_showFileBrowser = false;
-        this->_resourceManager->loadProject(this->_projectRootPath);
+        this->_projectPath = this->_fileBrowserPath;
+        this->_currentPath = this->_projectPath;
+        glfwSetWindowTitle(this->_graphic->getWindow(), std::string("Lush Engine - " + std::filesystem::path(this->_projectPath).filename().string()).c_str());
+        this->_showProjectBrowser = false;
+        this->_resourceManager->loadProject(this->_projectPath);
     }
     ImGui::End();
 }
 
-std::string GUISystem::formatBinary(std::size_t value, std::size_t size)
+void GUISystem::drawBuildBrowser()
 {
-    std::string binary = std::bitset<64>(value).to_string();
-    std::string result;
-
-    for (std::size_t i = 64 - size; i < 64; i++) {
-        result += binary[i];
-        if (i % 8 == 7)
-            result += " ";
+    ImGuiWindowClass windowClass;
+    windowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingOverOther | ImGuiDockNodeFlags_NoDockingSplitOther;
+    ImGui::SetNextWindowClass(&windowClass);
+    if (!ImGui::Begin("Choose directory for build", &this->_showBuildBrowser)) {
+        ImGui::End();
+        return;
     }
-    return result;
+    if (ImGui::Button(ICON_FA_ARROW_LEFT " .."))
+        this->_fileBrowserPath = std::filesystem::path(this->_fileBrowserPath).parent_path().string();
+    ImGui::SameLine();
+    ImGui::Text("%s", this->_fileBrowserPath.c_str());
+    for (const auto &entry : std::filesystem::directory_iterator(this->_fileBrowserPath)) {
+        const auto &path = entry.path();
+        const auto &filenameStr = path.filename().string();
+        if (entry.is_directory() && filenameStr[0] != '.') {
+            if (ImGui::Selectable(filenameStr.c_str(), false, ImGuiSelectableFlags_DontClosePopups)) {
+                this->_fileBrowserPath = path.string();
+            }
+        }
+    }
+    const float footerReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerReserve), false, ImGuiWindowFlags_HorizontalScrollbar);
+    ImGui::EndChild();
+    ImGui::Separator();
+    if (ImGui::Button("Cancel"))
+        this->_showBuildBrowser = false;
+    ImGui::SameLine();
+    ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Open").x - ImGui::GetStyle().ItemSpacing.x * 2, 0));
+    ImGui::SameLine();
+    if (ImGui::Button("Open")) {
+        this->_buildPath = this->_fileBrowserPath;
+        this->_showBuildBrowser = false;
+        this->build();
+    }
+    ImGui::End();
 }
 
 std::size_t GUISystem::getScriptInstanceIndex(std::size_t entityId)
@@ -791,17 +829,19 @@ void GUISystem::drawTextureSelect(const std::string &fieldName, std::string &tex
 
 void GUISystem::build()
 {
-    if (this->_projectRootPath.empty()) {
+    if (this->_projectPath.empty()) {
         std::cout << "[Toast Warning]No project opened" << std::endl;
         return;
     }
-    std::filesystem::create_directories(this->_projectRootPath + "/Resources/bin");
+    if (this->_buildPath.empty()) {
+        std::cout << "[Toast Warning]No build path selected" << std::endl;
+        return;
+    }
+    std::filesystem::create_directories(this->_buildPath + "/Data");
 
-    this->_resourceManager->serializeAssetPack();
-    std::filesystem::copy_file("lush", std::filesystem::path(this->_projectRootPath) / (std::filesystem::path(this->_projectRootPath).filename().string()),
+    this->_resourceManager->serializeAssetPack(this->_buildPath + "/Data/AssetPack.data");
+    std::filesystem::copy_file("lush", std::filesystem::path(this->_buildPath) / (std::filesystem::path(this->_projectPath).filename().string()),
                                std::filesystem::copy_options::overwrite_existing);
-    std::filesystem::copy_file("Resources/AssetPack.data", std::filesystem::path(this->_projectRootPath) / "Resources" / "AssetPack.data",
-                               std::filesystem::copy_options::overwrite_existing);
-    std::filesystem::copy("Resources/bin", std::filesystem::path(this->_projectRootPath) / "Resources" / "bin",
+    std::filesystem::copy("Resources/bin", std::filesystem::path(this->_buildPath) / "Data",
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 }

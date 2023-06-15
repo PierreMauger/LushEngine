@@ -6,6 +6,7 @@ Engine::Engine(bool isEditor) : _isEditor(isEditor)
 {
     this->_graphic = std::make_shared<Graphic>(1280, 720, "Lush Engine");
     this->_resourceManager = std::make_shared<ResourceManager>();
+    this->_resourceManager->initScriptDomain(isEditor ? "libs" : "Data");
     this->_isEditor ? this->_resourceManager->loadEditor() : this->_resourceManager->loadGame();
 
     this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());

@@ -12,12 +12,6 @@ ResourceManager *ResourceManager::getResourceManager()
 ResourceManager::ResourceManager()
 {
     resourceManager = this;
-    try {
-        this->initScriptDomain();
-    } catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
-    }
-
     this->_mapMesh = std::make_unique<MapMesh>();
 }
 
@@ -49,15 +43,15 @@ void ResourceManager::loadGame()
 {
     this->loadShaders("Resources/Shaders");
     this->loadSkyBoxes("Resources/Skybox");
-    this->loadScriptDll("Resources/bin");
+    this->loadScriptDll("Data");
     this->loadScenes("Resources/Scenes");
 
-    this->deserializeAssetPack();
+    this->deserializeAssetPack("Data/AssetPack.data");
 }
 
-void ResourceManager::serializeAssetPack()
+void ResourceManager::serializeAssetPack(std::string path)
 {
-    std::ofstream ofs("Resources/AssetPack.data", std::ios::binary);
+    std::ofstream ofs(path, std::ios::binary);
     boost::archive::binary_oarchive oa(ofs, boost::archive::no_header);
 
     oa << this->_textures.size();
@@ -89,9 +83,9 @@ void ResourceManager::serializeAssetPack()
     ofs.close();
 }
 
-void ResourceManager::deserializeAssetPack()
+void ResourceManager::deserializeAssetPack(std::string path)
 {
-    std::ifstream ifs("Resources/AssetPack.data", std::ios::binary);
+    std::ifstream ifs(path, std::ios::binary);
     boost::archive::binary_iarchive ia(ifs, boost::archive::no_header);
     std::size_t size;
 
@@ -114,10 +108,10 @@ void ResourceManager::deserializeAssetPack()
     ifs.close();
 }
 
-void ResourceManager::initScriptDomain()
+void ResourceManager::initScriptDomain(const std::string &dir)
 {
     unsetenv("TERM");
-    mono_set_dirs("libs", "libs");
+    mono_set_dirs(dir.c_str(), "libs");
     // setenv("MONO_LOG_LEVEL", "debug", 1);
     // setenv("MONO_LOG_MASK", "dll,cfg", 1);
 

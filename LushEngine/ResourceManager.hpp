@@ -44,7 +44,6 @@ namespace Lush
             std::unique_ptr<MapMesh> _mapMesh;
             MonoDomain *_domain = nullptr;
 
-            void initScriptDomain();
             void loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions);
 
             void loadTextures(const std::string &dir);
@@ -63,8 +62,10 @@ namespace Lush
             void loadProject(const std::string &dir);
             void loadEditor();
             void loadGame();
-            void serializeAssetPack();
-            void deserializeAssetPack();
+            void initScriptDomain(const std::string &dir);
+
+            void serializeAssetPack(std::string path);
+            void deserializeAssetPack(std::string path);
 
             std::unordered_map<std::string, File> &getFiles();
 

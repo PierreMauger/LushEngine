@@ -72,7 +72,7 @@ set(IMGUI_SRC
     ${IMGUI_ROOT}/imgui_impl_glfw.cpp
     ${IMGUI_ROOT}/imgui_impl_opengl3.cpp
     ${IMGUI_ROOT}/ImGuizmo.cpp
-    ${IMGUI_ROOT}/toast.cpp
+    ${IMGUI_ROOT}/imgui_toast.cpp
 )
 
 include_directories(${IMGUI_INC})
