@@ -2,16 +2,16 @@
 
 using namespace Lush;
 
-static ECS *ecs = nullptr;
+static EntityManager *entityManager = nullptr;
 
-ECS *ECS::getECS()
+EntityManager *ECS::staticGetEntityManager()
 {
-    return ecs;
+    return entityManager;
 }
 
 ECS::ECS()
 {
-    ecs = this;
+    entityManager = &this->_entityManager;
 }
 
 EntityManager &ECS::getEntityManager()

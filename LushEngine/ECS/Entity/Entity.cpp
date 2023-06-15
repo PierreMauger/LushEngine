@@ -44,3 +44,14 @@ bool Entity::operator==(const Entity &other) const
 {
     return this->_uuid == other._uuid;
 }
+
+Entity &Entity::clone(const Entity &other)
+{
+    this->_uuid = other._uuid;
+    this->_name = other._name;
+    for (auto it = other._components.begin(); it != other._components.end(); it++) {
+        this->_components[it->first] = it->second->clone();
+    }
+    this->_scriptComponents = other._scriptComponents;
+    return *this;
+}

@@ -53,6 +53,7 @@ namespace Lush
             bool hasScriptComponent(const std::string &className);
 
             bool operator==(const Entity &other) const;
+            Entity &clone(const Entity &other);
     };
 }
 

@@ -76,3 +76,10 @@ void EntityManager::clear()
 {
     this->_entities.clear();
 }
+
+EntityManager &EntityManager::clone(const EntityManager &other)
+{
+    for (auto it = other._entities.begin(); it != other._entities.end(); it++)
+        this->_entities[it->first].clone(it->second);
+    return *this;
+}

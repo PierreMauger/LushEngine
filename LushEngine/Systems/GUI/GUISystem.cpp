@@ -191,7 +191,7 @@ void GUISystem::drawActionBar(EntityManager &entityManager)
             if (ImGui::Button(this->_graphic->getRunning() ? ICON_FA_STOP : ICON_FA_PLAY, ImVec2(50, 0))) {
                 this->_graphic->setRunning(!this->_graphic->getRunning());
                 if (this->_graphic->getRunning()) {
-                    this->_entityManagerCopy = entityManager;
+                    this->_entityManagerCopy.clone(entityManager);
                     std::size_t it = this->_resourceManager->getScripts().size() - 1;
                     for (auto &[name, script] : this->_resourceManager->getScripts()) {
                         for (auto &[id, entity] : entityManager.getEntities())

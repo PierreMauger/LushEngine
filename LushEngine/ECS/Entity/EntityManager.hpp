@@ -29,6 +29,7 @@ namespace Lush
             std::map<std::size_t, Entity> &getEntities();
 
             void clear();
+            EntityManager &clone(const EntityManager &other);
     };
 }
 
