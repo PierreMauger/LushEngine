@@ -1,29 +1,33 @@
 ################## CONFIG ##################
 
-#init Cmake
+# Init CMake
 cmake_minimum_required(VERSION 3.22)
 project(LushEngine LANGUAGES C CXX VERSION 1.0)
 
-#set flags
+# Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-if(UNIX)
-    set(CMAKE_CXX_FLAGS "-std=c++20 -O3 -Wall -Wextra")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -Werror")
-else()
-    set(CMAKE_CXX_FLAGS "/std:c++20 /Ox /Wall /EHsc")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} /DEBUG:FULL")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /WX")
-endif()
+
+# Set build type and optimizations
+set(CMAKE_BUILD_TYPE Release)  # Use Release for optimized build
+
+# Add options for different build types
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Werror")
+
+# Set module path
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/")
+
+# Find required packages
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-set(CMAKE_THREADS_LIBS_INIT Threads::Threads)
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-set(BUILD_SHARED_LIBS TRUE)
-set(LIBS_PATH ${PROJECT_SOURCE_DIR}/libs)
+find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
+find_package(GLEW REQUIRED)
+find_package(Boost REQUIRED COMPONENTS serialization)
+
+set(LIBS_PATH ${CMAKE_SOURCE_DIR}/libs)
 
 ################## BUILD ECS ##################
 
@@ -139,28 +143,17 @@ set(SRC
     ${LIBS_PATH}/STB/stb.cpp
 )
 
-find_package(OpenGL REQUIRED)
-find_package(glfw3 REQUIRED)
-find_package(GLEW REQUIRED)
-find_package(Boost REQUIRED COMPONENTS serialization)
-
-include_directories(${INC}
-    ${OpenGL_INCLUDE_DIRS}
-    ${GLFW3_INCLUDE_DIRS}
-    ${GLEW_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-)
+include_directories(${INC})
 
 add_library(${ENGINE} ${SRC})
 
 target_link_libraries(${ENGINE} PRIVATE
-    ${CMAKE_THREAD_LIBS_INIT}
+    Threads::Threads
     ${OPENGL_LIBRARIES}
     glfw
     ${GLEW_LIBRARY}
     ${Boost_LIBRARIES}
 )
-
 install(TARGETS ${ENGINE})
 
 ################## BUILD BINARIES ##################
@@ -168,11 +161,8 @@ install(TARGETS ${ENGINE})
 set(EXEC_NAME lush)
 set(EDITOR_NAME lushEditor)
 
-add_executable(${EXEC_NAME}
-    ${PROJECT_NAME}/main.cpp
-)
+add_executable(${EXEC_NAME} ${PROJECT_NAME}/main.cpp)
 target_compile_definitions(${EXEC_NAME} PRIVATE EDITOR_MODE=false)
-
 target_link_libraries(${EXEC_NAME} PRIVATE
     ${ENGINE}
     ${ECS}
@@ -180,16 +170,15 @@ target_link_libraries(${EXEC_NAME} PRIVATE
     ${Boost_LIBRARIES}
     ${LIBS_PATH}/libmonosgen-2.0.so.1.0.0
     ${LIBS_PATH}/libassimp.so.5.2.0
+    ${CMAKE_DL_LIBS}  # Add support for dynamic loading
+)
+set_target_properties(${EXEC_NAME} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}
 )
 
-set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
-set_target_properties(${EXEC_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
-
-add_executable(${EDITOR_NAME}
-    ${PROJECT_NAME}/main.cpp
-)
+add_executable(${EDITOR_NAME} ${PROJECT_NAME}/main.cpp)
 target_compile_definitions(${EDITOR_NAME} PRIVATE EDITOR_MODE=true)
-
 target_link_libraries(${EDITOR_NAME} PRIVATE
     ${ENGINE}
     ${ECS}
@@ -197,13 +186,14 @@ target_link_libraries(${EDITOR_NAME} PRIVATE
     ${Boost_LIBRARIES}
     ${LIBS_PATH}/libmonosgen-2.0.so.1.0.0
     ${LIBS_PATH}/libassimp.so.5.2.0
+    ${CMAKE_DL_LIBS}  # Add support for dynamic loading
+)
+set_target_properties(${EDITOR_NAME} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}
 )
 
-set_target_properties(${EDITOR_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
-set_target_properties(${EDITOR_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
-
-#install target
-install(TARGETS ${EXEC_NAME})
-install(TARGETS ${EDITOR_NAME})
+# Install targets
+install(TARGETS ${EXEC_NAME} ${EDITOR_NAME})
 
 ################## POST BUILD ##################
