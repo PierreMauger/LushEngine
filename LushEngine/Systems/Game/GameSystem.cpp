@@ -15,9 +15,7 @@ void GameSystem::update(EntityManager &entityManager, float deltaTime)
         this->initInstances(entityManager);
         this->_started = true;
     }
-    if (this->_graphic->getPaused() || !this->_graphic->getRunning())
-        return;
-    if (!this->shouldUpdate(deltaTime))
+    if (this->_graphic->getPaused() || !this->_graphic->getRunning() || !this->shouldUpdate(deltaTime))
         return;
 
     this->_graphic->setGameViewPort(glm::vec4(0, 0, this->_graphic->getWindowSize().x, this->_graphic->getWindowSize().y));
@@ -25,6 +23,8 @@ void GameSystem::update(EntityManager &entityManager, float deltaTime)
     glBindVertexArray(this->_screen.vao);
     glBindTexture(GL_TEXTURE_2D, this->_graphic->getFrameBuffer("render").texture);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void GameSystem::initInstances(EntityManager &entityManager)

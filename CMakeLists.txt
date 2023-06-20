@@ -33,6 +33,7 @@ find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(Boost REQUIRED COMPONENTS serialization)
+find_package(Bullet REQUIRED)
 
 set(LIBS_PATH ${CMAKE_SOURCE_DIR}/libs)
 
@@ -140,6 +141,7 @@ set(SRC
     ${PROJECT_NAME}/Systems/Scene/SceneSystem.cpp
     ${PROJECT_NAME}/Systems/Script/ScriptSystem.cpp
     ${PROJECT_NAME}/Systems/Game/GameSystem.cpp
+    ${PROJECT_NAME}/Systems/Physic/PhysicSystem.cpp
     ${PROJECT_NAME}/Script/ScriptClass.cpp
     ${PROJECT_NAME}/Script/ScriptGlue.cpp
     ${PROJECT_NAME}/Script/ScriptInstance.cpp
@@ -151,6 +153,7 @@ set(SRC
 )
 
 include_directories(${INC})
+include_directories(${BULLET_INCLUDE_DIR})
 
 add_library(${ENGINE} ${SRC})
 
@@ -160,6 +163,7 @@ target_link_libraries(${ENGINE} PRIVATE
     glfw
     ${GLEW_LIBRARY}
     ${Boost_LIBRARIES}
+    ${BULLET_LIBRARIES}
 )
 install(TARGETS ${ENGINE})
 

@@ -13,6 +13,7 @@
 #include "Systems/FileWatcher/FileWatcherSystem.hpp"
 #include "Systems/GUI/GUISystem.hpp"
 #include "Systems/Game/GameSystem.hpp"
+#include "Systems/Physic/PhysicSystem.hpp"
 #include "Systems/Picking/PickingSystem.hpp"
 #include "Systems/Render/RenderSystem.hpp"
 #include "Systems/Scene/SceneSystem.hpp"
