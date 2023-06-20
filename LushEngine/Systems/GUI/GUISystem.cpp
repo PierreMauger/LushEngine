@@ -4,8 +4,7 @@ using namespace Lush;
 
 static const char *lightTypeNames[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
 
-GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
-    : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
+GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
     if (!IMGUI_CHECKVERSION())
         throw std::runtime_error("ImGui version is invalid");
@@ -102,21 +101,31 @@ void GUISystem::handleConsole()
     if (!this->_graphic->getStringStream().str().empty()) {
         std::istringstream iss(this->_graphic->getStringStream().str());
         for (std::string line; std::getline(iss, line);) {
-            if (line.substr(0, 13) == "[Toast Error]")
-                CreateToast(ICON_FA_STOP_CIRCLE " Error", line.substr(13), ToastType::ERROR);
-            else if (line.substr(0, 15) == "[Toast Warning]")
-                CreateToast(ICON_FA_EXCLAMATION_TRIANGLE " Warning", line.substr(15), ToastType::WARNING);
-            else if (line.substr(0, 12) == "[Toast Info]")
-                CreateToast(ICON_FA_INFO_CIRCLE " Info", line.substr(12), ToastType::INFO);
-            else if (line.substr(0, 15) == "[Toast Success]")
-                CreateToast(ICON_FA_CHECK_CIRCLE " Success", line.substr(15), ToastType::SUCCESS);
+            int type = ToastType::NONE;
+            if (line.substr(0, 13) == "[Toast Error]") {
+                line = line.substr(13);
+                CreateToast(ICON_FA_STOP_CIRCLE " Error", line, ToastType::ERROR);
+                type = ToastType::ERROR;
+            } else if (line.substr(0, 15) == "[Toast Warning]") {
+                line = line.substr(15);
+                CreateToast(ICON_FA_EXCLAMATION_TRIANGLE " Warning", line, ToastType::WARNING);
+                type = ToastType::WARNING;
+            } else if (line.substr(0, 12) == "[Toast Info]") {
+                line = line.substr(12);
+                CreateToast(ICON_FA_INFO_CIRCLE " Info", line, ToastType::INFO);
+                type = ToastType::INFO;
+            } else if (line.substr(0, 15) == "[Toast Success]") {
+                line = line.substr(15);
+                CreateToast(ICON_FA_CHECK_CIRCLE " Success", line, ToastType::SUCCESS);
+                type = ToastType::SUCCESS;
+            }
 
             std::time_t t = std::time(nullptr);
             std::tm tm = *std::localtime(&t);
             std::stringstream ss;
             ss << std::put_time(&tm, "[%H:%M:%S] ");
 
-            this->_consoleBuffer += ss.str() + line + '\n';
+            this->_consoleBuffer.push_back({type, ss.str() + line});
         }
         this->_graphic->getStringStream().str("");
     }
@@ -262,7 +271,7 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager)
             snprintf(buf, 256, "%s", entity.getName().c_str());
             if (ImGui::InputText("##Name", buf, 256, ImGuiInputTextFlags_EnterReturnsTrue)) {
                 entity.setName(buf);
-                std::cout << "Entity renamed to " << entity.getName() << std::endl;
+                std::cout << "[Toast Info]Entity renamed to " << entity.getName() << std::endl;
             }
             ImGui::TableNextColumn();
 
@@ -552,7 +561,27 @@ void GUISystem::drawConsole()
         this->_consoleBuffer.clear();
     ImGui::Separator();
     if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar)) {
-        ImGui::TextWrapped("%s", this->_consoleBuffer.c_str());
+        for (auto &[type, line] : this->_consoleBuffer) {
+            switch (type) {
+            case ToastType::ERROR:
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.905f, 0.298f, 0.235f, 1.0f));
+                break;
+            case ToastType::WARNING:
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.945f, 0.768f, 0.058f, 1.0f));
+                break;
+            case ToastType::INFO:
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.203f, 0.596f, 0.858f, 1.0f));
+                break;
+            case ToastType::SUCCESS:
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.027f, 0.737f, 0.047f, 1.0f));
+                break;
+            default:
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+                break;
+            }
+            ImGui::TextWrapped("%s", line.c_str());
+            ImGui::PopStyleColor();
+        }
         if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
             ImGui::SetScrollHereY(1.0f);
         ImGui::EndChild();
@@ -610,9 +639,8 @@ void GUISystem::drawScene(EntityManager &entityManager)
             if (file.substr(file.find_last_of('.') + 1) == "dae") {
                 Entity entity;
                 entity.addComponent(Transform());
-                Model model;
-                model.name = file.substr(0, file.find_last_of('.'));
-                entity.addComponent(model);
+                entity.addComponent(Model());
+                entity.getComponent<Model>().name = file.substr(0, file.find_last_of('.'));
                 entityManager.addEntity(entity);
             }
             std::cout << "[Toast Info]Dropped file: " << file << std::endl;
@@ -840,8 +868,10 @@ void GUISystem::build()
     std::filesystem::create_directories(this->_buildPath + "/Data");
 
     this->_resourceManager->serializeAssetPack(this->_buildPath + "/Data/AssetPack.data");
+    std::cout << "[Toast Success]AssetPack serialized at location: " << this->_buildPath << "/Data/AssetPack.data" << std::endl;
     std::filesystem::copy_file("lush", std::filesystem::path(this->_buildPath) / (std::filesystem::path(this->_projectPath).filename().string()),
                                std::filesystem::copy_options::overwrite_existing);
     std::filesystem::copy("Resources/bin", std::filesystem::path(this->_buildPath) / "Data",
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+    std::cout << "[Toast Success]Build complete!" << std::endl;
 }

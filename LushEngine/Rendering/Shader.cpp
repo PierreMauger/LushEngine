@@ -104,7 +104,7 @@ unsigned int compileShader(unsigned int shaderType, const std::string& source) {
     if (!success) {
         char infoLog[512];
         glGetShaderInfoLog(shaderID, 512, nullptr, infoLog);
-        std::cout << "Shader compilation failed: " << infoLog << std::endl;
+        throw std::runtime_error("Shader compilation failed: " + std::string(infoLog));
     }
     return shaderID;
 }
@@ -130,8 +130,6 @@ void Shader::load(const File &file)
         if (shaderTypes.find(shader.first) == shaderTypes.end())
             throw std::runtime_error("Unknown shader type: " + shader.first);
         unsigned int shaderID = compileShader(shaderTypes[shader.first], shader.second);
-        std::cout << "Shader " << shader.first << " compiled " << shaderID << std::endl;
-
         glAttachShader(this->_ID, shaderID);
         shaderIDs.push_back(shaderID);
     }
@@ -142,7 +140,7 @@ void Shader::load(const File &file)
     if (!success) {
         char infoLog[512];
         glGetProgramInfoLog(this->_ID, 512, nullptr, infoLog);
-        std::cout << "Shader linking failed: " << infoLog << std::endl;
+        throw std::runtime_error("Shader linking failed: " + std::string(infoLog));
     }
     for (const auto &shaderID : shaderIDs)
         glDeleteShader(shaderID);

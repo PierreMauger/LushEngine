@@ -11,6 +11,7 @@ enum ToastType {
     INFO,
     WARNING,
     ERROR,
+    NONE
 };
 
 struct Toast {

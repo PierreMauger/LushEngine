@@ -12,7 +12,6 @@ void CreateToast(const std::string &title, const std::string &message, ToastType
     toast.duration = 5.0f;
     toast.id = toastCounter++;
     toast.show = true;
-    toast.color = ImColor(52, 152, 219);
     switch (toast.status) {
     case ToastType::SUCCESS:
         toast.color = ImColor(7, 188, 12);
@@ -25,6 +24,9 @@ void CreateToast(const std::string &title, const std::string &message, ToastType
         break;
     case ToastType::ERROR:
         toast.color = ImColor(231, 76, 60);
+        break;
+    default:
+        toast.color = ImColor(52, 152, 219);
         break;
     }
     toasts.push_back(toast);
@@ -54,6 +56,12 @@ void DrawToasts()
         ImGui::Begin(("Toast##" + std::to_string(toast.id)).c_str(), &toast.show,
                      ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
                          ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav);
+
+        float lineWidth = ImGui::GetContentRegionAvail().x * toast.duration / 5.0f;
+
+        ImVec2 linePos = ImGui::GetCursorScreenPos();
+        linePos.y -= 5.0f;
+        ImGui::GetWindowDrawList()->AddLine(linePos, ImVec2(linePos.x + lineWidth, linePos.y), IM_COL32_WHITE, 2.0f);
 
         ImGui::Text("%s", toast.title.c_str());
         ImGui::Separator();

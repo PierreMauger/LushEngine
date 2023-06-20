@@ -43,7 +43,7 @@ namespace Lush
 
             EntityManager _entityManagerCopy;
 
-            std::string _consoleBuffer;
+            std::vector<std::pair<int, std::string>> _consoleBuffer;
 
             std::string _fileBrowserPath;
 
