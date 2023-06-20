@@ -3,7 +3,7 @@
 using namespace Lush;
 
 SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
-    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
+    : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
     this->_cameraTransform.position = glm::vec3(10.0f, 5.0f, 15.0f);
     this->_cameraTransform.rotation = glm::vec3(-130.0f, -15.0f, 0.0f);

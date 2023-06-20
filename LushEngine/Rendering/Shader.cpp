@@ -2,90 +2,156 @@
 
 using namespace Lush;
 
-Shader::Shader(const File &vertexFile, const File &fragmentFile, const File &geometryFile, const File &tessControlFile, const File &tessEvalFile)
-    : Resource(ResourceType::SHADER, vertexFile, fragmentFile, geometryFile, tessControlFile, tessEvalFile)
+// Shader::Shader(const File &vertexFile, const File &fragmentFile, const File &geometryFile, const File &tessControlFile, const File &tessEvalFile)
+//     : Resource(ResourceType::SHADER, vertexFile, fragmentFile, geometryFile, tessControlFile, tessEvalFile)
+// {
+//     this->load(vertexFile, fragmentFile, geometryFile, tessControlFile, tessEvalFile);
+// }
+
+// void Shader::load(const File &vertexFile, const File &fragmentFile, const File &geometryFile, const File &tessControlFile, const File &tessEvalFile)
+// {
+//     std::string vShaderCode = vertexFile.load();
+//     std::string fShaderCode = fragmentFile.load();
+//     std::string gShaderCode = geometryFile.load();
+//     std::string tcShaderCode = tessControlFile.load();
+//     std::string teShaderCode = tessEvalFile.load();
+
+//     const char *vShader = vShaderCode.c_str();
+//     const char *fShader = fShaderCode.c_str();
+//     const char *gShader = gShaderCode.c_str();
+//     const char *tcShader = tcShaderCode.c_str();
+//     const char *teShader = teShaderCode.c_str();
+
+//     unsigned int vertex = 0;
+//     unsigned int fragment = 0;
+//     unsigned int geometry = 0;
+//     unsigned int tessControl = 0;
+//     unsigned int tessEval = 0;
+
+//     vertex = glCreateShader(GL_VERTEX_SHADER);
+//     glShaderSource(vertex, 1, &vShader, nullptr);
+//     glCompileShader(vertex);
+//     this->checkCompileErrors(vertex, "VERTEX");
+//     fragment = glCreateShader(GL_FRAGMENT_SHADER);
+//     glShaderSource(fragment, 1, &fShader, nullptr);
+//     glCompileShader(fragment);
+//     this->checkCompileErrors(fragment, "FRAGMENT");
+//     if (!gShaderCode.empty()) {
+//         geometry = glCreateShader(GL_GEOMETRY_SHADER);
+//         glShaderSource(geometry, 1, &gShader, nullptr);
+//         glCompileShader(geometry);
+//         this->checkCompileErrors(geometry, "GEOMETRY");
+//     }
+//     if (!tcShaderCode.empty()) {
+//         tessControl = glCreateShader(GL_TESS_CONTROL_SHADER);
+//         glShaderSource(tessControl, 1, &tcShader, nullptr);
+//         glCompileShader(tessControl);
+//         this->checkCompileErrors(tessControl, "TESS_CONTROL");
+//     }
+//     if (!teShaderCode.empty()) {
+//         tessEval = glCreateShader(GL_TESS_EVALUATION_SHADER);
+//         glShaderSource(tessEval, 1, &teShader, nullptr);
+//         glCompileShader(tessEval);
+//         this->checkCompileErrors(tessEval, "TESS_EVALUATION");
+//     }
+//     this->_ID = glCreateProgram();
+
+//     glAttachShader(this->_ID, vertex);
+//     glAttachShader(this->_ID, fragment);
+//     if (!gShaderCode.empty())
+//         glAttachShader(this->_ID, geometry);
+//     if (!tcShaderCode.empty())
+//         glAttachShader(this->_ID, tessControl);
+//     if (!teShaderCode.empty())
+//         glAttachShader(this->_ID, tessEval);
+//     glLinkProgram(this->_ID);
+//     this->checkCompileErrors(this->_ID, "PROGRAM");
+//     glDeleteShader(vertex);
+//     glDeleteShader(fragment);
+//     if (!gShaderCode.empty())
+//         glDeleteShader(geometry);
+//     if (!tcShaderCode.empty())
+//         glDeleteShader(tessControl);
+//     if (!teShaderCode.empty())
+//         glDeleteShader(tessEval);
+// }
+
+// void Shader::reload(const File &vertexFile, const File &fragmentFile, const File &geometryFile, const File &tessControlFile, const File &tessEvalFile)
+// {
+//     glDetachShader(this->_ID, GL_VERTEX_SHADER);
+//     glDetachShader(this->_ID, GL_FRAGMENT_SHADER);
+//     glDetachShader(this->_ID, GL_GEOMETRY_SHADER);
+//     glDetachShader(this->_ID, GL_TESS_CONTROL_SHADER);
+//     glDetachShader(this->_ID, GL_TESS_EVALUATION_SHADER);
+//     glDeleteProgram(this->_ID);
+
+//     this->load(vertexFile, fragmentFile, geometryFile, tessControlFile, tessEvalFile);
+// }
+
+Shader::Shader(const File &file) : Resource(ResourceType::SHADER, file)
 {
-    this->load(vertexFile, fragmentFile, geometryFile, tessControlFile, tessEvalFile);
+    this->load(file);
 }
 
-void Shader::load(const File &vertexFile, const File &fragmentFile, const File &geometryFile, const File &tessControlFile, const File &tessEvalFile)
+unsigned int compileShader(unsigned int shaderType, const std::string& source) {
+    unsigned int shaderID = glCreateShader(shaderType);
+    const char* sourcePtr = source.c_str();
+    glShaderSource(shaderID, 1, &sourcePtr, nullptr);
+    glCompileShader(shaderID);
+
+    int success;
+    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetShaderInfoLog(shaderID, 512, nullptr, infoLog);
+        std::cout << "Shader compilation failed: " << infoLog << std::endl;
+    }
+    return shaderID;
+}
+
+void Shader::load(const File &file)
 {
-    std::string vShaderCode = vertexFile.load();
-    std::string fShaderCode = fragmentFile.load();
-    std::string gShaderCode = geometryFile.load();
-    std::string tcShaderCode = tessControlFile.load();
-    std::string teShaderCode = tessEvalFile.load();
+    std::string source = file.load();
+    std::regex patern("#shader\\s+(\\w+)\n*([\\s\\S]*?)(?=#shader\\s+\\w+|$)");
 
-    const char *vShader = vShaderCode.c_str();
-    const char *fShader = fShaderCode.c_str();
-    const char *gShader = gShaderCode.c_str();
-    const char *tcShader = tcShaderCode.c_str();
-    const char *teShader = teShaderCode.c_str();
+    std::sregex_iterator next(source.begin(), source.end(), patern);
+    std::sregex_iterator end;
+    std::map<std::string, std::string> shaders;
+    while (next != end) {
+        std::smatch match = *next;
+        shaders[match[1].str()] = match[2].str();
+        next++;
+    }
 
-    unsigned int vertex = 0;
-    unsigned int fragment = 0;
-    unsigned int geometry = 0;
-    unsigned int tessControl = 0;
-    unsigned int tessEval = 0;
-
-    vertex = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex, 1, &vShader, nullptr);
-    glCompileShader(vertex);
-    this->checkCompileErrors(vertex, "VERTEX");
-    fragment = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment, 1, &fShader, nullptr);
-    glCompileShader(fragment);
-    this->checkCompileErrors(fragment, "FRAGMENT");
-    if (!gShaderCode.empty()) {
-        geometry = glCreateShader(GL_GEOMETRY_SHADER);
-        glShaderSource(geometry, 1, &gShader, nullptr);
-        glCompileShader(geometry);
-        this->checkCompileErrors(geometry, "GEOMETRY");
-    }
-    if (!tcShaderCode.empty()) {
-        tessControl = glCreateShader(GL_TESS_CONTROL_SHADER);
-        glShaderSource(tessControl, 1, &tcShader, nullptr);
-        glCompileShader(tessControl);
-        this->checkCompileErrors(tessControl, "TESS_CONTROL");
-    }
-    if (!teShaderCode.empty()) {
-        tessEval = glCreateShader(GL_TESS_EVALUATION_SHADER);
-        glShaderSource(tessEval, 1, &teShader, nullptr);
-        glCompileShader(tessEval);
-        this->checkCompileErrors(tessEval, "TESS_EVALUATION");
-    }
     this->_ID = glCreateProgram();
+    std::vector<unsigned int> shaderIDs;
 
-    glAttachShader(this->_ID, vertex);
-    glAttachShader(this->_ID, fragment);
-    if (!gShaderCode.empty())
-        glAttachShader(this->_ID, geometry);
-    if (!tcShaderCode.empty())
-        glAttachShader(this->_ID, tessControl);
-    if (!teShaderCode.empty())
-        glAttachShader(this->_ID, tessEval);
+    for (const auto &shader : shaders) {
+        if (shaderTypes.find(shader.first) == shaderTypes.end())
+            throw std::runtime_error("Unknown shader type: " + shader.first);
+        unsigned int shaderID = compileShader(shaderTypes[shader.first], shader.second);
+        std::cout << "Shader " << shader.first << " compiled " << shaderID << std::endl;
+
+        glAttachShader(this->_ID, shaderID);
+        shaderIDs.push_back(shaderID);
+    }
     glLinkProgram(this->_ID);
-    this->checkCompileErrors(this->_ID, "PROGRAM");
-    glDeleteShader(vertex);
-    glDeleteShader(fragment);
-    if (!gShaderCode.empty())
-        glDeleteShader(geometry);
-    if (!tcShaderCode.empty())
-        glDeleteShader(tessControl);
-    if (!teShaderCode.empty())
-        glDeleteShader(tessEval);
+
+    int success;
+    glGetProgramiv(this->_ID, GL_LINK_STATUS, &success);
+    if (!success) {
+        char infoLog[512];
+        glGetProgramInfoLog(this->_ID, 512, nullptr, infoLog);
+        std::cout << "Shader linking failed: " << infoLog << std::endl;
+    }
+    for (const auto &shaderID : shaderIDs)
+        glDeleteShader(shaderID);
 }
 
-void Shader::reload(const File &vertexFile, const File &fragmentFile, const File &geometryFile, const File &tessControlFile, const File &tessEvalFile)
+void Shader::reload(const File &file)
 {
-    glDetachShader(this->_ID, GL_VERTEX_SHADER);
-    glDetachShader(this->_ID, GL_FRAGMENT_SHADER);
-    glDetachShader(this->_ID, GL_GEOMETRY_SHADER);
-    glDetachShader(this->_ID, GL_TESS_CONTROL_SHADER);
-    glDetachShader(this->_ID, GL_TESS_EVALUATION_SHADER);
     glDeleteProgram(this->_ID);
-
-    this->load(vertexFile, fragmentFile, geometryFile, tessControlFile, tessEvalFile);
+    this->load(file);
 }
 
 void Shader::use() const
@@ -138,7 +204,7 @@ void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
     glUniformMatrix4fv(glGetUniformLocation(this->_ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::checkCompileErrors(GLuint shader, const std::string& type)
+void Shader::checkCompileErrors(GLuint shader, const std::string &type)
 {
     GLint success;
     GLchar infoLog[1024];

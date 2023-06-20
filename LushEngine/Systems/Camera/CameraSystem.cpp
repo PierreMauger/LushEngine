@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic) : ASystem(60.0f), _graphic(std::move(graphic))
+CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic) : ASystem(60.0f), _graphic(graphic)
 {
 }
 

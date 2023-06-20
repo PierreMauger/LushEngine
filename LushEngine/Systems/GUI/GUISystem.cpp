@@ -5,7 +5,7 @@ using namespace Lush;
 static const char *lightTypeNames[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
 
 GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
-    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
+    : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
     if (!IMGUI_CHECKVERSION())
         throw std::runtime_error("ImGui version is invalid");

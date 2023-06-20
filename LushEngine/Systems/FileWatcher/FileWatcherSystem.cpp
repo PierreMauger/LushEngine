@@ -3,7 +3,7 @@
 using namespace Lush;
 
 FileWatcherSystem::FileWatcherSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
-    : ASystem(3.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
+    : ASystem(3.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
 }
 
@@ -92,14 +92,15 @@ void FileWatcherSystem::reloadShader(Resource &resource)
         if (shader != resource)
             continue;
         try {
-            if (files.size() == 2)
-                shader.reload(files[0], files[1]);
-            else if (files.size() == 3)
-                shader.reload(files[0], files[1], files[2]);
-            else if (files.size() == 4)
-                shader.reload(files[0], files[1], files[2], files[3]);
-            else if (files.size() == 5)
-                shader.reload(files[0], files[1], files[2], files[3], files[4]);
+            shader.reload(files[0]);
+            // if (files.size() == 2)
+            //     shader.reload(files[0], files[1]);
+            // else if (files.size() == 3)
+            //     shader.reload(files[0], files[1], files[2]);
+            // else if (files.size() == 4)
+            //     shader.reload(files[0], files[1], files[2], files[3]);
+            // else if (files.size() == 5)
+            //     shader.reload(files[0], files[1], files[2], files[3], files[4]);
             this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());
             std::cout << "[Toast Success]Reloaded shader " << name << std::endl;
         } catch (const std::exception &e) {

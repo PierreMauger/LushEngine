@@ -11,19 +11,26 @@
 
 namespace Lush
 {
+    static std::map<std::string, unsigned int> shaderTypes = {
+        {"vertex", GL_VERTEX_SHADER},
+        {"fragment", GL_FRAGMENT_SHADER},
+        {"geometry", GL_GEOMETRY_SHADER},
+        {"tessControl", GL_TESS_CONTROL_SHADER},
+        {"tessEval", GL_TESS_EVALUATION_SHADER}
+    };
+
     class Shader : public Resource
     {
         private:
             unsigned int _ID = 0;
 
         public:
-            Shader(const File &vertexFile, const File &fragmentFile, const File &geometryFile = File(), const File &tessControlFile = File(), const File &tessEvalFile = File());
+            Shader(const File &file);
             Shader() = default;
             ~Shader() = default;
 
-            void load(const File &vertexFile, const File &fragmentFile, const File &geometryFile = File(), const File &tessControlFile = File(), const File &tessEvalFile = File());
-            void reload(const File &vertexFile, const File &fragmentFile, const File &geometryFile = File(), const File &tessControlFile = File(),
-                        const File &tessEvalFile = File());
+            void load(const File &file);
+            void reload(const File &file);
 
             void use() const;
             void setBool(const std::string &name, bool value) const;

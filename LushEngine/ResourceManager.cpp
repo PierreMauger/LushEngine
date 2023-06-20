@@ -155,22 +155,12 @@ void ResourceManager::loadModels(const std::string &dir)
 
 void ResourceManager::loadShaders(const std::string &dir)
 {
-    this->loadDirectory(dir, [this](const std::string &path) { this->_files[path] = File(path); }, {".vs", ".fs", ".tcs", ".tes", ".gs", ".cs"});
-
-    this->_shaders["Model"] = Shader(this->_files["Resources/Shaders/model.vs"], this->_files["Resources/Shaders/model.fs"]);
-    this->_shaders["PickingModel"] = Shader(this->_files["Resources/Shaders/model.vs"], this->_files["Resources/Shaders/picking.fs"]);
-    this->_shaders["PickingBillboard"] = Shader(this->_files["Resources/Shaders/billboard.vs"], this->_files["Resources/Shaders/picking.fs"]);
-    this->_shaders["Outline"] = Shader(this->_files["Resources/Shaders/outline.vs"], this->_files["Resources/Shaders/outline.fs"]);
-    this->_shaders["Skybox"] = Shader(this->_files["Resources/Shaders/skybox.vs"], this->_files["Resources/Shaders/skybox.fs"]);
-    this->_shaders["Billboard"] = Shader(this->_files["Resources/Shaders/billboard.vs"], this->_files["Resources/Shaders/billboard.fs"]);
-    this->_shaders["Grid"] = Shader(this->_files["Resources/Shaders/grid.vs"], this->_files["Resources/Shaders/grid.fs"]);
-    this->_shaders["Map"] = Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/map.fs"], File(), this->_files["Resources/Shaders/map.tcs"],
-                                   this->_files["Resources/Shaders/map.tes"]);
-    this->_shaders["MapWireframe"] =
-        Shader(this->_files["Resources/Shaders/map.vs"], this->_files["Resources/Shaders/mapWireframe.fs"], this->_files["Resources/Shaders/mapWireframe.gs"],
-               this->_files["Resources/Shaders/map.tcs"], this->_files["Resources/Shaders/map.tes"]);
-    this->_shaders["CameraFrustum"] = Shader(this->_files["Resources/Shaders/cameraFrustum.vs"], this->_files["Resources/Shaders/cameraFrustum.fs"]);
-    this->_shaders["Game"] = Shader(this->_files["Resources/Shaders/outline.vs"], this->_files["Resources/Shaders/billboard.fs"]);
+    this->loadDirectory(dir,
+                        [this](const std::string &path) {
+                            this->_files[path] = File(path);
+                            this->_shaders[this->_files[path].getName()] = Shader(this->_files[path]);
+                        },
+                        {".glsl"});
 }
 
 void ResourceManager::loadSkyBoxes(const std::string &dir)

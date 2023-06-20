@@ -3,7 +3,7 @@
 using namespace Lush;
 
 PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
-    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
+    : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
     Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
     this->_graphic->getFrameBuffers()["picking"] = this->_buffer;
