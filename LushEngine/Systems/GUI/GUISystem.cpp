@@ -865,7 +865,7 @@ void GUISystem::build()
         std::cout << "[Toast Warning]No build path selected" << std::endl;
         return;
     }
-    std::filesystem::create_directories(this->_buildPath + "/Data");
+    std::filesystem::create_directories(this->_buildPath + "/Data/mono/4.5");
 
     this->_resourceManager->serializeAssetPack(this->_buildPath + "/Data/AssetPack.data");
     std::cout << "[Toast Success]AssetPack serialized at location: " << this->_buildPath << "/Data/AssetPack.data" << std::endl;
@@ -873,5 +873,7 @@ void GUISystem::build()
                                std::filesystem::copy_options::overwrite_existing);
     std::filesystem::copy("Resources/bin", std::filesystem::path(this->_buildPath) / "Data",
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+    std::filesystem::copy_file("libs/mono/4.5/mscorlib.dll", std::filesystem::path(this->_buildPath) / "Data/mono/4.5/mscorlib.dll",
+                          std::filesystem::copy_options::overwrite_existing);
     std::cout << "[Toast Success]Build complete!" << std::endl;
 }
