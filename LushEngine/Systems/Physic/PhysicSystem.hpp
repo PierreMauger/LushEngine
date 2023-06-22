@@ -17,11 +17,13 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
             std::shared_ptr<ResourceManager> _resourceManager;
 
-            btBroadphaseInterface *broadphase;
-            btDefaultCollisionConfiguration *collisionConfiguration;
-            btCollisionDispatcher *dispatcher;
-            btSequentialImpulseConstraintSolver *solver;
-            btDiscreteDynamicsWorld *dynamicsWorld;
+            btBroadphaseInterface *_broadphase;
+            btDefaultCollisionConfiguration *_collisionConfiguration;
+            btCollisionDispatcher *_dispatcher;
+            btSequentialImpulseConstraintSolver *_solver;
+            btDiscreteDynamicsWorld *_dynamicsWorld;
+
+            void updateTransform(btRigidBody *rigidBody, Transform &transform);
 
         public:
             explicit PhysicSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);

@@ -98,6 +98,19 @@ namespace Lush
                 return new Map(*this);
             }
     };
+
+    struct RigidBody : public Component {
+            float mass = 1.0f;
+            float friction = 0.5f;
+            float restitution = 0.0f;
+            bool kinematic = false;
+            void *body = nullptr;
+
+            RigidBody *clone() const override
+            {
+                return new RigidBody(*this);
+            }
+    };
 }
 
 #endif // COMPONENT_HPP

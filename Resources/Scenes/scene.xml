@@ -2,7 +2,7 @@
   <Entities>
     <Entity id="0" name="MaxwellTheCat">
       <Components>
-        <Transform position="0 0 0" rotation="0 0 0" scale="1 1 1" />
+        <Transform position="0 0 -5" rotation="0 0 0" scale="1 1 1" />
         <Model name="Maxwell" />
         <Maxwell time="0" />
       </Components>
@@ -52,6 +52,13 @@
         <Map heightMap="heightMap.png" diffuseTexture="grass0_DIF.jpg"
           normalTexture="grass0_NRM.jpg" diffuseTexture2="Ground_17_DIF.jpg"
           diffuseTexture3="Ground_21_DIF.jpg" />
+      </Components>
+    </Entity>
+    <Entity id="8" name="PhysicDummy">
+      <Components>
+        <Transform position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5" />
+        <Model name="Cube" />
+        <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
       </Components>
     </Entity>
   </Entities>

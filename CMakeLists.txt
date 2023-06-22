@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Set build type and optimizations
-set(CMAKE_BUILD_TYPE Release)  # Use Release for optimized build
+# set(CMAKE_BUILD_TYPE Release)  # Use Release for optimized build
 
 # Add options for different build types
 if(UNIX)

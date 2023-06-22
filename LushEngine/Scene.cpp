@@ -68,6 +68,13 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
                 temp.diffuseTexture2 = componentNode->first_attribute("diffuseTexture2")->value();
                 temp.diffuseTexture3 = componentNode->first_attribute("diffuseTexture3")->value();
                 entity.addComponent(temp);
+            } else if (name == "RigidBody") {
+                RigidBody temp;
+                temp.mass = std::stof(componentNode->first_attribute("mass")->value());
+                temp.friction = std::stof(componentNode->first_attribute("friction")->value());
+                temp.restitution = std::stof(componentNode->first_attribute("restitution")->value());
+                temp.kinematic = std::atoi(componentNode->first_attribute("kinematic")->value());
+                entity.addComponent(temp);
             }
             for (auto &[scriptName, script] : scripts) {
                 if (scriptName == name) {

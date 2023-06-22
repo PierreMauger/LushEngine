@@ -412,6 +412,20 @@ void GUISystem::drawProperties(EntityManager &entityManager)
             ImGui::Separator();
         }
     }
+    if (entity.hasComponent<RigidBody>()) {
+        if (ImGui::CollapsingHeader(ICON_FA_BOX " RigidBody", ImGuiTreeNodeFlags_DefaultOpen)) {
+            RigidBody &rigidBody = entity.getComponent<RigidBody>();
+
+            ImGui::SliderFloat("Mass##RigidBody", &rigidBody.mass, 0.0f, 100.0f);
+            ImGui::SliderFloat("Friction##RigidBody", &rigidBody.friction, 0.0f, 1.0f);
+            ImGui::SliderFloat("Restitution##RigidBody", &rigidBody.restitution, 0.0f, 1.0f);
+            ImGui::Checkbox("Kinematic##RigidBody", &rigidBody.kinematic);
+
+            if (ImGui::Button("Remove##RigidBody"))
+                entity.removeComponent<RigidBody>();
+            ImGui::Separator();
+        }
+    }
     std::size_t it = 0;
     for (auto &[scriptName, script] : this->_resourceManager->getScripts()) {
         if (entity.hasScriptComponent(scriptName)) {
@@ -496,6 +510,12 @@ void GUISystem::drawProperties(EntityManager &entityManager)
             ImGui::SameLine(30, 0);
             if (ImGui::Selectable("Map##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(Map());
+        }
+        if (!entity.hasComponent<RigidBody>()) {
+            ImGui::Text("%s", ICON_FA_BOXES);
+            ImGui::SameLine(30, 0);
+            if (ImGui::Selectable("RigidBody##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
+                entity.addComponent(RigidBody());
         }
 
         it = 0;
@@ -874,6 +894,6 @@ void GUISystem::build()
     std::filesystem::copy("Resources/bin", std::filesystem::path(this->_buildPath) / "Data",
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
     std::filesystem::copy_file("libs/mono/4.5/mscorlib.dll", std::filesystem::path(this->_buildPath) / "Data/mono/4.5/mscorlib.dll",
-                          std::filesystem::copy_options::overwrite_existing);
+                               std::filesystem::copy_options::overwrite_existing);
     std::cout << "[Toast Success]Build complete!" << std::endl;
 }
