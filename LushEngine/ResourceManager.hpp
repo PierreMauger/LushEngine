@@ -6,11 +6,13 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/vector.hpp>
+#include <btBulletDynamicsCommon.h>
 
 #include "ECS.hpp"
 #include "File/File.hpp"
 #include "File/Resource.hpp"
 #include "Includes.hpp"
+#include "Physic/PhysicInstance.hpp"
 #include "Rendering/CubeMap.hpp"
 #include "Rendering/MapMesh.hpp"
 #include "Rendering/RenderModel.hpp"
@@ -38,11 +40,13 @@ namespace Lush
             std::unordered_map<std::string, ScriptPack> _scriptPacks;
             std::unordered_map<std::string, ScriptClass> _scripts;
             std::vector<ScriptInstance> _instances;
+            std::vector<PhysicInstance> _physicInstances;
             std::unordered_map<std::string, Scene> _scenes;
             std::string _activeScene;
 
             std::unique_ptr<MapMesh> _mapMesh;
             MonoDomain *_domain = nullptr;
+            btDiscreteDynamicsWorld *_dynamicsWorld = nullptr;
 
             void loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions);
 
@@ -64,6 +68,9 @@ namespace Lush
             void loadGame();
             void initScriptDomain(const std::string &dir);
 
+            void initInstances(EntityManager &entityManager);
+            void initPhysicInstances(EntityManager &entityManager);
+
             void serializeAssetPack(std::string path);
             void deserializeAssetPack(std::string path);
 
@@ -77,11 +84,15 @@ namespace Lush
             std::unordered_map<std::string, ScriptPack> &getScriptPacks();
             std::unordered_map<std::string, ScriptClass> &getScripts();
             std::vector<ScriptInstance> &getInstances();
+            std::vector<PhysicInstance> &getPhysicInstances();
 
             std::unordered_map<std::string, Scene> &getScenes();
             std::string getActiveScene() const;
             void setActiveScene(const std::string &name);
             MapMesh &getMapMesh();
+
+            void setDynamicsWorld(btDiscreteDynamicsWorld *dynamicsWorld);
+            void resetDynamicsWorld();
 
             static ResourceManager *getResourceManager();
     };

@@ -109,6 +109,7 @@ set(INC
     ${PROJECT_NAME}/Systems/Script/
     ${PROJECT_NAME}/Systems/Game/
     ${PROJECT_NAME}/Script/
+    ${PROJECT_NAME}/Physic/
     ${PROJECT_NAME}/File/
 
     ${LIBS_PATH}/
@@ -146,6 +147,7 @@ set(SRC
     ${PROJECT_NAME}/Script/ScriptGlue.cpp
     ${PROJECT_NAME}/Script/ScriptInstance.cpp
     ${PROJECT_NAME}/Script/ScriptPack.cpp
+    ${PROJECT_NAME}/Physic/PhysicInstance.cpp
     ${PROJECT_NAME}/File/File.cpp
     ${PROJECT_NAME}/File/Resource.cpp
 

@@ -201,17 +201,12 @@ void GUISystem::drawActionBar(EntityManager &entityManager)
                 this->_graphic->setRunning(!this->_graphic->getRunning());
                 if (this->_graphic->getRunning()) {
                     this->_entityManagerCopy.clone(entityManager);
-                    std::size_t it = this->_resourceManager->getScripts().size() - 1;
-                    for (auto &[name, script] : this->_resourceManager->getScripts()) {
-                        for (auto &[id, entity] : entityManager.getEntities())
-                            if (entity.hasScriptComponent(name))
-                                this->_resourceManager->getInstances().emplace_back(script, id, entity.getScriptComponent(name).getFields());
-                        it--;
-                    }
-                    for (auto &instance : this->_resourceManager->getInstances())
-                        instance.init();
+                    this->_resourceManager->initInstances(entityManager);
+                    this->_resourceManager->initPhysicInstances(entityManager);
                 } else {
                     this->_resourceManager->getInstances().clear();
+                    this->_resourceManager->resetDynamicsWorld();
+                    this->_resourceManager->getPhysicInstances().clear();
                     entityManager = this->_entityManagerCopy;
                 }
             }
@@ -416,10 +411,19 @@ void GUISystem::drawProperties(EntityManager &entityManager)
         if (ImGui::CollapsingHeader(ICON_FA_BOX " RigidBody", ImGuiTreeNodeFlags_DefaultOpen)) {
             RigidBody &rigidBody = entity.getComponent<RigidBody>();
 
-            ImGui::SliderFloat("Mass##RigidBody", &rigidBody.mass, 0.0f, 100.0f);
-            ImGui::SliderFloat("Friction##RigidBody", &rigidBody.friction, 0.0f, 1.0f);
-            ImGui::SliderFloat("Restitution##RigidBody", &rigidBody.restitution, 0.0f, 1.0f);
-            ImGui::Checkbox("Kinematic##RigidBody", &rigidBody.kinematic);
+            bool isEdited = false;
+            if (ImGui::SliderFloat("Mass##RigidBody", &rigidBody.mass, 0.0f, 100.0f))
+                isEdited = true;
+            if (ImGui::SliderFloat("Friction##RigidBody", &rigidBody.friction, 0.0f, 1.0f))
+                isEdited = true;
+            if (ImGui::SliderFloat("Restitution##RigidBody", &rigidBody.restitution, 0.0f, 1.0f))
+                isEdited = true;
+            if (ImGui::Checkbox("Kinematic##RigidBody", &rigidBody.kinematic))
+                isEdited = true;
+            if (isEdited && this->_graphic->getRunning()) {
+                std::size_t instance = this->getPhysicInstanceIndex(this->_graphic->getSelectedEntity());
+                this->_resourceManager->getPhysicInstances()[instance].updateRigidBodyRuntime(rigidBody);
+            }
 
             if (ImGui::Button("Remove##RigidBody"))
                 entity.removeComponent<RigidBody>();
@@ -851,6 +855,18 @@ std::size_t GUISystem::getScriptInstanceIndex(std::size_t entityId)
     std::size_t i = 0;
 
     for (auto &instance : this->_resourceManager->getInstances()) {
+        if (instance.getId() == entityId)
+            return i;
+        i++;
+    }
+    return (std::size_t)-1;
+}
+
+std::size_t GUISystem::getPhysicInstanceIndex(std::size_t entityId)
+{
+    std::size_t i = 0;
+
+    for (auto &instance : this->_resourceManager->getPhysicInstances()) {
         if (instance.getId() == entityId)
             return i;
         i++;

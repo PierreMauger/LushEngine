@@ -63,8 +63,8 @@ void ResourceManager::serializeAssetPack(std::string path)
     oa << this->_models.size();
     for (auto &[name, model] : this->_models) {
         // if (model.isUsed(name, this->_scenes)) {
-            oa << name;
-            oa << model;
+        oa << name;
+        oa << model;
         // }
     }
 
@@ -119,6 +119,26 @@ void ResourceManager::initScriptDomain(const std::string &dir)
     if (!this->_domain)
         throw std::runtime_error("mono_jit_init failed");
     mono_thread_set_main(mono_thread_current());
+}
+
+void ResourceManager::initInstances(EntityManager &entityManager)
+{
+    for (auto &[name, script] : this->_scripts) {
+        for (auto &[id, entity] : entityManager.getEntities())
+            if (entity.hasScriptComponent(name))
+                this->_instances.emplace_back(script, id, entity.getScriptComponent(name).getFields());
+    }
+    for (auto &instance : this->_instances)
+        instance.init();
+}
+
+void ResourceManager::initPhysicInstances(EntityManager &entityManager)
+{
+    for (auto &[id, entity] : entityManager.getEntities())
+        if (entity.hasComponent<Transform>() && entity.hasComponent<RigidBody>())
+            this->_physicInstances.emplace_back(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>());
+    for (auto &physicInstance : this->_physicInstances)
+        this->_dynamicsWorld->addRigidBody(physicInstance.getRigidBody());
 }
 
 void ResourceManager::loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions)
@@ -275,6 +295,11 @@ std::vector<ScriptInstance> &ResourceManager::getInstances()
     return this->_instances;
 }
 
+std::vector<PhysicInstance> &ResourceManager::getPhysicInstances()
+{
+    return this->_physicInstances;
+}
+
 std::unordered_map<std::string, Scene> &ResourceManager::getScenes()
 {
     return this->_scenes;
@@ -293,4 +318,32 @@ void ResourceManager::setActiveScene(const std::string &name)
 MapMesh &ResourceManager::getMapMesh()
 {
     return *this->_mapMesh;
+}
+
+void ResourceManager::setDynamicsWorld(btDiscreteDynamicsWorld *world)
+{
+    this->_dynamicsWorld = world;
+}
+
+void ResourceManager::resetDynamicsWorld()
+{
+    int numBodies = this->_dynamicsWorld->getNumCollisionObjects();
+    for (int i = numBodies - 1; i >= 0; --i) {
+        btCollisionObject *obj = this->_dynamicsWorld->getCollisionObjectArray()[i];
+        btRigidBody *body = btRigidBody::upcast(obj);
+        if (body) {
+            this->_dynamicsWorld->removeRigidBody(body);
+
+            delete body->getMotionState();
+            delete body->getCollisionShape();
+            delete body;
+        }
+    }
+
+    btStaticPlaneShape *planeShape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);                                           // Plane normal (0, 1, 0) and distance 0
+    btDefaultMotionState *motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -5, 0))); // No rotation, position at (0, 0, 0)
+    btVector3 localInertia(0, 0, 0);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(0, motionState, planeShape, localInertia);
+    btRigidBody *planeRigidBody = new btRigidBody(rbInfo);
+    this->_dynamicsWorld->addRigidBody(planeRigidBody);
 }

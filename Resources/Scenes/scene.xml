@@ -12,7 +12,7 @@
         <Transform position="0 1 10" rotation="0 0 0" scale="0.5 0.5 0.5" />
         <Camera />
         <Billboard name="Camera.png" />
-        <ThirdPersonCamera distance="10" playerEntity="4" sensibility="0.1" />
+        <!-- <ThirdPersonCamera distance="10" playerEntity="4" sensibility="0.1" /> -->
       </Components>
     </Entity>
     <Entity id="2" name="MainLight">
@@ -33,7 +33,8 @@
       <Components>
         <Transform position="3 0 -2" rotation="0 0 0" scale="1 1 1" />
         <Model name="Fox" />
-        <Controlable speed="10" cameraEntity="1" />
+        <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
+        <!-- <Controlable speed="10" cameraEntity="1" /> -->
       </Components>
     </Entity>
     <Entity id="5" name="Skybox">
@@ -54,9 +55,16 @@
           diffuseTexture3="Ground_21_DIF.jpg" />
       </Components>
     </Entity>
-    <Entity id="8" name="PhysicDummy">
+    <Entity id="8" name="PhysicDummy1">
       <Components>
-        <Transform position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5" />
+        <Transform position="0 0 0" rotation="0 0 0" scale="1 1 1" />
+        <Model name="Cube" />
+        <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
+      </Components>
+    </Entity>
+    <Entity id="9" name="PhysicDummy2">
+      <Components>
+        <Transform position="1.5 3 0" rotation="0 0 0" scale="1 1 1" />
         <Model name="Cube" />
         <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
       </Components>

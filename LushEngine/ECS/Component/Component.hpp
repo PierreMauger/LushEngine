@@ -104,7 +104,6 @@ namespace Lush
             float friction = 0.5f;
             float restitution = 0.0f;
             bool kinematic = false;
-            void *body = nullptr;
 
             RigidBody *clone() const override
             {
