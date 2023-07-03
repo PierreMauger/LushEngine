@@ -20,6 +20,21 @@ void Texture::load(File &file)
     unsigned char *data = stbi_load_from_memory((const stbi_uc *)content.c_str(), content.length(), &this->_width, &this->_height, &this->_nrChannels, 0);
     if (data) {
         this->_pixels.assign(data, data + this->_width * this->_height * this->_nrChannels);
+
+        this->_heightData = new unsigned char[this->_width * this->_height];
+        if (this->_nrChannels == 1) {
+            memcpy(this->_heightData, data, this->_width * this->_height);
+        } else if (this->_nrChannels == 3 || this->_nrChannels == 4) {
+            for (int i = 0; i < this->_width * this->_height; ++i) {
+                unsigned char r = data[i * this->_nrChannels];
+                unsigned char g = data[i * this->_nrChannels + 1];
+                unsigned char b = data[i * this->_nrChannels + 2];
+                unsigned char grayscale = static_cast<unsigned char>(0.2989 * r + 0.587 * g + 0.114 * b);
+
+                this->_heightData[i] = grayscale;
+            }
+        }
+
         this->setupTexture();
         stbi_image_free(data);
     } else {
@@ -27,9 +42,24 @@ void Texture::load(File &file)
     }
 }
 
-unsigned int Texture::getId()
+unsigned int Texture::getId() const
 {
     return this->_id;
+}
+
+int Texture::getWidth() const
+{
+    return this->_width;
+}
+
+int Texture::getHeight() const
+{
+    return this->_height;
+}
+
+unsigned char *Texture::getData() const
+{
+    return this->_heightData;
 }
 
 void Texture::setupTexture()

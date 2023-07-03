@@ -21,6 +21,7 @@ namespace Lush
             int _height;
             int _nrChannels;
             std::vector<unsigned char> _pixels;
+            unsigned char *_heightData = nullptr;
 
             void setupTexture();
 
@@ -30,8 +31,12 @@ namespace Lush
             ~Texture();
 
             void load(File &file);
+            void calcHeightData(unsigned char *data);
 
-            unsigned int getId();
+            unsigned int getId() const;
+            int getWidth() const;
+            int getHeight() const;
+            unsigned char *getData() const;
 
             void serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version)
             {

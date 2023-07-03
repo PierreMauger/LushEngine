@@ -12,14 +12,6 @@ PhysicSystem::PhysicSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Res
     this->_dynamicsWorld = new btDiscreteDynamicsWorld(this->_dispatcher, this->_broadphase, this->_solver, this->_collisionConfiguration);
 
     this->_dynamicsWorld->setGravity(btVector3(0, -9.8, 0));
-
-    btStaticPlaneShape *planeShape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);                                           // Plane normal (0, 1, 0) and distance 0
-    btDefaultMotionState *motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -5, 0))); // No rotation, position at (0, 0, 0)
-    btVector3 localInertia(0, 0, 0);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(0, motionState, planeShape, localInertia);
-    btRigidBody *planeRigidBody = new btRigidBody(rbInfo);
-    this->_dynamicsWorld->addRigidBody(planeRigidBody);
-
     this->_resourceManager->setDynamicsWorld(this->_dynamicsWorld);
 }
 

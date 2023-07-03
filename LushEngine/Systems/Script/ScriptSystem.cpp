@@ -12,6 +12,6 @@ void ScriptSystem::update([[maybe_unused]] EntityManager &entityManager, float d
 {
     if (this->_graphic->getPaused() || !this->_graphic->getRunning() || !this->shouldUpdate(deltaTime))
         return;
-    for (auto &instance : this->_resourceManager->getInstances())
+    for (auto &instance : this->_resourceManager->getScriptInstances())
         instance.update(this->getDeltaTime());
 }

@@ -125,7 +125,7 @@ static std::size_t getScriptInstanceIndex(ResourceManager *resourceManager, std:
 {
     std::size_t i = 0;
 
-    for (auto &instance : resourceManager->getInstances()) {
+    for (auto &instance : resourceManager->getScriptInstances()) {
         if (instance.getId() == entityId)
             return i;
         i++;
@@ -138,7 +138,7 @@ MonoObject *ScriptGlue::GetScriptInstance(std::size_t id)
     ResourceManager *resourceManager = ResourceManager::getResourceManager();
     std::size_t index = getScriptInstanceIndex(resourceManager, id);
     if (index != (std::size_t)-1)
-        return resourceManager->getInstances().at(index).getInstance();
+        return resourceManager->getScriptInstances().at(index).getInstance();
     else
         return nullptr;
 }

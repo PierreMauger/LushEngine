@@ -23,8 +23,6 @@ namespace Lush
             btSequentialImpulseConstraintSolver *_solver;
             btDiscreteDynamicsWorld *_dynamicsWorld;
 
-            void updateTransform(PhysicInstance &instance, Transform &transform, float deltaTime);
-
         public:
             explicit PhysicSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~PhysicSystem() override = default;

@@ -1,10 +1,12 @@
 #ifndef PHYSIC_INSTANCE_HPP
 #define PHYSIC_INSTANCE_HPP
 
+#include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
 #include <btBulletDynamicsCommon.h>
 
 #include "ECS/Component/Component.hpp"
 #include "Includes.hpp"
+#include "Rendering/Texture.hpp"
 
 namespace Lush
 {

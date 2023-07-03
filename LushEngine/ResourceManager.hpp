@@ -68,7 +68,7 @@ namespace Lush
             void loadGame();
             void initScriptDomain(const std::string &dir);
 
-            void initInstances(EntityManager &entityManager);
+            void initScriptInstances(EntityManager &entityManager);
             void initPhysicInstances(EntityManager &entityManager);
 
             void serializeAssetPack(std::string path);
@@ -83,7 +83,7 @@ namespace Lush
             MonoClass *getEntityClass();
             std::unordered_map<std::string, ScriptPack> &getScriptPacks();
             std::unordered_map<std::string, ScriptClass> &getScripts();
-            std::vector<ScriptInstance> &getInstances();
+            std::vector<ScriptInstance> &getScriptInstances();
             std::vector<PhysicInstance> &getPhysicInstances();
 
             std::unordered_map<std::string, Scene> &getScenes();

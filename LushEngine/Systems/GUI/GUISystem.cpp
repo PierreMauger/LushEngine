@@ -201,10 +201,10 @@ void GUISystem::drawActionBar(EntityManager &entityManager)
                 this->_graphic->setRunning(!this->_graphic->getRunning());
                 if (this->_graphic->getRunning()) {
                     this->_entityManagerCopy.clone(entityManager);
-                    this->_resourceManager->initInstances(entityManager);
+                    this->_resourceManager->initScriptInstances(entityManager);
                     this->_resourceManager->initPhysicInstances(entityManager);
                 } else {
-                    this->_resourceManager->getInstances().clear();
+                    this->_resourceManager->getScriptInstances().clear();
                     this->_resourceManager->resetDynamicsWorld();
                     this->_resourceManager->getPhysicInstances().clear();
                     entityManager = this->_entityManagerCopy;
@@ -438,15 +438,15 @@ void GUISystem::drawProperties(EntityManager &entityManager)
                 for (auto &[fieldName, field] : script.getFields()) {
                     if (instance != (std::size_t)-1) {
                         if (field.type == "Single") {
-                            float value = this->_resourceManager->getInstances()[instance].getFieldValue<float>(fieldName);
+                            float value = this->_resourceManager->getScriptInstances()[instance].getFieldValue<float>(fieldName);
                             if (ImGui::DragFloat(fieldName.c_str(), &value))
-                                this->_resourceManager->getInstances()[instance].setFieldValue(fieldName, value);
+                                this->_resourceManager->getScriptInstances()[instance].setFieldValue(fieldName, value);
                         }
                         if (field.type == "Entity" || field.type == "UInt64") {
-                            unsigned long value = this->_resourceManager->getInstances()[instance].getFieldValue<unsigned long>(fieldName);
+                            unsigned long value = this->_resourceManager->getScriptInstances()[instance].getFieldValue<unsigned long>(fieldName);
                             const ImU64 increment = 1;
                             if (ImGui::InputScalar(fieldName.c_str(), ImGuiDataType_U64, &value, &increment))
-                                this->_resourceManager->getInstances()[instance].setFieldValue(fieldName, value);
+                                this->_resourceManager->getScriptInstances()[instance].setFieldValue(fieldName, value);
                         }
                     } else {
                         if (field.type == "Single") {
@@ -854,7 +854,7 @@ std::size_t GUISystem::getScriptInstanceIndex(std::size_t entityId)
 {
     std::size_t i = 0;
 
-    for (auto &instance : this->_resourceManager->getInstances()) {
+    for (auto &instance : this->_resourceManager->getScriptInstances()) {
         if (instance.getId() == entityId)
             return i;
         i++;

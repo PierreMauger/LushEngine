@@ -12,7 +12,7 @@ GameSystem::GameSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Resourc
 void GameSystem::update(EntityManager &entityManager, float deltaTime)
 {
     if (!this->_started) {
-        this->initInstances(entityManager);
+        this->initScriptInstances(entityManager);
         this->_started = true;
     }
     if (this->_graphic->getPaused() || !this->_graphic->getRunning() || !this->shouldUpdate(deltaTime))
@@ -27,15 +27,15 @@ void GameSystem::update(EntityManager &entityManager, float deltaTime)
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void GameSystem::initInstances(EntityManager &entityManager)
+void GameSystem::initScriptInstances(EntityManager &entityManager)
 {
     std::size_t it = this->_resourceManager->getScripts().size() - 1;
     for (auto &[name, script] : this->_resourceManager->getScripts()) {
         for (auto &[id, entity] : entityManager.getEntities())
             if (entity.hasScriptComponent(name))
-                this->_resourceManager->getInstances().emplace_back(script, id, entity.getScriptComponent(name).getFields());
+                this->_resourceManager->getScriptInstances().emplace_back(script, id, entity.getScriptComponent(name).getFields());
         it--;
     }
-    for (auto &instance : this->_resourceManager->getInstances())
+    for (auto &instance : this->_resourceManager->getScriptInstances())
         instance.init();
 }

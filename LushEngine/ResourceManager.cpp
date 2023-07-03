@@ -121,7 +121,7 @@ void ResourceManager::initScriptDomain(const std::string &dir)
     mono_thread_set_main(mono_thread_current());
 }
 
-void ResourceManager::initInstances(EntityManager &entityManager)
+void ResourceManager::initScriptInstances(EntityManager &entityManager)
 {
     for (auto &[name, script] : this->_scripts) {
         for (auto &[id, entity] : entityManager.getEntities())
@@ -134,9 +134,22 @@ void ResourceManager::initInstances(EntityManager &entityManager)
 
 void ResourceManager::initPhysicInstances(EntityManager &entityManager)
 {
-    for (auto &[id, entity] : entityManager.getEntities())
+    for (auto &[id, entity] : entityManager.getEntities()) {
         if (entity.hasComponent<Transform>() && entity.hasComponent<RigidBody>())
             this->_physicInstances.emplace_back(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>());
+        if (entity.hasComponent<Map>()) {
+            auto &texture = this->_textures[entity.getComponent<Map>().heightMap];
+
+            btHeightfieldTerrainShape *terrainShape =
+                new btHeightfieldTerrainShape(texture.getWidth(), texture.getHeight(), texture.getData(), 32.0f / 256.0f, 0.0f, 32.0f, 1, PHY_UCHAR, false);
+            terrainShape->setUseDiamondSubdivision(true); // Enable diamond subdivision for better terrain smoothness
+            // terrainShape->setLocalScaling(btVector3(1.0f, 1.0f, 1.0f)); // Scale the terrain if needed
+            btDefaultMotionState *motionState = new btDefaultMotionState();
+            btRigidBody::btRigidBodyConstructionInfo rbInfo(0, motionState, terrainShape);
+            btRigidBody *terrainBody = new btRigidBody(rbInfo);
+            this->_dynamicsWorld->addRigidBody(terrainBody);
+        }
+    }
     for (auto &physicInstance : this->_physicInstances)
         this->_dynamicsWorld->addRigidBody(physicInstance.getRigidBody());
 }
@@ -290,7 +303,7 @@ std::unordered_map<std::string, ScriptClass> &ResourceManager::getScripts()
     return this->_scripts;
 }
 
-std::vector<ScriptInstance> &ResourceManager::getInstances()
+std::vector<ScriptInstance> &ResourceManager::getScriptInstances()
 {
     return this->_instances;
 }
@@ -339,11 +352,4 @@ void ResourceManager::resetDynamicsWorld()
             delete body;
         }
     }
-
-    btStaticPlaneShape *planeShape = new btStaticPlaneShape(btVector3(0, 1, 0), 0);                                           // Plane normal (0, 1, 0) and distance 0
-    btDefaultMotionState *motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -5, 0))); // No rotation, position at (0, 0, 0)
-    btVector3 localInertia(0, 0, 0);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(0, motionState, planeShape, localInertia);
-    btRigidBody *planeRigidBody = new btRigidBody(rbInfo);
-    this->_dynamicsWorld->addRigidBody(planeRigidBody);
 }

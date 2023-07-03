@@ -20,7 +20,7 @@ namespace Lush
 
             bool _started = false;
 
-            void initInstances(EntityManager &entityManager);
+            void initScriptInstances(EntityManager &entityManager);
 
         public:
             GameSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
