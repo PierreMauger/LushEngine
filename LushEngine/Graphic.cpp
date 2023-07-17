@@ -76,14 +76,15 @@ void Graphic::handleKeyboardPress(int key, [[maybe_unused]] int scancode, int ac
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(this->_window, true);
-    if (key == GLFW_KEY_TAB && action == GLFW_PRESS) {
-        this->_mouseMovement = !this->_mouseMovement;
-        glfwSetInputMode(this->_window, GLFW_CURSOR, this->_mouseMovement ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-        if (this->_mouseMovement) {
-            this->setMousePosition(glm::vec2(this->_gameViewPort.z / 2 + this->_gameViewPort.x, this->_gameViewPort.w / 2 + this->_gameViewPort.y));
-            this->setMouseOffset(glm::vec2(this->_gameViewPort.z / 2 + this->_gameViewPort.x, this->_gameViewPort.w / 2 + this->_gameViewPort.y));
+    if (key == GLFW_KEY_TAB && action == GLFW_PRESS && this->_running) {
+        this->_mouseHidden = !this->_mouseHidden;
+        glfwSetInputMode(this->_window, GLFW_CURSOR, this->_mouseHidden ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+        if (!this->_mouseHidden) {
+            //     this->setMousePosition({this->_gameViewPort.z / 2 + this->_gameViewPort.x, this->_gameViewPort.w / 2 + this->_gameViewPort.y});
+            //     this->resetMouseOffset();
         }
-        glfwSetCursorPos(this->_window, this->_gameViewPort.z / 2 + this->_gameViewPort.x, this->_gameViewPort.w / 2 + this->_gameViewPort.y);
+        // this->_mouseOffset = glm::vec2(0.0f, 0.0f);
+        // glfwSetCursorPos(this->_window, this->_gameViewPort.z / 2 + this->_gameViewPort.x, this->_gameViewPort.w / 2 + this->_gameViewPort.y);
     }
 }
 
@@ -105,12 +106,12 @@ void Graphic::handleResizeFramebuffer(int width, int height)
 
 void Graphic::handleMousePress(int button, int action, [[maybe_unused]] int mods)
 {
-    if (this->_sceneMovement && action == GLFW_PRESS) {
+    if (this->_sceneHovered && action == GLFW_PRESS) {
         this->_mouseButton = button;
         glfwSetCursor(this->_window, this->_cursors[button]);
     }
     if (action == GLFW_RELEASE) {
-        if (this->_sceneMovement && button == GLFW_MOUSE_BUTTON_LEFT)
+        if (this->_sceneHovered && button == GLFW_MOUSE_BUTTON_LEFT)
             this->_selectedEntity = this->_hoveredEntity;
         this->_mouseButton = -1;
         glfwSetCursor(this->_window, nullptr);
@@ -157,7 +158,7 @@ void Graphic::setRunning(bool running)
     this->_running = running;
 }
 
-bool Graphic::getRunning() const
+bool Graphic::isRunning() const
 {
     return this->_running;
 }
@@ -167,7 +168,7 @@ void Graphic::setPaused(bool paused)
     this->_paused = paused;
 }
 
-bool Graphic::getPaused() const
+bool Graphic::isPaused() const
 {
     return this->_paused;
 }
@@ -187,19 +188,19 @@ std::size_t Graphic::getSelectedEntity() const
     return this->_selectedEntity;
 }
 
-bool Graphic::getMouseMovement() const
+bool Graphic::isMouseHidden() const
 {
-    return this->_mouseMovement;
+    return this->_mouseHidden;
 }
 
-void Graphic::setSceneMovement(bool sceneMovement)
+void Graphic::setSceneHovered(bool sceneHovered)
 {
-    this->_sceneMovement = sceneMovement;
+    this->_sceneHovered = sceneHovered;
 }
 
-bool Graphic::getSceneMovement() const
+bool Graphic::isSceneHovered() const
 {
-    return this->_sceneMovement;
+    return this->_sceneHovered;
 }
 
 int Graphic::getMouseButton() const
@@ -217,17 +218,21 @@ void Graphic::setMouseOffset(glm::vec2 mousePosition)
 {
     this->_mouseOffset.x = mousePosition.x - this->_mouseLastPosition.x;
     this->_mouseOffset.y = this->_mouseLastPosition.y - mousePosition.y;
-    this->_mouseLastPosition = mousePosition;
 }
 
-glm::vec2 Graphic::getMousePosition()
+glm::vec2 Graphic::getMousePosition() const
 {
     return this->_mousePosition;
 }
 
-glm::vec2 Graphic::getMouseOffset()
+glm::vec2 Graphic::getMouseOffset() const
 {
     return this->_mouseOffset;
+}
+
+void Graphic::resetMouseOffset()
+{
+    this->_mouseOffset = glm::vec2(0, 0);
 }
 
 void Graphic::setGameViewPort(glm::vec4 viewPort)

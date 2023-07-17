@@ -10,7 +10,7 @@ ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Res
 
 void ScriptSystem::update([[maybe_unused]] EntityManager &entityManager, float deltaTime)
 {
-    if (this->_graphic->getPaused() || !this->_graphic->getRunning() || !this->shouldUpdate(deltaTime))
+    if (this->_graphic->isPaused() || !this->_graphic->isRunning() || !this->shouldUpdate(deltaTime))
         return;
     for (auto &instance : this->_resourceManager->getScriptInstances())
         instance.update(this->getDeltaTime());

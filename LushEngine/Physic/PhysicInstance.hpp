@@ -20,8 +20,8 @@ namespace Lush
             PhysicInstance(std::size_t id, Transform &transform, RigidBody &rigidBody);
             ~PhysicInstance() = default;
 
-            btRigidBody *getRigidBody();
             std::size_t getId() const;
+            btRigidBody *getRigidBody();
 
             void update(Transform &transform);
 

@@ -90,7 +90,7 @@ void SceneSystem::generatePerlinTexture()
 
 void SceneSystem::handleMouse()
 {
-    if (this->_graphic->getSceneMovement()) {
+    if (this->_graphic->isSceneHovered()) {
         if (this->_graphic->getMouseButton() == 0)
             this->_graphic->getRenderView().rotate(this->_cameraTransform, this->_graphic->getMouseOffset());
         if (this->_graphic->getMouseButton() == 1)

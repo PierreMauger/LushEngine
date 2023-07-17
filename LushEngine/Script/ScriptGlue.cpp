@@ -139,8 +139,7 @@ MonoObject *ScriptGlue::GetScriptInstance(std::size_t id)
     std::size_t index = getScriptInstanceIndex(resourceManager, id);
     if (index != (std::size_t)-1)
         return resourceManager->getScriptInstances().at(index).getInstance();
-    else
-        return nullptr;
+    return nullptr;
 }
 
 bool ScriptGlue::IsKeyDown(int key)
@@ -152,12 +151,20 @@ bool ScriptGlue::IsKeyDown(int key)
 
 float ScriptGlue::GetMouseMovementX()
 {
-    return Graphic::getGraphic()->getMouseOffset().x;
+    auto graphic = Graphic::getGraphic();
+
+    if (graphic->isRunning() && !graphic->isMouseHidden())
+        return 0;
+    return graphic->getMouseOffset().x;
 }
 
 float ScriptGlue::GetMouseMovementY()
 {
-    return Graphic::getGraphic()->getMouseOffset().y;
+    auto graphic = Graphic::getGraphic();
+
+    if (graphic->isRunning() && !graphic->isMouseHidden())
+        return 0;
+    return graphic->getMouseOffset().y;
 }
 
 void ScriptGlue::registerFunctions()

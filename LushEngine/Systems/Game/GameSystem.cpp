@@ -15,7 +15,7 @@ void GameSystem::update(EntityManager &entityManager, float deltaTime)
         this->initScriptInstances(entityManager);
         this->_started = true;
     }
-    if (this->_graphic->getPaused() || !this->_graphic->getRunning() || !this->shouldUpdate(deltaTime))
+    if (this->_graphic->isPaused() || !this->_graphic->isRunning() || !this->shouldUpdate(deltaTime))
         return;
 
     this->_graphic->setGameViewPort(glm::vec4(0, 0, this->_graphic->getWindowSize().x, this->_graphic->getWindowSize().y));

@@ -148,6 +148,7 @@ set(SRC
     ${PROJECT_NAME}/Script/ScriptInstance.cpp
     ${PROJECT_NAME}/Script/ScriptPack.cpp
     ${PROJECT_NAME}/Physic/PhysicInstance.cpp
+    ${PROJECT_NAME}/Physic/CharacterInstance.cpp
     ${PROJECT_NAME}/File/File.cpp
     ${PROJECT_NAME}/File/Resource.cpp
 

@@ -196,10 +196,10 @@ void GUISystem::drawActionBar(EntityManager &entityManager)
         if (ImGui::BeginMenuBar()) {
             ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x / 2 - 85, 0));
             ImGui::SameLine(0, 0);
-            ImGui::PushStyleColor(ImGuiCol_Button, this->_graphic->getRunning() ? BUTTON_COLOR_SELECTED : BUTTON_COLOR);
-            if (ImGui::Button(this->_graphic->getRunning() ? ICON_FA_STOP : ICON_FA_PLAY, ImVec2(50, 0))) {
-                this->_graphic->setRunning(!this->_graphic->getRunning());
-                if (this->_graphic->getRunning()) {
+            ImGui::PushStyleColor(ImGuiCol_Button, this->_graphic->isRunning() ? BUTTON_COLOR_SELECTED : BUTTON_COLOR);
+            if (ImGui::Button(this->_graphic->isRunning() ? ICON_FA_STOP : ICON_FA_PLAY, ImVec2(50, 0))) {
+                this->_graphic->setRunning(!this->_graphic->isRunning());
+                if (this->_graphic->isRunning()) {
                     this->_entityManagerCopy.clone(entityManager);
                     this->_resourceManager->initScriptInstances(entityManager);
                     this->_resourceManager->initPhysicInstances(entityManager);
@@ -207,17 +207,18 @@ void GUISystem::drawActionBar(EntityManager &entityManager)
                     this->_resourceManager->getScriptInstances().clear();
                     this->_resourceManager->resetDynamicsWorld();
                     this->_resourceManager->getPhysicInstances().clear();
+                    this->_resourceManager->getCharacterInstances().clear();
                     entityManager = this->_entityManagerCopy;
                 }
             }
             ImGui::PopStyleColor();
             ImGui::SameLine(0, 10);
-            ImGui::PushStyleColor(ImGuiCol_Button, this->_graphic->getPaused() ? BUTTON_COLOR_SELECTED : BUTTON_COLOR);
+            ImGui::PushStyleColor(ImGuiCol_Button, this->_graphic->isPaused() ? BUTTON_COLOR_SELECTED : BUTTON_COLOR);
             if (ImGui::Button(ICON_FA_PAUSE, ImVec2(50, 0)))
-                this->_graphic->setPaused(!this->_graphic->getPaused());
+                this->_graphic->setPaused(!this->_graphic->isPaused());
             ImGui::PopStyleColor();
             ImGui::SameLine(0, 10);
-            if (ImGui::Button(ICON_FA_STEP_FORWARD, ImVec2(50, 0)) && this->_graphic->getRunning() && this->_graphic->getPaused()) {
+            if (ImGui::Button(ICON_FA_STEP_FORWARD, ImVec2(50, 0)) && this->_graphic->isRunning() && this->_graphic->isPaused()) {
                 this->_singleFrame = true;
                 this->_graphic->setPaused(false);
             }
@@ -420,13 +421,25 @@ void GUISystem::drawProperties(EntityManager &entityManager)
                 isEdited = true;
             if (ImGui::Checkbox("Kinematic##RigidBody", &rigidBody.kinematic))
                 isEdited = true;
-            if (isEdited && this->_graphic->getRunning()) {
+            if (isEdited && this->_graphic->isRunning()) {
                 std::size_t instance = this->getPhysicInstanceIndex(this->_graphic->getSelectedEntity());
                 this->_resourceManager->getPhysicInstances()[instance].updateRigidBodyRuntime(rigidBody);
             }
 
             if (ImGui::Button("Remove##RigidBody"))
                 entity.removeComponent<RigidBody>();
+            ImGui::Separator();
+        }
+    }
+    if (entity.hasComponent<CharacterController>()) {
+        if (ImGui::CollapsingHeader(ICON_FA_RUNNING " CharacterController", ImGuiTreeNodeFlags_DefaultOpen)) {
+            CharacterController &characterController = entity.getComponent<CharacterController>();
+
+            ImGui::DragFloat3("Center##CharacterController", (float *)&characterController.center, 1.0f, -FLT_MAX, +FLT_MAX);
+            ImGui::SliderFloat("SlopeLimit##CharacterController", &characterController.slopeLimit, 0.0f, 90.0f);
+
+            if (ImGui::Button("Remove##CharacterController"))
+                entity.removeComponent<CharacterController>();
             ImGui::Separator();
         }
     }
@@ -520,6 +533,12 @@ void GUISystem::drawProperties(EntityManager &entityManager)
             ImGui::SameLine(30, 0);
             if (ImGui::Selectable("RigidBody##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(RigidBody());
+        }
+        if (!entity.hasComponent<CharacterController>()) {
+            ImGui::Text("%s", ICON_FA_RUNNING);
+            ImGui::SameLine(30, 0);
+            if (ImGui::Selectable("CharacterController##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
+                entity.addComponent(CharacterController());
         }
 
         it = 0;
@@ -655,7 +674,7 @@ void GUISystem::drawScene(EntityManager &entityManager)
     if (this->_showTools && entityManager.hasEntity(this->_graphic->getSelectedEntity()))
         guizmoDrawn = this->drawGuizmo(entityManager);
 
-    this->_graphic->setSceneMovement(ImGui::IsWindowHovered() && !(ImGuizmo::IsOver() && guizmoDrawn));
+    this->_graphic->setSceneHovered(ImGui::IsWindowHovered() && !(ImGuizmo::IsOver() && guizmoDrawn));
 
     if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("FILE")) {

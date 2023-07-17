@@ -2,17 +2,17 @@
   <Entities>
     <Entity id="0" name="MaxwellTheCat">
       <Components>
-        <Transform position="0 0 -5" rotation="0 0 0" scale="1 1 1" />
+        <Transform position="0 0 -5" />
         <Model name="Maxwell" />
         <Maxwell time="0" />
       </Components>
     </Entity>
     <Entity id="1" name="MainCamera">
       <Components>
-        <Transform position="0 1 10" rotation="0 0 0" scale="0.5 0.5 0.5" />
+        <Transform position="0 1 10" scale="0.5 0.5 0.5" />
         <Camera />
         <Billboard name="Camera.png" />
-        <!-- <ThirdPersonCamera distance="10" playerEntity="4" sensibility="0.1" /> -->
+        <ThirdPersonCamera distance="10" playerEntity="4" sensibility="0.1" />
       </Components>
     </Entity>
     <Entity id="2" name="MainLight">
@@ -24,17 +24,18 @@
     </Entity>
     <Entity id="3">
       <Components>
-        <Transform position="2 2 0" rotation="0 0 0" scale="0.5 0.5 0.5" />
+        <Transform position="2 2 0" scale="0.5 0.5 0.5" />
         <Light type="1" />
         <Billboard name="PointLight.png" />
       </Components>
     </Entity>
     <Entity id="4" name="Player">
       <Components>
-        <Transform position="3 0 -2" rotation="0 0 0" scale="1 1 1" />
+        <Transform position="3 0 -2" />
         <Model name="Fox" />
-        <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
-        <!-- <Controlable speed="10" cameraEntity="1" /> -->
+        <RigidBody />
+        <CharacterController />
+        <Controlable speed="10" cameraEntity="1" />
       </Components>
     </Entity>
     <Entity id="5" name="Skybox">
@@ -44,7 +45,7 @@
     </Entity>
     <Entity id="6">
       <Components>
-        <Transform position="7 2 0" rotation="0 0 0" scale="1 1 1" />
+        <Transform position="7 2 0" />
         <Billboard name="heightMap.png" />
       </Components>
     </Entity>

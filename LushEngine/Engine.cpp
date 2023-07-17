@@ -54,8 +54,6 @@ void Engine::updateMouse()
 {
     double x, y;
     glfwGetCursorPos(this->_graphic->getWindow(), &x, &y);
-    if (this->_graphic->getMouseMovement() || this->_graphic->getSceneMovement())
-        this->_graphic->setMouseOffset(glm::vec2(x, y));
-    if (!this->_graphic->getMouseMovement())
-        this->_graphic->setMousePosition(glm::vec2(x, y));
+    this->_graphic->setMouseOffset({x, y});
+    this->_graphic->setMousePosition({x, y});
 }

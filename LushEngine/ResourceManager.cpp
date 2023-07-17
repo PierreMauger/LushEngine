@@ -135,8 +135,13 @@ void ResourceManager::initScriptInstances(EntityManager &entityManager)
 void ResourceManager::initPhysicInstances(EntityManager &entityManager)
 {
     for (auto &[id, entity] : entityManager.getEntities()) {
-        if (entity.hasComponent<Transform>() && entity.hasComponent<RigidBody>())
-            this->_physicInstances.emplace_back(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>());
+        if (entity.hasComponent<Transform>() && entity.hasComponent<RigidBody>()) {
+            if (entity.hasComponent<CharacterController>()) {
+                this->_characterInstances.emplace_back(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>());
+            } else {
+                this->_physicInstances.emplace_back(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>());
+            }
+        }
         if (entity.hasComponent<Map>()) {
             auto &texture = this->_textures[entity.getComponent<Map>().heightMap];
 
@@ -152,6 +157,11 @@ void ResourceManager::initPhysicInstances(EntityManager &entityManager)
     }
     for (auto &physicInstance : this->_physicInstances)
         this->_dynamicsWorld->addRigidBody(physicInstance.getRigidBody());
+
+    for (auto &characterInstance : this->_characterInstances) {
+        this->_dynamicsWorld->addCollisionObject(characterInstance.getGhostObject(), btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+        this->_dynamicsWorld->addAction(characterInstance.getCharacterController());
+    }
 }
 
 void ResourceManager::loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions)
@@ -311,6 +321,11 @@ std::vector<ScriptInstance> &ResourceManager::getScriptInstances()
 std::vector<PhysicInstance> &ResourceManager::getPhysicInstances()
 {
     return this->_physicInstances;
+}
+
+std::vector<CharacterInstance> &ResourceManager::getCharacterInstances()
+{
+    return this->_characterInstances;
 }
 
 std::unordered_map<std::string, Scene> &ResourceManager::getScenes()

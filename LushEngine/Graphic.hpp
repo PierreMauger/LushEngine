@@ -41,8 +41,8 @@ namespace Lush
             std::size_t _hoveredEntity = 0;
             std::size_t _selectedEntity = -1;
 
-            bool _mouseMovement = false;
-            bool _sceneMovement = false;
+            bool _mouseHidden = false;
+            bool _sceneHovered = false;
             int _mouseButton = -1;
             glm::vec2 _mousePosition{};
             glm::vec2 _mouseLastPosition{};
@@ -72,22 +72,23 @@ namespace Lush
             bool isWireframe() const;
 
             void setRunning(bool running);
-            bool getRunning() const;
+            bool isRunning() const;
             void setPaused(bool paused);
-            bool getPaused() const;
+            bool isPaused() const;
 
             void setHoveredEntity(std::size_t hoveredEntity);
             void setSelectedEntity(std::size_t selectedEntity);
             std::size_t getSelectedEntity() const;
 
-            bool getMouseMovement() const;
-            void setSceneMovement(bool sceneMovement);
-            bool getSceneMovement() const;
+            bool isMouseHidden() const;
+            void setSceneHovered(bool sceneHovered);
+            bool isSceneHovered() const;
             int getMouseButton() const;
             void setMousePosition(glm::vec2 mousePosition);
+            glm::vec2 getMousePosition() const;
             void setMouseOffset(glm::vec2 mousePosition);
-            glm::vec2 getMousePosition();
-            glm::vec2 getMouseOffset();
+            glm::vec2 getMouseOffset() const;
+            void resetMouseOffset();
 
             void setGameViewPort(glm::vec4 viewPort);
             glm::vec4 getGameViewPort();

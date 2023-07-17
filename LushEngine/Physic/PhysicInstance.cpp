@@ -21,17 +21,20 @@ PhysicInstance::PhysicInstance(std::size_t id, Transform &transform, RigidBody &
     this->_rigidBody = new btRigidBody(rbInfo);
     this->_rigidBody->setFriction(rigidBody.friction);
     this->_rigidBody->setRestitution(rigidBody.restitution);
-    this->_rigidBody->setUserPointer(reinterpret_cast<void *>(id));
-}
+    if (rigidBody.kinematic)
+        this->_rigidBody->setCollisionFlags(this->_rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
 
-btRigidBody *PhysicInstance::getRigidBody()
-{
-    return this->_rigidBody;
+    this->_rigidBody->setUserPointer(reinterpret_cast<void *>(id));
 }
 
 std::size_t PhysicInstance::getId() const
 {
     return this->_id;
+}
+
+btRigidBody *PhysicInstance::getRigidBody()
+{
+    return this->_rigidBody;
 }
 
 void PhysicInstance::update(Transform &transform)
@@ -53,6 +56,15 @@ void PhysicInstance::updateRigidBodyRuntime(RigidBody &rigidBody)
 {
     this->_rigidBody->setFriction(rigidBody.friction);
     this->_rigidBody->setRestitution(rigidBody.restitution);
-    // inertia is 0,0,0 for static object
-    this->_rigidBody->setMassProps(rigidBody.mass, btVector3(0, 0, 0));
+
+    btVector3 inertia(0, 0, 0);
+    this->_rigidBody->getCollisionShape()->calculateLocalInertia(rigidBody.mass, inertia);
+    this->_rigidBody->setMassProps(rigidBody.mass, inertia);
+
+    if (rigidBody.kinematic)
+        this->_rigidBody->setCollisionFlags(this->_rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+    else {
+        this->_rigidBody->setCollisionFlags(this->_rigidBody->getCollisionFlags() & ~btCollisionObject::CF_KINEMATIC_OBJECT);
+        this->_rigidBody->setGravity(btVector3(0, -9.8, 0));
+    }
 }

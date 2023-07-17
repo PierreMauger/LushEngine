@@ -13,6 +13,7 @@
 #include "File/Resource.hpp"
 #include "Includes.hpp"
 #include "Physic/PhysicInstance.hpp"
+#include "Physic/CharacterInstance.hpp"
 #include "Rendering/CubeMap.hpp"
 #include "Rendering/MapMesh.hpp"
 #include "Rendering/RenderModel.hpp"
@@ -41,6 +42,7 @@ namespace Lush
             std::unordered_map<std::string, ScriptClass> _scripts;
             std::vector<ScriptInstance> _instances;
             std::vector<PhysicInstance> _physicInstances;
+            std::vector<CharacterInstance> _characterInstances;
             std::unordered_map<std::string, Scene> _scenes;
             std::string _activeScene;
 
@@ -85,6 +87,7 @@ namespace Lush
             std::unordered_map<std::string, ScriptClass> &getScripts();
             std::vector<ScriptInstance> &getScriptInstances();
             std::vector<PhysicInstance> &getPhysicInstances();
+            std::vector<CharacterInstance> &getCharacterInstances();
 
             std::unordered_map<std::string, Scene> &getScenes();
             std::string getActiveScene() const;

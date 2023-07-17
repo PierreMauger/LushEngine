@@ -19,7 +19,7 @@ void FileWatcherSystem::update(EntityManager &entityManager, float deltaTime)
         }
     }
     // handle scheduled resources
-    if (!this->_graphic->getRunning() && !this->_scheduledReload.empty()) {
+    if (!this->_graphic->isRunning() && !this->_scheduledReload.empty()) {
         for (auto &res : this->_scheduledReload)
             this->updateResource(res, entityManager);
         this->_scheduledReload.clear();
@@ -59,7 +59,7 @@ void FileWatcherSystem::updateResource(Resource &resource, EntityManager &entity
 
 bool FileWatcherSystem::handleScheduleReload(Resource &resource)
 {
-    if (this->_graphic->getRunning()) {
+    if (this->_graphic->isRunning()) {
         this->_scheduledReload.push_back(resource);
         std::cout << "[Toast Info]Scheduled reloading scene " << resource.getUUID() << std::endl;
         return true;

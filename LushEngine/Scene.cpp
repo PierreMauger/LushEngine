@@ -34,9 +34,12 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
             std::string name = componentNode->name();
             if (name == "Transform") {
                 Transform temp;
-                std::sscanf(componentNode->first_attribute("position")->value(), "%f %f %f", &temp.position.x, &temp.position.y, &temp.position.z);
-                std::sscanf(componentNode->first_attribute("rotation")->value(), "%f %f %f", &temp.rotation.x, &temp.rotation.y, &temp.rotation.z);
-                std::sscanf(componentNode->first_attribute("scale")->value(), "%f %f %f", &temp.scale.x, &temp.scale.y, &temp.scale.z);
+                if (componentNode->first_attribute("position"))
+                    std::sscanf(componentNode->first_attribute("position")->value(), "%f %f %f", &temp.position.x, &temp.position.y, &temp.position.z);
+                if (componentNode->first_attribute("rotation"))
+                    std::sscanf(componentNode->first_attribute("rotation")->value(), "%f %f %f", &temp.rotation.x, &temp.rotation.y, &temp.rotation.z);
+                if (componentNode->first_attribute("scale"))
+                    std::sscanf(componentNode->first_attribute("scale")->value(), "%f %f %f", &temp.scale.x, &temp.scale.y, &temp.scale.z);
                 entity.addComponent(temp);
             } else if (name == "Model") {
                 Model temp;
@@ -70,10 +73,23 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
                 entity.addComponent(temp);
             } else if (name == "RigidBody") {
                 RigidBody temp;
-                temp.mass = std::stof(componentNode->first_attribute("mass")->value());
-                temp.friction = std::stof(componentNode->first_attribute("friction")->value());
-                temp.restitution = std::stof(componentNode->first_attribute("restitution")->value());
-                temp.kinematic = std::atoi(componentNode->first_attribute("kinematic")->value());
+                if (componentNode->first_attribute("mass"))
+                    temp.mass = std::stof(componentNode->first_attribute("mass")->value());
+                if (componentNode->first_attribute("friction"))
+                    temp.friction = std::stof(componentNode->first_attribute("friction")->value());
+                if (componentNode->first_attribute("restitution"))
+                    temp.restitution = std::stof(componentNode->first_attribute("restitution")->value());
+                if (componentNode->first_attribute("kinematic"))
+                    temp.kinematic = std::atoi(componentNode->first_attribute("kinematic")->value());
+                entity.addComponent(temp);
+            } else if (name == "CharacterController") {
+                CharacterController temp;
+                if (componentNode->first_attribute("center"))
+                    std::sscanf(componentNode->first_attribute("center")->value(), "%f %f %f", &temp.center.x, &temp.center.y, &temp.center.z);
+                if (componentNode->first_attribute("slopeLimit"))
+                    temp.slopeLimit = std::stof(componentNode->first_attribute("slopeLimit")->value());
+                if (componentNode->first_attribute("stepOffset"))
+                    temp.stepOffset = std::stof(componentNode->first_attribute("stepOffset")->value());
                 entity.addComponent(temp);
             }
             for (auto &[scriptName, script] : scripts) {

@@ -5,8 +5,7 @@
 
 namespace Lush
 {
-    struct Component
-    {
+    struct Component {
             virtual Component *clone() const = 0;
     };
 
@@ -108,6 +107,17 @@ namespace Lush
             RigidBody *clone() const override
             {
                 return new RigidBody(*this);
+            }
+    };
+
+    struct CharacterController : public Component {
+            glm::vec3 center = glm::vec3(0.0f);
+            float slopeLimit = 45.0f;
+            float stepOffset = 1.0f;
+
+            CharacterController *clone() const override
+            {
+                return new CharacterController(*this);
             }
     };
 }
