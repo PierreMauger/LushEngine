@@ -80,11 +80,8 @@ void Graphic::handleKeyboardPress(int key, [[maybe_unused]] int scancode, int ac
         this->_mouseHidden = !this->_mouseHidden;
         glfwSetInputMode(this->_window, GLFW_CURSOR, this->_mouseHidden ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
         if (!this->_mouseHidden) {
-            //     this->setMousePosition({this->_gameViewPort.z / 2 + this->_gameViewPort.x, this->_gameViewPort.w / 2 + this->_gameViewPort.y});
-            //     this->resetMouseOffset();
+            glfwSetCursorPos(this->_window, this->_gameViewPort.z / 2 + this->_gameViewPort.x, this->_gameViewPort.w / 2 + this->_gameViewPort.y);
         }
-        // this->_mouseOffset = glm::vec2(0.0f, 0.0f);
-        // glfwSetCursorPos(this->_window, this->_gameViewPort.z / 2 + this->_gameViewPort.x, this->_gameViewPort.w / 2 + this->_gameViewPort.y);
     }
 }
 
