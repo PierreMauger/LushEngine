@@ -88,14 +88,13 @@ namespace Lush
             glm::vec2 getMousePosition() const;
             void setMouseOffset(glm::vec2 mousePosition);
             glm::vec2 getMouseOffset() const;
-            void resetMouseOffset();
 
             void setGameViewPort(glm::vec4 viewPort);
-            glm::vec4 getGameViewPort();
+            glm::vec4 getGameViewPort() const;
             void setSceneViewPort(glm::vec4 viewPort);
-            glm::vec4 getSceneViewPort();
+            glm::vec4 getSceneViewPort() const;
 //            void setWindowSize(glm::vec2 windowSize);
-            glm::vec2 getWindowSize();
+            glm::vec2 getWindowSize() const;
 
             static Graphic *getGraphic();
     };

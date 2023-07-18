@@ -38,7 +38,7 @@ namespace Lush
             std::unordered_map<std::string, RenderModel> _models;
             std::unordered_map<std::string, CubeMap> _skyBoxes;
             std::unique_ptr<ScriptPack> _corePack;
-            std::unordered_map<std::string, ScriptPack> _scriptPacks;
+            std::shared_ptr<ScriptPack> _gamePack;
             std::unordered_map<std::string, ScriptClass> _scripts;
             std::vector<ScriptInstance> _instances;
             std::vector<PhysicInstance> _physicInstances;
@@ -83,7 +83,7 @@ namespace Lush
             std::unordered_map<std::string, RenderModel> &getModels();
             std::unordered_map<std::string, CubeMap> &getSkyBoxes();
             MonoClass *getEntityClass();
-            std::unordered_map<std::string, ScriptPack> &getScriptPacks();
+            std::shared_ptr<ScriptPack> &getGamePack();
             std::unordered_map<std::string, ScriptClass> &getScripts();
             std::vector<ScriptInstance> &getScriptInstances();
             std::vector<PhysicInstance> &getPhysicInstances();

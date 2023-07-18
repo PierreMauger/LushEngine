@@ -227,17 +227,12 @@ glm::vec2 Graphic::getMouseOffset() const
     return this->_mouseOffset;
 }
 
-void Graphic::resetMouseOffset()
-{
-    this->_mouseOffset = glm::vec2(0, 0);
-}
-
 void Graphic::setGameViewPort(glm::vec4 viewPort)
 {
     this->_gameViewPort = viewPort;
 }
 
-glm::vec4 Graphic::getGameViewPort()
+glm::vec4 Graphic::getGameViewPort() const
 {
     return this->_gameViewPort;
 }
@@ -247,7 +242,7 @@ void Graphic::setSceneViewPort(glm::vec4 viewPort)
     this->_sceneViewPort = viewPort;
 }
 
-glm::vec4 Graphic::getSceneViewPort()
+glm::vec4 Graphic::getSceneViewPort() const
 {
     return this->_sceneViewPort;
 }
@@ -257,7 +252,7 @@ glm::vec4 Graphic::getSceneViewPort()
 //     this->_windowSize = windowSize;
 // }
 
-glm::vec2 Graphic::getWindowSize()
+glm::vec2 Graphic::getWindowSize() const
 {
     return this->_windowSize;
 }

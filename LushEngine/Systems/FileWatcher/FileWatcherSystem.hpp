@@ -20,7 +20,6 @@ namespace Lush
 
             void reloadResourcesFromFile(File &file, EntityManager &entityManager);
             void updateResource(Resource &resource, EntityManager &entityManager);
-            bool handleScheduleReload(Resource &resource);
 
             void reloadModel(Resource &resource);
             void reloadShader(Resource &resource);

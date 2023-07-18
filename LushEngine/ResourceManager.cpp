@@ -159,7 +159,8 @@ void ResourceManager::initPhysicInstances(EntityManager &entityManager)
         this->_dynamicsWorld->addRigidBody(physicInstance.getRigidBody());
 
     for (auto &characterInstance : this->_characterInstances) {
-        this->_dynamicsWorld->addCollisionObject(characterInstance.getGhostObject(), btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+        this->_dynamicsWorld->addCollisionObject(characterInstance.getGhostObject(), btBroadphaseProxy::CharacterFilter,
+                                                 btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
         this->_dynamicsWorld->addAction(characterInstance.getCharacterController());
     }
 }
@@ -221,10 +222,10 @@ void ResourceManager::loadScriptDll(const std::string &dir)
     std::vector<File> files = {File(dir + "/Game.dll")};
 
     this->_corePack = std::make_unique<ScriptPack>(coreFiles, "Core");
-    this->_scriptPacks["Game"] = ScriptPack(files, "Game");
+    this->_gamePack = std::make_shared<ScriptPack>(files, "Game");
 
-    for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses())
-        this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_corePack->getClasses()["Entity"]);
+    for (auto &[name, klass] : this->_gamePack->getClasses())
+        this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->_corePack->getClasses()["Entity"]);
 }
 
 void ResourceManager::loadScriptPack(const std::string &dir, const std::string &packName)
@@ -237,9 +238,9 @@ void ResourceManager::loadScriptPack(const std::string &dir, const std::string &
                         },
                         {".cs"});
     if (packName != "Core") {
-        this->_scriptPacks["Game"] = ScriptPack(tempFiles, "Game");
-        for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses())
-            this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_corePack->getClasses()["Entity"]);
+        this->_gamePack = std::make_shared<ScriptPack>(tempFiles, packName);
+        for (auto &[name, klass] : this->_gamePack->getClasses())
+            this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->_corePack->getClasses()["Entity"]);
     } else {
         this->_corePack = std::make_unique<ScriptPack>(tempFiles, packName);
     }
@@ -255,11 +256,9 @@ void ResourceManager::reloadScripts(const std::string &dir)
                             tempFiles.push_back(this->_files[path]);
                         },
                         {".cs"});
-    for (auto &file : this->_scriptPacks["Game"].getFiles())
-        tempFiles.push_back(file);
-    this->_scriptPacks["Game"].reload(tempFiles);
-    for (auto &[name, klass] : this->_scriptPacks["Game"].getClasses())
-        this->_scripts[name] = ScriptClass(this->_scriptPacks["Game"].getDomain(), klass, this->_corePack->getClasses()["Entity"]);
+    this->_gamePack->reload(tempFiles);
+    for (auto &[name, klass] : this->_gamePack->getClasses())
+        this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->_corePack->getClasses()["Entity"]);
     tempFiles.clear();
 }
 
@@ -303,9 +302,9 @@ MonoClass *ResourceManager::getEntityClass()
     return this->_corePack->getClasses()["Entity"];
 }
 
-std::unordered_map<std::string, ScriptPack> &ResourceManager::getScriptPacks()
+std::shared_ptr<ScriptPack> &ResourceManager::getGamePack()
 {
-    return this->_scriptPacks;
+    return this->_gamePack;
 }
 
 std::unordered_map<std::string, ScriptClass> &ResourceManager::getScripts()

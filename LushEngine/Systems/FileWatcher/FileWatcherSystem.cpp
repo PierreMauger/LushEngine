@@ -45,11 +45,17 @@ void FileWatcherSystem::updateResource(Resource &resource, EntityManager &entity
         this->reloadShader(resource);
         break;
     case ResourceType::SCRIPT:
-        if (!handleScheduleReload(resource))
+        if (this->_graphic->isRunning()) {
+            this->_scheduledReload.push_back(resource);
+            std::cout << "[Toast Info]Scheduled reloading script " << resource.getUUID() << std::endl;
+        } else
             this->reloadScriptPack(resource, entityManager);
         break;
     case ResourceType::SCENE:
-        if (!handleScheduleReload(resource))
+        if (this->_graphic->isRunning()) {
+            this->_scheduledReload.push_back(resource);
+            std::cout << "[Toast Info]Scheduled reloading scene " << resource.getUUID() << std::endl;
+        } else
             this->reloadScene(resource, entityManager);
         break;
     default:
@@ -57,23 +63,13 @@ void FileWatcherSystem::updateResource(Resource &resource, EntityManager &entity
     }
 }
 
-bool FileWatcherSystem::handleScheduleReload(Resource &resource)
-{
-    if (this->_graphic->isRunning()) {
-        this->_scheduledReload.push_back(resource);
-        std::cout << "[Toast Info]Scheduled reloading scene " << resource.getUUID() << std::endl;
-        return true;
-    }
-    return false;
-}
-
 void FileWatcherSystem::reloadModel(Resource &resource)
 {
-    std::vector<File> files = resource.getFiles();
-
     for (auto &[name, model] : this->_resourceManager->getModels()) {
         if (model != resource)
             continue;
+
+        std::vector<File> files = resource.getFiles();
         try {
             model.reload(files[0], this->_resourceManager->getTextures());
             std::cout << "[Toast Success]Reloaded model " << name << std::endl;
@@ -86,11 +82,11 @@ void FileWatcherSystem::reloadModel(Resource &resource)
 
 void FileWatcherSystem::reloadShader(Resource &resource)
 {
-    std::vector<File> files = resource.getFiles();
-
     for (auto &[name, shader] : this->_resourceManager->getShaders()) {
         if (shader != resource)
             continue;
+
+        std::vector<File> files = resource.getFiles();
         try {
             shader.reload(files[0]);
             this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());
@@ -104,44 +100,40 @@ void FileWatcherSystem::reloadShader(Resource &resource)
 
 void FileWatcherSystem::reloadScriptPack(Resource &resource, EntityManager &entityManager)
 {
+    if (*this->_resourceManager->getGamePack().get() != resource)
+        return;
+
     std::vector<File> files = resource.getFiles();
+    auto &scriptPack = this->_resourceManager->getGamePack();
+    try {
+        scriptPack->reload(files);
+        std::cout << "[Toast Success]Reloaded Game script pack" << std::endl;
+        for (auto &[className, klass] : scriptPack->getClasses()) {
+            this->_resourceManager->getScripts()[className].reload(scriptPack->getDomain(), klass, this->_resourceManager->getEntityClass());
 
-    for (auto &[name, scriptPack] : this->_resourceManager->getScriptPacks()) {
-        if (scriptPack != resource)
-            continue;
-        try {
-            if (name == "Core")
-                continue;
-            scriptPack.reload(files);
-            std::cout << "[Toast Success]Reloaded script pack " << name << std::endl;
-            for (auto &[className, klass] : scriptPack.getClasses()) {
-                this->_resourceManager->getScripts()[className].reload(scriptPack.getDomain(), klass, this->_resourceManager->getEntityClass());
+            for (auto &[id, entity] : entityManager.getEntities()) {
+                if (!entity.hasScriptComponent(className))
+                    continue;
 
-                for (auto &[id, entity] : entityManager.getEntities()) {
-                    if (!entity.hasScriptComponent(className))
-                        continue;
-
-                    ScriptComponent scriptComponent;
-                    for (auto &[fieldName, field] : this->_resourceManager->getScripts()[className].getFields()) {
-                        if (field.type == "Single")
-                            scriptComponent.addField(fieldName, 0.0f);
-                        if (field.type == "Entity" || field.type == "UInt64")
-                            scriptComponent.addField(fieldName, (unsigned long)0);
-                    }
-
-                    ScriptComponent &oldScriptComponent = entity.getScriptComponent(className);
-                    auto &oldFields = oldScriptComponent.getFields();
-                    for (auto &[fieldName, field] : oldFields) {
-                        if (scriptComponent.hasField(fieldName))
-                            scriptComponent.addField(fieldName, field);
-                    }
-                    entity.addScriptComponent(className, scriptComponent);
+                ScriptComponent scriptComponent;
+                for (auto &[fieldName, field] : this->_resourceManager->getScripts()[className].getFields()) {
+                    if (field.type == "Single")
+                        scriptComponent.addField(fieldName, 0.0f);
+                    if (field.type == "Entity" || field.type == "UInt64")
+                        scriptComponent.addField(fieldName, (unsigned long)0);
                 }
+
+                ScriptComponent &oldScriptComponent = entity.getScriptComponent(className);
+                auto &oldFields = oldScriptComponent.getFields();
+                for (auto &[fieldName, field] : oldFields) {
+                    if (scriptComponent.hasField(fieldName))
+                        scriptComponent.addField(fieldName, field);
+                }
+                entity.addScriptComponent(className, scriptComponent);
             }
-        } catch (const std::exception &e) {
-            std::cout << "[Toast Error]" << e.what() << std::endl;
         }
-        break;
+    } catch (const std::exception &e) {
+        std::cout << "[Toast Error]" << e.what() << std::endl;
     }
 }
 
@@ -150,6 +142,7 @@ void FileWatcherSystem::reloadScene(Resource &resource, EntityManager &entityMan
     for (auto &[name, scene] : this->_resourceManager->getScenes()) {
         if (scene != resource)
             continue;
+
         std::vector<File> files = resource.getFiles();
         scene.reload(files[0], this->_resourceManager->getScripts());
         scene.setScene(entityManager);
