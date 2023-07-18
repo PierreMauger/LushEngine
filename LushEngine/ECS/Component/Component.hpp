@@ -7,6 +7,7 @@ namespace Lush
 {
     struct Component {
             virtual Component *clone() const = 0;
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {};
     };
 
     struct Transform : public Component {
@@ -18,6 +19,13 @@ namespace Lush
             {
                 return new Transform(*this);
             }
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &position;
+                ar &rotation;
+                ar &scale;
+            }
     };
 
     struct Model : public Component {
@@ -26,6 +34,11 @@ namespace Lush
             Model *clone() const override
             {
                 return new Model(*this);
+            }
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &name;
             }
     };
 
@@ -43,6 +56,14 @@ namespace Lush
             Camera *clone() const override
             {
                 return new Camera(*this);
+            }
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &forward;
+                ar &fov;
+                ar &near;
+                ar &far;
             }
     };
 
@@ -65,6 +86,14 @@ namespace Lush
             {
                 return new Light(*this);
             }
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &type;
+                ar &intensity;
+                ar &color;
+                ar &cutOff;
+            }
     };
 
     struct Cubemap : public Component {
@@ -74,6 +103,11 @@ namespace Lush
             {
                 return new Cubemap(*this);
             }
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &name;
+            }
     };
 
     struct Billboard : public Component {
@@ -82,6 +116,11 @@ namespace Lush
             Billboard *clone() const override
             {
                 return new Billboard(*this);
+            }
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &name;
             }
     };
 
@@ -96,6 +135,15 @@ namespace Lush
             {
                 return new Map(*this);
             }
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &heightMap;
+                ar &diffuseTexture;
+                ar &normalTexture;
+                ar &diffuseTexture2;
+                ar &diffuseTexture3;
+            }
     };
 
     struct RigidBody : public Component {
@@ -108,6 +156,14 @@ namespace Lush
             {
                 return new RigidBody(*this);
             }
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &mass;
+                ar &friction;
+                ar &restitution;
+                ar &kinematic;
+            }
     };
 
     struct CharacterController : public Component {
@@ -118,6 +174,13 @@ namespace Lush
             CharacterController *clone() const override
             {
                 return new CharacterController(*this);
+            }
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &center;
+                ar &slopeLimit;
+                ar &stepOffset;
             }
     };
 }

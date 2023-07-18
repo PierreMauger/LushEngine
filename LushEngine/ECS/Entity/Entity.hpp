@@ -54,6 +54,13 @@ namespace Lush
 
             bool operator==(const Entity &other) const;
             Entity &clone(const Entity &other);
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &_name;
+                // ar &_components;
+                // ar &_scriptComponents;
+            }
     };
 }
 

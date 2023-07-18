@@ -27,6 +27,11 @@ namespace Lush
             void reload(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
 
             void setScene(EntityManager &entityManager);
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &_entityManager.getEntities();
+            }
     };
 }
 

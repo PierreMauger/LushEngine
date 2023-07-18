@@ -7,6 +7,11 @@ Texture::Texture(File &file)
     this->load(file);
 }
 
+// Texture::Texture(std::string &content)
+// {
+//     this->load(content);
+// }
+
 Texture::~Texture()
 {
     // dtor is called when the Texture is inserted in the map
@@ -16,8 +21,21 @@ Texture::~Texture()
 void Texture::load(File &file)
 {
     glGenTextures(1, &this->_id);
-    std::string content = file.load();
-    unsigned char *data = stbi_load_from_memory((const stbi_uc *)content.c_str(), content.length(), &this->_width, &this->_height, &this->_nrChannels, 0);
+    this->_content = file.load();
+    this->createTexture();
+}
+
+// void Texture::load(std::string &content)
+// {
+    // glGenTextures(1, &this->_id);
+    // this->_content = content;
+    // this->createTexture(this->_content);
+// }
+
+void Texture::createTexture()
+{
+    glGenTextures(1, &this->_id);
+    unsigned char *data = stbi_load_from_memory((const stbi_uc *)this->_content.c_str(), this->_content.length(), &this->_width, &this->_height, &this->_nrChannels, 0);
     if (data) {
         this->_pixels.assign(data, data + this->_width * this->_height * this->_nrChannels);
 
@@ -42,26 +60,6 @@ void Texture::load(File &file)
     }
 }
 
-unsigned int Texture::getId() const
-{
-    return this->_id;
-}
-
-int Texture::getWidth() const
-{
-    return this->_width;
-}
-
-int Texture::getHeight() const
-{
-    return this->_height;
-}
-
-unsigned char *Texture::getData() const
-{
-    return this->_heightData;
-}
-
 void Texture::setupTexture()
 {
     glGenTextures(1, &this->_id);
@@ -80,4 +78,24 @@ void Texture::setupTexture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+unsigned int Texture::getId() const
+{
+    return this->_id;
+}
+
+int Texture::getWidth() const
+{
+    return this->_width;
+}
+
+int Texture::getHeight() const
+{
+    return this->_height;
+}
+
+unsigned char *Texture::getData() const
+{
+    return this->_heightData;
 }

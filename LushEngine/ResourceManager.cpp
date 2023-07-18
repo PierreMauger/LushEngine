@@ -34,8 +34,8 @@ void ResourceManager::loadEditor()
     this->loadModels("Resources/Models");
     this->loadShaders("Resources/Shaders");
     this->loadSkyBoxes("Resources/Skybox");
-    this->loadScriptPack("Resources/CoreScripts", "Core");
-    this->loadScriptPack("Resources/Scripts", "Native");
+    this->loadScriptPack("Resources/ScriptsCore", "Core");
+    this->loadScriptPack("Resources/ScriptsNative", "Game");
     this->loadScenes("Resources/Scenes");
 }
 
@@ -74,11 +74,11 @@ void ResourceManager::serializeAssetPack(std::string path)
     //        oa << shader;
     //    }
 
-    //    oa << this->_scenes.size();
-    //    for (auto &[name, scene] : this->_scenes) {
-    //        oa << name;
-    //        oa << scene;
-    //    }
+    // oa << this->_scenes.size();
+    // for (auto &[name, scene] : this->_scenes) {
+    // oa << name;
+    // oa << scene;
+    // }
 
     ofs.close();
 }
@@ -94,6 +94,7 @@ void ResourceManager::deserializeAssetPack(std::string path)
         std::string name;
         ia >> name;
         ia >> this->_textures[name];
+        this->_textures[name].createTexture();
     }
 
     ia >> size;
@@ -104,6 +105,13 @@ void ResourceManager::deserializeAssetPack(std::string path)
         for (auto &mesh : this->_models[name].getMeshes())
             mesh.rebindTexIds(this->_textures);
     }
+
+    // ia >> size;
+    // for (std::size_t i = 0; i < size; i++) {
+    // std::string name;
+    // ia >> name;
+    // ia >> this->_scenes[name];
+    // }
 
     ifs.close();
 }
@@ -256,6 +264,8 @@ void ResourceManager::reloadScripts(const std::string &dir)
                             tempFiles.push_back(this->_files[path]);
                         },
                         {".cs"});
+    for (auto &file : this->_gamePack->getFiles())
+        tempFiles.push_back(file);
     this->_gamePack->reload(tempFiles);
     for (auto &[name, klass] : this->_gamePack->getClasses())
         this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->_corePack->getClasses()["Entity"]);
