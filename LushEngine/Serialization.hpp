@@ -7,6 +7,7 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 
+#include "Component/Component.hpp"
 #include "Includes.hpp"
 
 namespace boost::serialization
@@ -73,6 +74,18 @@ namespace boost::serialization
             ar &boost::serialization::make_nvp(name.c_str(), value);
         }
     }
+
+    template <class Archive, typename T> void serialize(Archive &ar, std::unordered_map<std::string, T> &map, [[maybe_unused]] const unsigned int version)
+    {
+        auto size = map.size();
+        ar &size;
+        for (auto &[name, value] : map) {
+            ar &boost::serialization::make_nvp(name.c_str(), value);
+        }
+    }
+
+    void serialize(boost::archive::binary_oarchive &ar, std::unordered_map<std::type_index, Lush::Component *> &map, [[maybe_unused]] const unsigned int version);
+    void serialize(boost::archive::binary_iarchive &ar, std::unordered_map<std::type_index, Lush::Component *> &map, [[maybe_unused]] const unsigned int version);
 }
 
 #endif // SERIALIZATION_HPP

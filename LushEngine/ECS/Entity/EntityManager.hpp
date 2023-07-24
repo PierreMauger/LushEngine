@@ -2,6 +2,7 @@
 #define ENTITY_MANAGER_HPP
 
 #include "ECS/Entity/Entity.hpp"
+#include "Serialization.hpp"
 
 namespace Lush
 {
@@ -30,6 +31,11 @@ namespace Lush
 
             void clear();
             EntityManager &clone(const EntityManager &other);
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &_entities;
+            }
     };
 }
 

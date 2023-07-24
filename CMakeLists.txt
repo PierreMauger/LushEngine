@@ -126,6 +126,7 @@ set(SRC
     ${PROJECT_NAME}/ResourceManager.cpp
     ${PROJECT_NAME}/Scene.cpp
     ${PROJECT_NAME}/UUID.cpp
+    ${PROJECT_NAME}/Serialization.cpp
     ${PROJECT_NAME}/Rendering/Shapes.cpp
     ${PROJECT_NAME}/Rendering/Texture.cpp
     ${PROJECT_NAME}/Rendering/CubeMap.cpp

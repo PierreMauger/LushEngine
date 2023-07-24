@@ -181,7 +181,7 @@ void GUISystem::drawMenuBar()
                 this->_graphic->setWireframe(!this->_graphic->isWireframe());
             ImGui::EndMenu();
         }
-        if (ImGui::Button("Quick Build", ImVec2(50, 0))) {
+        if (ImGui::Button("Quick Build", ImVec2(100, 0))) {
             std::filesystem::create_directories("temp/");
             this->_resourceManager->serializeAssetPack("temp/AssetPack.data");
         }

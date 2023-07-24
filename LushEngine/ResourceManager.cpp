@@ -43,9 +43,8 @@ void ResourceManager::loadGame()
 {
     this->loadShaders("Resources/Shaders");
     this->loadSkyBoxes("Resources/Skybox");
-    this->loadScriptDll("Data");
-    this->loadScenes("Resources/Scenes");
 
+    this->loadScriptDll("Data");
     this->deserializeAssetPack("Data/AssetPack.data");
 }
 
@@ -74,11 +73,11 @@ void ResourceManager::serializeAssetPack(std::string path)
     //        oa << shader;
     //    }
 
-    // oa << this->_scenes.size();
-    // for (auto &[name, scene] : this->_scenes) {
-    // oa << name;
-    // oa << scene;
-    // }
+    oa << this->_scenes.size();
+    for (auto &[name, scene] : this->_scenes) {
+        oa << name;
+        oa << scene;
+    }
 
     ofs.close();
 }
@@ -106,12 +105,12 @@ void ResourceManager::deserializeAssetPack(std::string path)
             mesh.rebindTexIds(this->_textures);
     }
 
-    // ia >> size;
-    // for (std::size_t i = 0; i < size; i++) {
-    // std::string name;
-    // ia >> name;
-    // ia >> this->_scenes[name];
-    // }
+    ia >> size;
+    for (std::size_t i = 0; i < size; i++) {
+        std::string name;
+        ia >> name;
+        ia >> this->_scenes[name];
+    }
 
     ifs.close();
 }

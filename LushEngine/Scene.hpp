@@ -30,7 +30,7 @@ namespace Lush
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
-                ar &_entityManager.getEntities();
+                ar &_entityManager;
             }
     };
 }

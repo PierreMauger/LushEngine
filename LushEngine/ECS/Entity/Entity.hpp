@@ -58,7 +58,7 @@ namespace Lush
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
                 ar &_name;
-                // ar &_components;
+                ar &_components;
                 // ar &_scriptComponents;
             }
     };

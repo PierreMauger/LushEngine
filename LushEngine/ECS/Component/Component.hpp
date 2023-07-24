@@ -7,7 +7,7 @@ namespace Lush
 {
     struct Component {
             virtual Component *clone() const = 0;
-            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {};
+            template <class Archive> void serialize([[maybe_unused]] Archive &ar, [[maybe_unused]] const unsigned int version){};
     };
 
     struct Transform : public Component {
