@@ -1,6 +1,10 @@
 #ifndef SCRIPT_COMPONENT_HPP
 #define SCRIPT_COMPONENT_HPP
 
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/serialization/string.hpp>
+
 #include "Includes.hpp"
 
 namespace Lush
@@ -26,6 +30,9 @@ namespace Lush
             void addField(const std::string &name, std::any value);
             void removeField(const std::string &name);
             bool hasField(const std::string &name);
+
+            void serialize(boost::archive::binary_oarchive &ar, [[maybe_unused]] const unsigned int version);
+            void serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version);
     };
 }
 

@@ -24,8 +24,8 @@ void ResourceManager::loadProject(const std::string &dir)
 {
     this->loadTextures(dir + "/Resources/Textures");
     this->loadModels(dir + "/Resources/Models");
-    this->loadScenes(dir + "/Resources/Scenes");
     this->reloadScripts(dir + "/Resources/Scripts");
+    this->loadScenes(dir + "/Resources/Scenes");
 }
 
 void ResourceManager::loadEditor()

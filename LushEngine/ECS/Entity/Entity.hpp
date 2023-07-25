@@ -59,7 +59,7 @@ namespace Lush
             {
                 ar &_name;
                 ar &_components;
-                // ar &_scriptComponents;
+                ar &_scriptComponents;
             }
     };
 }

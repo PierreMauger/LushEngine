@@ -68,19 +68,34 @@ namespace boost::serialization
 
     template <class Archive, typename T> void serialize(Archive &ar, std::map<std::string, T> &map, [[maybe_unused]] const unsigned int version)
     {
-        auto size = map.size();
+        std::size_t size = map.size();
         ar &size;
         for (auto &[name, value] : map) {
             ar &boost::serialization::make_nvp(name.c_str(), value);
         }
     }
 
-    template <class Archive, typename T> void serialize(Archive &ar, std::unordered_map<std::string, T> &map, [[maybe_unused]] const unsigned int version)
+    template <typename T> void serialize(boost::archive::binary_oarchive &ar, std::unordered_map<std::string, T> &map, [[maybe_unused]] const unsigned int version)
     {
-        auto size = map.size();
+        std::size_t size = map.size();
         ar &size;
         for (auto &[name, value] : map) {
-            ar &boost::serialization::make_nvp(name.c_str(), value);
+            ar &name;
+            ar &value;
+        }
+    }
+
+    template <typename T> void serialize(boost::archive::binary_iarchive &ar, std::unordered_map<std::string, T> &map, [[maybe_unused]] const unsigned int version)
+    {
+        size_t size;
+        ar &size;
+
+        for (size_t i = 0; i < size; i++) {
+            std::string name;
+            T elem{};
+            ar &name;
+            ar &elem;
+            map[name] = elem;
         }
     }
 
