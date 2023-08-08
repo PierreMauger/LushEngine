@@ -21,6 +21,15 @@ void ScriptClass::load(MonoDomain *domain, MonoClass *scriptClass, MonoClass *en
     this->_methods["onInit"] = mono_class_get_method_from_name(this->_class, "onInit", 0);
     this->_methods["onUpdate"] = mono_class_get_method_from_name(this->_class, "onUpdate", 1);
 
+    // if class has collision methods, load them
+    if (mono_class_get_method_from_name(this->_class, "onCollisionEnter", 1))
+        this->_methods["onCollisionEnter"] = mono_class_get_method_from_name(this->_class, "onCollisionEnter", 1);
+    if (mono_class_get_method_from_name(this->_class, "onCollisionStay", 1))
+        this->_methods["onCollisionStay"] = mono_class_get_method_from_name(this->_class, "onCollisionStay", 1);
+    if (mono_class_get_method_from_name(this->_class, "onCollisionExit", 1))
+        this->_methods["onCollisionExit"] = mono_class_get_method_from_name(this->_class, "onCollisionExit", 1);
+
+
     for (auto &[name, method] : this->_methods)
         if (!method)
             throw std::runtime_error("mono_class_get_method_from_name failed for " + name);

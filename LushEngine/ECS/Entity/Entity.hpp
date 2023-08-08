@@ -16,6 +16,8 @@ namespace Lush
             std::unordered_map<std::type_index, Component *> _components;
             std::unordered_map<std::string, ScriptComponent> _scriptComponents;
 
+            std::map<std::string, std::size_t> _scriptIndexes;
+
         public:
             Entity();
             ~Entity() = default;
@@ -51,6 +53,10 @@ namespace Lush
             void addScriptComponent(const std::string &className, ScriptComponent scriptComponent);
             void removeScriptComponent(const std::string &className);
             bool hasScriptComponent(const std::string &className);
+
+            std::map<std::string, std::size_t> &getScriptIndexes();
+            void addScriptIndex(const std::string &className, std::size_t index);
+            void clearScriptIndexes();
 
             bool operator==(const Entity &other) const;
             Entity &clone(const Entity &other);

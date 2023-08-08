@@ -2,19 +2,6 @@
 
 using namespace Lush;
 
-// class MyContactCallback : public btCollisionWorld::ContactResultCallback
-// {
-    // public:
-        // virtual btScalar addSingleResult(btManifoldPoint &cp, const btCollisionObjectWrapper *colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper *colObj1Wrap,
-        //                                  int partId1, int index1)
-        // {
-        //     // Collision handling logic goes here
-        //     // You can access the collision objects and other relevant information
-        //     std::cerr << "Collision!" << std::endl;
-        //     return 0;
-        // }
-// };
-
 PhysicSystem::PhysicSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
     : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
@@ -48,6 +35,7 @@ void PhysicSystem::update(EntityManager &entityManager, float deltaTime)
         auto &transform = entity.getComponent<Transform>();
 
         instance.update(transform);
+        this->_dynamicsWorld->contactTest(instance.getRigidBody(), this->_callback);
     }
 
     for (auto &instance : this->_resourceManager->getCharacterInstances()) {
@@ -55,7 +43,7 @@ void PhysicSystem::update(EntityManager &entityManager, float deltaTime)
         auto &transform = entity.getComponent<Transform>();
 
         instance.update(transform);
-        // MyContactCallback callback;
-        // this->_dynamicsWorld->contactTest(instance.getGhostObject(), callback);
+        this->_dynamicsWorld->contactTest(instance.getGhostObject(), this->_callback);
     }
+    this->_callback.removeExitedCollisions();
 }

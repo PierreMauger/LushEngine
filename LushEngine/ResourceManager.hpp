@@ -97,7 +97,7 @@ namespace Lush
             void setDynamicsWorld(btDiscreteDynamicsWorld *dynamicsWorld);
             void resetDynamicsWorld();
 
-            static ResourceManager *getResourceManager();
+            static ResourceManager *getStaticResourceManager();
     };
 }
 

@@ -18,14 +18,14 @@
     <Entity id="2" name="MainLight">
       <Components>
         <Transform position="3 0 0" rotation="30 -30 30" scale="0.5 0.5 0.5" />
-        <Light />
+        <Light type="Dir" />
         <Billboard name="DirectionalLight.png" />
       </Components>
     </Entity>
     <Entity id="3">
       <Components>
         <Transform position="2 2 0" scale="0.5 0.5 0.5" />
-        <Light type="1" />
+        <Light type="Point" />
         <Billboard name="PointLight.png" />
       </Components>
     </Entity>
@@ -51,6 +51,7 @@
     </Entity>
     <Entity id="7" name="Terrain">
       <Components>
+        <Transform />
         <Map heightMap="gradient.jpeg" diffuseTexture="grass0_DIF.jpg"
           normalTexture="grass0_NRM.jpg" diffuseTexture2="Ground_17_DIF.jpg"
           diffuseTexture3="Ground_21_DIF.jpg" />
@@ -61,6 +62,7 @@
         <Transform position="0 0 0" rotation="0 0 0" scale="1 1 1" />
         <Model name="Cube" />
         <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
+        <Collider type="Cube" tag="ally" />
       </Components>
     </Entity>
     <Entity id="9" name="PhysicDummy2">
@@ -68,6 +70,8 @@
         <Transform position="1.5 3 0" rotation="0 0 0" scale="1 1 1" />
         <Model name="Cube" />
         <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
+        <Collider type="Cube" tag="ennemy" />
+        <ColliderTest />
       </Components>
     </Entity>
   </Entities>

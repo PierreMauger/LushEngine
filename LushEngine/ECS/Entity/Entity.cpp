@@ -40,6 +40,21 @@ bool Entity::hasScriptComponent(const std::string &className)
     return this->_scriptComponents.find(className) != this->_scriptComponents.end();
 }
 
+std::map<std::string, std::size_t> &Entity::getScriptIndexes()
+{
+    return this->_scriptIndexes;
+}
+
+void Entity::addScriptIndex(const std::string &className, std::size_t index)
+{
+    this->_scriptIndexes[className] = index;
+}
+
+void Entity::clearScriptIndexes()
+{
+    this->_scriptIndexes.clear();
+}
+
 bool Entity::operator==(const Entity &other) const
 {
     return this->_uuid == other._uuid;

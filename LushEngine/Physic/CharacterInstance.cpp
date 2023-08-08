@@ -38,7 +38,7 @@ btKinematicCharacterController *CharacterInstance::getCharacterController()
     return this->_characterController;
 }
 
-btPairCachingGhostObject *CharacterInstance::getGhostObject()
+btPairCachingGhostObject *CharacterInstance::getGhostObject() const
 {
     return this->_ghostObject;
 }

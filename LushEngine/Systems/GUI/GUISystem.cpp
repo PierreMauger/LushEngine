@@ -3,6 +3,7 @@
 using namespace Lush;
 
 static const char *lightTypeNames[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
+static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"Box", "Sphere", "Capsule", "Mesh"};
 
 GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
@@ -181,11 +182,6 @@ void GUISystem::drawMenuBar()
                 this->_graphic->setWireframe(!this->_graphic->isWireframe());
             ImGui::EndMenu();
         }
-        if (ImGui::Button("Quick Build", ImVec2(100, 0))) {
-            std::filesystem::create_directories("temp/");
-            this->_resourceManager->serializeAssetPack("temp/AssetPack.data");
-        }
-
         ImGui::EndMainMenuBar();
     }
 }
@@ -435,6 +431,49 @@ void GUISystem::drawProperties(EntityManager &entityManager)
             ImGui::Separator();
         }
     }
+    if (entity.hasComponent<Collider>()) {
+        if (ImGui::CollapsingHeader(ICON_FA_BOXES " Collider", ImGuiTreeNodeFlags_DefaultOpen)) {
+            Collider &collider = entity.getComponent<Collider>();
+
+            bool isEdited = false;
+            if (ImGui::SliderInt("Type##Collider", (int *)&collider.type, 0, ColliderType::COLLIDER_TYPE_COUNT - 1, colliderTypeNames[collider.type]))
+                isEdited = true;
+            if (ImGui::DragFloat3("Center##Collider", (float *)&collider.center, 0.1f, -FLT_MAX, +FLT_MAX))
+                isEdited = true;
+            switch (collider.type) {
+            case ColliderType::BOX:
+                if (ImGui::DragFloat3("Size##Collider", (float *)&collider.size, 0.1f, -FLT_MAX, +FLT_MAX))
+                    isEdited = true;
+                break;
+            case ColliderType::SPHERE:
+                if (ImGui::DragFloat("Radius##Collider", &collider.size.x, 0.1f, -FLT_MAX, +FLT_MAX))
+                    isEdited = true;
+                break;
+            case ColliderType::CAPSULE:
+                if (ImGui::DragFloat2("Radius##Collider", (float *)&collider.size, 0.1f, -FLT_MAX, +FLT_MAX))
+                    isEdited = true;
+                break;
+            default:
+                break;
+            }
+            {
+                static char buffer[32];
+                strcpy(buffer, collider.tag.c_str());
+                if (ImGui::InputText("Tag##Collider", buffer, sizeof(buffer))) {
+                    collider.tag = buffer;
+                    isEdited = true;
+                }
+            }
+            if (isEdited && this->_graphic->isRunning()) {
+                std::size_t instance = this->getPhysicInstanceIndex(this->_graphic->getSelectedEntity());
+                this->_resourceManager->getPhysicInstances()[instance].updateColliderRuntime(collider);
+            }
+
+            if (ImGui::Button("Remove##Collider"))
+                entity.removeComponent<Collider>();
+            ImGui::Separator();
+        }
+    }
     if (entity.hasComponent<CharacterController>()) {
         if (ImGui::CollapsingHeader(ICON_FA_RUNNING " CharacterController", ImGuiTreeNodeFlags_DefaultOpen)) {
             CharacterController &characterController = entity.getComponent<CharacterController>();
@@ -450,20 +489,20 @@ void GUISystem::drawProperties(EntityManager &entityManager)
     std::size_t it = 0;
     for (auto &[scriptName, script] : this->_resourceManager->getScripts()) {
         if (entity.hasScriptComponent(scriptName)) {
-            std::size_t instance = this->getScriptInstanceIndex(this->_graphic->getSelectedEntity());
             if (ImGui::CollapsingHeader((ICON_FA_FILE_CODE " " + scriptName).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
                 for (auto &[fieldName, field] : script.getFields()) {
-                    if (instance != (std::size_t)-1) {
+                    if (this->_graphic->isRunning()) {
+                        std::size_t instanceIndex = entity.getScriptIndexes()[scriptName];
                         if (field.type == "Single") {
-                            float value = this->_resourceManager->getScriptInstances()[instance].getFieldValue<float>(fieldName);
+                            float value = this->_resourceManager->getScriptInstances()[instanceIndex].getFieldValue<float>(fieldName);
                             if (ImGui::DragFloat(fieldName.c_str(), &value))
-                                this->_resourceManager->getScriptInstances()[instance].setFieldValue(fieldName, value);
+                                this->_resourceManager->getScriptInstances()[instanceIndex].setFieldValue(fieldName, value);
                         }
                         if (field.type == "Entity" || field.type == "UInt64") {
-                            unsigned long value = this->_resourceManager->getScriptInstances()[instance].getFieldValue<unsigned long>(fieldName);
+                            unsigned long value = this->_resourceManager->getScriptInstances()[instanceIndex].getFieldValue<unsigned long>(fieldName);
                             const ImU64 increment = 1;
                             if (ImGui::InputScalar(fieldName.c_str(), ImGuiDataType_U64, &value, &increment))
-                                this->_resourceManager->getScriptInstances()[instance].setFieldValue(fieldName, value);
+                                this->_resourceManager->getScriptInstances()[instanceIndex].setFieldValue(fieldName, value);
                         }
                     } else {
                         if (field.type == "Single") {
@@ -537,6 +576,12 @@ void GUISystem::drawProperties(EntityManager &entityManager)
             ImGui::SameLine(30, 0);
             if (ImGui::Selectable("RigidBody##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(RigidBody());
+        }
+        if (!entity.hasComponent<Collider>()) {
+            ImGui::Text("%s", ICON_FA_BOXES);
+            ImGui::SameLine(30, 0);
+            if (ImGui::Selectable("Collider##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
+                entity.addComponent(Collider());
         }
         if (!entity.hasComponent<CharacterController>()) {
             ImGui::Text("%s", ICON_FA_RUNNING);
@@ -873,17 +918,17 @@ void GUISystem::drawBuildBrowser()
     ImGui::End();
 }
 
-std::size_t GUISystem::getScriptInstanceIndex(std::size_t entityId)
-{
-    std::size_t i = 0;
+// std::size_t GUISystem::getScriptInstanceIndex(std::size_t entityId)
+// {
+//     std::size_t i = 0;
 
-    for (auto &instance : this->_resourceManager->getScriptInstances()) {
-        if (instance.getId() == entityId)
-            return i;
-        i++;
-    }
-    return (std::size_t)-1;
-}
+//     for (auto &instance : this->_resourceManager->getScriptInstances()) {
+//         if (instance.getId() == entityId)
+//             return i;
+//         i++;
+//     }
+//     return (std::size_t)-1;
+// }
 
 std::size_t GUISystem::getPhysicInstanceIndex(std::size_t entityId)
 {

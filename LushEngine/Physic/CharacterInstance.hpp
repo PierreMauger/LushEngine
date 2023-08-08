@@ -24,7 +24,7 @@ namespace Lush
 
             std::size_t getId() const;
             btKinematicCharacterController *getCharacterController();
-            btPairCachingGhostObject *getGhostObject();
+            btPairCachingGhostObject *getGhostObject() const;
 
             void preUpdate(Transform &transform);
             void update(Transform &transform);

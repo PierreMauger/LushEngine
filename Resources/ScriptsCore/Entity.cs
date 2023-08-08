@@ -21,9 +21,9 @@ public class Entity
         return component;
     }
 
-    public T getScriptComponent<T>() where T : Entity, new()
+    public T getScriptComponent<T>(string scriptName) where T : Entity, new()
     {
-        object instance = InternalCalls.GetScriptInstance(this.id);
+        object instance = InternalCalls.GetScriptInstance(this.id, scriptName);
         return instance as T;
     }
 

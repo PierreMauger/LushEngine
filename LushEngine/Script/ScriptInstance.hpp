@@ -3,6 +3,7 @@
 
 #include "Includes.hpp"
 #include "Script/ScriptClass.hpp"
+#include "ECS/Entity/Entity.hpp"
 
 namespace Lush
 {
@@ -14,6 +15,9 @@ namespace Lush
             MonoMethod *_ctor;
             MonoMethod *_onInit;
             MonoMethod *_onUpdate;
+            MonoMethod *_onCollisionEnter;
+            MonoMethod *_onCollisionStay;
+            MonoMethod *_onCollisionExit;
             std::size_t _id;
             std::unordered_map<std::string, std::any> _defaultFields;
 
@@ -42,6 +46,9 @@ namespace Lush
 
             void init();
             void update(float time);
+            void onCollisionEnter(std::size_t id);
+            void onCollisionStay(std::size_t id);
+            void onCollisionExit(std::size_t id);
     };
 }
 

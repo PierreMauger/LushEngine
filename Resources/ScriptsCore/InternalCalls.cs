@@ -36,7 +36,7 @@ public static class InternalCalls
 	internal extern static void Camera_SetForward(ulong id, ref Vector3 forward);
 
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
-	internal extern static object GetScriptInstance(ulong id);
+	internal extern static object GetScriptInstance(ulong entityId, string scriptName);
 
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
 	public extern static bool IsKeyDown(int key);

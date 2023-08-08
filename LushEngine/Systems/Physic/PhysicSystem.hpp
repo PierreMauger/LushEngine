@@ -7,6 +7,7 @@
 #include "ECS/System/ASystem.hpp"
 #include "Graphic.hpp"
 #include "Includes.hpp"
+#include "Physic/CustomContactCallback.hpp"
 #include "ResourceManager.hpp"
 
 namespace Lush
@@ -22,6 +23,8 @@ namespace Lush
             btCollisionDispatcher *_dispatcher;
             btSequentialImpulseConstraintSolver *_solver;
             btDiscreteDynamicsWorld *_dynamicsWorld;
+
+            CustomContactCallback _callback;
 
         public:
             explicit PhysicSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);

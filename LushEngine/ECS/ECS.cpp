@@ -4,7 +4,7 @@ using namespace Lush;
 
 static EntityManager *entityManager = nullptr;
 
-EntityManager *ECS::staticGetEntityManager()
+EntityManager *ECS::getStaticEntityManager()
 {
     return entityManager;
 }

@@ -7,11 +7,6 @@ Texture::Texture(File &file)
     this->load(file);
 }
 
-// Texture::Texture(std::string &content)
-// {
-//     this->load(content);
-// }
-
 Texture::~Texture()
 {
     // dtor is called when the Texture is inserted in the map
@@ -24,13 +19,6 @@ void Texture::load(File &file)
     this->_content = file.load();
     this->createTexture();
 }
-
-// void Texture::load(std::string &content)
-// {
-    // glGenTextures(1, &this->_id);
-    // this->_content = content;
-    // this->createTexture(this->_content);
-// }
 
 void Texture::createTexture()
 {

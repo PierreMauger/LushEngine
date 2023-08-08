@@ -2,6 +2,9 @@
 
 using namespace Lush;
 
+static const char *lightTypeNames[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
+static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"Box", "Sphere", "Capsule", "Mesh"};
+
 Scene::Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts) : Resource(ResourceType::SCENE, file)
 {
     this->load(file, scripts);
@@ -24,7 +27,11 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
     rapidxml::xml_node<> *rootNode = doc.first_node("Scene");
     rapidxml::xml_node<> *entitiesNode = rootNode->first_node("Entities");
     for (rapidxml::xml_node<> *entityNode = entitiesNode->first_node("Entity"); entityNode; entityNode = entityNode->next_sibling("Entity")) {
-        int id = std::atoi(entityNode->first_attribute("id")->value());
+        int id = 0;
+        if (entityNode->first_attribute("id"))
+            id = std::atoi(entityNode->first_attribute("id")->value());
+        else
+            id = this->_entityManager.getEntities().size();
         Entity entity;
         if (entityNode->first_attribute("name"))
             entity.setName(entityNode->first_attribute("name")->value());
@@ -47,13 +54,31 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
                 entity.addComponent(temp);
             } else if (name == "Camera") {
                 Camera temp;
-                // attributes
+                if (componentNode->first_attribute("forward"))
+                    std::sscanf(componentNode->first_attribute("forward")->value(), "%f %f %f", &temp.forward.x, &temp.forward.y, &temp.forward.z);
+                if (componentNode->first_attribute("fov"))
+                    temp.fov = std::atof(componentNode->first_attribute("fov")->value());
+                if (componentNode->first_attribute("near"))
+                    temp.near = std::atof(componentNode->first_attribute("near")->value());
+                if (componentNode->first_attribute("far"))
+                    temp.far = std::atof(componentNode->first_attribute("far")->value());
                 entity.addComponent(temp);
             } else if (name == "Light") {
                 Light temp;
-                if (componentNode->first_attribute("type"))
-                    temp.type = (LightType)std::atoi(componentNode->first_attribute("type")->value());
-                // attributes
+                if (componentNode->first_attribute("type")) {
+                    for (int i = 0; i < LightType::LIGHT_TYPE_COUNT; i++) {
+                        if (strcmp(lightTypeNames[i], componentNode->first_attribute("type")->value()) == 0) {
+                            temp.type = (LightType)i;
+                            break;
+                        }
+                    }
+                }
+                if (componentNode->first_attribute("color"))
+                    std::sscanf(componentNode->first_attribute("color")->value(), "%f %f %f", &temp.color.x, &temp.color.y, &temp.color.z);
+                if (componentNode->first_attribute("intensity"))
+                    temp.intensity = std::atof(componentNode->first_attribute("intensity")->value());
+                if (componentNode->first_attribute("cutOff"))
+                    temp.cutOff = std::atof(componentNode->first_attribute("cutOff")->value());
                 entity.addComponent(temp);
             } else if (name == "Cubemap") {
                 Cubemap temp;
@@ -81,6 +106,23 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
                     temp.restitution = std::stof(componentNode->first_attribute("restitution")->value());
                 if (componentNode->first_attribute("kinematic"))
                     temp.kinematic = std::atoi(componentNode->first_attribute("kinematic")->value());
+                entity.addComponent(temp);
+            } else if (name == "Collider") {
+                Collider temp;
+                if (componentNode->first_attribute("type")) {
+                    for (int i = 0; i < ColliderType::COLLIDER_TYPE_COUNT; i++) {
+                        if (strcmp(colliderTypeNames[i], componentNode->first_attribute("type")->value()) == 0) {
+                            temp.type = (ColliderType)i;
+                            break;
+                        }
+                    }
+                }
+                if (componentNode->first_attribute("center"))
+                    std::sscanf(componentNode->first_attribute("center")->value(), "%f %f %f", &temp.center.x, &temp.center.y, &temp.center.z);
+                if (componentNode->first_attribute("size"))
+                    std::sscanf(componentNode->first_attribute("size")->value(), "%f %f %f", &temp.size.x, &temp.size.y, &temp.size.z);
+                if (componentNode->first_attribute("tag"))
+                    temp.tag = componentNode->first_attribute("tag")->value();
                 entity.addComponent(temp);
             } else if (name == "CharacterController") {
                 CharacterController temp;

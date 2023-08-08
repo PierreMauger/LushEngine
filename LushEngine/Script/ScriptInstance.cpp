@@ -8,6 +8,9 @@ ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id, std::unorder
     this->_ctor = script.getMethod("ctor");
     this->_onInit = script.getMethod("onInit");
     this->_onUpdate = script.getMethod("onUpdate");
+    this->_onCollisionEnter = script.getMethod("onCollisionEnter");
+    this->_onCollisionStay = script.getMethod("onCollisionStay");
+    this->_onCollisionExit = script.getMethod("onCollisionExit");
     this->_id = id;
 
     if (this->_ctor) {
@@ -89,5 +92,32 @@ void ScriptInstance::update(float time)
         void *args[1];
         args[0] = &time;
         mono_runtime_invoke(this->_onUpdate, this->_instance, args, nullptr);
+    }
+}
+
+void ScriptInstance::onCollisionEnter(std::size_t id)
+{
+    if (this->_onCollisionEnter) {
+        void *args[1];
+        args[0] = &id;
+        mono_runtime_invoke(this->_onCollisionEnter, this->_instance, args, nullptr);
+    }
+}
+
+void ScriptInstance::onCollisionStay(std::size_t id)
+{
+    if (this->_onCollisionStay) {
+        void *args[1];
+        args[0] = &id;
+        mono_runtime_invoke(this->_onCollisionStay, this->_instance, args, nullptr);
+    }
+}
+
+void ScriptInstance::onCollisionExit(std::size_t id)
+{
+    if (this->_onCollisionExit) {
+        void *args[1];
+        args[0] = &id;
+        mono_runtime_invoke(this->_onCollisionExit, this->_instance, args, nullptr);
     }
 }

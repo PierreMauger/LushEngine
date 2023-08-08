@@ -18,14 +18,16 @@ namespace Lush
 
         public:
             PhysicInstance(std::size_t id, Transform &transform, RigidBody &rigidBody);
+            PhysicInstance(std::size_t id, Transform &transform, RigidBody &rigidBody, Collider &collider);
             ~PhysicInstance() = default;
 
             std::size_t getId() const;
-            btRigidBody *getRigidBody();
+            btRigidBody *getRigidBody() const;
 
             void update(Transform &transform);
 
             void updateRigidBodyRuntime(RigidBody &rigidBody);
+            void updateColliderRuntime(Collider &collider);
     };
 }
 

@@ -19,7 +19,7 @@ namespace Lush
             EntityManager &getEntityManager();
             SystemManager &getSystemManager();
 
-            static EntityManager *staticGetEntityManager();
+            static EntityManager *getStaticEntityManager();
     };
 }
 

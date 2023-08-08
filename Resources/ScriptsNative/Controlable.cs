@@ -35,4 +35,9 @@ public class Controlable : Entity
             transform.position = tmpPos;
         }
     }
+
+    public void onCollisionStay(Entity other)
+    {
+        // Console.WriteLine("Collision with " + other.id);
+    }
 }

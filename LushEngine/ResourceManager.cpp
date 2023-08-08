@@ -4,7 +4,7 @@ using namespace Lush;
 
 static ResourceManager *resourceManager = nullptr;
 
-ResourceManager *ResourceManager::getResourceManager()
+ResourceManager *ResourceManager::getStaticResourceManager()
 {
     return resourceManager;
 }
@@ -131,9 +131,13 @@ void ResourceManager::initScriptDomain(const std::string &dir)
 void ResourceManager::initScriptInstances(EntityManager &entityManager)
 {
     for (auto &[name, script] : this->_scripts) {
-        for (auto &[id, entity] : entityManager.getEntities())
-            if (entity.hasScriptComponent(name))
+        for (auto &[id, entity] : entityManager.getEntities()) {
+            entity.clearScriptIndexes();
+            if (entity.hasScriptComponent(name)) {
+                entity.addScriptIndex(name, this->_instances.size());
                 this->_instances.emplace_back(script, id, entity.getScriptComponent(name).getFields());
+            }
+        }
     }
     for (auto &instance : this->_instances)
         instance.init();
@@ -145,20 +149,31 @@ void ResourceManager::initPhysicInstances(EntityManager &entityManager)
         if (entity.hasComponent<Transform>() && entity.hasComponent<RigidBody>()) {
             if (entity.hasComponent<CharacterController>()) {
                 this->_characterInstances.emplace_back(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>());
+            } else if (entity.hasComponent<Collider>()) {
+                this->_physicInstances.emplace_back(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>(), entity.getComponent<Collider>());
             } else {
                 this->_physicInstances.emplace_back(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>());
             }
-        }
-        if (entity.hasComponent<Map>()) {
-            auto &texture = this->_textures[entity.getComponent<Map>().heightMap];
+        } else if (entity.hasComponent<Transform>() && entity.hasComponent<Map>()) {
+            // TODO terrain instance ? useful if communication with scripts, maybe fluid heightmap ?
+            Texture &texture = this->_textures[entity.getComponent<Map>().heightMap];
+            Transform &transform = entity.getComponent<Transform>();
 
             btHeightfieldTerrainShape *terrainShape =
                 new btHeightfieldTerrainShape(texture.getWidth(), texture.getHeight(), texture.getData(), 32.0f / 256.0f, 0.0f, 32.0f, 1, PHY_UCHAR, false);
             terrainShape->setUseDiamondSubdivision(true); // Enable diamond subdivision for better terrain smoothness
-            // terrainShape->setLocalScaling(btVector3(1.0f, 1.0f, 1.0f)); // Scale the terrain if needed
+            terrainShape->setLocalScaling(btVector3(transform.scale.x, transform.scale.y, transform.scale.z));
             btDefaultMotionState *motionState = new btDefaultMotionState();
             btRigidBody::btRigidBodyConstructionInfo rbInfo(0, motionState, terrainShape);
             btRigidBody *terrainBody = new btRigidBody(rbInfo);
+
+            btTransform btTransform;
+            btTransform.setIdentity();
+            btTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
+            glm::quat rotation = glm::quat(glm::radians(transform.rotation));
+            btTransform.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+            terrainBody->setWorldTransform(btTransform);
+
             this->_dynamicsWorld->addRigidBody(terrainBody);
         }
     }

@@ -166,6 +166,35 @@ namespace Lush
             }
     };
 
+    enum ColliderType {
+        BOX,
+        SPHERE,
+        CAPSULE,
+        MESH,
+
+        COLLIDER_TYPE_COUNT
+    };
+
+    struct Collider : public Component {
+            ColliderType type = ColliderType::BOX;
+            glm::vec3 center = glm::vec3(0.0f);
+            glm::vec3 size = glm::vec3(1.0f);
+            std::string tag = "";
+
+            Collider *clone() const override
+            {
+                return new Collider(*this);
+            }
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &type;
+                ar &center;
+                ar &size;
+                ar &tag;
+            }
+    };
+
     struct CharacterController : public Component {
             glm::vec3 center = glm::vec3(0.0f);
             float slopeLimit = 45.0f;

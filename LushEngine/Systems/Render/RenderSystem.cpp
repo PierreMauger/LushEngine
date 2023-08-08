@@ -82,11 +82,11 @@ void RenderSystem::drawMap(EntityManager &entityManager)
     this->_graphic->getRenderView().use("Map");
     this->_graphic->getRenderView().setView();
     for (auto &[id, entity] : entityManager.getEntities()) {
-        if (!entity.hasComponent<Map>())
+        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Map>())
             continue;
         Map map = entity.getComponent<Map>();
 
-        this->_graphic->getRenderView().getShader().setMat4("model", glm::mat4(1.0f));
+        this->_graphic->getRenderView().setModel(entity.getComponent<Transform>());
         glActiveTexture(GL_TEXTURE0);
         if (this->_resourceManager->getTextures().find(map.heightMap) != this->_resourceManager->getTextures().end())
             glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.heightMap].getId());

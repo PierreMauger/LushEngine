@@ -27,9 +27,9 @@ void ScriptGlue::Console_Log(std::size_t id, MonoString *message, int type)
 
 void ScriptGlue::Transform_GetPosition(std::size_t id, glm::vec3 *position)
 {
-    if (!ECS::staticGetEntityManager()->hasEntity(id))
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;
-    Entity &entity = ECS::staticGetEntityManager()->getEntity(id);
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
 
     if (entity.hasComponent<Transform>())
         *position = entity.getComponent<Transform>().position;
@@ -39,9 +39,9 @@ void ScriptGlue::Transform_GetPosition(std::size_t id, glm::vec3 *position)
 
 void ScriptGlue::Transform_SetPosition(std::size_t id, glm::vec3 *position)
 {
-    if (!ECS::staticGetEntityManager()->hasEntity(id))
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;
-    Entity &entity = ECS::staticGetEntityManager()->getEntity(id);
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
 
     if (entity.hasComponent<Transform>())
         entity.getComponent<Transform>().position = *position;
@@ -51,9 +51,9 @@ void ScriptGlue::Transform_SetPosition(std::size_t id, glm::vec3 *position)
 
 void ScriptGlue::Transform_GetRotation(std::size_t id, glm::vec3 *rotation)
 {
-    if (!ECS::staticGetEntityManager()->hasEntity(id))
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;
-    Entity &entity = ECS::staticGetEntityManager()->getEntity(id);
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
 
     if (entity.hasComponent<Transform>())
         *rotation = entity.getComponent<Transform>().rotation;
@@ -63,9 +63,9 @@ void ScriptGlue::Transform_GetRotation(std::size_t id, glm::vec3 *rotation)
 
 void ScriptGlue::Transform_SetRotation(std::size_t id, glm::vec3 *rotation)
 {
-    if (!ECS::staticGetEntityManager()->hasEntity(id))
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;
-    Entity &entity = ECS::staticGetEntityManager()->getEntity(id);
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
 
     if (entity.hasComponent<Transform>())
         entity.getComponent<Transform>().rotation = *rotation;
@@ -75,9 +75,9 @@ void ScriptGlue::Transform_SetRotation(std::size_t id, glm::vec3 *rotation)
 
 void ScriptGlue::Transform_GetScale(std::size_t id, glm::vec3 *scale)
 {
-    if (!ECS::staticGetEntityManager()->hasEntity(id))
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;
-    Entity &entity = ECS::staticGetEntityManager()->getEntity(id);
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
 
     if (entity.hasComponent<Transform>())
         *scale = entity.getComponent<Transform>().scale;
@@ -87,9 +87,9 @@ void ScriptGlue::Transform_GetScale(std::size_t id, glm::vec3 *scale)
 
 void ScriptGlue::Transform_SetScale(std::size_t id, glm::vec3 *scale)
 {
-    if (!ECS::staticGetEntityManager()->hasEntity(id))
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;
-    Entity &entity = ECS::staticGetEntityManager()->getEntity(id);
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
 
     if (entity.hasComponent<Transform>())
         entity.getComponent<Transform>().scale = *scale;
@@ -99,9 +99,9 @@ void ScriptGlue::Transform_SetScale(std::size_t id, glm::vec3 *scale)
 
 void ScriptGlue::Camera_GetForward(std::size_t id, glm::vec3 *forward)
 {
-    if (!ECS::staticGetEntityManager()->hasEntity(id))
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;
-    Entity &entity = ECS::staticGetEntityManager()->getEntity(id);
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
 
     if (entity.hasComponent<Camera>())
         *forward = entity.getComponent<Camera>().forward;
@@ -111,9 +111,9 @@ void ScriptGlue::Camera_GetForward(std::size_t id, glm::vec3 *forward)
 
 void ScriptGlue::Camera_SetForward(std::size_t id, glm::vec3 *forward)
 {
-    if (!ECS::staticGetEntityManager()->hasEntity(id))
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;
-    Entity &entity = ECS::staticGetEntityManager()->getEntity(id);
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
 
     if (entity.hasComponent<Camera>())
         entity.getComponent<Camera>().forward = *forward;
@@ -121,22 +121,19 @@ void ScriptGlue::Camera_SetForward(std::size_t id, glm::vec3 *forward)
         std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
 }
 
-static std::size_t getScriptInstanceIndex(ResourceManager *resourceManager, std::size_t entityId)
+static std::size_t getScriptInstanceIndex(std::size_t entityId, std::string scriptName)
 {
-    std::size_t i = 0;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(entityId);
 
-    for (auto &instance : resourceManager->getScriptInstances()) {
-        if (instance.getId() == entityId)
-            return i;
-        i++;
-    }
+    if (entity.hasScriptComponent(scriptName))
+        return entity.getScriptIndexes()[scriptName];
     return (std::size_t)-1;
 }
 
-MonoObject *ScriptGlue::GetScriptInstance(std::size_t id)
+MonoObject *ScriptGlue::GetScriptInstance(std::size_t entityId, MonoString *scriptName)
 {
-    ResourceManager *resourceManager = ResourceManager::getResourceManager();
-    std::size_t index = getScriptInstanceIndex(resourceManager, id);
+    ResourceManager *resourceManager = ResourceManager::getStaticResourceManager();
+    std::size_t index = getScriptInstanceIndex(entityId, mono_string_to_utf8(scriptName));
     if (index != (std::size_t)-1)
         return resourceManager->getScriptInstances().at(index).getInstance();
     return nullptr;

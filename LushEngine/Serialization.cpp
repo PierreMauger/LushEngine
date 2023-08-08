@@ -27,6 +27,8 @@ namespace boost::serialization
                 ar &*static_cast<Map *>(value);
             } else if (type == typeid(RigidBody)) {
                 ar &*static_cast<RigidBody *>(value);
+            } else if (type == typeid(Collider)) {
+                ar &*static_cast<Collider *>(value);
             } else if (type == typeid(CharacterController)) {
                 ar &*static_cast<CharacterController *>(value);
             }
@@ -73,6 +75,10 @@ namespace boost::serialization
                 RigidBody elem{};
                 ar &elem;
                 map[typeid(RigidBody)] = new RigidBody(elem);
+            } else if (type == typeid(Collider).name()) {
+                Collider elem{};
+                ar &elem;
+                map[typeid(Collider)] = new Collider(elem);
             } else if (type == typeid(CharacterController).name()) {
                 CharacterController elem{};
                 ar &elem;

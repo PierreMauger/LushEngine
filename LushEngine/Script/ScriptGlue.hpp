@@ -24,7 +24,7 @@ namespace Lush
             static void Camera_GetForward(std::size_t id, glm::vec3 *forward);
             static void Camera_SetForward(std::size_t id, glm::vec3 *forward);
 
-            static MonoObject *GetScriptInstance(std::size_t id);
+            static MonoObject *GetScriptInstance(std::size_t entityId, MonoString *scriptName);
 
             static bool IsKeyDown(int key);
             static float GetMouseMovementX();

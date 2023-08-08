@@ -153,12 +153,12 @@ void SceneSystem::drawMap(EntityManager &entityManager)
     this->_graphic->getRenderView().use(this->_graphic->isWireframe() ? "MapWireframe" : "Map");
     this->_graphic->getRenderView().setView();
     for (auto &[id, entity] : entityManager.getEntities()) {
-        if (!entity.hasComponent<Map>())
+        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Map>())
             continue;
         Map map = entity.getComponent<Map>();
 
-        // TODO : clean this and add it to render system
-        this->_graphic->getRenderView().getShader().setMat4("model", glm::mat4(1.0f));
+        this->_graphic->getRenderView().setModel(entity.getComponent<Transform>());
+        // TODO : clean this
         glActiveTexture(GL_TEXTURE0);
         if (this->_resourceManager->getTextures().find(map.heightMap) != this->_resourceManager->getTextures().end())
             glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.heightMap].getId());
