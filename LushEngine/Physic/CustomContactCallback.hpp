@@ -6,6 +6,24 @@
 #include "Includes.hpp"
 #include "ResourceManager.hpp"
 
+namespace std
+{
+    template <> struct hash<std::pair<const btCollisionObject *, const btCollisionObject *>> {
+            size_t operator()(const std::pair<const btCollisionObject *, const btCollisionObject *> &p) const
+            {
+                return hash<const btCollisionObject *>()(p.first) ^ hash<const btCollisionObject *>()(p.second);
+            }
+    };
+
+    template <> struct equal_to<std::pair<const btCollisionObject *, const btCollisionObject *>> {
+            bool operator()(const std::pair<const btCollisionObject *, const btCollisionObject *> &lhs,
+                            const std::pair<const btCollisionObject *, const btCollisionObject *> &rhs) const
+            {
+                return lhs.first == rhs.first && lhs.second == rhs.second;
+            }
+    };
+}
+
 namespace Lush
 {
     enum CollisionState {

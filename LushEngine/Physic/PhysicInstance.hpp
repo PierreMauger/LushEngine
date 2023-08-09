@@ -24,6 +24,7 @@ namespace Lush
             std::size_t getId() const;
             btRigidBody *getRigidBody() const;
 
+            void preUpdate(Transform &transform);
             void update(Transform &transform);
 
             void updateRigidBodyRuntime(RigidBody &rigidBody);

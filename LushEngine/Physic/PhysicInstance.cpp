@@ -78,6 +78,17 @@ btRigidBody *PhysicInstance::getRigidBody() const
     return this->_rigidBody;
 }
 
+void PhysicInstance::preUpdate(Transform &transform)
+{
+    btVector3 position = this->_rigidBody->getCenterOfMassPosition();
+    if (position.x() != transform.position.x || position.y() != transform.position.y || position.z() != transform.position.z) {
+        btTransform startTransform;
+        startTransform.setIdentity();
+        startTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
+        this->_rigidBody->setWorldTransform(startTransform);
+    }
+}
+
 void PhysicInstance::update(Transform &transform)
 {
     btVector3 position = this->_rigidBody->getCenterOfMassPosition();

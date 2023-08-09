@@ -23,6 +23,12 @@ void PhysicSystem::update(EntityManager &entityManager, float deltaTime)
     if (this->_graphic->isPaused() || !this->_graphic->isRunning() || !this->shouldUpdate(deltaTime))
         return;
 
+    for (auto &instance : this->_resourceManager->getPhysicInstances()) {
+        auto &entity = entityManager.getEntity(instance.getId());
+        auto &transform = entity.getComponent<Transform>();
+
+        instance.preUpdate(transform);
+    }
     for (auto &instance : this->_resourceManager->getCharacterInstances()) {
         auto &entity = entityManager.getEntity(instance.getId());
         auto &transform = entity.getComponent<Transform>();

@@ -53,9 +53,8 @@ void CharacterInstance::preUpdate(Transform &transform)
 
 void CharacterInstance::update(Transform &transform)
 {
-    transform.position.x = this->_ghostObject->getWorldTransform().getOrigin().getX();
-    transform.position.y = this->_ghostObject->getWorldTransform().getOrigin().getY();
-    transform.position.z = this->_ghostObject->getWorldTransform().getOrigin().getZ();
+    btVector3 origin = this->_ghostObject->getWorldTransform().getOrigin();
+    transform.position = glm::vec3(origin.x(), origin.y(), origin.z());
 
     // if (this->_characterController->canJump() && this->_characterController->onGround()) {
         // this->_characterController->jump(btVector3(0, 5, 0));
