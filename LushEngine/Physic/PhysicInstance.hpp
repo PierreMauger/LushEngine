@@ -25,7 +25,7 @@ namespace Lush
             btRigidBody *getRigidBody() const;
 
             void preUpdate(Transform &transform);
-            void update(Transform &transform);
+            void postUpdate(Transform &transform);
 
             void updateRigidBodyRuntime(RigidBody &rigidBody);
             void updateColliderRuntime(Collider &collider);

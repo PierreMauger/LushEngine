@@ -423,7 +423,9 @@ void GUISystem::drawProperties(EntityManager &entityManager)
                 isEdited = true;
             if (isEdited && this->_graphic->isRunning()) {
                 std::size_t instance = this->getPhysicInstanceIndex(this->_graphic->getSelectedEntity());
-                this->_resourceManager->getPhysicInstances()[instance].updateRigidBodyRuntime(rigidBody);
+                if (instance != -1) {
+                    this->_resourceManager->getPhysicInstances()[instance].updateRigidBodyRuntime(rigidBody);
+                }
             }
 
             if (ImGui::Button("Remove##RigidBody"))
@@ -935,6 +937,18 @@ std::size_t GUISystem::getPhysicInstanceIndex(std::size_t entityId)
     std::size_t i = 0;
 
     for (auto &instance : this->_resourceManager->getPhysicInstances()) {
+        if (instance.getId() == entityId)
+            return i;
+        i++;
+    }
+    return (std::size_t)-1;
+}
+
+std::size_t GUISystem::getCharacterInstanceIndex(std::size_t entityId)
+{
+    std::size_t i = 0;
+
+    for (auto &instance : this->_resourceManager->getCharacterInstances()) {
         if (instance.getId() == entityId)
             return i;
         i++;

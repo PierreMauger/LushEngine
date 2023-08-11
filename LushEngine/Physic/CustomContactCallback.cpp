@@ -33,24 +33,38 @@ void CustomContactCallback::removeExitedCollisions()
     }
 }
 
-void CustomContactCallback::onCollision(const btCollisionObject *obj0, const btCollisionObject *obj1, CollisionState state)
+static std::size_t getEntityFromCollisionObject(const btCollisionObject *obj)
 {
     auto &physicInstances = ResourceManager::getStaticResourceManager()->getPhysicInstances();
+    auto physicIt = std::find_if(physicInstances.begin(), physicInstances.end(), [obj](const auto &instance) { return instance.getRigidBody() == obj; });
+    if (physicIt != physicInstances.end())
+        return (*physicIt).getId();
 
-    auto it0 = std::find_if(physicInstances.begin(), physicInstances.end(), [obj0](const auto &instance) { return instance.getRigidBody() == obj0; });
-    auto it1 = std::find_if(physicInstances.begin(), physicInstances.end(), [obj1](const auto &instance) { return instance.getRigidBody() == obj1; });
-    if (it0 == physicInstances.end() || it1 == physicInstances.end())
+    auto &characterInstances = ResourceManager::getStaticResourceManager()->getCharacterInstances();
+    auto characterIt = std::find_if(characterInstances.begin(), characterInstances.end(), [obj](const auto &instance) { return instance.getGhostObject() == obj; });
+    if (characterIt != characterInstances.end())
+        return (*characterIt).getId();
+
+    return (std::size_t)-1;
+}
+
+void CustomContactCallback::onCollision(const btCollisionObject *obj0, const btCollisionObject *obj1, CollisionState state)
+{
+    auto id0 = getEntityFromCollisionObject(obj0);
+    auto id1 = getEntityFromCollisionObject(obj1);
+
+    if (id0 == (std::size_t)-1 || id1 == (std::size_t)-1)
         return;
 
-    auto &entity = ECS::getStaticEntityManager()->getEntity((*it0).getId());
+    auto &entity0 = ECS::getStaticEntityManager()->getEntity(id0);
     auto &scriptInstances = ResourceManager::getStaticResourceManager()->getScriptInstances();
 
-    for (auto &[scriptName, index] : entity.getScriptIndexes()) {
+    for (auto &[scriptName, index] : entity0.getScriptIndexes()) {
         if (state == COLLISION_ENTER)
-            scriptInstances[index].onCollisionEnter((*it1).getId());
+            scriptInstances[index].onCollisionEnter(id1);
         else if (state == COLLISION_STAY)
-            scriptInstances[index].onCollisionStay((*it1).getId());
+            scriptInstances[index].onCollisionStay(id1);
         else if (state == COLLISION_EXIT)
-            scriptInstances[index].onCollisionExit((*it1).getId());
+            scriptInstances[index].onCollisionExit(id1);
     }
 }

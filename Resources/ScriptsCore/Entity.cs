@@ -21,10 +21,20 @@ public class Entity
         return component;
     }
 
-    public T getScriptComponent<T>(string scriptName) where T : Entity, new()
+    public T getScriptComponent<T>() where T : Entity, new()
     {
-        object instance = InternalCalls.GetScriptInstance(this.id, scriptName);
+        object instance = InternalCalls.GetScriptInstance(this.id, typeof(T).Name);
         return instance as T;
+    }
+
+    public bool hasComponent<T>() where T : Component, new()
+    {
+        return InternalCalls.HasComponent(this.id, typeof(T).Name);
+    }
+
+    public bool hasScriptComponent<T>() where T : Entity, new()
+    {
+        return InternalCalls.HasComponent(this.id, typeof(T).Name);
     }
 
     public void log(string message, Toast type = Toast.None)

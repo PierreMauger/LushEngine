@@ -24,31 +24,23 @@ void PhysicSystem::update(EntityManager &entityManager, float deltaTime)
         return;
 
     for (auto &instance : this->_resourceManager->getPhysicInstances()) {
-        auto &entity = entityManager.getEntity(instance.getId());
-        auto &transform = entity.getComponent<Transform>();
-
+        auto &transform = entityManager.getEntity(instance.getId()).getComponent<Transform>();
         instance.preUpdate(transform);
     }
     for (auto &instance : this->_resourceManager->getCharacterInstances()) {
-        auto &entity = entityManager.getEntity(instance.getId());
-        auto &transform = entity.getComponent<Transform>();
-
+        auto &transform = entityManager.getEntity(instance.getId()).getComponent<Transform>();
         instance.preUpdate(transform);
     }
     this->_dynamicsWorld->stepSimulation(deltaTime);
     for (auto &instance : this->_resourceManager->getPhysicInstances()) {
-        auto &entity = entityManager.getEntity(instance.getId());
-        auto &transform = entity.getComponent<Transform>();
-
-        instance.update(transform);
+        auto &transform = entityManager.getEntity(instance.getId()).getComponent<Transform>();
+        instance.postUpdate(transform);
         this->_dynamicsWorld->contactTest(instance.getRigidBody(), this->_callback);
     }
 
     for (auto &instance : this->_resourceManager->getCharacterInstances()) {
-        auto &entity = entityManager.getEntity(instance.getId());
-        auto &transform = entity.getComponent<Transform>();
-
-        instance.update(transform);
+        auto &transform = entityManager.getEntity(instance.getId()).getComponent<Transform>();
+        instance.postUpdate(transform);
         this->_dynamicsWorld->contactTest(instance.getGhostObject(), this->_callback);
     }
     this->_callback.removeExitedCollisions();

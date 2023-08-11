@@ -14,9 +14,14 @@ public class ColliderTest : Entity
     {
         this.log("Collision enter with entity : " + otherId, Toast.Info);
         Entity other = new Entity(otherId);
-        Transform otherTransform = other.getComponent<Transform>();
-        Vector3 tmpPos = otherTransform.position;
-        tmpPos.y += 5.0f;
-        otherTransform.position = tmpPos;
+        if (other.hasScriptComponent<Controlable>())
+        {
+            Controlable controlable = other.getScriptComponent<Controlable>();
+            controlable.speed = 0.0f;
+        }
+        // Transform otherTransform = other.getComponent<Transform>();
+        // Vector3 tmpPos = otherTransform.position;
+        // tmpPos.y += 5.0f;
+        // otherTransform.position = tmpPos;
     }
 }

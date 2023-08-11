@@ -59,7 +59,7 @@
     </Entity>
     <Entity id="8" name="PhysicDummy1">
       <Components>
-        <Transform position="0 0 0" rotation="0 0 0" scale="1 1 1" />
+        <Transform position="1 0 0" />
         <Model name="Cube" />
         <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
         <Collider type="Cube" tag="ally" />
@@ -67,11 +67,19 @@
     </Entity>
     <Entity id="9" name="PhysicDummy2">
       <Components>
-        <Transform position="1.5 3 0" rotation="0 0 0" scale="1 1 1" />
+        <Transform position="0 3 0" />
         <Model name="Cube" />
         <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
         <Collider type="Cube" tag="ennemy" />
         <ColliderTest />
+      </Components>
+    </Entity>
+    <Entity name="PhysicDummy3">
+      <Components>
+        <Transform position="-1 0 0" />
+        <Model name="Cube" />
+        <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
+        <Collider type="Cube" tag="ennemy" />
       </Components>
     </Entity>
   </Entities>

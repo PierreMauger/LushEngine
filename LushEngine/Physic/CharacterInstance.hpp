@@ -27,7 +27,7 @@ namespace Lush
             btPairCachingGhostObject *getGhostObject() const;
 
             void preUpdate(Transform &transform);
-            void update(Transform &transform);
+            void postUpdate(Transform &transform);
     };
 }
 

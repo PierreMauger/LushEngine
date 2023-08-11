@@ -25,6 +25,39 @@ void ScriptGlue::Console_Log(std::size_t id, MonoString *message, int type)
     mono_free(utf8);
 }
 
+bool ScriptGlue::HasComponent(std::size_t id, MonoString *componentName)
+{
+    char *utf8 = mono_string_to_utf8(componentName);
+    bool hasComponent = false;
+    if (ECS::getStaticEntityManager()->hasEntity(id)) {
+        Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+        if (std::string(utf8) == "Transform")
+            hasComponent = entity.hasComponent<Transform>();
+        else if (std::string(utf8) == "Model")
+            hasComponent = entity.hasComponent<Model>();
+        else if (std::string(utf8) == "Camera")
+            hasComponent = entity.hasComponent<Camera>();
+        else if (std::string(utf8) == "Light")
+            hasComponent = entity.hasComponent<Light>();
+        else if (std::string(utf8) == "Cubemap")
+            hasComponent = entity.hasComponent<Cubemap>();
+        else if (std::string(utf8) == "Billboard")
+            hasComponent = entity.hasComponent<Billboard>();
+        else if (std::string(utf8) == "Map")
+            hasComponent = entity.hasComponent<Map>();
+        else if (std::string(utf8) == "RigidBody")
+            hasComponent = entity.hasComponent<RigidBody>();
+        else if (std::string(utf8) == "Collider")
+            hasComponent = entity.hasComponent<Collider>();
+        else if (std::string(utf8) == "CharacterController")
+            hasComponent = entity.hasComponent<CharacterController>();
+        else
+            hasComponent = entity.hasScriptComponent(utf8);
+    }
+    mono_free(utf8);
+    return hasComponent;
+}
+
 void ScriptGlue::Transform_GetPosition(std::size_t id, glm::vec3 *position)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
@@ -167,6 +200,7 @@ float ScriptGlue::GetMouseMovementY()
 void ScriptGlue::registerFunctions()
 {
     mono_add_internal_call("InternalCalls::Log", (void *)Console_Log);
+    mono_add_internal_call("InternalCalls::HasComponent", (void *)HasComponent);
     mono_add_internal_call("InternalCalls::Transform_GetPosition", (void *)Transform_GetPosition);
     mono_add_internal_call("InternalCalls::Transform_SetPosition", (void *)Transform_SetPosition);
     mono_add_internal_call("InternalCalls::Transform_GetRotation", (void *)Transform_GetRotation);

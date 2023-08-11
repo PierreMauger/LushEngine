@@ -14,6 +14,8 @@ namespace Lush
         public:
             static void Console_Log(std::size_t id, MonoString *message, int type);
 
+            static bool HasComponent(std::size_t id, MonoString *componentName);
+
             static void Transform_GetPosition(std::size_t id, glm::vec3 *position);
             static void Transform_SetPosition(std::size_t id, glm::vec3 *position);
             static void Transform_GetRotation(std::size_t id, glm::vec3 *rotation);

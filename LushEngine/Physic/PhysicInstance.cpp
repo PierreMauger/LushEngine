@@ -89,7 +89,7 @@ void PhysicInstance::preUpdate(Transform &transform)
     }
 }
 
-void PhysicInstance::update(Transform &transform)
+void PhysicInstance::postUpdate(Transform &transform)
 {
     btVector3 position = this->_rigidBody->getCenterOfMassPosition();
     btQuaternion rotation = this->_rigidBody->getOrientation();

@@ -11,7 +11,7 @@ namespace Lush
     class Entity
     {
         private:
-            std::string _uuid;
+            UUID _uuid;
             std::string _name;
             std::unordered_map<std::type_index, Component *> _components;
             std::unordered_map<std::string, ScriptComponent> _scriptComponents;

@@ -16,6 +16,9 @@ public static class InternalCalls
 	internal extern static void Log(ulong id, string message, int type = 0);
 
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
+	internal extern static bool HasComponent(ulong id, string componentName);
+
+	[MethodImplAttribute(MethodImplOptions.InternalCall)]
 	internal extern static void Transform_GetPosition(ulong id, out Vector3 position);
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
 	internal extern static void Transform_SetPosition(ulong id, ref Vector3 position);

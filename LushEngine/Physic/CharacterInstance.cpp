@@ -51,7 +51,7 @@ void CharacterInstance::preUpdate(Transform &transform)
     this->_ghostObject->setWorldTransform(btTransform);
 }
 
-void CharacterInstance::update(Transform &transform)
+void CharacterInstance::postUpdate(Transform &transform)
 {
     btVector3 origin = this->_ghostObject->getWorldTransform().getOrigin();
     transform.position = glm::vec3(origin.x(), origin.y(), origin.z());

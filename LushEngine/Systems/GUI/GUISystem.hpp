@@ -68,8 +68,9 @@ namespace Lush
             void drawProfiler();
             void drawProjectBrowser();
             void drawBuildBrowser();
-            std::size_t getScriptInstanceIndex(std::size_t entityId);
+            // std::size_t getScriptInstanceIndex(std::size_t entityId);
             std::size_t getPhysicInstanceIndex(std::size_t entityId);
+            std::size_t getCharacterInstanceIndex(std::size_t entityId);
             void drawTextureSelect(const std::string &fieldName, std::string &texture);
 
             void build();
