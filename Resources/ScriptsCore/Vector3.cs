@@ -15,7 +15,7 @@ public struct Vector3
 
     public Vector3 normalize()
     {
-        float length = (float)Math.Sqrt(x * x + y * y + z * z);
+        float length = MathF.Sqrt(x * x + y * y + z * z);
         if (length == 0.0f)
             return new Vector3(0.0f, 0.0f, 0.0f);
         return new Vector3(x / length, y / length, z / length);
@@ -34,9 +34,9 @@ public struct Vector3
     public static Vector3 quaternionToEuler(Quaternion q)
     {
         Vector3 euler = new Vector3();
-        euler.x = (float)Math.Atan2(2.0f * (q.w * q.x + q.y * q.z), 1.0f - 2.0f * (q.x * q.x + q.y * q.y));
-        euler.y = (float)Math.Asin(2.0f * (q.w * q.y - q.z * q.x));
-        euler.z = (float)Math.Atan2(2.0f * (q.w * q.z + q.x * q.y), 1.0f - 2.0f * (q.y * q.y + q.z * q.z));
+        euler.x = MathF.Atan2(2.0f * (q.w * q.x + q.y * q.z), 1.0f - 2.0f * (q.x * q.x + q.y * q.y));
+        euler.y = MathF.Asin(2.0f * (q.w * q.y - q.z * q.x));
+        euler.z = MathF.Atan2(2.0f * (q.w * q.z + q.x * q.y), 1.0f - 2.0f * (q.y * q.y + q.z * q.z));
         return euler;
     }
 
@@ -59,12 +59,12 @@ public struct Vector3
 
     public static float degreesToRadians(float degrees)
     {
-        return degrees * (float)Math.PI / 180.0f;
+        return degrees * MathF.PI / 180.0f;
     }
 
     public static float radiansToDegrees(float radians)
     {
-        return radians * 180.0f / (float)Math.PI;
+        return radians * 180.0f / MathF.PI;
     }
 
 }

@@ -20,12 +20,12 @@ public class Controllable : CustomComponent
     public void onUpdate(float deltaTime)
     {
         Vector3 tmpCamForward = camera.forward;
-        float tmpCamForwardLength = (float)Math.Sqrt(tmpCamForward.x * tmpCamForward.x + tmpCamForward.z * tmpCamForward.z);
+        float tmpCamForwardLength = MathF.Sqrt(tmpCamForward.x * tmpCamForward.x + tmpCamForward.z * tmpCamForward.z);
         tmpCamForward.x /= tmpCamForwardLength;
         tmpCamForward.z /= tmpCamForwardLength;
 
         Vector3 tmpRot = transform.rotation;
-        tmpRot.y = (float)(-Math.Atan2(tmpCamForward.z, tmpCamForward.x) * 180.0f / Math.PI);
+        tmpRot.y = -MathF.Atan2(tmpCamForward.z, tmpCamForward.x) * 180.0f / MathF.PI;
         transform.rotation = tmpRot;
 
         if (InternalCalls.IsKeyDown(0x57)) {

@@ -16,7 +16,7 @@ public struct Quaternion
 
     public Quaternion normalize()
     {
-        float length = (float)Math.Sqrt(x * x + y * y + z * z + w * w);
+        float length = MathF.Sqrt(x * x + y * y + z * z + w * w);
         return new Quaternion(x / length, y / length, z / length, w / length);
     }
 
@@ -30,22 +30,22 @@ public struct Quaternion
         // case 2 and 4 may need to have value swapped
         float trace = right.x + up.y + forward.z;
         if (trace > 0.0f) {
-            float s = (float)Math.Sqrt(trace + 1.0f);
+            float s = MathF.Sqrt(trace + 1.0f);
             float w = s * 0.5f;
             s = 0.5f / s;
             return new Quaternion((right.y + up.x) * s, w, (up.z - forward.y) * s, (right.z - forward.x) * s);
         } else if (right.x > up.y && right.x > forward.z) {
-            float s = (float)Math.Sqrt(1.0f + right.x - up.y - forward.z);
+            float s = MathF.Sqrt(1.0f + right.x - up.y - forward.z);
             float x = s * 0.5f;
             s = 0.5f / s;
             return new Quaternion(x, (right.y + up.x) * s, (forward.x + right.z) * s, (up.z - forward.y) * s);
         } else if (up.y > forward.z) {
-            float s = (float)Math.Sqrt(1.0f + up.y - right.x - forward.z);
+            float s = MathF.Sqrt(1.0f + up.y - right.x - forward.z);
             float y = s * 0.5f;
             s = 0.5f / s;
             return new Quaternion((up.z + forward.y) * s, (right.z - forward.x) * s, (right.y - up.x) * s, y);
         } else {
-            float s = (float)Math.Sqrt(1.0f + forward.z - right.x - up.y);
+            float s = MathF.Sqrt(1.0f + forward.z - right.x - up.y);
             float z = s * 0.5f;
             s = 0.5f / s;
             return new Quaternion((forward.x + right.z) * s, (up.z + forward.y) * s, z, (right.y - up.x) * s);
@@ -55,8 +55,8 @@ public struct Quaternion
     public static Quaternion angleAxis(float angle, Vector3 axis)
     {
         float halfAngle = angle * 0.5f;
-        float sin = (float)Math.Sin(halfAngle);
-        float cos = (float)Math.Cos(halfAngle);
+        float sin = MathF.Sin(halfAngle);
+        float cos = MathF.Cos(halfAngle);
 
         return new Quaternion(axis.x * sin, axis.y * sin, axis.z * sin, cos);
     }
