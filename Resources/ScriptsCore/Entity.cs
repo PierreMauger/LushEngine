@@ -5,11 +5,6 @@ public class Entity
 {
     public readonly ulong id;
 
-    protected Entity()
-    {
-        this.id = 0;
-    }
-
     public Entity(ulong id)
     {
         this.id = id;
@@ -17,22 +12,16 @@ public class Entity
 
     public T getComponent<T>() where T : Component, new()
     {
-        T component = new T() { entity = this };
-        return component;
-    }
-
-    public T getScriptComponent<T>() where T : Entity, new()
-    {
-        object instance = InternalCalls.GetScriptInstance(this.id, typeof(T).Name);
-        return instance as T;
+        if (typeof(T).IsSubclassOf(typeof(CustomComponent))) {
+            object instance = InternalCalls.GetScriptInstance(this.id, typeof(T).Name);
+            return instance as T;
+        } else {
+            T component = new T() { entity = this };
+            return component;
+        }
     }
 
     public bool hasComponent<T>() where T : Component, new()
-    {
-        return InternalCalls.HasComponent(this.id, typeof(T).Name);
-    }
-
-    public bool hasScriptComponent<T>() where T : Entity, new()
     {
         return InternalCalls.HasComponent(this.id, typeof(T).Name);
     }

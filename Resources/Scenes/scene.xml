@@ -35,7 +35,7 @@
         <Model name="Fox" />
         <RigidBody />
         <CharacterController />
-        <Controlable speed="10" cameraEntity="1" />
+        <Controllable speed="10" cameraEntity="1" />
       </Components>
     </Entity>
     <Entity id="5" name="Skybox">

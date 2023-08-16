@@ -1,16 +1,15 @@
 using System;
 
-public class Maxwell : Entity
+public class Maxwell : CustomComponent
 {
     private Transform transform;
     public float time;
-    public float time2;
 
     public void onInit()
     {
-        transform = getComponent<Transform>();
+        transform = this.entity.getComponent<Transform>();
         time = 5.0f;
-        this.log("hello", Toast.Success);
+        this.entity.log("hello", Toast.Success);
     }
 
     public void onUpdate(float deltaTime)

@@ -130,9 +130,9 @@ void ResourceManager::initScriptDomain(const std::string &dir)
 
 void ResourceManager::initScriptInstances(EntityManager &entityManager)
 {
-    for (auto &[name, script] : this->_scripts) {
-        for (auto &[id, entity] : entityManager.getEntities()) {
-            entity.clearScriptIndexes();
+    for (auto &[id, entity] : entityManager.getEntities()) {
+        entity.clearScriptIndexes();
+        for (auto &[name, script] : this->_scripts) {
             if (entity.hasScriptComponent(name)) {
                 entity.addScriptIndex(name, this->_instances.size());
                 this->_instances.emplace_back(script, id, entity.getScriptComponent(name).getFields());
@@ -247,7 +247,7 @@ void ResourceManager::loadScriptDll(const std::string &dir)
     this->_gamePack = std::make_shared<ScriptPack>(files, "Game");
 
     for (auto &[name, klass] : this->_gamePack->getClasses())
-        this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->_corePack->getClasses()["Entity"]);
+        this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->_corePack->getClasses()["Component"]);
 }
 
 void ResourceManager::loadScriptPack(const std::string &dir, const std::string &packName)
@@ -262,7 +262,7 @@ void ResourceManager::loadScriptPack(const std::string &dir, const std::string &
     if (packName != "Core") {
         this->_gamePack = std::make_shared<ScriptPack>(tempFiles, packName);
         for (auto &[name, klass] : this->_gamePack->getClasses())
-            this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->_corePack->getClasses()["Entity"]);
+            this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->_corePack->getClasses()["Component"]);
     } else {
         this->_corePack = std::make_unique<ScriptPack>(tempFiles, packName);
     }
@@ -282,7 +282,7 @@ void ResourceManager::reloadScripts(const std::string &dir)
         tempFiles.push_back(file);
     this->_gamePack->reload(tempFiles);
     for (auto &[name, klass] : this->_gamePack->getClasses())
-        this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->_corePack->getClasses()["Entity"]);
+        this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->_corePack->getClasses()["Component"]);
     tempFiles.clear();
 }
 
@@ -323,7 +323,7 @@ std::unordered_map<std::string, CubeMap> &ResourceManager::getSkyBoxes()
 
 MonoClass *ResourceManager::getEntityClass()
 {
-    return this->_corePack->getClasses()["Entity"];
+    return this->_corePack->getClasses()["Component"];
 }
 
 std::shared_ptr<ScriptPack> &ResourceManager::getGamePack()

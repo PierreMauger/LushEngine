@@ -1,6 +1,6 @@
 using System;
 
-public class ThirdPersonCamera : Entity
+public class ThirdPersonCamera : CustomComponent
 {
     private Transform transform;
     private Camera camera;
@@ -11,8 +11,8 @@ public class ThirdPersonCamera : Entity
 
     public void onInit()
     {
-        transform = getComponent<Transform>();
-        camera = getComponent<Camera>();
+        transform = this.entity.getComponent<Transform>();
+        camera = this.entity.getComponent<Camera>();
         if (playerEntity == null) {
             playerEntity = new Entity(1);
         }

@@ -1,6 +1,6 @@
 using System;
 
-public class ColliderTest : Entity
+public class ColliderTest : CustomComponent
 {
     public void onInit()
     {
@@ -12,16 +12,12 @@ public class ColliderTest : Entity
 
     public void onCollisionEnter(ulong otherId)
     {
-        this.log("Collision enter with entity : " + otherId, Toast.Info);
         Entity other = new Entity(otherId);
-        if (other.hasScriptComponent<Controlable>())
+        if (other.hasComponent<Controllable>())
         {
-            Controlable controlable = other.getScriptComponent<Controlable>();
-            controlable.speed = 0.0f;
+            this.entity.log("Collision with Controllable", Toast.Warning);
+            Controllable controllable = other.getComponent<Controllable>();
+            controllable.speed = 0.0f;
         }
-        // Transform otherTransform = other.getComponent<Transform>();
-        // Vector3 tmpPos = otherTransform.position;
-        // tmpPos.y += 5.0f;
-        // otherTransform.position = tmpPos;
     }
 }

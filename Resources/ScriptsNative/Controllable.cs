@@ -1,6 +1,6 @@
 using System;
 
-public class Controlable : Entity
+public class Controllable : CustomComponent
 {
     private Transform transform;
     private Camera camera;
@@ -9,7 +9,7 @@ public class Controlable : Entity
 
     public void onInit()
     {
-        transform = getComponent<Transform>();
+        transform = this.entity.getComponent<Transform>();
         if (cameraEntity == null) {
             Console.WriteLine("No camera entity specified, using default camera (1).");
             cameraEntity = new Entity(1);
@@ -34,10 +34,5 @@ public class Controlable : Entity
             tmpPos.z += tmpCamForward.z * speed * deltaTime;
             transform.position = tmpPos;
         }
-    }
-
-    public void onCollisionStay(Entity other)
-    {
-        // Console.WriteLine("Collision with " + other.id);
     }
 }

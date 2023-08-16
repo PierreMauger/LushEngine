@@ -3,6 +3,21 @@ using System;
 public abstract class Component
 {
     public Entity entity { get; internal set; }
+
+    protected Component()
+    {
+        this.entity = new Entity(0);
+    }
+
+    public Component(ulong id)
+    {
+        this.entity = new Entity(id);
+    }
+}
+
+// wrapper to disociate from native components
+public class CustomComponent : Component
+{
 }
 
 public class Transform : Component

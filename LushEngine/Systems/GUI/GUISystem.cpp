@@ -423,7 +423,7 @@ void GUISystem::drawProperties(EntityManager &entityManager)
                 isEdited = true;
             if (isEdited && this->_graphic->isRunning()) {
                 std::size_t instance = this->getPhysicInstanceIndex(this->_graphic->getSelectedEntity());
-                if (instance != -1) {
+                if (instance != (std::size_t)-1) {
                     this->_resourceManager->getPhysicInstances()[instance].updateRigidBodyRuntime(rigidBody);
                 }
             }
@@ -495,6 +495,7 @@ void GUISystem::drawProperties(EntityManager &entityManager)
                 for (auto &[fieldName, field] : script.getFields()) {
                     if (this->_graphic->isRunning()) {
                         std::size_t instanceIndex = entity.getScriptIndexes()[scriptName];
+                        std::cout << instanceIndex << std::endl;
                         if (field.type == "Single") {
                             float value = this->_resourceManager->getScriptInstances()[instanceIndex].getFieldValue<float>(fieldName);
                             if (ImGui::DragFloat(fieldName.c_str(), &value))

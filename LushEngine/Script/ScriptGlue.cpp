@@ -154,21 +154,14 @@ void ScriptGlue::Camera_SetForward(std::size_t id, glm::vec3 *forward)
         std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
 }
 
-static std::size_t getScriptInstanceIndex(std::size_t entityId, std::string scriptName)
-{
-    Entity &entity = ECS::getStaticEntityManager()->getEntity(entityId);
-
-    if (entity.hasScriptComponent(scriptName))
-        return entity.getScriptIndexes()[scriptName];
-    return (std::size_t)-1;
-}
-
 MonoObject *ScriptGlue::GetScriptInstance(std::size_t entityId, MonoString *scriptName)
 {
     ResourceManager *resourceManager = ResourceManager::getStaticResourceManager();
-    std::size_t index = getScriptInstanceIndex(entityId, mono_string_to_utf8(scriptName));
-    if (index != (std::size_t)-1)
-        return resourceManager->getScriptInstances().at(index).getInstance();
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(entityId);
+    std::string name = mono_string_to_utf8(scriptName);
+
+    if (entity.hasScriptComponent(name))
+        return resourceManager->getScriptInstances().at(entity.getScriptIndexes()[name]).getInstance();
     return nullptr;
 }
 
