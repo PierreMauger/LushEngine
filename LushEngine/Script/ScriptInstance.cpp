@@ -51,7 +51,7 @@ bool ScriptInstance::getFieldValueInternal(const std::string &name, void *value)
     return true;
 }
 
-void ScriptInstance::setFieldValueInternal(const std::string& name, void *value)
+void ScriptInstance::setFieldValueInternal(const std::string &name, void *value)
 {
     FieldInfo field = this->_class.getFields()[name];
     if (field.type == "Entity") {

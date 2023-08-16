@@ -2,22 +2,22 @@
 
 using namespace Lush;
 
-ScriptClass::ScriptClass(MonoDomain *domain, MonoClass *scriptClass, MonoClass *entityClass)
+ScriptClass::ScriptClass(MonoDomain *domain, MonoClass *scriptClass, MonoClass *componentClass)
 {
     try {
-        this->load(domain, scriptClass, entityClass);
+        this->load(domain, scriptClass, componentClass);
         this->loadAttributes();
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
 }
 
-void ScriptClass::load(MonoDomain *domain, MonoClass *scriptClass, MonoClass *entityClass)
+void ScriptClass::load(MonoDomain *domain, MonoClass *scriptClass, MonoClass *componentClass)
 {
     this->_domain = domain;
     this->_class = scriptClass;
 
-    this->_methods["ctor"] = mono_class_get_method_from_name(entityClass, ".ctor", 1);
+    this->_methods["ctor"] = mono_class_get_method_from_name(componentClass, ".ctor", 1);
     this->_methods["onInit"] = mono_class_get_method_from_name(this->_class, "onInit", 0);
     this->_methods["onUpdate"] = mono_class_get_method_from_name(this->_class, "onUpdate", 1);
 
@@ -46,11 +46,11 @@ void ScriptClass::loadAttributes()
     }
 }
 
-void ScriptClass::reload(MonoDomain *domain, MonoClass *scriptClass, MonoClass *entityClass)
+void ScriptClass::reload(MonoDomain *domain, MonoClass *scriptClass, MonoClass *componentClass)
 {
     this->_methods.clear();
     this->_fields.clear();
-    this->load(domain, scriptClass, entityClass);
+    this->load(domain, scriptClass, componentClass);
     this->loadAttributes();
 }
 

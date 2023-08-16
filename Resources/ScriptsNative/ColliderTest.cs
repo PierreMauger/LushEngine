@@ -13,9 +13,13 @@ public class ColliderTest : CustomComponent
     public void onCollisionEnter(ulong otherId)
     {
         Entity other = new Entity(otherId);
-        if (other.hasComponent<Controllable>())
-        {
-            this.entity.log("Collision with Controllable", Toast.Warning);
+
+        if (other.getComponent<Collider>().tag == "ennemy") {
+            this.entity.log("Collision with Ennemy", Toast.Warning);
+        }
+
+        if (other.hasComponent<Controllable>()) {
+            this.entity.log("Collision with Controllable " + other.getName(), Toast.Warning);
             Controllable controllable = other.getComponent<Controllable>();
             controllable.speed = 0.0f;
         }

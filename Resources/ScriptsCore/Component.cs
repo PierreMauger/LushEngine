@@ -63,3 +63,13 @@ public class Camera : Component
         }
     }
 }
+
+public class Collider : Component
+{
+    public string tag {
+        get {
+            InternalCalls.Collider_GetTag(entity.id, out string tag);
+            return tag;
+        }
+    }
+}

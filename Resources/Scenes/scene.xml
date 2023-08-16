@@ -33,8 +33,8 @@
       <Components>
         <Transform position="3 0 -2" />
         <Model name="Fox" />
-        <RigidBody />
         <CharacterController />
+        <Collider type="Capsule" radius="0.5 1" tag="player" />
         <Controllable speed="10" cameraEntity="1" />
       </Components>
     </Entity>

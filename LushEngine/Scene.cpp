@@ -119,8 +119,13 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
                 }
                 if (componentNode->first_attribute("center"))
                     std::sscanf(componentNode->first_attribute("center")->value(), "%f %f %f", &temp.center.x, &temp.center.y, &temp.center.z);
-                if (componentNode->first_attribute("size"))
-                    std::sscanf(componentNode->first_attribute("size")->value(), "%f %f %f", &temp.size.x, &temp.size.y, &temp.size.z);
+                if (temp.type == ColliderType::SPHERE || temp.type == ColliderType::CAPSULE) {
+                    if (componentNode->first_attribute("radius"))
+                        std::sscanf(componentNode->first_attribute("radius")->value(), "%f %f %f", &temp.size.x, &temp.size.y, &temp.size.z);
+                } else {
+                    if (componentNode->first_attribute("size"))
+                        std::sscanf(componentNode->first_attribute("size")->value(), "%f %f %f", &temp.size.x, &temp.size.y, &temp.size.z);
+                }
                 if (componentNode->first_attribute("tag"))
                     temp.tag = componentNode->first_attribute("tag")->value();
                 entity.addComponent(temp);

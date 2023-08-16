@@ -14,6 +14,8 @@ public static class InternalCalls
 {
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
 	internal extern static void Log(ulong id, string message, int type = 0);
+	[MethodImplAttribute(MethodImplOptions.InternalCall)]
+	internal extern static string GetName(ulong id);
 
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
 	internal extern static bool HasComponent(ulong id, string componentName);
@@ -37,6 +39,9 @@ public static class InternalCalls
 	internal extern static void Camera_GetForward(ulong id, out Vector3 forward);
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
 	internal extern static void Camera_SetForward(ulong id, ref Vector3 forward);
+
+	[MethodImplAttribute(MethodImplOptions.InternalCall)]
+	internal extern static void Collider_GetTag(ulong id, out string tag);
 
 	[MethodImplAttribute(MethodImplOptions.InternalCall)]
 	internal extern static object GetScriptInstance(ulong entityId, string scriptName);

@@ -20,6 +20,7 @@ namespace Lush
 
         public:
             CharacterInstance(std::size_t id, Transform &transform, CharacterController &characterController);
+            CharacterInstance(std::size_t id, Transform &transform, CharacterController &characterController, Collider &collider);
             ~CharacterInstance() = default;
 
             std::size_t getId() const;

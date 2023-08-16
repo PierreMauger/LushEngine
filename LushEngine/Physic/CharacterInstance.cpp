@@ -6,24 +6,55 @@ CharacterInstance::CharacterInstance(std::size_t id, Transform &transform, Chara
 {
     this->_id = id;
 
-    auto capsuleShape = new btCapsuleShape(0.5f, 1.0f);
-
+    btConvexShape *collisionShape = new btSphereShape(0);
     this->_ghostObject = new btPairCachingGhostObject();
-    this->_ghostObject->setCollisionShape(capsuleShape);
+    this->_ghostObject->setCollisionShape(collisionShape);
     this->_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 
-    this->_characterController = new btKinematicCharacterController(this->_ghostObject, capsuleShape, characterController.stepOffset);
+    btTransform startTransform;
+    startTransform.setIdentity();
+    startTransform.setOrigin(btVector3(transform.position.x, transform.position.y + characterController.center.y, transform.position.z));
+    this->_ghostObject->setWorldTransform(startTransform);
 
-    btTransform btTransform;
-    btTransform.setIdentity();
-    btTransform.setOrigin(btVector3(transform.position.x, transform.position.y + characterController.center.y, transform.position.z));
-    this->_ghostObject->setWorldTransform(btTransform);
+    this->_characterController = new btKinematicCharacterController(this->_ghostObject, collisionShape, characterController.stepOffset);
 
     this->_characterController->setGravity(btVector3(0, -9.8, 0));
-    // this->_characterController->setJumpSpeed(5.0f);
-    // this->_characterController->setMaxJumpHeight(1.0f);
-    // this->_characterController->setUseGhostSweepTest(true);
-    // this->_characterController->setUpInterpolate(true);
+    this->_characterController->setStepHeight(characterController.stepOffset);
+    this->_characterController->setMaxSlope(btRadians(characterController.slopeLimit));
+}
+
+CharacterInstance::CharacterInstance(std::size_t id, Transform &transform, CharacterController &characterController, Collider &collider)
+{
+    this->_id = id;
+
+    btConvexShape *collisionShape = nullptr;
+    switch (collider.type) {
+    case ColliderType::BOX:
+        collisionShape = new btBoxShape(btVector3(collider.size.x, collider.size.y, collider.size.z));
+        break;
+    case ColliderType::SPHERE:
+        collisionShape = new btSphereShape(collider.size.x);
+        break;
+    case ColliderType::CAPSULE:
+        collisionShape = new btCapsuleShape(collider.size.x, collider.size.y);
+        break;
+    default:
+        collisionShape = new btCapsuleShape(collider.size.x, collider.size.y);
+        break;
+    }
+
+    this->_ghostObject = new btPairCachingGhostObject();
+    this->_ghostObject->setCollisionShape(collisionShape);
+    this->_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+
+    btTransform startTransform;
+    startTransform.setIdentity();
+    startTransform.setOrigin(btVector3(transform.position.x, transform.position.y + characterController.center.y, transform.position.z));
+    this->_ghostObject->setWorldTransform(startTransform);
+
+    this->_characterController = new btKinematicCharacterController(this->_ghostObject, collisionShape, characterController.stepOffset);
+
+    this->_characterController->setGravity(btVector3(0, -9.8, 0));
     this->_characterController->setStepHeight(characterController.stepOffset);
     this->_characterController->setMaxSlope(btRadians(characterController.slopeLimit));
 }
@@ -57,6 +88,6 @@ void CharacterInstance::postUpdate(Transform &transform)
     transform.position = glm::vec3(origin.x(), origin.y(), origin.z());
 
     // if (this->_characterController->canJump() && this->_characterController->onGround()) {
-        // this->_characterController->jump(btVector3(0, 5, 0));
+    // this->_characterController->jump(btVector3(0, 5, 0));
     // }
 }

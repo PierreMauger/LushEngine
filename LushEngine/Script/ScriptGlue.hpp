@@ -12,7 +12,8 @@ namespace Lush
     class ScriptGlue
     {
         public:
-            static void Console_Log(std::size_t id, MonoString *message, int type);
+            static void Log(std::size_t id, MonoString *message, int type);
+            static MonoString *GetName(std::size_t id);
 
             static bool HasComponent(std::size_t id, MonoString *componentName);
 
@@ -25,6 +26,8 @@ namespace Lush
 
             static void Camera_GetForward(std::size_t id, glm::vec3 *forward);
             static void Camera_SetForward(std::size_t id, glm::vec3 *forward);
+
+            static void Collider_GetTag(std::size_t id, MonoString **tag);
 
             static MonoObject *GetScriptInstance(std::size_t entityId, MonoString *scriptName);
 

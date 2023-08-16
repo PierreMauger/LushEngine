@@ -30,13 +30,13 @@ namespace Lush
             std::unordered_map<std::string, FieldInfo> _fields;
 
         public:
-            ScriptClass(MonoDomain *domain, MonoClass *scriptClass, MonoClass *entityClass);
+            ScriptClass(MonoDomain *domain, MonoClass *scriptClass, MonoClass *componentClass);
             ScriptClass() = default;
             ~ScriptClass() = default;
 
-            void load(MonoDomain *domain, MonoClass *scriptClass, MonoClass *entityClass);
+            void load(MonoDomain *domain, MonoClass *scriptClass, MonoClass *componentClass);
             void loadAttributes();
-            void reload(MonoDomain *domain, MonoClass *scriptClass, MonoClass *entityClass);
+            void reload(MonoDomain *domain, MonoClass *scriptClass, MonoClass *componentClass);
 
             MonoMethod *getMethod(const std::string &name);
             std::unordered_map<std::string, FieldInfo> &getFields();

@@ -26,6 +26,11 @@ public class Entity
         return InternalCalls.HasComponent(this.id, typeof(T).Name);
     }
 
+    public string getName()
+    {
+        return InternalCalls.GetName(this.id);
+    }
+
     public void log(string message, Toast type = Toast.None)
     {
         InternalCalls.Log(this.id, message, (int)type);

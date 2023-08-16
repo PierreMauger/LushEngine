@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-void ScriptGlue::Console_Log(std::size_t id, MonoString *message, int type)
+void ScriptGlue::Log(std::size_t id, MonoString *message, int type)
 {
     char *utf8 = mono_string_to_utf8(message);
     switch (type) {
@@ -23,6 +23,15 @@ void ScriptGlue::Console_Log(std::size_t id, MonoString *message, int type)
     }
     std::cout << "[" << id << "]: " << utf8 << std::endl;
     mono_free(utf8);
+}
+
+MonoString *ScriptGlue::GetName(std::size_t id)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return nullptr;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    return mono_string_new(mono_domain_get(), entity.getName().c_str());
 }
 
 bool ScriptGlue::HasComponent(std::size_t id, MonoString *componentName)
@@ -154,6 +163,18 @@ void ScriptGlue::Camera_SetForward(std::size_t id, glm::vec3 *forward)
         std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
 }
 
+void ScriptGlue::Collider_GetTag(std::size_t id, MonoString **tag)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Collider>()) {
+        *tag = mono_string_new(mono_domain_get(), entity.getComponent<Collider>().tag.c_str());
+    } else
+        std::cout << "[Toast Error]Entity " << id << " has no Collider component" << std::endl;
+}
+
 MonoObject *ScriptGlue::GetScriptInstance(std::size_t entityId, MonoString *scriptName)
 {
     ResourceManager *resourceManager = ResourceManager::getStaticResourceManager();
@@ -192,7 +213,8 @@ float ScriptGlue::GetMouseMovementY()
 
 void ScriptGlue::registerFunctions()
 {
-    mono_add_internal_call("InternalCalls::Log", (void *)Console_Log);
+    mono_add_internal_call("InternalCalls::Log", (void *)Log);
+    mono_add_internal_call("InternalCalls::GetName", (void *)GetName);
     mono_add_internal_call("InternalCalls::HasComponent", (void *)HasComponent);
     mono_add_internal_call("InternalCalls::Transform_GetPosition", (void *)Transform_GetPosition);
     mono_add_internal_call("InternalCalls::Transform_SetPosition", (void *)Transform_SetPosition);
@@ -202,6 +224,7 @@ void ScriptGlue::registerFunctions()
     mono_add_internal_call("InternalCalls::Transform_SetScale", (void *)Transform_SetScale);
     mono_add_internal_call("InternalCalls::Camera_GetForward", (void *)Camera_GetForward);
     mono_add_internal_call("InternalCalls::Camera_SetForward", (void *)Camera_SetForward);
+    mono_add_internal_call("InternalCalls::Collider_GetTag", (void *)Collider_GetTag);
     mono_add_internal_call("InternalCalls::GetScriptInstance", (void *)GetScriptInstance);
     mono_add_internal_call("InternalCalls::IsKeyDown", (void *)IsKeyDown);
     mono_add_internal_call("InternalCalls::GetMouseMovementX", (void *)GetMouseMovementX);
