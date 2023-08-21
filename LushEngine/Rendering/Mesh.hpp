@@ -61,7 +61,6 @@ namespace Lush
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
-                ar &id;
                 ar &name;
                 ar &type;
             }
@@ -102,7 +101,7 @@ namespace Lush
             Mesh() = default;
             ~Mesh() = default;
 
-            void rebindTexIds(std::unordered_map<std::string, Texture> &textures);
+            void rebindTextureIds(std::unordered_map<std::string, Texture> &textures);
             void draw(Shader &shader);
 
             void serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version)

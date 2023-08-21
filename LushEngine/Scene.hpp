@@ -5,9 +5,9 @@
 #include "ECS/Entity/EntityManager.hpp"
 #include "File/File.hpp"
 #include "Includes.hpp"
+#include "RapidXML/rapidxml.hpp"
+#include "RapidXML/rapidxml_print.hpp"
 #include "Script/ScriptClass.hpp"
-#include "rapidxml.hpp"
-#include "rapidxml_print.hpp"
 
 namespace Lush
 {

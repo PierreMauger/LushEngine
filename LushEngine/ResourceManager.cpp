@@ -61,17 +61,9 @@ void ResourceManager::serializeAssetPack(std::string path)
 
     oa << this->_models.size();
     for (auto &[name, model] : this->_models) {
-        // if (model.isUsed(name, this->_scenes)) {
         oa << name;
         oa << model;
-        // }
     }
-
-    //    oa << this->_shaders.size();
-    //    for (auto &[name, shader] : this->_shaders) {
-    //        oa << name;
-    //        oa << shader;
-    //    }
 
     oa << this->_scenes.size();
     for (auto &[name, scene] : this->_scenes) {
@@ -102,7 +94,7 @@ void ResourceManager::deserializeAssetPack(std::string path)
         ia >> name;
         ia >> this->_models[name];
         for (auto &mesh : this->_models[name].getMeshes())
-            mesh.rebindTexIds(this->_textures);
+            mesh.rebindTextureIds(this->_textures);
     }
 
     ia >> size;

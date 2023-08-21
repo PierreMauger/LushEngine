@@ -7,7 +7,7 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 
-#include "Component/Component.hpp"
+#include "ECS/Component/Component.hpp"
 #include "Includes.hpp"
 
 namespace boost::serialization

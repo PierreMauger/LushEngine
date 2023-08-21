@@ -987,7 +987,7 @@ void GUISystem::build()
 
     this->_resourceManager->serializeAssetPack(this->_buildPath + "/Data/AssetPack.data");
     std::cout << "[Toast Success]AssetPack serialized at location: " << this->_buildPath << "/Data/AssetPack.data" << std::endl;
-    std::filesystem::copy_file("lush", std::filesystem::path(this->_buildPath) / (std::filesystem::path(this->_projectPath).filename().string()),
+    std::filesystem::copy_file("lushGame", std::filesystem::path(this->_buildPath) / (std::filesystem::path(this->_projectPath).filename().string()),
                                std::filesystem::copy_options::overwrite_existing);
     std::filesystem::copy("Resources/bin", std::filesystem::path(this->_buildPath) / "Data",
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);

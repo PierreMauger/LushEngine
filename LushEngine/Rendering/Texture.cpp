@@ -24,9 +24,8 @@ void Texture::createTexture()
 {
     glGenTextures(1, &this->_id);
     unsigned char *data = stbi_load_from_memory((const stbi_uc *)this->_content.c_str(), this->_content.length(), &this->_width, &this->_height, &this->_nrChannels, 0);
-    if (data) {
-        this->_pixels.assign(data, data + this->_width * this->_height * this->_nrChannels);
 
+    if (data) {
         this->_heightData = new unsigned char[this->_width * this->_height];
         if (this->_nrChannels == 1) {
             memcpy(this->_heightData, data, this->_width * this->_height);
@@ -41,14 +40,14 @@ void Texture::createTexture()
             }
         }
 
-        this->setupTexture();
+        this->setupTexture(data);
         stbi_image_free(data);
     } else {
         stbi_image_free(data);
     }
 }
 
-void Texture::setupTexture()
+void Texture::setupTexture(unsigned char *data)
 {
     glGenTextures(1, &this->_id);
     GLenum format = GL_RGB;
@@ -58,7 +57,7 @@ void Texture::setupTexture()
         format = GL_RGBA;
 
     glBindTexture(GL_TEXTURE_2D, this->_id);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, this->_width, this->_height, 0, format, GL_UNSIGNED_BYTE, this->_pixels.data());
+    glTexImage2D(GL_TEXTURE_2D, 0, format, this->_width, this->_height, 0, format, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

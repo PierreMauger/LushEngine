@@ -15,14 +15,14 @@ Engine::Engine(bool isEditor) : _isEditor(isEditor)
     this->_ecs.getSystemManager().bindSystem(std::make_unique<CameraSystem>(this->_graphic));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<PhysicSystem>(this->_graphic, this->_resourceManager));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<RenderSystem>(this->_graphic, this->_resourceManager));
-    if (this->_isEditor) {
-        this->_ecs.getSystemManager().bindSystem(std::make_unique<SceneSystem>(this->_graphic, this->_resourceManager));
-        this->_ecs.getSystemManager().bindSystem(std::make_unique<PickingSystem>(this->_graphic, this->_resourceManager));
-        this->_ecs.getSystemManager().bindSystem(std::make_unique<GUISystem>(this->_graphic, this->_resourceManager));
-        this->_ecs.getSystemManager().bindSystem(std::make_unique<FileWatcherSystem>(this->_graphic, this->_resourceManager));
-    } else {
-        this->_ecs.getSystemManager().bindSystem(std::make_unique<GameSystem>(this->_graphic, this->_resourceManager));
-    }
+#ifdef EDITOR_MODE
+    this->_ecs.getSystemManager().bindSystem(std::make_unique<SceneSystem>(this->_graphic, this->_resourceManager));
+    this->_ecs.getSystemManager().bindSystem(std::make_unique<PickingSystem>(this->_graphic, this->_resourceManager));
+    this->_ecs.getSystemManager().bindSystem(std::make_unique<GUISystem>(this->_graphic, this->_resourceManager));
+    this->_ecs.getSystemManager().bindSystem(std::make_unique<FileWatcherSystem>(this->_graphic, this->_resourceManager));
+#else
+    this->_ecs.getSystemManager().bindSystem(std::make_unique<GameSystem>(this->_graphic, this->_resourceManager));
+#endif
 
     if (!this->_isEditor && this->_resourceManager->getScenes().find("main") != this->_resourceManager->getScenes().end()) {
         this->_resourceManager->getScenes()["main"].setScene(this->_ecs.getEntityManager());

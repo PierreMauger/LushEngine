@@ -1,13 +1,9 @@
 #include "Engine.hpp"
 
 #ifdef EDITOR_MODE
-    #if EDITOR_MODE == true
-        const bool editor = true;
-    #else
-        const bool editor = false;
-    #endif
+const bool editor = true;
 #else
-    const bool editor = false;
+const bool editor = false;
 #endif
 
 int main()

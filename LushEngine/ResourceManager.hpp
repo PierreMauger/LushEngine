@@ -8,7 +8,7 @@
 #include <boost/serialization/vector.hpp>
 #include <btBulletDynamicsCommon.h>
 
-#include "ECS.hpp"
+#include "ECS/ECS.hpp"
 #include "File/File.hpp"
 #include "File/Resource.hpp"
 #include "Includes.hpp"

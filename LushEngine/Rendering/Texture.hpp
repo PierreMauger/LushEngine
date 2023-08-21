@@ -7,7 +7,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/vector.hpp>
 
-#include "File.hpp"
+#include "File/File.hpp"
 #include "Includes.hpp"
 #include "STB/stb_image.h"
 
@@ -20,11 +20,10 @@ namespace Lush
             int _width;
             int _height;
             int _nrChannels;
-            std::vector<unsigned char> _pixels;
             unsigned char *_heightData = nullptr;
             std::string _content;
 
-            void setupTexture();
+            void setupTexture(unsigned char *data);
 
         public:
             Texture(File &file);
