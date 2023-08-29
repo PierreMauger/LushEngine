@@ -6,26 +6,29 @@
 
 #include "ECS/Component/Component.hpp"
 #include "Includes.hpp"
-#include "Rendering/Texture.hpp"
+#include "Physic/BasicInstance.hpp"
 
 namespace Lush
 {
-    class PhysicInstance
+    class PhysicInstance : public BasicInstance
     {
         private:
-            std::size_t _id;
             btRigidBody *_rigidBody;
+
+            btDefaultMotionState *initTransform(Transform &transform);
+            btRigidBody *initRigidBody(RigidBody &rigidbody, btDefaultMotionState *motionState, btCollisionShape *collisionShape);
 
         public:
             PhysicInstance(std::size_t id, Transform &transform, RigidBody &rigidBody);
+            PhysicInstance(std::size_t id, Transform &transform, Collider &collider);
             PhysicInstance(std::size_t id, Transform &transform, RigidBody &rigidBody, Collider &collider);
-            ~PhysicInstance() = default;
+            ~PhysicInstance() override;
 
-            std::size_t getId() const;
-            btRigidBody *getRigidBody() const;
-
-            void preUpdate(Transform &transform);
-            void postUpdate(Transform &transform);
+            btCollisionObject *getCollisionObject() const override;
+            void preUpdate(Transform &transform) override;
+            void postUpdate(Transform &transform) override;
+            void addToWorld(btDiscreteDynamicsWorld *world) override;
+            void removeFromWorld(btDiscreteDynamicsWorld *world) override;
 
             void updateRigidBodyRuntime(RigidBody &rigidBody);
             void updateColliderRuntime(Collider &collider);

@@ -7,28 +7,26 @@
 
 #include "ECS/Component/Component.hpp"
 #include "Includes.hpp"
-#include "Rendering/Texture.hpp"
+#include "Physic/BasicInstance.hpp"
 
 namespace Lush
 {
-    class CharacterInstance
+    class CharacterInstance : public BasicInstance
     {
         private:
-            std::size_t _id;
             btKinematicCharacterController *_characterController;
             btPairCachingGhostObject *_ghostObject;
 
         public:
             CharacterInstance(std::size_t id, Transform &transform, CharacterController &characterController);
             CharacterInstance(std::size_t id, Transform &transform, CharacterController &characterController, Collider &collider);
-            ~CharacterInstance() = default;
+            ~CharacterInstance() override;
 
-            std::size_t getId() const;
-            btKinematicCharacterController *getCharacterController();
-            btPairCachingGhostObject *getGhostObject() const;
-
-            void preUpdate(Transform &transform);
-            void postUpdate(Transform &transform);
+            btCollisionObject *getCollisionObject() const override;
+            void preUpdate(Transform &transform) override;
+            void postUpdate(Transform &transform) override;
+            void addToWorld(btDiscreteDynamicsWorld *world) override;
+            void removeFromWorld(btDiscreteDynamicsWorld *world) override;
     };
 }
 

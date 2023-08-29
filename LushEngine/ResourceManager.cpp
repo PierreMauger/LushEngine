@@ -48,19 +48,40 @@ void ResourceManager::loadGame()
     this->deserializeAssetPack("Data/AssetPack.data");
 }
 
+// void ResourceManager::setUsage()
+// {
+//     for (auto &[name, texture] : this->_textures)
+//         texture.setUsed(false);
+//     for (auto &[name, model] : this->_models)
+//         model.setUsed(false);
+
+//     for (auto &[sceneName, scene] : this->_scenes) {
+//         for (auto &[modelName, model] : this->_models)
+//             for (auto &[id, entity] : scene.getEntityManager().getEntities())
+//                 if (entity.hasComponent<Model>() && entity.getComponent<Model>().name == modelName)
+//                     return model.setUsed(true);
+//     }
+// }
+
 void ResourceManager::serializeAssetPack(std::string path)
 {
     std::ofstream ofs(path, std::ios::binary);
     boost::archive::binary_oarchive oa(ofs, boost::archive::no_header);
 
-    oa << this->_textures.size();
+    // this->setUsage();
+
+    oa << std::ranges::count_if(this->_textures, [](const auto &texture) { return texture.second.isUsed(); });
     for (auto &[name, texture] : this->_textures) {
+        if (!texture.isUsed())
+            continue;
         oa << name;
         oa << texture;
     }
 
-    oa << this->_models.size();
+    oa << std::ranges::count_if(this->_models, [](const auto &model) { return model.second.isUsed(); });
     for (auto &[name, model] : this->_models) {
+        if (!model.isUsed())
+            continue;
         oa << name;
         oa << model;
     }
@@ -126,12 +147,12 @@ void ResourceManager::initScriptInstances(EntityManager &entityManager)
         entity.clearScriptIndexes();
         for (auto &[name, script] : this->_scripts) {
             if (entity.hasScriptComponent(name)) {
-                entity.addScriptIndex(name, this->_instances.size());
-                this->_instances.emplace_back(script, id, entity.getScriptComponent(name).getFields());
+                entity.addScriptIndex(name, this->_scriptInstances.size());
+                this->_scriptInstances.emplace_back(script, id, entity.getScriptComponent(name).getFields());
             }
         }
     }
-    for (auto &instance : this->_instances)
+    for (auto &instance : this->_scriptInstances)
         instance.init();
 }
 
@@ -141,18 +162,21 @@ void ResourceManager::initPhysicInstances(EntityManager &entityManager)
         if (entity.hasComponent<Transform>()) {
             if (entity.hasComponent<CharacterController>()) {
                 if (entity.hasComponent<Collider>())
-                    this->_characterInstances.emplace_back(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>(), entity.getComponent<Collider>());
+                    this->_physicInstances.emplace_back(std::make_unique<CharacterInstance>(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>(), entity.getComponent<Collider>()));
                 else
-                    this->_characterInstances.emplace_back(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>());
+                    this->_physicInstances.emplace_back(std::make_unique<CharacterInstance>(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>()));
 
             } else if (entity.hasComponent<RigidBody>()) {
                 if (entity.hasComponent<Collider>())
-                    this->_physicInstances.emplace_back(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>(), entity.getComponent<Collider>());
+                    this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>(), entity.getComponent<Collider>()));
                 else
-                    this->_physicInstances.emplace_back(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>());
+                    this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>()));
+
+            } else if (entity.hasComponent<Collider>()) {
+                this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<Collider>()));
 
             } else if (entity.hasComponent<Map>()) {
-                // TODO terrain instance ? useful if communication with scripts, maybe fluid heightmap ?
+                // TODO terrain instance ? useful if communication with scripts, maybe fluid heightmap ? not stored = not deleted at runtime, only at end of playtest
                 Texture &texture = this->_textures[entity.getComponent<Map>().heightMap];
                 Transform &transform = entity.getComponent<Transform>();
 
@@ -177,13 +201,7 @@ void ResourceManager::initPhysicInstances(EntityManager &entityManager)
     }
 
     for (auto &physicInstance : this->_physicInstances)
-        this->_dynamicsWorld->addRigidBody(physicInstance.getRigidBody());
-
-    for (auto &characterInstance : this->_characterInstances) {
-        this->_dynamicsWorld->addCollisionObject(characterInstance.getGhostObject(), btBroadphaseProxy::CharacterFilter,
-                                                 btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
-        this->_dynamicsWorld->addAction(characterInstance.getCharacterController());
-    }
+        physicInstance->addToWorld(this->_dynamicsWorld);
 }
 
 void ResourceManager::loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions)
@@ -337,17 +355,12 @@ std::unordered_map<std::string, ScriptClass> &ResourceManager::getScripts()
 
 std::vector<ScriptInstance> &ResourceManager::getScriptInstances()
 {
-    return this->_instances;
+    return this->_scriptInstances;
 }
 
-std::vector<PhysicInstance> &ResourceManager::getPhysicInstances()
+std::vector<std::unique_ptr<BasicInstance>> &ResourceManager::getPhysicInstances()
 {
     return this->_physicInstances;
-}
-
-std::vector<CharacterInstance> &ResourceManager::getCharacterInstances()
-{
-    return this->_characterInstances;
 }
 
 std::unordered_map<std::string, Scene> &ResourceManager::getScenes()
@@ -368,6 +381,11 @@ void ResourceManager::setActiveScene(const std::string &name)
 MapMesh &ResourceManager::getMapMesh()
 {
     return *this->_mapMesh;
+}
+
+btDiscreteDynamicsWorld *ResourceManager::getDynamicsWorld() const
+{
+    return this->_dynamicsWorld;
 }
 
 void ResourceManager::setDynamicsWorld(btDiscreteDynamicsWorld *world)

@@ -31,7 +31,7 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
         if (entityNode->first_attribute("id"))
             id = std::atoi(entityNode->first_attribute("id")->value());
         else
-            id = this->_entityManager.getEntities().size();
+            id = this->_entityManager.getEntities().rbegin()->first + 1;
         Entity entity;
         if (entityNode->first_attribute("name"))
             entity.setName(entityNode->first_attribute("name")->value());
@@ -87,6 +87,8 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
             } else if (name == "Billboard") {
                 Billboard temp;
                 temp.name = componentNode->first_attribute("name")->value();
+                if (componentNode->first_attribute("lockYAxis"))
+                    temp.lockYAxis = componentNode->first_attribute("lockYAxis")->value() == std::string("true") ? true : false;
                 entity.addComponent(temp);
             } else if (name == "Map") {
                 Map temp;
@@ -168,6 +170,7 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
 
 void Scene::reload(File &file, std::unordered_map<std::string, ScriptClass> &scripts)
 {
+    this->_entityManager.clear();
     this->load(file, scripts);
 }
 

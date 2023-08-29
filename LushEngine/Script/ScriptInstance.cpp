@@ -79,8 +79,11 @@ void ScriptInstance::init()
     }
     for (auto &[name, value] : this->_defaultFields) {
         std::string type = this->_class.getFields()[name].type;
-        if (type == "Single")
+        std::cout << "Setting field " << name << " of type " << type << std::endl;
+        if (type == "Single") {
+            std::cout << "Setting field " << name << " to " << std::any_cast<float>(value) << std::endl;
             this->setFieldValue<float>(name, std::any_cast<float>(value));
+        }
         else if (type == "UInt64")
             this->setFieldValue<unsigned long>(name, std::any_cast<unsigned long>(value));
     }

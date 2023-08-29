@@ -112,6 +112,7 @@ namespace Lush
 
     struct Billboard : public Component {
             std::string name = "";
+            bool lockYAxis = false;
 
             Billboard *clone() const override
             {
@@ -121,6 +122,7 @@ namespace Lush
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
                 ar &name;
+                ar &lockYAxis;
             }
     };
 
@@ -178,7 +180,7 @@ namespace Lush
     struct Collider : public Component {
             ColliderType type = ColliderType::BOX;
             glm::vec3 center = glm::vec3(0.0f);
-            glm::vec3 size = glm::vec3(1.0f);
+            glm::vec3 size = glm::vec3(0.0f);
             std::string tag = "";
 
             Collider *clone() const override

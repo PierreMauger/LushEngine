@@ -14,7 +14,6 @@ namespace Lush
         public:
             static void Log(std::size_t id, MonoString *message, int type);
             static MonoString *GetName(std::size_t id);
-
             static bool HasComponent(std::size_t id, MonoString *componentName);
 
             static void Transform_GetPosition(std::size_t id, glm::vec3 *position);
@@ -34,6 +33,8 @@ namespace Lush
             static bool IsKeyDown(int key);
             static float GetMouseMovementX();
             static float GetMouseMovementY();
+            static void SetScene(MonoString *sceneName);
+            static void DeleteEntity(std::size_t id);
 
             static void registerFunctions();
     };

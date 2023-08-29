@@ -142,6 +142,7 @@ void SceneSystem::drawBillboards(EntityManager &entityManager)
         else
             glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("tex", 0);
+        this->_graphic->getRenderView().getShader().setBool("lockYAxis", billboard.lockYAxis);
         glBindVertexArray(this->_billboard.vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);

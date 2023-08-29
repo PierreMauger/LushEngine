@@ -82,13 +82,11 @@ set(EDITOR_SOURCE_FILES
     ${PROJECT_NAME}/Systems/GUI/GUISystem.cpp
     ${PROJECT_NAME}/Systems/Picking/PickingSystem.cpp
     ${PROJECT_NAME}/Systems/Scene/SceneSystem.cpp
-    # ${PROJECT_NAME}/mainEditor.cpp
 )
 
 # Source files specific to lushGame
 set(GAME_SOURCE_FILES
     ${PROJECT_NAME}/Systems/Game/GameSystem.cpp
-    # ${PROJECT_NAME}/mainGame.cpp
 )
 
 # Common libraries
@@ -104,9 +102,11 @@ set(COMMON_LIBRARIES
 
 # Add the lushEditor target
 add_executable(lushEditor ${COMMON_SOURCE_FILES} ${EDITOR_SOURCE_FILES})
+target_compile_features(lushEditor PRIVATE cxx_std_20)
 target_compile_definitions(lushEditor PRIVATE EDITOR_MODE)
 target_link_libraries(lushEditor ${COMMON_LIBRARIES})
 
 # Add the lushGame target
 add_executable(lushGame ${COMMON_SOURCE_FILES} ${GAME_SOURCE_FILES})
+target_compile_features(lushGame PRIVATE cxx_std_20)
 target_link_libraries(lushGame ${COMMON_LIBRARIES})

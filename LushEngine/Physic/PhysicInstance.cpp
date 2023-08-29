@@ -2,78 +2,42 @@
 
 using namespace Lush;
 
-PhysicInstance::PhysicInstance(std::size_t id, Transform &transform, RigidBody &rigidBody)
+PhysicInstance::PhysicInstance(std::size_t id, Transform &transform, RigidBody &rigidBody) : BasicInstance(id)
 {
-    this->_id = id;
-
-    btTransform startTransform;
-    startTransform.setIdentity();
-    startTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
-    startTransform.setRotation(btQuaternion(btRadians(transform.rotation.y), btRadians(transform.rotation.x), btRadians(transform.rotation.z)));
-    btDefaultMotionState *motionState = new btDefaultMotionState(startTransform);
-
-    btVector3 localInertia(0, 0, 0);
+    btDefaultMotionState *motionState = this->initTransform(transform);
     btCollisionShape *collisionShape = new btSphereShape(0);
-    if (rigidBody.mass != 0.0f)
-        collisionShape->calculateLocalInertia(rigidBody.mass, localInertia);
+    this->_rigidBody = this->initRigidBody(rigidBody, motionState, collisionShape);
 
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(rigidBody.mass, motionState, collisionShape, localInertia);
-    this->_rigidBody = new btRigidBody(rbInfo);
-    this->_rigidBody->setFriction(rigidBody.friction);
-    this->_rigidBody->setRestitution(rigidBody.restitution);
-    if (rigidBody.kinematic)
-        this->_rigidBody->setCollisionFlags(this->_rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+    this->_rigidBody->setUserPointer(reinterpret_cast<void *>(id));
+}
 
+PhysicInstance::PhysicInstance(std::size_t id, Transform &transform, Collider &collider) : BasicInstance(id)
+{
+    btDefaultMotionState *motionState = this->initTransform(transform);
+    btCollisionShape *collisionShape = this->initCollider(transform, collider);
+    this->_rigidBody = new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(0.0f, motionState, collisionShape));
     this->_rigidBody->setCollisionFlags(this->_rigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
     this->_rigidBody->setUserPointer(reinterpret_cast<void *>(id));
 }
 
-PhysicInstance::PhysicInstance(std::size_t id, Transform &transform, RigidBody &rigidBody, Collider &collider)
+PhysicInstance::PhysicInstance(std::size_t id, Transform &transform, RigidBody &rigidBody, Collider &collider) : BasicInstance(id)
 {
-    this->_id = id;
-
-    btTransform startTransform;
-    startTransform.setIdentity();
-    startTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
-    startTransform.setRotation(btQuaternion(btRadians(transform.rotation.y), btRadians(transform.rotation.x), btRadians(transform.rotation.z)));
-    btDefaultMotionState *motionState = new btDefaultMotionState(startTransform);
-
-    btVector3 localInertia(0, 0, 0);
-    btCollisionShape *collisionShape = nullptr;
-    switch (collider.type) {
-    case ColliderType::BOX:
-        collisionShape = new btBoxShape(btVector3(collider.size.x, collider.size.y, collider.size.z));
-        break;
-    case ColliderType::SPHERE:
-        collisionShape = new btSphereShape(collider.size.x);
-        break;
-    case ColliderType::CAPSULE:
-        collisionShape = new btCapsuleShape(collider.size.x, collider.size.y);
-        break;
-    default:
-        collisionShape = new btBoxShape(btVector3(collider.size.x, collider.size.y, collider.size.z));
-        break;
-    }
-    if (rigidBody.mass != 0.0f)
-        collisionShape->calculateLocalInertia(rigidBody.mass, localInertia);
-
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(rigidBody.mass, motionState, collisionShape, localInertia);
-    this->_rigidBody = new btRigidBody(rbInfo);
-    this->_rigidBody->setFriction(rigidBody.friction);
-    this->_rigidBody->setRestitution(rigidBody.restitution);
-    if (rigidBody.kinematic)
-        this->_rigidBody->setCollisionFlags(this->_rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+    btDefaultMotionState *motionState = this->initTransform(transform);
+    btCollisionShape *collisionShape = this->initCollider(transform, collider);
+    this->_rigidBody = this->initRigidBody(rigidBody, motionState, collisionShape);
 
     this->_rigidBody->setUserPointer(reinterpret_cast<void *>(id));
 }
 
-std::size_t PhysicInstance::getId() const
+PhysicInstance::~PhysicInstance()
 {
-    return this->_id;
+    // delete this->_rigidBody->getMotionState();
+    // delete this->_rigidBody->getCollisionShape();
+    // delete this->_rigidBody;
 }
 
-btRigidBody *PhysicInstance::getRigidBody() const
+btCollisionObject *PhysicInstance::getCollisionObject() const
 {
     return this->_rigidBody;
 }
@@ -104,6 +68,16 @@ void PhysicInstance::postUpdate(Transform &transform)
     transform.rotation = glm::vec3(roll, pitch, yaw);
 }
 
+void PhysicInstance::addToWorld(btDiscreteDynamicsWorld *world)
+{
+    world->addRigidBody(this->_rigidBody);
+}
+
+void PhysicInstance::removeFromWorld(btDiscreteDynamicsWorld *world)
+{
+    world->removeRigidBody(this->_rigidBody);
+}
+
 void PhysicInstance::updateRigidBodyRuntime(RigidBody &rigidBody)
 {
     this->_rigidBody->setFriction(rigidBody.friction);
@@ -124,4 +98,29 @@ void PhysicInstance::updateRigidBodyRuntime(RigidBody &rigidBody)
 void PhysicInstance::updateColliderRuntime(Collider &collider)
 {
     std::cout << "updateColliderRuntime" << std::endl;
+}
+
+btDefaultMotionState *PhysicInstance::initTransform(Transform &transform)
+{
+    btTransform startTransform;
+    startTransform.setIdentity();
+    startTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
+    startTransform.setRotation(btQuaternion(btRadians(transform.rotation.y), btRadians(transform.rotation.x), btRadians(transform.rotation.z)));
+    return new btDefaultMotionState(startTransform);
+}
+
+btRigidBody *PhysicInstance::initRigidBody(RigidBody &rigidbody, btDefaultMotionState *motionState, btCollisionShape *collisionShape)
+{
+    btVector3 localInertia(0, 0, 0);
+    if (rigidbody.mass != 0.0f)
+        collisionShape->calculateLocalInertia(rigidbody.mass, localInertia);
+
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(rigidbody.mass, motionState, collisionShape, localInertia);
+    btRigidBody *rigidBody = new btRigidBody(rbInfo);
+    rigidBody->setFriction(rigidbody.friction);
+    rigidBody->setRestitution(rigidbody.restitution);
+    if (rigidbody.kinematic)
+        rigidBody->setCollisionFlags(rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+
+    return rigidBody;
 }

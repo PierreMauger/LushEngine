@@ -40,9 +40,43 @@ public struct Vector3
         return euler;
     }
 
+    public static Vector3 operator *(Vector3 a, float b)
+    {
+        return new Vector3(a.x * b, a.y * b, a.z * b);
+    }
+
     public static Vector3 operator +(Vector3 a, Vector3 b)
     {
         return new Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
+    }
+
+    public static Vector3 operator -(Vector3 a, Vector3 b)
+    {
+        return new Vector3(a.x - b.x, a.y - b.y, a.z - b.z);
+    }
+
+    public static bool operator ==(Vector3 a, Vector3 b)
+    {
+        return a.x == b.x && a.y == b.y && a.z == b.z;
+    }
+
+    public static bool operator !=(Vector3 a, Vector3 b)
+    {
+        return a.x != b.x || a.y != b.y || a.z != b.z;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj == null || GetType() != obj.GetType())
+            return false;
+
+        Vector3 other = (Vector3)obj;
+        return this == other;
+    }
+
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
     }
 
     public static Vector3 operator *(Vector3 a, Quaternion b)

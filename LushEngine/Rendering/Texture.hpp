@@ -8,12 +8,13 @@
 #include <boost/serialization/vector.hpp>
 
 #include "File/File.hpp"
+#include "File/Resource.hpp"
 #include "Includes.hpp"
 #include "STB/stb_image.h"
 
 namespace Lush
 {
-    class Texture
+    class Texture : public Resource
     {
         private:
             unsigned int _id = 0;

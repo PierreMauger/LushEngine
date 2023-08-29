@@ -2,18 +2,17 @@
 
 using namespace Lush;
 
-CharacterInstance::CharacterInstance(std::size_t id, Transform &transform, CharacterController &characterController)
+CharacterInstance::CharacterInstance(std::size_t id, Transform &transform, CharacterController &characterController) : BasicInstance(id)
 {
-    this->_id = id;
-
     btConvexShape *collisionShape = new btSphereShape(0);
+
     this->_ghostObject = new btPairCachingGhostObject();
     this->_ghostObject->setCollisionShape(collisionShape);
     this->_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 
     btTransform startTransform;
     startTransform.setIdentity();
-    startTransform.setOrigin(btVector3(transform.position.x, transform.position.y + characterController.center.y, transform.position.z));
+    startTransform.setOrigin(btVector3(transform.position.x, transform.position.y - characterController.center.y, transform.position.z));
     this->_ghostObject->setWorldTransform(startTransform);
 
     this->_characterController = new btKinematicCharacterController(this->_ghostObject, collisionShape, characterController.stepOffset);
@@ -23,25 +22,9 @@ CharacterInstance::CharacterInstance(std::size_t id, Transform &transform, Chara
     this->_characterController->setMaxSlope(btRadians(characterController.slopeLimit));
 }
 
-CharacterInstance::CharacterInstance(std::size_t id, Transform &transform, CharacterController &characterController, Collider &collider)
+CharacterInstance::CharacterInstance(std::size_t id, Transform &transform, CharacterController &characterController, Collider &collider) : BasicInstance(id)
 {
-    this->_id = id;
-
-    btConvexShape *collisionShape = nullptr;
-    switch (collider.type) {
-    case ColliderType::BOX:
-        collisionShape = new btBoxShape(btVector3(collider.size.x, collider.size.y, collider.size.z));
-        break;
-    case ColliderType::SPHERE:
-        collisionShape = new btSphereShape(collider.size.x);
-        break;
-    case ColliderType::CAPSULE:
-        collisionShape = new btCapsuleShape(collider.size.x, collider.size.y);
-        break;
-    default:
-        collisionShape = new btCapsuleShape(collider.size.x, collider.size.y);
-        break;
-    }
+    btCollisionShape *collisionShape = this->initCollider(transform, collider);
 
     this->_ghostObject = new btPairCachingGhostObject();
     this->_ghostObject->setCollisionShape(collisionShape);
@@ -49,27 +32,24 @@ CharacterInstance::CharacterInstance(std::size_t id, Transform &transform, Chara
 
     btTransform startTransform;
     startTransform.setIdentity();
-    startTransform.setOrigin(btVector3(transform.position.x, transform.position.y + characterController.center.y, transform.position.z));
+    startTransform.setOrigin(btVector3(transform.position.x, transform.position.y - characterController.center.y, transform.position.z));
     this->_ghostObject->setWorldTransform(startTransform);
 
-    this->_characterController = new btKinematicCharacterController(this->_ghostObject, collisionShape, characterController.stepOffset);
+    this->_characterController = new btKinematicCharacterController(this->_ghostObject, dynamic_cast<btConvexShape *>(collisionShape), characterController.stepOffset);
 
     this->_characterController->setGravity(btVector3(0, -9.8, 0));
     this->_characterController->setStepHeight(characterController.stepOffset);
     this->_characterController->setMaxSlope(btRadians(characterController.slopeLimit));
 }
 
-std::size_t CharacterInstance::getId() const
+CharacterInstance::~CharacterInstance()
 {
-    return this->_id;
+    // delete this->_characterController;
+    // delete this->_ghostObject->getCollisionShape();
+    // delete this->_ghostObject;
 }
 
-btKinematicCharacterController *CharacterInstance::getCharacterController()
-{
-    return this->_characterController;
-}
-
-btPairCachingGhostObject *CharacterInstance::getGhostObject() const
+btCollisionObject *CharacterInstance::getCollisionObject() const
 {
     return this->_ghostObject;
 }
@@ -90,4 +70,16 @@ void CharacterInstance::postUpdate(Transform &transform)
     // if (this->_characterController->canJump() && this->_characterController->onGround()) {
     // this->_characterController->jump(btVector3(0, 5, 0));
     // }
+}
+
+void CharacterInstance::addToWorld(btDiscreteDynamicsWorld *world)
+{
+    world->addCollisionObject(this->_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+    world->addAction(this->_characterController);
+}
+
+void CharacterInstance::removeFromWorld(btDiscreteDynamicsWorld *world)
+{
+    world->removeCollisionObject(this->_ghostObject);
+    world->removeAction(this->_characterController);
 }

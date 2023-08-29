@@ -198,14 +198,3 @@ std::vector<Mesh> &RenderModel::getMeshes()
 {
     return this->_meshes;
 }
-
-bool RenderModel::isUsed(std::string modelName, std::unordered_map<std::string, Scene> &scenes) const
-{
-    for (auto &[name, scene] : scenes) {
-        for (auto &[id, entity] : scene.getEntityManager().getEntities()) {
-            if (entity.hasComponent<Model>() && entity.getComponent<Model>().name == modelName)
-                return true;
-        }
-    }
-    return false;
-}

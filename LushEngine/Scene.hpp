@@ -4,6 +4,7 @@
 #include "ECS/Component/Component.hpp"
 #include "ECS/Entity/EntityManager.hpp"
 #include "File/File.hpp"
+#include "File/Resource.hpp"
 #include "Includes.hpp"
 #include "RapidXML/rapidxml.hpp"
 #include "RapidXML/rapidxml_print.hpp"

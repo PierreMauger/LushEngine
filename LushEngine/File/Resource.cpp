@@ -24,6 +24,16 @@ std::vector<File> &Resource::getFiles()
     return this->_files;
 }
 
+void Resource::setUsed(bool used)
+{
+    this->_isUsed = used;
+}
+
+bool Resource::isUsed() const
+{
+    return this->_isUsed;
+}
+
 std::string Resource::getUUID() const
 {
     return this->_uuid.toString();

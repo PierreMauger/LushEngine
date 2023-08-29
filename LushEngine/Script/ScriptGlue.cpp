@@ -211,6 +211,35 @@ float ScriptGlue::GetMouseMovementY()
     return graphic->getMouseOffset().y;
 }
 
+void ScriptGlue::SetScene(MonoString *sceneName)
+{
+    auto resourceManager = ResourceManager::getStaticResourceManager();
+    auto entityManager = ECS::getStaticEntityManager();
+    char *utf8 = mono_string_to_utf8(sceneName);
+
+    if (resourceManager->getScenes().find(utf8) == resourceManager->getScenes().end()) {
+        std::cout << "[Toast Error]Scene " << utf8 << " does not exist" << std::endl;
+        return;
+    }
+    resourceManager->getPhysicInstances().clear();
+    resourceManager->resetDynamicsWorld();
+    resourceManager->getScriptInstances().clear();
+    resourceManager->getScenes()[utf8].setScene(*entityManager);
+    resourceManager->setActiveScene(utf8);
+    resourceManager->initScriptInstances(*entityManager);
+    resourceManager->initPhysicInstances(*entityManager);
+    mono_free(utf8);
+}
+
+void ScriptGlue::DeleteEntity(std::size_t id)
+{
+    auto entityManager = ECS::getStaticEntityManager();
+
+    if (!entityManager->hasEntity(id))
+        return;
+    entityManager->removeEntity(id);
+}
+
 void ScriptGlue::registerFunctions()
 {
     mono_add_internal_call("InternalCalls::Log", (void *)Log);
@@ -229,4 +258,6 @@ void ScriptGlue::registerFunctions()
     mono_add_internal_call("InternalCalls::IsKeyDown", (void *)IsKeyDown);
     mono_add_internal_call("InternalCalls::GetMouseMovementX", (void *)GetMouseMovementX);
     mono_add_internal_call("InternalCalls::GetMouseMovementY", (void *)GetMouseMovementY);
+    mono_add_internal_call("InternalCalls::SetScene", (void *)SetScene);
+    mono_add_internal_call("InternalCalls::DeleteEntity", (void *)DeleteEntity);
 }

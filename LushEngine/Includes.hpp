@@ -1,6 +1,7 @@
 #ifndef INCLUDES_HPP
 #define INCLUDES_HPP
 
+#include <algorithm>
 #include <any>
 #include <bitset>
 #include <condition_variable>
@@ -24,6 +25,7 @@
 #include <optional>
 #include <queue>
 #include <random>
+#include <ranges>
 #include <regex>
 #include <sstream>
 #include <string>

@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-Texture::Texture(File &file)
+Texture::Texture(File &file) : Resource(ResourceType::TEXTURE, file)
 {
     this->load(file);
 }

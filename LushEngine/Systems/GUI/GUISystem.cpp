@@ -207,7 +207,6 @@ void GUISystem::drawActionBar(EntityManager &entityManager)
                     this->_resourceManager->getScriptInstances().clear();
                     this->_resourceManager->resetDynamicsWorld();
                     this->_resourceManager->getPhysicInstances().clear();
-                    this->_resourceManager->getCharacterInstances().clear();
                     entityManager = this->_entityManagerCopy;
                 }
             }
@@ -272,6 +271,18 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager)
             ImGui::TableNextColumn();
 
             if (ImGui::Button(ICON_FA_TRASH "##Delete")) {
+                if (this->_graphic->isRunning()) {
+                    for (auto &[scriptName, index] : entity.getScriptIndexes()) {
+                        // this->_resourceManager->getScriptInstances()[index].onDestroy();
+                        this->_resourceManager->getScriptInstances().erase(this->_resourceManager->getScriptInstances().begin() + index);
+                    }
+                    auto physicIt = std::find_if(this->_resourceManager->getPhysicInstances().begin(), this->_resourceManager->getPhysicInstances().end(),
+                                                 [id](const auto &instance) { return instance->getId() == id; });
+                    if (physicIt != this->_resourceManager->getPhysicInstances().end()) {
+                        (*physicIt)->removeFromWorld(this->_resourceManager->getDynamicsWorld());
+                        this->_resourceManager->getPhysicInstances().erase(physicIt);
+                    }
+                }
                 entityManager.removeEntity(id);
                 ImGui::PopID();
                 break;
@@ -389,6 +400,8 @@ void GUISystem::drawProperties(EntityManager &entityManager)
             Billboard &billboard = entity.getComponent<Billboard>();
 
             this->drawTextureSelect("Texture##Billboard", billboard.name);
+            // if checkbox is checked, lock the billboard on the Y axis
+            ImGui::Checkbox("Lock Y Axis##Billboard", &billboard.lockYAxis);
             if (ImGui::Button("Remove##Billboard"))
                 entity.removeComponent<Billboard>();
             ImGui::Separator();
@@ -424,7 +437,7 @@ void GUISystem::drawProperties(EntityManager &entityManager)
             if (isEdited && this->_graphic->isRunning()) {
                 std::size_t instance = this->getPhysicInstanceIndex(this->_graphic->getSelectedEntity());
                 if (instance != (std::size_t)-1) {
-                    this->_resourceManager->getPhysicInstances()[instance].updateRigidBodyRuntime(rigidBody);
+                    // this->_resourceManager->getPhysicInstances()[instance].updateRigidBodyRuntime(rigidBody);
                 }
             }
 
@@ -468,7 +481,7 @@ void GUISystem::drawProperties(EntityManager &entityManager)
             }
             if (isEdited && this->_graphic->isRunning()) {
                 std::size_t instance = this->getPhysicInstanceIndex(this->_graphic->getSelectedEntity());
-                this->_resourceManager->getPhysicInstances()[instance].updateColliderRuntime(collider);
+                // this->_resourceManager->getPhysicInstances()[instance].updateColliderRuntime(collider);
             }
 
             if (ImGui::Button("Remove##Collider"))
@@ -785,6 +798,16 @@ void GUISystem::drawFileExplorer()
         if (ImGui::Button(ICON_FA_PLUS, ImVec2(40, 40))) {
             this->_showProjectBrowser = true;
         }
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 160);
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.18f, 0.8f, 0.44f, 1.0f));
+        if (ImGui::Button("Slime Breakthrough", ImVec2(150, 40))) {
+            this->_projectPath = "/home/pierre/Documents/Slime Breakthrough";
+            this->_currentPath = this->_projectPath;
+            glfwSetWindowTitle(this->_graphic->getWindow(), std::string("Lush Engine - " + std::filesystem::path(this->_projectPath).filename().string()).c_str());
+            this->_resourceManager->loadProject(this->_projectPath);
+        }
+        ImGui::PopStyleColor();
         ImGui::End();
         return;
     }
@@ -937,19 +960,6 @@ std::size_t GUISystem::getPhysicInstanceIndex(std::size_t entityId)
     std::size_t i = 0;
 
     for (auto &instance : this->_resourceManager->getPhysicInstances()) {
-        if (instance.getId() == entityId)
-            return i;
-        i++;
-    }
-    return (std::size_t)-1;
-}
-
-std::size_t GUISystem::getCharacterInstanceIndex(std::size_t entityId)
-{
-    std::size_t i = 0;
-
-    for (auto &instance : this->_resourceManager->getCharacterInstances()) {
-        if (instance.getId() == entityId)
             return i;
         i++;
     }

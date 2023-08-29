@@ -2,7 +2,6 @@
 #define SCRIPT_CLASS_HPP
 
 #include "File/File.hpp"
-#include "File/Resource.hpp"
 #include "Includes.hpp"
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"

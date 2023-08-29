@@ -9,6 +9,7 @@ namespace Lush
 {
     enum class ResourceType {
         MODEL,
+        TEXTURE,
         SHADER,
         SCRIPT,
         SCENE,
@@ -21,6 +22,7 @@ namespace Lush
             UUID _uuid;
             ResourceType _type = ResourceType::UNKNOWN;
             std::vector<File> _files;
+            bool _isUsed = true;
 
         public:
             template <typename... Args> explicit Resource(ResourceType type = ResourceType::UNKNOWN, Args... args)
@@ -37,6 +39,8 @@ namespace Lush
             bool hasFile(File &file) const;
             void setFiles(std::vector<File> &files);
             std::vector<File> &getFiles();
+            void setUsed(bool used);
+            [[nodiscard]] bool isUsed() const;
             [[nodiscard]] std::string getUUID() const;
             [[nodiscard]] ResourceType getType() const;
 

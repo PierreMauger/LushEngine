@@ -14,27 +14,33 @@ void EntityManager::addEntity(Entity &entity, std::size_t index)
 
 void EntityManager::removeEntity(Entity &entity)
 {
-    for (auto it = this->_entities.begin(); it != this->_entities.end(); it++) {
-        if (it->second == entity) {
-            this->_entities.erase(it);
-            break;
-        }
+    auto it = std::ranges::find_if(this->_entities, [&entity](const auto &pair) {
+        return pair.second == entity;
+    });
+
+    if (it != this->_entities.end()) {
+        this->_entities.erase(it);
     }
 }
 
 void EntityManager::removeEntity(const std::string &name)
 {
-    for (auto it = this->_entities.begin(); it != this->_entities.end(); it++) {
-        if (it->second.getName() == name) {
-            this->_entities.erase(it);
-            break;
-        }
+    auto it = std::ranges::find_if(this->_entities, [&name](const auto &pair) {
+        return pair.second.getName() == name;
+    });
+
+    if (it != this->_entities.end()) {
+        this->_entities.erase(it);
     }
 }
 
 void EntityManager::removeEntity(std::size_t index)
 {
-    this->_entities.erase(index);
+    auto it = this->_entities.find(index);
+
+    if (it != this->_entities.end()) {
+        this->_entities.erase(it);
+    }
 }
 
 bool EntityManager::hasEntity(const std::string &name)
@@ -77,9 +83,9 @@ void EntityManager::clear()
     this->_entities.clear();
 }
 
-EntityManager &EntityManager::clone(const EntityManager &other)
+void EntityManager::clone(const EntityManager &other)
 {
-    for (auto it = other._entities.begin(); it != other._entities.end(); it++)
-        this->_entities[it->first].clone(it->second);
-    return *this;
+    this->_entities.clear();
+    for (auto &[index, entity] : other._entities)
+        this->_entities[index].clone(entity);
 }

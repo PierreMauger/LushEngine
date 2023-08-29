@@ -89,6 +89,7 @@ void PickingSystem::drawBillboards(EntityManager &entityManager)
         color.a = 1.0f;
 
         this->_graphic->getRenderView().getShader().setVec4("id", color);
+        this->_graphic->getRenderView().getShader().setBool("lockYAxis", billboard.lockYAxis);
         this->_graphic->getRenderView().setBillboard(transform);
         glBindVertexArray(this->_billboard.vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);

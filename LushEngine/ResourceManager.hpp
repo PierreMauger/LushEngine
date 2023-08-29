@@ -40,9 +40,8 @@ namespace Lush
             std::unique_ptr<ScriptPack> _corePack;
             std::shared_ptr<ScriptPack> _gamePack;
             std::unordered_map<std::string, ScriptClass> _scripts;
-            std::vector<ScriptInstance> _instances;
-            std::vector<PhysicInstance> _physicInstances;
-            std::vector<CharacterInstance> _characterInstances;
+            std::vector<ScriptInstance> _scriptInstances;
+            std::vector<std::unique_ptr<BasicInstance>> _physicInstances;
             std::unordered_map<std::string, Scene> _scenes;
             std::string _activeScene;
 
@@ -60,6 +59,8 @@ namespace Lush
             void loadScriptPack(const std::string &dir, const std::string &name);
             void reloadScripts(const std::string &dir);
             void loadScenes(const std::string &dir);
+
+            // void setUsage();
 
         public:
             ResourceManager();
@@ -86,14 +87,14 @@ namespace Lush
             std::shared_ptr<ScriptPack> &getGamePack();
             std::unordered_map<std::string, ScriptClass> &getScripts();
             std::vector<ScriptInstance> &getScriptInstances();
-            std::vector<PhysicInstance> &getPhysicInstances();
-            std::vector<CharacterInstance> &getCharacterInstances();
+            std::vector<std::unique_ptr<BasicInstance>> &getPhysicInstances();
 
             std::unordered_map<std::string, Scene> &getScenes();
             std::string getActiveScene() const;
             void setActiveScene(const std::string &name);
             MapMesh &getMapMesh();
 
+            btDiscreteDynamicsWorld *getDynamicsWorld() const;
             void setDynamicsWorld(btDiscreteDynamicsWorld *dynamicsWorld);
             void resetDynamicsWorld();
 

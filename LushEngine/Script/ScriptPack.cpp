@@ -21,7 +21,7 @@ void ScriptPack::load(std::vector<File> &files)
 
     std::string command = "mcs -target:library -out:" + assemblyPath;
     for (auto &file : files)
-        command += " " + file.getPath();
+        command += " \"" + file.getPath() + "\"";
 
     if (this->_name != "Core")
         command += " -r:Resources/bin/Core.dll";

@@ -36,14 +36,9 @@ void CustomContactCallback::removeExitedCollisions()
 static std::size_t getEntityFromCollisionObject(const btCollisionObject *obj)
 {
     auto &physicInstances = ResourceManager::getStaticResourceManager()->getPhysicInstances();
-    auto physicIt = std::find_if(physicInstances.begin(), physicInstances.end(), [obj](const auto &instance) { return instance.getRigidBody() == obj; });
+    auto physicIt = std::find_if(physicInstances.begin(), physicInstances.end(), [obj](const auto &instance) { return instance->getCollisionObject() == obj; });
     if (physicIt != physicInstances.end())
-        return (*physicIt).getId();
-
-    auto &characterInstances = ResourceManager::getStaticResourceManager()->getCharacterInstances();
-    auto characterIt = std::find_if(characterInstances.begin(), characterInstances.end(), [obj](const auto &instance) { return instance.getGhostObject() == obj; });
-    if (characterIt != characterInstances.end())
-        return (*characterIt).getId();
+        return (*physicIt)->getId();
 
     return (std::size_t)-1;
 }

@@ -145,7 +145,8 @@ void FileWatcherSystem::reloadScene(Resource &resource, EntityManager &entityMan
 
         std::vector<File> files = resource.getFiles();
         scene.reload(files[0], this->_resourceManager->getScripts());
-        scene.setScene(entityManager);
+        if (this->_resourceManager->getActiveScene() == name)
+            scene.setScene(entityManager);
         std::cout << "[Toast Success]Reloaded scene " << name << std::endl;
         break;
     }
