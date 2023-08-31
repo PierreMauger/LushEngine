@@ -5,6 +5,7 @@ cmake-build-debug
 lushGame
 lushEditor
 imgui.ini
+Resources/Config/projectSettings.txt
 Resources/bin/*
 mono_crash*
 *.data
