@@ -17,9 +17,27 @@
 #define BUTTON_COLOR ImVec4(0.26f, 0.59f, 0.98f, 0.40f)
 #define BUTTON_COLOR_SELECTED ImVec4(0.26f, 0.59f, 0.98f, 0.80f)
 #define BUTTON_COLOR_DISABLED ImVec4(0.26f, 0.59f, 0.98f, 0.10f)
+#define BUTTON_COLOR_RED ImVec4(0.98f, 0.26f, 0.26f, 0.40f)
 
 namespace Lush
 {
+    struct ProjectSettings {
+            std::string rootPath;
+            std::string buildPath;
+            std::string execName;
+            glm::vec3 color = glm::vec3(0.26f, 0.59f, 0.98f);
+            std::string iconName = "None";
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar & rootPath;
+                ar & buildPath;
+                ar & execName;
+                ar & color;
+                ar & iconName;
+            }
+    };
+
     class GUISystem : public ASystem
     {
         private:
@@ -34,8 +52,10 @@ namespace Lush
             bool _showScene = true;
             bool _showFileExplorer = true;
             bool _showProfiler = true;
-            bool _showProjectBrowser = false;
+            bool _showProjectManager = false;
             bool _showBuildBrowser = false;
+            bool _showRootBrowser = false;
+
             bool _resetLayout = false;
             bool _singleFrame = false;
             ImGuizmo::OPERATION _currentOperation = ImGuizmo::OPERATION::TRANSLATE;
@@ -46,10 +66,13 @@ namespace Lush
             std::vector<std::pair<int, std::string>> _consoleBuffer;
 
             std::string _fileBrowserPath;
+            std::string _fileExplorerPath;
+            std::unordered_map<std::string, ProjectSettings> _projectSettings;
+            std::string _currentProject;
+            std::string _editingProject;
 
-            std::string _currentPath;
-            std::string _projectPath;
-            std::string _buildPath;
+            void loadProjectSettings();
+            void saveProjectSettings();
 
             void handleConsole();
 
@@ -66,11 +89,11 @@ namespace Lush
             bool drawGuizmo(EntityManager &entityManager);
             void drawFileExplorer();
             void drawProfiler();
-            void drawProjectBrowser();
-            void drawBuildBrowser();
-            // std::size_t getScriptInstanceIndex(std::size_t entityId);
+            void drawProjectManager();
             std::size_t getPhysicInstanceIndex(std::size_t entityId);
-            void drawTextureSelect(const std::string &fieldName, std::string &texture);
+            bool drawTextureSelect(const std::string &fieldName, std::string &texture);
+
+            bool openFolderBrowser(std::string title, std::string &path, bool &modal);
 
             void build();
 

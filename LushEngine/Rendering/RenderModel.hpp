@@ -31,10 +31,10 @@ namespace Lush
     {
         private:
             std::vector<Mesh> _meshes;
-            std::map<std::string, BoneInfo> _boneInfoMap;
+            std::unordered_map<std::string, BoneInfo> _boneInfoMap;
             int _boneCounter = 0;
 
-            // std::map<std::string, BoneInfo> &getBoneInfoMap();
+            // std::unordered_map<std::string, BoneInfo> &getBoneInfoMap();
             // int &getBoneCount();
             void processNode(aiNode &node, const aiScene &scene, std::unordered_map<std::string, Texture> &textures);
             Mesh processMesh(aiMesh &mesh, const aiScene &scene, std::unordered_map<std::string, Texture> &textures);

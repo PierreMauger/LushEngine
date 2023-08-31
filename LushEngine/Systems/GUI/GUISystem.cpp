@@ -29,6 +29,9 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceM
     ImGuizmo::AllowAxisFlip(false);
 
     this->_fileBrowserPath = std::filesystem::current_path().string();
+    this->_fileExplorerPath = std::filesystem::current_path().string();
+
+    this->loadProjectSettings();
 }
 
 GUISystem::~GUISystem()
@@ -36,6 +39,30 @@ GUISystem::~GUISystem()
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+}
+
+void GUISystem::loadProjectSettings()
+{
+    std::ifstream ifs("Resources/Config/projectSettings.txt", std::ios::binary);
+    boost::archive::binary_iarchive ia(ifs, boost::archive::no_header);
+
+    if (ifs.peek() == std::ifstream::traits_type::eof()) {
+        ifs.close();
+        return;
+    }
+    ia >> this->_projectSettings;
+
+    ifs.close();
+}
+
+void GUISystem::saveProjectSettings()
+{
+    std::ofstream ofs("Resources/Config/projectSettings.txt", std::ios::binary);
+    boost::archive::binary_oarchive oa(ofs, boost::archive::no_header);
+
+    oa << this->_projectSettings;
+
+    ofs.close();
 }
 
 void GUISystem::update(EntityManager &entityManager, float deltaTime)
@@ -73,10 +100,8 @@ void GUISystem::update(EntityManager &entityManager, float deltaTime)
         this->drawFileExplorer();
     if (this->_showProfiler)
         this->drawProfiler();
-    if (this->_showProjectBrowser)
-        this->drawProjectBrowser();
-    if (this->_showBuildBrowser)
-        this->drawBuildBrowser();
+    if (this->_showProjectManager)
+        this->drawProjectManager();
     DrawToasts();
 
     ImGui::Render();
@@ -93,7 +118,7 @@ void GUISystem::update(EntityManager &entityManager, float deltaTime)
         this->_showGame = true;
         this->_showFileExplorer = true;
         this->_showProfiler = true;
-        this->_showProjectBrowser = false;
+        this->_showProjectManager = false;
     }
 }
 
@@ -155,14 +180,15 @@ void GUISystem::drawMenuBar()
 {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
-            if (ImGui::MenuItem("Open Project..."))
-                this->_showProjectBrowser = true;
-            if (ImGui::MenuItem("Build Settings..."))
-                this->_showBuildBrowser = true;
-            if (ImGui::MenuItem("Build"))
-                this->build();
             if (ImGui::MenuItem("Exit"))
                 glfwSetWindowShouldClose(this->_graphic->getWindow(), true);
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Project")) {
+            if (ImGui::MenuItem("Project Manager"))
+                this->_showProjectManager = true;
+            if (ImGui::MenuItem("Build"))
+                this->build();
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Window")) {
@@ -789,25 +815,10 @@ void GUISystem::drawFileExplorer()
         ImGui::End();
         return;
     }
-    if (this->_currentPath.empty()) {
+    if (this->_currentProject.empty()) {
         ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize("No scene loaded").x) / 2);
-        ImGui::SetCursorPosY((ImGui::GetWindowHeight() - ImGui::CalcTextSize("No scene loaded").y) / 2 - 20);
+        ImGui::SetCursorPosY((ImGui::GetWindowHeight() - ImGui::CalcTextSize("No scene loaded").y) / 2);
         ImGui::Text("No project loaded");
-
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 - 20);
-        if (ImGui::Button(ICON_FA_PLUS, ImVec2(40, 40))) {
-            this->_showProjectBrowser = true;
-        }
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 160);
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.18f, 0.8f, 0.44f, 1.0f));
-        if (ImGui::Button("Slime Breakthrough", ImVec2(150, 40))) {
-            this->_projectPath = "/home/pierre/Documents/Slime Breakthrough";
-            this->_currentPath = this->_projectPath;
-            glfwSetWindowTitle(this->_graphic->getWindow(), std::string("Lush Engine - " + std::filesystem::path(this->_projectPath).filename().string()).c_str());
-            this->_resourceManager->loadProject(this->_projectPath);
-        }
-        ImGui::PopStyleColor();
         ImGui::End();
         return;
     }
@@ -816,26 +827,26 @@ void GUISystem::drawFileExplorer()
     if (columns < 1)
         columns = 1;
 
-    if (this->_currentPath == this->_projectPath) {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, this->_currentPath == this->_projectPath);
+    if (this->_projectSettings[this->_currentProject].rootPath == this->_fileExplorerPath) {
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
         ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_COLOR_DISABLED);
         ImGui::Button(ICON_FA_ARROW_LEFT " ..");
         ImGui::PopStyleColor();
         ImGui::PopItemFlag();
     } else {
         if (ImGui::Button(ICON_FA_ARROW_LEFT " .."))
-            this->_currentPath = std::filesystem::path(this->_currentPath).parent_path().string();
+            this->_fileExplorerPath = std::filesystem::path(this->_fileExplorerPath).parent_path().string();
     }
     ImGui::SameLine();
-    ImGui::Text("%s", this->_currentPath.c_str());
+    ImGui::Text("%s", this->_fileExplorerPath.c_str());
 
     ImGui::Columns(columns, nullptr, false);
-    for (auto &file : std::filesystem::directory_iterator(this->_currentPath)) {
+    for (auto &file : std::filesystem::directory_iterator(this->_fileExplorerPath)) {
         ImGui::SetWindowFontScale(2.0f);
         if (file.is_directory()) {
             ImGui::Button((ICON_FA_FOLDER "##" + file.path().string()).c_str(), ImVec2(50, 50));
             if (ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
-                this->_currentPath = file.path().string();
+                this->_fileExplorerPath = file.path().string();
         } else {
             ImGui::Button((ICON_FA_FILE "##" + file.path().string()).c_str(), ImVec2(50, 50));
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
@@ -844,6 +855,7 @@ void GUISystem::drawFileExplorer()
                 ImGui::EndDragDropSource();
             }
             if (ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
+                // TODO prefabs and files opening
                 std::cout << "[Toast Info]Opening file: " << file.path().string() << std::endl;
         }
         ImGui::SetWindowFontScale(1.0f);
@@ -863,14 +875,14 @@ void GUISystem::drawProfiler()
     ImGui::End();
 }
 
-void GUISystem::drawProjectBrowser()
+bool GUISystem::openFolderBrowser(std::string title, std::string &path, bool &modal)
 {
     ImGuiWindowClass windowClass;
     windowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingOverOther | ImGuiDockNodeFlags_NoDockingSplitOther;
     ImGui::SetNextWindowClass(&windowClass);
-    if (!ImGui::Begin("Open Project", &this->_showProjectBrowser)) {
+    if (!ImGui::Begin(title.c_str(), &this->_showRootBrowser)) {
         ImGui::End();
-        return;
+        return false;
     }
     if (ImGui::Button(ICON_FA_ARROW_LEFT " .."))
         this->_fileBrowserPath = std::filesystem::path(this->_fileBrowserPath).parent_path().string();
@@ -890,118 +902,203 @@ void GUISystem::drawProjectBrowser()
     ImGui::EndChild();
     ImGui::Separator();
     if (ImGui::Button("Cancel"))
-        this->_showProjectBrowser = false;
+        modal = false;
     ImGui::SameLine();
     ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Open").x - ImGui::GetStyle().ItemSpacing.x * 2, 0));
     ImGui::SameLine();
     if (ImGui::Button("Open")) {
-        this->_projectPath = this->_fileBrowserPath;
-        this->_currentPath = this->_projectPath;
-        glfwSetWindowTitle(this->_graphic->getWindow(), std::string("Lush Engine - " + std::filesystem::path(this->_projectPath).filename().string()).c_str());
-        this->_showProjectBrowser = false;
-        this->_resourceManager->loadProject(this->_projectPath);
+        path = this->_fileBrowserPath;
+        modal = false;
+        ImGui::End();
+        return true;
     }
     ImGui::End();
+    return false;
 }
 
-void GUISystem::drawBuildBrowser()
+void GUISystem::drawProjectManager()
 {
+    ImGui::SetNextWindowSize(ImVec2(600, 400));
     ImGuiWindowClass windowClass;
     windowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingOverOther | ImGuiDockNodeFlags_NoDockingSplitOther;
     ImGui::SetNextWindowClass(&windowClass);
-    if (!ImGui::Begin("Choose directory for build", &this->_showBuildBrowser)) {
+    if (!ImGui::Begin("Project Manager", &this->_showProjectManager, ImGuiWindowFlags_NoResize)) {
         ImGui::End();
         return;
     }
-    if (ImGui::Button(ICON_FA_ARROW_LEFT " .."))
-        this->_fileBrowserPath = std::filesystem::path(this->_fileBrowserPath).parent_path().string();
-    ImGui::SameLine();
-    ImGui::Text("%s", this->_fileBrowserPath.c_str());
-    for (const auto &entry : std::filesystem::directory_iterator(this->_fileBrowserPath)) {
-        const auto &path = entry.path();
-        const auto &filenameStr = path.filename().string();
-        if (entry.is_directory() && filenameStr[0] != '.') {
-            if (ImGui::Selectable(filenameStr.c_str(), false, ImGuiSelectableFlags_DontClosePopups)) {
-                this->_fileBrowserPath = path.string();
+    if (!this->_editingProject.empty()) {
+        if (ImGui::Button(ICON_FA_ANGLE_LEFT, ImVec2(20, 40))) {
+            this->_editingProject.clear();
+            ImGui::End();
+            return;
+        }
+        ImGui::SameLine();
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+        bool isEdited = false;
+
+        static char buffer[32];
+        strcpy(buffer, this->_editingProject.c_str());
+        if (ImGui::InputText("##ProjectName", buffer, sizeof(buffer))) {
+            this->_projectSettings[buffer] = this->_projectSettings[this->_editingProject];
+            this->_projectSettings.erase(this->_editingProject);
+            this->_editingProject = buffer;
+            isEdited = true;
+        }
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 50);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+        if (ImGui::ColorEdit3("##Project Color", (float *)&this->_projectSettings[this->_editingProject].color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
+            isEdited = true;
+
+        ImGui::Separator();
+
+        ImGui::Text("Root Path: %s", this->_projectSettings[this->_editingProject].rootPath.c_str());
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_FA_FOLDER_OPEN " Browse...##Root", ImVec2(20, 20)) && !this->_showBuildBrowser) {
+            this->_showRootBrowser = true;
+        }
+        ImGui::Text("Build Path: %s", this->_projectSettings[this->_editingProject].buildPath.c_str());
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_FA_FOLDER_OPEN " Browse...##Build", ImVec2(20, 20)) && !this->_showRootBrowser) {
+            this->_showBuildBrowser = true;
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Executable name:");
+        ImGui::SameLine();
+        static char buffer2[32];
+        strcpy(buffer2, this->_projectSettings[this->_editingProject].execName.c_str());
+        if (ImGui::InputText("##ProjectExecName", buffer2, sizeof(buffer2))) {
+            this->_projectSettings[this->_editingProject].execName = buffer2;
+            isEdited = true;
+        }
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 15);
+        ImGui::Text("Icon:");
+        ImGui::SameLine();
+        if (this->drawTextureSelect("##Icon", this->_projectSettings[this->_editingProject].iconName))
+            isEdited = true;
+        ImGui::SameLine();
+        if (this->_projectSettings[this->_editingProject].iconName != "None") {
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 15);
+            GLuint texture = this->_resourceManager->getTextures()[this->_projectSettings[this->_editingProject].iconName].getId();
+            ImGui::Image((void *)(intptr_t)texture, ImVec2(50, 50));
+        }
+
+        if (this->_showRootBrowser) {
+            if (this->openFolderBrowser("Choose root directory", this->_projectSettings[this->_editingProject].rootPath, this->_showRootBrowser)) {
+                isEdited = true;
+            }
+        } else if (this->_showBuildBrowser) {
+            if (this->openFolderBrowser("Choose build directory", this->_projectSettings[this->_editingProject].buildPath, this->_showBuildBrowser)) {
+                isEdited = true;
             }
         }
+
+        if (isEdited)
+            this->saveProjectSettings();
+        ImGui::End();
+        return;
     }
-    const float footerReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerReserve), false, ImGuiWindowFlags_HorizontalScrollbar);
-    ImGui::EndChild();
-    ImGui::Separator();
-    if (ImGui::Button("Cancel"))
-        this->_showBuildBrowser = false;
-    ImGui::SameLine();
-    ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Open").x - ImGui::GetStyle().ItemSpacing.x * 2, 0));
-    ImGui::SameLine();
-    if (ImGui::Button("Open")) {
-        this->_buildPath = this->_fileBrowserPath;
-        this->_showBuildBrowser = false;
-        this->build();
+
+    for (auto it = this->_projectSettings.begin(); it != this->_projectSettings.end();) {
+        auto &projectName = it->first;
+        auto &project = it->second;
+
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(project.color.x, project.color.y, project.color.z, 1.0f));
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::Button(("##ProjectColor" + projectName).c_str(), ImVec2(10, 40));
+        ImGui::PopItemFlag();
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(22);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1);
+        if (ImGui::Selectable(("##" + projectName).c_str(), this->_currentProject == projectName, 0, ImVec2(ImGui::GetWindowWidth() - 100, 36))) {
+            glfwSetWindowTitle(this->_graphic->getWindow(), std::string("Lush Engine - " + projectName).c_str());
+            this->_currentProject = projectName;
+            this->_resourceManager->loadProject(project.rootPath);
+            this->_fileExplorerPath = project.rootPath;
+            this->_showProjectManager = false;
+        }
+        ImGui::PopStyleColor();
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(25);
+        ImGui::Text("%s", projectName.c_str());
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 70);
+        ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_COLOR_RED);
+        if (ImGui::Button((ICON_FA_TRASH "##" + projectName).c_str(), ImVec2(40, 40))) {
+            it = this->_projectSettings.erase(it);
+            this->saveProjectSettings();
+            continue;
+        }
+        ImGui::PopStyleColor();
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 30);
+        if (ImGui::Button((ICON_FA_ANGLE_RIGHT "##" + projectName).c_str(), ImVec2(30, 40))) {
+            this->_editingProject = projectName;
+        }
+        ++it;
+    }
+    ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 - 20);
+    if (ImGui::Button(ICON_FA_PLUS, ImVec2(40, 40))) {
+        std::string currentPath = std::filesystem::current_path().string();
+        this->_projectSettings["New Project"] = ProjectSettings(currentPath, currentPath, "New Project");
+        this->saveProjectSettings();
+        this->_editingProject = "New Project";
     }
     ImGui::End();
 }
-
-// std::size_t GUISystem::getScriptInstanceIndex(std::size_t entityId)
-// {
-//     std::size_t i = 0;
-
-//     for (auto &instance : this->_resourceManager->getScriptInstances()) {
-//         if (instance.getId() == entityId)
-//             return i;
-//         i++;
-//     }
-//     return (std::size_t)-1;
-// }
 
 std::size_t GUISystem::getPhysicInstanceIndex(std::size_t entityId)
 {
     std::size_t i = 0;
 
     for (auto &instance : this->_resourceManager->getPhysicInstances()) {
-            return i;
+        return i;
         i++;
     }
     return (std::size_t)-1;
 }
 
-void GUISystem::drawTextureSelect(const std::string &fieldName, std::string &texture)
+bool GUISystem::drawTextureSelect(const std::string &fieldName, std::string &texture)
 {
+    bool isEdited = false;
     std::string selectedItem = texture;
     if (ImGui::BeginCombo(fieldName.c_str(), selectedItem.c_str())) {
         for (auto &[key, value] : this->_resourceManager->getTextures()) {
             bool isSelected = (selectedItem == key);
-            if (ImGui::Selectable(key.c_str(), isSelected))
+            if (ImGui::Selectable(key.c_str(), isSelected)) {
                 texture = key;
+                isEdited = true;
+            }
             if (isSelected)
                 ImGui::SetItemDefaultFocus();
         }
-        if (ImGui::Selectable("None", selectedItem == "None"))
+        if (ImGui::Selectable("None", selectedItem == "None")) {
             texture = "None";
+            isEdited = true;
+        }
         ImGui::EndCombo();
     }
+    return isEdited;
 }
 
 void GUISystem::build()
 {
-    if (this->_projectPath.empty()) {
+    if (this->_currentProject.empty()) {
         std::cout << "[Toast Warning]No project opened" << std::endl;
         return;
     }
-    if (this->_buildPath.empty()) {
-        std::cout << "[Toast Warning]No build path selected" << std::endl;
-        return;
-    }
-    std::filesystem::create_directories(this->_buildPath + "/Data/mono/4.5");
 
-    this->_resourceManager->serializeAssetPack(this->_buildPath + "/Data/AssetPack.data");
-    std::cout << "[Toast Success]AssetPack serialized at location: " << this->_buildPath << "/Data/AssetPack.data" << std::endl;
-    std::filesystem::copy_file("lushGame", std::filesystem::path(this->_buildPath) / (std::filesystem::path(this->_projectPath).filename().string()),
+    ProjectSettings project = this->_projectSettings[this->_currentProject];
+    std::filesystem::create_directories(project.buildPath + "/Data/mono/4.5");
+
+    this->_resourceManager->serializeAssetPack(project.buildPath + "/Data/AssetPack.data");
+    std::cout << "[Toast Success]AssetPack serialized at location: " << project.buildPath << "/Data/AssetPack.data" << std::endl;
+    std::filesystem::copy_file("lushGame", std::filesystem::path(project.buildPath) / (std::filesystem::path(project.rootPath).filename().string()),
                                std::filesystem::copy_options::overwrite_existing);
-    std::filesystem::copy("Resources/bin", std::filesystem::path(this->_buildPath) / "Data",
+    std::filesystem::copy("Resources/bin", std::filesystem::path(project.buildPath) / "Data",
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
-    std::filesystem::copy_file("libs/mono/4.5/mscorlib.dll", std::filesystem::path(this->_buildPath) / "Data/mono/4.5/mscorlib.dll",
+    std::filesystem::copy_file("libs/mono/4.5/mscorlib.dll", std::filesystem::path(project.buildPath) / "Data/mono/4.5/mscorlib.dll",
                                std::filesystem::copy_options::overwrite_existing);
     std::cout << "[Toast Success]Build complete!" << std::endl;
 }

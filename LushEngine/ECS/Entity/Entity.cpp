@@ -40,7 +40,7 @@ bool Entity::hasScriptComponent(const std::string &className)
     return this->_scriptComponents.find(className) != this->_scriptComponents.end();
 }
 
-std::map<std::string, std::size_t> &Entity::getScriptIndexes()
+std::unordered_map<std::string, std::size_t> &Entity::getScriptIndexes()
 {
     return this->_scriptIndexes;
 }

@@ -31,7 +31,7 @@ RenderModel::RenderModel(File &file, std::unordered_map<std::string, Texture> te
     this->load(file, textures);
 }
 
-// std::map<std::string, BoneInfo> &RenderModel::getBoneInfoMap()
+// std::unordered_map<std::string, BoneInfo> &RenderModel::getBoneInfoMap()
 //{
 //     return this->_boneInfoMap;
 // }

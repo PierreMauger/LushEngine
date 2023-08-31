@@ -30,7 +30,7 @@ void Shader::load(const File &file)
 
     std::sregex_iterator next(source.begin(), source.end(), patern);
     std::sregex_iterator end;
-    std::map<std::string, std::string> shaders;
+    std::unordered_map<std::string, std::string> shaders;
     while (next != end) {
         std::smatch match = *next;
         shaders[match[1].str()] = match[2].str();
