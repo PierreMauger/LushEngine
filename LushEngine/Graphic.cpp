@@ -254,9 +254,8 @@ glm::vec2 Graphic::getWindowSize() const
 
 void Graphic::setLogo(Texture &logo)
 {
-    GLFWimage images[1];
-    images[0].pixels =
-        stbi_load_from_memory((const stbi_uc *)logo.getContent().c_str(), static_cast<int>(logo.getContent().size()), &images[0].width, &images[0].height, 0, 4); // rgba channels
-    glfwSetWindowIcon(this->_window, 1, images);
-    stbi_image_free(images[0].pixels);
+    GLFWimage image;
+    image.pixels = stbi_load_from_memory((const stbi_uc *)logo.getContent().c_str(), static_cast<int>(logo.getContent().size()), &image.width, &image.height, 0, 4);
+    glfwSetWindowIcon(this->_window, 1, &image);
+    stbi_image_free(image.pixels);
 }
