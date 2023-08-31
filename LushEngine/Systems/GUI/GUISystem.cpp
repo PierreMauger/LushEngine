@@ -1015,6 +1015,7 @@ void GUISystem::drawProjectManager()
             glfwSetWindowTitle(this->_graphic->getWindow(), std::string("Lush Engine - " + projectName).c_str());
             this->_currentProject = projectName;
             this->_resourceManager->loadProject(project.rootPath);
+            this->_resourceManager->setLogo(project.iconName);
             this->_fileExplorerPath = project.rootPath;
             this->_showProjectManager = false;
         }
@@ -1094,7 +1095,7 @@ void GUISystem::build()
 
     this->_resourceManager->serializeAssetPack(project.buildPath + "/Data/AssetPack.data");
     std::cout << "[Toast Success]AssetPack serialized at location: " << project.buildPath << "/Data/AssetPack.data" << std::endl;
-    std::filesystem::copy_file("lushGame", std::filesystem::path(project.buildPath) / (std::filesystem::path(project.rootPath).filename().string()),
+    std::filesystem::copy_file("lushGame", std::filesystem::path(project.buildPath) / (std::filesystem::path(project.execName).filename().string()),
                                std::filesystem::copy_options::overwrite_existing);
     std::filesystem::copy("Resources/bin", std::filesystem::path(project.buildPath) / "Data",
                           std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);

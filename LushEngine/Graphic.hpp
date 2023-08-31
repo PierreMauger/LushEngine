@@ -23,10 +23,8 @@ namespace Lush
     {
         private:
             GLFWwindow *_window{};
-
             RenderView _renderView;
             std::unordered_map<std::string, FrameBuffer> _frameBuffers;
-
             std::ostringstream _stringStream;
 
             glm::vec4 _gameViewPort{};
@@ -34,7 +32,6 @@ namespace Lush
             glm::vec2 _windowSize{};
 
             bool _drawWireframe = false;
-
             bool _running = false;
             bool _paused = false;
 
@@ -50,22 +47,19 @@ namespace Lush
 
             std::array<GLFWcursor *, 3> _cursors{};
 
-        public:
-            Graphic(int sizeX, int sizeY, const std::string &title);
-            ~Graphic();
             void setGLFWContext(int sizeX, int sizeY, const std::string &title);
-
             void setCallBacks();
             void handleKeyboardPress(int key, int scancode, int action, int mods);
             void handleResizeFramebuffer(int width, int height);
             void handleMousePress(int button, int action, int mods);
 
-            GLFWwindow *getWindow();
+        public:
+            Graphic(int sizeX, int sizeY, const std::string &title);
+            ~Graphic();
 
+            GLFWwindow *getWindow();
             RenderView &getRenderView();
             std::unordered_map<std::string, FrameBuffer> &getFrameBuffers();
-            FrameBuffer &getFrameBuffer(const std::string &name);
-
             std::ostringstream &getStringStream();
 
             void setWireframe(bool drawWireframe);
@@ -95,6 +89,8 @@ namespace Lush
             glm::vec4 getSceneViewPort() const;
 //            void setWindowSize(glm::vec2 windowSize);
             glm::vec2 getWindowSize() const;
+
+            void setLogo(Texture &logo);
 
             static Graphic *getGraphic();
     };

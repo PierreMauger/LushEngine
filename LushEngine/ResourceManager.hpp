@@ -44,6 +44,7 @@ namespace Lush
             std::vector<std::unique_ptr<BasicInstance>> _physicInstances;
             std::unordered_map<std::string, Scene> _scenes;
             std::string _activeScene;
+            std::string _logoName = "Lush.png";
 
             std::unique_ptr<MapMesh> _mapMesh;
             MonoDomain *_domain = nullptr;
@@ -93,6 +94,8 @@ namespace Lush
             std::string getActiveScene() const;
             void setActiveScene(const std::string &name);
             MapMesh &getMapMesh();
+            Texture &getLogo();
+            void setLogo(const std::string &name);
 
             btDiscreteDynamicsWorld *getDynamicsWorld() const;
             void setDynamicsWorld(btDiscreteDynamicsWorld *dynamicsWorld);

@@ -38,6 +38,7 @@ namespace Lush
             int getWidth() const;
             int getHeight() const;
             unsigned char *getData() const;
+            std::string getContent() const;
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {

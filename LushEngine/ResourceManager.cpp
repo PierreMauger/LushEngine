@@ -92,6 +92,8 @@ void ResourceManager::serializeAssetPack(std::string path)
         oa << scene;
     }
 
+    oa << this->_logoName;
+
     ofs.close();
 }
 
@@ -124,6 +126,8 @@ void ResourceManager::deserializeAssetPack(std::string path)
         ia >> name;
         ia >> this->_scenes[name];
     }
+
+    ia >> this->_logoName;
 
     ifs.close();
 }
@@ -381,6 +385,16 @@ void ResourceManager::setActiveScene(const std::string &name)
 MapMesh &ResourceManager::getMapMesh()
 {
     return *this->_mapMesh;
+}
+
+Texture &ResourceManager::getLogo()
+{
+    return this->_textures[this->_logoName];
+}
+
+void ResourceManager::setLogo(const std::string &name)
+{
+    this->_logoName = name;
 }
 
 btDiscreteDynamicsWorld *ResourceManager::getDynamicsWorld() const

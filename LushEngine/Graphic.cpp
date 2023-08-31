@@ -130,11 +130,6 @@ std::unordered_map<std::string, FrameBuffer> &Graphic::getFrameBuffers()
     return this->_frameBuffers;
 }
 
-FrameBuffer &Graphic::getFrameBuffer(const std::string &name)
-{
-    return this->_frameBuffers[name];
-}
-
 std::ostringstream &Graphic::getStringStream()
 {
     return this->_stringStream;
@@ -255,4 +250,13 @@ glm::vec4 Graphic::getSceneViewPort() const
 glm::vec2 Graphic::getWindowSize() const
 {
     return this->_windowSize;
+}
+
+void Graphic::setLogo(Texture &logo)
+{
+    GLFWimage images[1];
+    images[0].pixels =
+        stbi_load_from_memory((const stbi_uc *)logo.getContent().c_str(), static_cast<int>(logo.getContent().size()), &images[0].width, &images[0].height, 0, 4); // rgba channels
+    glfwSetWindowIcon(this->_window, 1, images);
+    stbi_image_free(images[0].pixels);
 }

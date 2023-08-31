@@ -34,9 +34,8 @@ void Texture::createTexture()
                 unsigned char r = data[i * this->_nrChannels];
                 unsigned char g = data[i * this->_nrChannels + 1];
                 unsigned char b = data[i * this->_nrChannels + 2];
-                unsigned char grayscale = static_cast<unsigned char>(0.2989 * r + 0.587 * g + 0.114 * b);
 
-                this->_heightData[i] = grayscale;
+                this->_heightData[i] = static_cast<unsigned char>(0.2989 * r + 0.587 * g + 0.114 * b);
             }
         }
 
@@ -85,4 +84,9 @@ int Texture::getHeight() const
 unsigned char *Texture::getData() const
 {
     return this->_heightData;
+}
+
+std::string Texture::getContent() const
+{
+    return this->_content;
 }
