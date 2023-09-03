@@ -173,10 +173,3 @@ void Scene::reload(File &file, std::unordered_map<std::string, ScriptClass> &scr
     this->_entityManager.clear();
     this->load(file, scripts);
 }
-
-void Scene::setScene(EntityManager &entityManager)
-{
-    entityManager.clear();
-    for (auto &[id, entity] : this->_entityManager.getEntities())
-        entityManager.addEntity(entity, id);
-}

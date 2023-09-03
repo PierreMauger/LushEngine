@@ -14,6 +14,7 @@ namespace Lush
         public:
             static void Log(std::size_t id, MonoString *message, int type);
             static MonoString *GetName(std::size_t id);
+            static unsigned long GetEntityFromName(MonoString *name);
             static bool HasComponent(std::size_t id, MonoString *componentName);
 
             static void Transform_GetPosition(std::size_t id, glm::vec3 *position);

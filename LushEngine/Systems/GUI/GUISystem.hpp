@@ -61,8 +61,6 @@ namespace Lush
             ImGuizmo::OPERATION _currentOperation = ImGuizmo::OPERATION::TRANSLATE;
             ImGuizmo::MODE _currentMode = ImGuizmo::MODE::LOCAL;
 
-            EntityManager _entityManagerCopy;
-
             std::vector<std::pair<int, std::string>> _consoleBuffer;
 
             std::string _fileBrowserPath;

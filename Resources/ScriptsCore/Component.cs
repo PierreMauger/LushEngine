@@ -15,7 +15,7 @@ public abstract class Component
     }
 }
 
-// wrapper to disociate from native components
+// wrapper to dissociate from native components
 public class CustomComponent : Component
 {
 }

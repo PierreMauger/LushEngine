@@ -226,14 +226,15 @@ void GUISystem::drawActionBar(EntityManager &entityManager)
             if (ImGui::Button(this->_graphic->isRunning() ? ICON_FA_STOP : ICON_FA_PLAY, ImVec2(50, 0))) {
                 this->_graphic->setRunning(!this->_graphic->isRunning());
                 if (this->_graphic->isRunning()) {
-                    this->_entityManagerCopy.clone(entityManager);
+                    entityManager.clone(this->_resourceManager->getScenes()[this->_resourceManager->getActiveScene()].getEntityManager());
                     this->_resourceManager->initScriptInstances(entityManager);
                     this->_resourceManager->initPhysicInstances(entityManager);
                 } else {
                     this->_resourceManager->getScriptInstances().clear();
                     this->_resourceManager->resetDynamicsWorld();
                     this->_resourceManager->getPhysicInstances().clear();
-                    entityManager = this->_entityManagerCopy;
+                    entityManager.clear();
+                    entityManager = this->_resourceManager->getScenes()[this->_resourceManager->getActiveScene()].getEntityManager();
                 }
             }
             ImGui::PopStyleColor();
@@ -261,9 +262,9 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager)
     }
     if (ImGui::CollapsingHeader("Scenes")) {
         for (auto &[name, scene] : this->_resourceManager->getScenes()) {
-            if (name != this->_resourceManager->getActiveScene() && ImGui::Selectable(name.c_str(), this->_resourceManager->getActiveScene() == name)) {
+            if (ImGui::Selectable(name.c_str(), this->_resourceManager->getActiveScene() == name)) {
                 this->_resourceManager->setActiveScene(name);
-                scene.setScene(entityManager);
+                entityManager = scene.getEntityManager();
             }
         }
     }

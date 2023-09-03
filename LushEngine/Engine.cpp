@@ -26,10 +26,10 @@ Engine::Engine(bool isEditor) : _isEditor(isEditor)
 #endif
 
     if (!this->_isEditor && this->_resourceManager->getScenes().find("main") != this->_resourceManager->getScenes().end()) {
-        this->_resourceManager->getScenes()["main"].setScene(this->_ecs.getEntityManager());
+        this->_ecs.getEntityManager().clone(this->_resourceManager->getScenes()["main"].getEntityManager());
         this->_resourceManager->setActiveScene("main");
     } else {
-        this->_resourceManager->getScenes().begin()->second.setScene(this->_ecs.getEntityManager());
+        this->_ecs.getEntityManager().clone(this->_resourceManager->getScenes().begin()->second.getEntityManager());
         this->_resourceManager->setActiveScene(this->_resourceManager->getScenes().begin()->first);
     }
 }

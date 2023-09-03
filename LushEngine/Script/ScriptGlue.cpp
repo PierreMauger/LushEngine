@@ -29,9 +29,20 @@ MonoString *ScriptGlue::GetName(std::size_t id)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
         return nullptr;
-    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
 
-    return mono_string_new(mono_domain_get(), entity.getName().c_str());
+    return mono_string_new(mono_domain_get(), ECS::getStaticEntityManager()->getEntity(id).getName().c_str());
+}
+
+unsigned long ScriptGlue::GetEntityFromName(MonoString *name)
+{
+    char *utf8 = mono_string_to_utf8(name);
+    unsigned long id = 0;
+
+    if (ECS::getStaticEntityManager()->hasEntity(utf8))
+        id = ECS::getStaticEntityManager()->getEntityIndex(utf8);
+
+    mono_free(utf8);
+    return id;
 }
 
 bool ScriptGlue::HasComponent(std::size_t id, MonoString *componentName)
@@ -224,7 +235,7 @@ void ScriptGlue::SetScene(MonoString *sceneName)
     resourceManager->getPhysicInstances().clear();
     resourceManager->resetDynamicsWorld();
     resourceManager->getScriptInstances().clear();
-    resourceManager->getScenes()[utf8].setScene(*entityManager);
+    entityManager->clone(resourceManager->getScenes()[utf8].getEntityManager());
     resourceManager->setActiveScene(utf8);
     resourceManager->initScriptInstances(*entityManager);
     resourceManager->initPhysicInstances(*entityManager);
@@ -244,6 +255,7 @@ void ScriptGlue::registerFunctions()
 {
     mono_add_internal_call("InternalCalls::Log", (void *)Log);
     mono_add_internal_call("InternalCalls::GetName", (void *)GetName);
+    mono_add_internal_call("InternalCalls::GetEntityFromName", (void *)GetEntityFromName);
     mono_add_internal_call("InternalCalls::HasComponent", (void *)HasComponent);
     mono_add_internal_call("InternalCalls::Transform_GetPosition", (void *)Transform_GetPosition);
     mono_add_internal_call("InternalCalls::Transform_SetPosition", (void *)Transform_SetPosition);
