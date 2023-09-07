@@ -16,7 +16,7 @@ namespace Lush
             explicit ASystem(float updateFrequency);
             virtual ~ASystem() = default;
 
-            virtual void update(EntityManager &entityManager, float deltaTime) = 0;
+            virtual void update(std::shared_ptr<EntityManager> &entityManager, float deltaTime) = 0;
 
             bool shouldUpdate(float deltaTime);
             [[nodiscard]] float getDeltaTime() const;

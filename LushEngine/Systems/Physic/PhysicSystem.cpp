@@ -18,18 +18,18 @@ PhysicSystem::PhysicSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Res
     this->_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(ghostPairCallback);
 }
 
-void PhysicSystem::update(EntityManager &entityManager, float deltaTime)
+void PhysicSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
     if (this->_graphic->isPaused() || !this->_graphic->isRunning() || !this->shouldUpdate(deltaTime))
         return;
 
     for (auto &instance : this->_resourceManager->getPhysicInstances()) {
-        auto &transform = entityManager.getEntity(instance->getId()).getComponent<Transform>();
+        auto &transform = entityManager->getEntity(instance->getId()).getComponent<Transform>();
         instance->preUpdate(transform);
     }
     this->_dynamicsWorld->stepSimulation(deltaTime);
     for (auto &instance : this->_resourceManager->getPhysicInstances()) {
-        auto &transform = entityManager.getEntity(instance->getId()).getComponent<Transform>();
+        auto &transform = entityManager->getEntity(instance->getId()).getComponent<Transform>();
         instance->postUpdate(transform);
         this->_dynamicsWorld->contactTest(instance->getCollisionObject(), this->_callback);
     }

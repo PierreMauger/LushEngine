@@ -9,7 +9,7 @@ GameSystem::GameSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Resourc
     this->_graphic->setRunning(true);
 }
 
-void GameSystem::update(EntityManager &entityManager, float deltaTime)
+void GameSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
     if (!this->_started) {
         this->_resourceManager->initScriptInstances(entityManager);

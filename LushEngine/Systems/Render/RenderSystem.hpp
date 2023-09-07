@@ -20,16 +20,16 @@ namespace Lush
             BufferObject _skybox{};
             BufferObject _billboard{};
 
-            void drawModels(EntityManager &entityManager);
-            void drawBillboards(EntityManager &entityManager);
-            void drawMap(EntityManager &entityManager);
-            void drawSkybox(EntityManager &entityManager);
+            void drawModels(std::shared_ptr<EntityManager> &entityManager);
+            void drawBillboards(std::shared_ptr<EntityManager> &entityManager);
+            void drawMap(std::shared_ptr<EntityManager> &entityManager);
+            void drawSkybox(std::shared_ptr<EntityManager> &entityManager);
 
         public:
             RenderSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~RenderSystem() override;
 
-            void update(EntityManager &entityManager, float deltaTime) override;
+            void update(std::shared_ptr<EntityManager> &entityManager, float deltaTime) override;
     };
 }
 

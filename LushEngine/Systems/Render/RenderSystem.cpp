@@ -20,7 +20,7 @@ RenderSystem::~RenderSystem()
     Shapes::deleteBufferObject(this->_billboard);
 }
 
-void RenderSystem::update(EntityManager &entityManager, float deltaTime)
+void RenderSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
     if (!this->shouldUpdate(deltaTime))
         return;
@@ -38,11 +38,11 @@ void RenderSystem::update(EntityManager &entityManager, float deltaTime)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderSystem::drawModels(EntityManager &entityManager)
+void RenderSystem::drawModels(std::shared_ptr<EntityManager> &entityManager)
 {
     this->_graphic->getRenderView().use("Model");
     this->_graphic->getRenderView().setView();
-    for (auto &[id, entity] : entityManager.getEntities()) {
+    for (auto &[id, entity] : entityManager->getEntities()) {
         if (!entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
             continue;
         Transform transform = entity.getComponent<Transform>();
@@ -54,11 +54,11 @@ void RenderSystem::drawModels(EntityManager &entityManager)
     }
 }
 
-void RenderSystem::drawBillboards(EntityManager &entityManager)
+void RenderSystem::drawBillboards(std::shared_ptr<EntityManager> &entityManager)
 {
     this->_graphic->getRenderView().use("Billboard");
     this->_graphic->getRenderView().setView();
-    for (auto &[id, entity] : entityManager.getEntities()) {
+    for (auto &[id, entity] : entityManager->getEntities()) {
         if (!entity.hasComponent<Transform>() || !entity.hasComponent<Billboard>())
             continue;
         Transform transform = entity.getComponent<Transform>();
@@ -78,11 +78,11 @@ void RenderSystem::drawBillboards(EntityManager &entityManager)
     }
 }
 
-void RenderSystem::drawMap(EntityManager &entityManager)
+void RenderSystem::drawMap(std::shared_ptr<EntityManager> &entityManager)
 {
     this->_graphic->getRenderView().use("Map");
     this->_graphic->getRenderView().setView();
-    for (auto &[id, entity] : entityManager.getEntities()) {
+    for (auto &[id, entity] : entityManager->getEntities()) {
         if (!entity.hasComponent<Transform>() || !entity.hasComponent<Map>())
             continue;
         Map map = entity.getComponent<Map>();
@@ -122,12 +122,12 @@ void RenderSystem::drawMap(EntityManager &entityManager)
     }
 }
 
-void RenderSystem::drawSkybox(EntityManager &entityManager)
+void RenderSystem::drawSkybox(std::shared_ptr<EntityManager> &entityManager)
 {
     glDepthFunc(GL_LEQUAL);
     this->_graphic->getRenderView().use("Skybox");
     this->_graphic->getRenderView().setSkyBoxView();
-    for (auto &[id, entity] : entityManager.getEntities()) {
+    for (auto &[id, entity] : entityManager->getEntities()) {
         if (!entity.hasComponent<Cubemap>())
             continue;
         Cubemap cubemap = entity.getComponent<Cubemap>();

@@ -76,15 +76,15 @@ namespace Lush
 
             static void setDock();
             void drawMenuBar();
-            void drawActionBar(EntityManager &entityManager);
+            void drawActionBar(std::shared_ptr<EntityManager> &entityManager);
 
-            void drawSceneHierarchy(EntityManager &entityManager);
-            void drawProperties(EntityManager &entityManager);
+            void drawSceneHierarchy(std::shared_ptr<EntityManager> &entityManager);
+            void drawProperties(std::shared_ptr<EntityManager> &entityManager);
             void drawTools();
             void drawConsole();
             void drawGame();
-            void drawScene(EntityManager &entityManager);
-            bool drawGuizmo(EntityManager &entityManager);
+            void drawScene(std::shared_ptr<EntityManager> &entityManager);
+            bool drawGuizmo(std::shared_ptr<EntityManager> &entityManager);
             void drawFileExplorer();
             void drawProfiler();
             void drawProjectManager();
@@ -99,7 +99,7 @@ namespace Lush
             GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~GUISystem() override;
 
-            void update(EntityManager &entityManager, float deltaTime) override;
+            void update(std::shared_ptr<EntityManager> &entityManager, float deltaTime) override;
     };
 }
 

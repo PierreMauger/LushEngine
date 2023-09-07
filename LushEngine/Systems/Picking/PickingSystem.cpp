@@ -19,7 +19,7 @@ PickingSystem::~PickingSystem()
     Shapes::deleteBufferObject(this->_plane);
 }
 
-void PickingSystem::update(EntityManager &entityManager, float deltaTime)
+void PickingSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
     if (!this->shouldUpdate(deltaTime))
         return;
@@ -49,11 +49,11 @@ void PickingSystem::update(EntityManager &entityManager, float deltaTime)
     this->drawOutline(pixel);
 }
 
-void PickingSystem::drawModels(EntityManager &entityManager)
+void PickingSystem::drawModels(std::shared_ptr<EntityManager> &entityManager)
 {
     this->_graphic->getRenderView().use("PickingModel");
     this->_graphic->getRenderView().setView();
-    for (auto &[id, entity] : entityManager.getEntities()) {
+    for (auto &[id, entity] : entityManager->getEntities()) {
         if (!entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
             continue;
         Transform transform = entity.getComponent<Transform>();
@@ -72,11 +72,11 @@ void PickingSystem::drawModels(EntityManager &entityManager)
     }
 }
 
-void PickingSystem::drawBillboards(EntityManager &entityManager)
+void PickingSystem::drawBillboards(std::shared_ptr<EntityManager> &entityManager)
 {
     this->_graphic->getRenderView().use("PickingBillboard");
     this->_graphic->getRenderView().setView();
-    for (auto &[id, entity] : entityManager.getEntities()) {
+    for (auto &[id, entity] : entityManager->getEntities()) {
         if (!entity.hasComponent<Transform>() || !entity.hasComponent<Billboard>())
             continue;
         Transform transform = entity.getComponent<Transform>();

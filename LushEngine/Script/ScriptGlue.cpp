@@ -232,13 +232,14 @@ void ScriptGlue::SetScene(MonoString *sceneName)
         std::cout << "[Toast Error]Scene " << utf8 << " does not exist" << std::endl;
         return;
     }
-    resourceManager->getPhysicInstances().clear();
-    resourceManager->resetDynamicsWorld();
     resourceManager->getScriptInstances().clear();
-    entityManager->clone(resourceManager->getScenes()[utf8].getEntityManager());
+    resourceManager->resetDynamicsWorld();
+    resourceManager->getPhysicInstances().clear();
+    entityManager->clone(*resourceManager->getScenes()[utf8].getEntityManager());
     resourceManager->setActiveScene(utf8);
-    resourceManager->initScriptInstances(*entityManager);
-    resourceManager->initPhysicInstances(*entityManager);
+    resourceManager->initScriptInstances(entityManager);
+    resourceManager->initPhysicInstances(entityManager);
+    resourceManager->setSceneChanged(true);
     mono_free(utf8);
 }
 

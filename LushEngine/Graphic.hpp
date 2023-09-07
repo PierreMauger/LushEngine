@@ -14,8 +14,6 @@
 #include "Rendering/Shader.hpp"
 #include "Rendering/Texture.hpp"
 #include "Scene.hpp"
-#include "Script/ScriptClass.hpp"
-#include "Script/ScriptInstance.hpp"
 
 namespace Lush
 {

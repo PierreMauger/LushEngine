@@ -7,10 +7,11 @@ static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"Box"
 
 Scene::Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts) : Resource(ResourceType::SCENE, file)
 {
+    this->_entityManager = std::make_shared<EntityManager>();
     this->load(file, scripts);
 }
 
-EntityManager &Scene::getEntityManager()
+std::shared_ptr<EntityManager> Scene::getEntityManager()
 {
     return this->_entityManager;
 }
@@ -31,7 +32,7 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
         if (entityNode->first_attribute("id"))
             id = std::atoi(entityNode->first_attribute("id")->value());
         else
-            id = this->_entityManager.getEntities().rbegin()->first + 1;
+            id = this->_entityManager->getEntities().rbegin()->first + 1;
         Entity entity;
         if (entityNode->first_attribute("name"))
             entity.setName(entityNode->first_attribute("name")->value());
@@ -163,13 +164,13 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
                 }
             }
         }
-        this->_entityManager.addEntity(entity, id);
+        this->_entityManager->addEntity(entity, id);
     }
     delete[] xmlCopy;
 }
 
 void Scene::reload(File &file, std::unordered_map<std::string, ScriptClass> &scripts)
 {
-    this->_entityManager.clear();
+    this->_entityManager->clear();
     this->load(file, scripts);
 }

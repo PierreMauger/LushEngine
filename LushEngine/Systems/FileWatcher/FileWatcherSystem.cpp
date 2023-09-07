@@ -7,7 +7,7 @@ FileWatcherSystem::FileWatcherSystem(std::shared_ptr<Graphic> graphic, std::shar
 {
 }
 
-void FileWatcherSystem::update(EntityManager &entityManager, float deltaTime)
+void FileWatcherSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
     if (!this->shouldUpdate(deltaTime))
         return;
@@ -26,7 +26,7 @@ void FileWatcherSystem::update(EntityManager &entityManager, float deltaTime)
     }
 }
 
-void FileWatcherSystem::reloadResourcesFromFile(File &file, EntityManager &entityManager)
+void FileWatcherSystem::reloadResourcesFromFile(File &file, std::shared_ptr<EntityManager> &entityManager)
 {
     for (auto &res : Resource::getResources())
         if (res.hasFile(file)) {
@@ -35,7 +35,7 @@ void FileWatcherSystem::reloadResourcesFromFile(File &file, EntityManager &entit
         }
 }
 
-void FileWatcherSystem::updateResource(Resource &resource, EntityManager &entityManager)
+void FileWatcherSystem::updateResource(Resource &resource, std::shared_ptr<EntityManager> &entityManager)
 {
     switch (resource.getType()) {
     case ResourceType::MODEL:
@@ -98,7 +98,7 @@ void FileWatcherSystem::reloadShader(Resource &resource)
     }
 }
 
-void FileWatcherSystem::reloadScriptPack(Resource &resource, EntityManager &entityManager)
+void FileWatcherSystem::reloadScriptPack(Resource &resource, std::shared_ptr<EntityManager> &entityManager)
 {
     if (*this->_resourceManager->getGamePack().get() != resource)
         return;
@@ -111,7 +111,7 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, EntityManager &enti
         for (auto &[className, klass] : scriptPack->getClasses()) {
             this->_resourceManager->getScripts()[className].reload(scriptPack->getDomain(), klass, this->_resourceManager->getEntityClass());
 
-            for (auto &[id, entity] : entityManager.getEntities()) {
+            for (auto &[id, entity] : entityManager->getEntities()) {
                 if (!entity.hasScriptComponent(className))
                     continue;
 
@@ -137,7 +137,7 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, EntityManager &enti
     }
 }
 
-void FileWatcherSystem::reloadScene(Resource &resource, EntityManager &entityManager)
+void FileWatcherSystem::reloadScene(Resource &resource, std::shared_ptr<EntityManager> &entityManager)
 {
     for (auto &[name, scene] : this->_resourceManager->getScenes()) {
         if (scene != resource)

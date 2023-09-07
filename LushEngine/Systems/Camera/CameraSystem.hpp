@@ -22,7 +22,7 @@ namespace Lush
             explicit CameraSystem(std::shared_ptr<Graphic> graphic);
             ~CameraSystem() override = default;
 
-            void update(EntityManager &entityManager, float deltaTime) override;
+            void update(std::shared_ptr<EntityManager> &entityManager, float deltaTime) override;
     };
 }
 

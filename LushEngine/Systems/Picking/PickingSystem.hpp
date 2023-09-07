@@ -20,15 +20,15 @@ namespace Lush
             BufferObject _billboard{};
             BufferObject _plane{};
 
-            void drawModels(EntityManager &entityManager);
-            void drawBillboards(EntityManager &entityManager);
+            void drawModels(std::shared_ptr<EntityManager> &entityManager);
+            void drawBillboards(std::shared_ptr<EntityManager> &entityManager);
             void drawOutline(std::size_t pixel);
 
         public:
             PickingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~PickingSystem() override;
 
-            void update(EntityManager &entityManager, float deltaTime) override;
+            void update(std::shared_ptr<EntityManager> &entityManager, float deltaTime) override;
     };
 }
 

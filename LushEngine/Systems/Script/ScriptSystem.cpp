@@ -8,10 +8,15 @@ ScriptSystem::ScriptSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Res
     ScriptGlue::registerFunctions();
 }
 
-void ScriptSystem::update([[maybe_unused]] EntityManager &entityManager, float deltaTime)
+void ScriptSystem::update([[maybe_unused]] std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
     if (this->_graphic->isPaused() || !this->_graphic->isRunning() || !this->shouldUpdate(deltaTime))
         return;
-    for (auto &instance : this->_resourceManager->getScriptInstances())
+    for (auto &instance : this->_resourceManager->getScriptInstances()) {
         instance.update(this->getDeltaTime());
+        if (this->_resourceManager->isSceneChanged()) {
+            this->_resourceManager->setSceneChanged(false);
+            return;
+        }
+    }
 }

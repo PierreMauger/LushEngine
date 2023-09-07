@@ -2,19 +2,20 @@
 
 using namespace Lush;
 
-static EntityManager *entityManager = nullptr;
+static std::shared_ptr<EntityManager> *entityManager = nullptr;
 
-EntityManager *ECS::getStaticEntityManager()
+std::shared_ptr<EntityManager> ECS::getStaticEntityManager()
 {
-    return entityManager;
+    return *entityManager;
 }
 
 ECS::ECS()
 {
+    this->_entityManager = std::make_shared<EntityManager>();
     entityManager = &this->_entityManager;
 }
 
-EntityManager &ECS::getEntityManager()
+std::shared_ptr<EntityManager> &ECS::getEntityManager()
 {
     return this->_entityManager;
 }

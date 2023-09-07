@@ -45,6 +45,7 @@ namespace Lush
             std::unordered_map<std::string, Scene> _scenes;
             std::string _activeScene;
             std::string _logoName = "Lush.png";
+            bool _sceneChanged = false;
 
             std::unique_ptr<MapMesh> _mapMesh;
             MonoDomain *_domain = nullptr;
@@ -72,8 +73,8 @@ namespace Lush
             void loadGame();
             void initScriptDomain(const std::string &dir);
 
-            void initScriptInstances(EntityManager &entityManager);
-            void initPhysicInstances(EntityManager &entityManager);
+            void initScriptInstances(std::shared_ptr<EntityManager> &entityManager);
+            void initPhysicInstances(std::shared_ptr<EntityManager> &entityManager);
 
             void serializeAssetPack(std::string path);
             void deserializeAssetPack(std::string path);
@@ -100,6 +101,9 @@ namespace Lush
             btDiscreteDynamicsWorld *getDynamicsWorld() const;
             void setDynamicsWorld(btDiscreteDynamicsWorld *dynamicsWorld);
             void resetDynamicsWorld();
+
+            void setSceneChanged(bool sceneChanged);
+            bool isSceneChanged() const;
 
             static ResourceManager *getStaticResourceManager();
     };

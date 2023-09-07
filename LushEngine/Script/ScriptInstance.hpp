@@ -20,6 +20,7 @@ namespace Lush
             MonoMethod *_onCollisionExit;
             std::size_t _id;
             std::unordered_map<std::string, std::any> _defaultFields;
+            bool _destroyed = false;
 
         public:
             ScriptInstance(ScriptClass &script, std::size_t id, std::unordered_map<std::string, std::any> &defaultFields);
@@ -49,6 +50,8 @@ namespace Lush
             void onCollisionEnter(std::size_t id);
             void onCollisionStay(std::size_t id);
             void onCollisionExit(std::size_t id);
+            void destroy();
+            bool isDestroyed();
     };
 }
 

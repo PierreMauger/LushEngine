@@ -21,17 +21,20 @@ Engine::Engine(bool isEditor) : _isEditor(isEditor)
     this->_ecs.getSystemManager().bindSystem(std::make_unique<PickingSystem>(this->_graphic, this->_resourceManager));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<GUISystem>(this->_graphic, this->_resourceManager));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<FileWatcherSystem>(this->_graphic, this->_resourceManager));
+
+    this->_resourceManager->setActiveScene(this->_resourceManager->getScenes().begin()->first);
+    this->_ecs.getEntityManager() = this->_resourceManager->getScenes().begin()->second.getEntityManager();
+
 #else
     this->_ecs.getSystemManager().bindSystem(std::make_unique<GameSystem>(this->_graphic, this->_resourceManager));
-#endif
 
-    if (!this->_isEditor && this->_resourceManager->getScenes().find("main") != this->_resourceManager->getScenes().end()) {
-        this->_ecs.getEntityManager().clone(this->_resourceManager->getScenes()["main"].getEntityManager());
-        this->_resourceManager->setActiveScene("main");
-    } else {
-        this->_ecs.getEntityManager().clone(this->_resourceManager->getScenes().begin()->second.getEntityManager());
-        this->_resourceManager->setActiveScene(this->_resourceManager->getScenes().begin()->first);
-    }
+    std::string mainSceneName = "main";
+    if (this->_resourceManager->getScenes().find("main") == this->_resourceManager->getScenes().end())
+        mainSceneName = this->_resourceManager->getScenes().begin()->first;
+
+    this->_resourceManager->setActiveScene(mainSceneName);
+    this->_ecs.getEntityManager()->clone(*this->_resourceManager->getScenes()[mainSceneName].getEntityManager());
+#endif
 }
 
 void Engine::run()

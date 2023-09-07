@@ -15,7 +15,7 @@ namespace Lush
             ~SystemManager();
 
             void bindSystem(std::unique_ptr<ASystem> system);
-            void updateSystems(EntityManager &entityManager, float deltaTime);
+            void updateSystems(std::shared_ptr<EntityManager> &entityManager, float deltaTime);
     };
 }
 

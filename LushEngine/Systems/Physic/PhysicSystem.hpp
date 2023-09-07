@@ -30,7 +30,7 @@ namespace Lush
             explicit PhysicSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~PhysicSystem() override = default;
 
-            void update(EntityManager &entityManager, float deltaTime) override;
+            void update(std::shared_ptr<EntityManager> &entityManager, float deltaTime) override;
     };
 }
 

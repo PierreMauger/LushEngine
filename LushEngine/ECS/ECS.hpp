@@ -9,17 +9,17 @@ namespace Lush
     class ECS
     {
         private:
-            EntityManager _entityManager;
+            std::shared_ptr<EntityManager> _entityManager;
             SystemManager _systemManager;
 
         public:
             ECS();
             ~ECS() = default;
 
-            EntityManager &getEntityManager();
+            std::shared_ptr<EntityManager> &getEntityManager();
             SystemManager &getSystemManager();
 
-            static EntityManager *getStaticEntityManager();
+            static std::shared_ptr<EntityManager> getStaticEntityManager();
     };
 }
 

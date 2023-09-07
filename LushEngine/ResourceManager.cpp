@@ -17,6 +17,7 @@ ResourceManager::ResourceManager()
 
 ResourceManager::~ResourceManager()
 {
+    // if (this->_domain)
     mono_jit_cleanup(this->_domain);
 }
 
@@ -145,9 +146,9 @@ void ResourceManager::initScriptDomain(const std::string &dir)
     mono_thread_set_main(mono_thread_current());
 }
 
-void ResourceManager::initScriptInstances(EntityManager &entityManager)
+void ResourceManager::initScriptInstances(std::shared_ptr<EntityManager> &entityManager)
 {
-    for (auto &[id, entity] : entityManager.getEntities()) {
+    for (auto &[id, entity] : entityManager->getEntities()) {
         entity.clearScriptIndexes();
         for (auto &[name, script] : this->_scripts) {
             if (entity.hasScriptComponent(name)) {
@@ -160,9 +161,9 @@ void ResourceManager::initScriptInstances(EntityManager &entityManager)
         instance.init();
 }
 
-void ResourceManager::initPhysicInstances(EntityManager &entityManager)
+void ResourceManager::initPhysicInstances(std::shared_ptr<EntityManager> &entityManager)
 {
-    for (auto &[id, entity] : entityManager.getEntities()) {
+    for (auto &[id, entity] : entityManager->getEntities()) {
         if (entity.hasComponent<Transform>()) {
             if (entity.hasComponent<CharacterController>()) {
                 if (entity.hasComponent<Collider>())
@@ -421,4 +422,14 @@ void ResourceManager::resetDynamicsWorld()
             delete body;
         }
     }
+}
+
+void ResourceManager::setSceneChanged(bool sceneChanged)
+{
+    this->_sceneChanged = sceneChanged;
+}
+
+bool ResourceManager::isSceneChanged() const
+{
+    return this->_sceneChanged;
 }

@@ -65,7 +65,7 @@ void GUISystem::saveProjectSettings()
     ofs.close();
 }
 
-void GUISystem::update(EntityManager &entityManager, float deltaTime)
+void GUISystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
     if (!this->shouldUpdate(deltaTime))
         return;
@@ -212,7 +212,7 @@ void GUISystem::drawMenuBar()
     }
 }
 
-void GUISystem::drawActionBar(EntityManager &entityManager)
+void GUISystem::drawActionBar(std::shared_ptr<EntityManager> &entityManager)
 {
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
 
@@ -226,14 +226,14 @@ void GUISystem::drawActionBar(EntityManager &entityManager)
             if (ImGui::Button(this->_graphic->isRunning() ? ICON_FA_STOP : ICON_FA_PLAY, ImVec2(50, 0))) {
                 this->_graphic->setRunning(!this->_graphic->isRunning());
                 if (this->_graphic->isRunning()) {
-                    entityManager.clone(this->_resourceManager->getScenes()[this->_resourceManager->getActiveScene()].getEntityManager());
+                    entityManager = std::make_shared<EntityManager>();
+                    entityManager->clone(*this->_resourceManager->getScenes()[this->_resourceManager->getActiveScene()].getEntityManager());
                     this->_resourceManager->initScriptInstances(entityManager);
                     this->_resourceManager->initPhysicInstances(entityManager);
                 } else {
                     this->_resourceManager->getScriptInstances().clear();
                     this->_resourceManager->resetDynamicsWorld();
                     this->_resourceManager->getPhysicInstances().clear();
-                    entityManager.clear();
                     entityManager = this->_resourceManager->getScenes()[this->_resourceManager->getActiveScene()].getEntityManager();
                 }
             }
@@ -254,7 +254,7 @@ void GUISystem::drawActionBar(EntityManager &entityManager)
     }
 }
 
-void GUISystem::drawSceneHierarchy(EntityManager &entityManager)
+void GUISystem::drawSceneHierarchy(std::shared_ptr<EntityManager> &entityManager)
 {
     if (!ImGui::Begin(ICON_FA_LIST " Scene Hierarchy", &this->_showSceneHierarchy)) {
         ImGui::End();
@@ -278,7 +278,7 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager)
         ImGui::TableSetupColumn("##Actions", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 20.0f);
         ImGui::TableHeadersRow();
 
-        for (auto &[id, entity] : entityManager.getEntities()) {
+        for (auto &[id, entity] : entityManager->getEntities()) {
             ImGui::TableNextRow();
 
             ImGui::TableNextColumn();
@@ -310,7 +310,7 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager)
                         this->_resourceManager->getPhysicInstances().erase(physicIt);
                     }
                 }
-                entityManager.removeEntity(id);
+                entityManager->removeEntity(id);
                 ImGui::PopID();
                 break;
             }
@@ -324,26 +324,26 @@ void GUISystem::drawSceneHierarchy(EntityManager &entityManager)
         ImGui::Separator();
         if (ImGui::Button("Add New Entity")) {
             Entity entity;
-            entityManager.addEntity(entity);
+            entityManager->addEntity(entity);
         }
     }
     ImGui::End();
 }
 
-void GUISystem::drawProperties(EntityManager &entityManager)
+void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
 {
     if (!ImGui::Begin(ICON_FA_INFO_CIRCLE " Properties", &this->_showProperties)) {
         ImGui::End();
         return;
     }
 
-    if (!entityManager.hasEntity(this->_graphic->getSelectedEntity())) {
+    if (!entityManager->hasEntity(this->_graphic->getSelectedEntity())) {
         ImGui::Text("No entity selected");
         ImGui::End();
         return;
     }
     ImGui::Text("ID: %lu", this->_graphic->getSelectedEntity());
-    Entity &entity = entityManager.getEntity(this->_graphic->getSelectedEntity());
+    Entity &entity = entityManager->getEntity(this->_graphic->getSelectedEntity());
     if (entity.hasComponent<Transform>()) {
         if (ImGui::CollapsingHeader(ICON_FA_INFO_CIRCLE " Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
             Transform &transform = entity.getComponent<Transform>();
@@ -743,7 +743,7 @@ void GUISystem::drawGame()
     ImGui::End();
 }
 
-void GUISystem::drawScene(EntityManager &entityManager)
+void GUISystem::drawScene(std::shared_ptr<EntityManager> &entityManager)
 {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
@@ -762,7 +762,7 @@ void GUISystem::drawScene(EntityManager &entityManager)
     ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
 
     bool guizmoDrawn = false;
-    if (this->_showTools && entityManager.hasEntity(this->_graphic->getSelectedEntity()))
+    if (this->_showTools && entityManager->hasEntity(this->_graphic->getSelectedEntity()))
         guizmoDrawn = this->drawGuizmo(entityManager);
 
     this->_graphic->setSceneHovered(ImGui::IsWindowHovered() && !(ImGuizmo::IsOver() && guizmoDrawn));
@@ -775,7 +775,7 @@ void GUISystem::drawScene(EntityManager &entityManager)
                 entity.addComponent(Transform());
                 entity.addComponent(Model());
                 entity.getComponent<Model>().name = file.substr(0, file.find_last_of('.'));
-                entityManager.addEntity(entity);
+                entityManager->addEntity(entity);
             }
             std::cout << "[Toast Info]Dropped file: " << file << std::endl;
         }
@@ -784,11 +784,11 @@ void GUISystem::drawScene(EntityManager &entityManager)
     ImGui::End();
 }
 
-bool GUISystem::drawGuizmo(EntityManager &entityManager)
+bool GUISystem::drawGuizmo(std::shared_ptr<EntityManager> &entityManager)
 {
     ImGuizmo::BeginFrame();
 
-    Entity &selectedEntity = entityManager.getEntity(this->_graphic->getSelectedEntity());
+    Entity &selectedEntity = entityManager->getEntity(this->_graphic->getSelectedEntity());
     if (!selectedEntity.hasComponent<Transform>())
         return false;
     Transform &transform = selectedEntity.getComponent<Transform>();

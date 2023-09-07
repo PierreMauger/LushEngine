@@ -18,19 +18,19 @@ namespace Lush
 
             std::vector<Resource> _scheduledReload;
 
-            void reloadResourcesFromFile(File &file, EntityManager &entityManager);
-            void updateResource(Resource &resource, EntityManager &entityManager);
+            void reloadResourcesFromFile(File &file, std::shared_ptr<EntityManager> &entityManager);
+            void updateResource(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
 
             void reloadModel(Resource &resource);
             void reloadShader(Resource &resource);
-            void reloadScriptPack(Resource &resource, EntityManager &entityManager);
-            void reloadScene(Resource &resource, EntityManager &entityManager);
+            void reloadScriptPack(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
+            void reloadScene(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
 
         public:
             FileWatcherSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~FileWatcherSystem() override = default;
 
-            void update(EntityManager &entityManager, float deltaTime) override;
+            void update(std::shared_ptr<EntityManager> &entityManager, float deltaTime) override;
     };
 }
 
