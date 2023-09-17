@@ -56,6 +56,8 @@ public static class InternalCalls
 
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     public extern static void SetScene(string sceneName);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    public extern static void ResetScene();
 
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     public extern static ulong GetEntityFromName(string id);

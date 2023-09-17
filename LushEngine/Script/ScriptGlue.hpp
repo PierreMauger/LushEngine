@@ -35,6 +35,7 @@ namespace Lush
             static float GetMouseMovementX();
             static float GetMouseMovementY();
             static void SetScene(MonoString *sceneName);
+            static void ResetScene();
             static void DeleteEntity(std::size_t id);
 
             static void registerFunctions();

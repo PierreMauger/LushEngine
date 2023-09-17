@@ -119,13 +119,13 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, std::shared_ptr<Ent
                 for (auto &[fieldName, field] : this->_resourceManager->getScripts()[className].getFields()) {
                     if (field.type == "Single")
                         scriptComponent.addField(fieldName, 0.0f);
-                    if (field.type == "Entity" || field.type == "UInt64")
+                    else if (field.type == "Entity" || field.type == "UInt64")
                         scriptComponent.addField(fieldName, (unsigned long)0);
+                    else if (field.type == "String")
+                        scriptComponent.addField(fieldName, std::string(""));
                 }
 
-                ScriptComponent &oldScriptComponent = entity.getScriptComponent(className);
-                auto &oldFields = oldScriptComponent.getFields();
-                for (auto &[fieldName, field] : oldFields) {
+                for (auto &[fieldName, field] : entity.getScriptComponent(className).getFields()) {
                     if (scriptComponent.hasField(fieldName))
                         scriptComponent.addField(fieldName, field);
                 }

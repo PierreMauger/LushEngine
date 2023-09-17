@@ -32,9 +32,9 @@ PhysicInstance::PhysicInstance(std::size_t id, Transform &transform, RigidBody &
 
 PhysicInstance::~PhysicInstance()
 {
-    // delete this->_rigidBody->getMotionState();
-    // delete this->_rigidBody->getCollisionShape();
-    // delete this->_rigidBody;
+    delete this->_rigidBody->getMotionState();
+    delete this->_rigidBody->getCollisionShape();
+    delete this->_rigidBody;
 }
 
 btCollisionObject *PhysicInstance::getCollisionObject() const
@@ -44,11 +44,28 @@ btCollisionObject *PhysicInstance::getCollisionObject() const
 
 void PhysicInstance::preUpdate(Transform &transform)
 {
+    bool diffPosition = false;
+    bool diffRotation = false;
+
     btVector3 position = this->_rigidBody->getCenterOfMassPosition();
-    if (position.x() != transform.position.x || position.y() != transform.position.y || position.z() != transform.position.z) {
+    btScalar roll, pitch, yaw;
+    this->_rigidBody->getOrientation().getEulerZYX(yaw, pitch, roll);
+    roll = btDegrees(roll);
+    pitch = btDegrees(pitch);
+    yaw = btDegrees(yaw);
+
+    if (position != btVector3(transform.position.x, transform.position.y, transform.position.z))
+        diffPosition = true;
+    if (roll != transform.rotation.x || pitch != transform.rotation.y || yaw != transform.rotation.z)
+        diffRotation = true;
+
+    if (diffPosition || diffRotation) {
         btTransform startTransform;
         startTransform.setIdentity();
         startTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
+        btQuaternion rotation;
+        rotation.setEulerZYX(btRadians(transform.rotation.z), btRadians(transform.rotation.y), btRadians(transform.rotation.x));
+        startTransform.setRotation(rotation);
         this->_rigidBody->setWorldTransform(startTransform);
     }
 }
@@ -56,9 +73,8 @@ void PhysicInstance::preUpdate(Transform &transform)
 void PhysicInstance::postUpdate(Transform &transform)
 {
     btVector3 position = this->_rigidBody->getCenterOfMassPosition();
-    btQuaternion rotation = this->_rigidBody->getOrientation();
     btScalar roll, pitch, yaw;
-    rotation.getEulerZYX(yaw, pitch, roll);
+    this->_rigidBody->getOrientation().getEulerZYX(yaw, pitch, roll);
 
     roll = btDegrees(roll);
     pitch = btDegrees(pitch);
@@ -115,8 +131,7 @@ btRigidBody *PhysicInstance::initRigidBody(RigidBody &rigidbody, btDefaultMotion
     if (rigidbody.mass != 0.0f)
         collisionShape->calculateLocalInertia(rigidbody.mass, localInertia);
 
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(rigidbody.mass, motionState, collisionShape, localInertia);
-    btRigidBody *rigidBody = new btRigidBody(rbInfo);
+    btRigidBody *rigidBody = new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(rigidbody.mass, motionState, collisionShape, localInertia));
     rigidBody->setFriction(rigidbody.friction);
     rigidBody->setRestitution(rigidbody.restitution);
     if (rigidbody.kinematic)

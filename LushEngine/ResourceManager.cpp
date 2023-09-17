@@ -17,8 +17,8 @@ ResourceManager::ResourceManager()
 
 ResourceManager::~ResourceManager()
 {
-    // if (this->_domain)
-    mono_jit_cleanup(this->_domain);
+    if (this->_domain)
+        mono_jit_cleanup(this->_domain);
 }
 
 void ResourceManager::loadProject(const std::string &dir)
@@ -167,13 +167,15 @@ void ResourceManager::initPhysicInstances(std::shared_ptr<EntityManager> &entity
         if (entity.hasComponent<Transform>()) {
             if (entity.hasComponent<CharacterController>()) {
                 if (entity.hasComponent<Collider>())
-                    this->_physicInstances.emplace_back(std::make_unique<CharacterInstance>(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>(), entity.getComponent<Collider>()));
+                    this->_physicInstances.emplace_back(
+                        std::make_unique<CharacterInstance>(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>(), entity.getComponent<Collider>()));
                 else
                     this->_physicInstances.emplace_back(std::make_unique<CharacterInstance>(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>()));
 
             } else if (entity.hasComponent<RigidBody>()) {
                 if (entity.hasComponent<Collider>())
-                    this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>(), entity.getComponent<Collider>()));
+                    this->_physicInstances.emplace_back(
+                        std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>(), entity.getComponent<Collider>()));
                 else
                     this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>()));
 
@@ -181,26 +183,7 @@ void ResourceManager::initPhysicInstances(std::shared_ptr<EntityManager> &entity
                 this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<Collider>()));
 
             } else if (entity.hasComponent<Map>()) {
-                // TODO terrain instance ? useful if communication with scripts, maybe fluid heightmap ? not stored = not deleted at runtime, only at end of playtest
-                Texture &texture = this->_textures[entity.getComponent<Map>().heightMap];
-                Transform &transform = entity.getComponent<Transform>();
-
-                btHeightfieldTerrainShape *terrainShape =
-                    new btHeightfieldTerrainShape(texture.getWidth(), texture.getHeight(), texture.getData(), 32.0f / 256.0f, 0.0f, 32.0f, 1, PHY_UCHAR, false);
-                terrainShape->setUseDiamondSubdivision(true); // Enable diamond subdivision for better terrain smoothness
-                terrainShape->setLocalScaling(btVector3(transform.scale.x, transform.scale.y, transform.scale.z));
-                btDefaultMotionState *motionState = new btDefaultMotionState();
-                btRigidBody::btRigidBodyConstructionInfo rbInfo(0, motionState, terrainShape);
-                btRigidBody *terrainBody = new btRigidBody(rbInfo);
-
-                btTransform btTransform;
-                btTransform.setIdentity();
-                btTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
-                glm::quat rotation = glm::quat(glm::radians(transform.rotation));
-                btTransform.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
-                terrainBody->setWorldTransform(btTransform);
-
-                this->_dynamicsWorld->addRigidBody(terrainBody);
+                this->_physicInstances.emplace_back(std::make_unique<TerrainInstance>(id, entity.getComponent<Transform>(), this->_textures[entity.getComponent<Map>().heightMap]));
             }
         }
     }
@@ -410,18 +393,8 @@ void ResourceManager::setDynamicsWorld(btDiscreteDynamicsWorld *world)
 
 void ResourceManager::resetDynamicsWorld()
 {
-    int numBodies = this->_dynamicsWorld->getNumCollisionObjects();
-    for (int i = numBodies - 1; i >= 0; --i) {
-        btCollisionObject *obj = this->_dynamicsWorld->getCollisionObjectArray()[i];
-        btRigidBody *body = btRigidBody::upcast(obj);
-        if (body) {
-            this->_dynamicsWorld->removeRigidBody(body);
-
-            delete body->getMotionState();
-            delete body->getCollisionShape();
-            delete body;
-        }
-    }
+    for (auto &instance : this->_physicInstances)
+        instance->removeFromWorld(this->_dynamicsWorld);
 }
 
 void ResourceManager::setSceneChanged(bool sceneChanged)

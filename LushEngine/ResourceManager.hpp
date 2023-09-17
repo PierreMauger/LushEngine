@@ -13,6 +13,7 @@
 #include "File/Resource.hpp"
 #include "Includes.hpp"
 #include "Physic/PhysicInstance.hpp"
+#include "Physic/TerrainInstance.hpp"
 #include "Physic/CharacterInstance.hpp"
 #include "Rendering/CubeMap.hpp"
 #include "Rendering/MapMesh.hpp"

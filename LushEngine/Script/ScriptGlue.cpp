@@ -242,6 +242,19 @@ void ScriptGlue::SetScene(MonoString *sceneName)
     resourceManager->setSceneChanged(true);
     mono_free(utf8);
 }
+void ScriptGlue::ResetScene()
+{
+    auto resourceManager = ResourceManager::getStaticResourceManager();
+    auto entityManager = ECS::getStaticEntityManager();
+
+    resourceManager->getScriptInstances().clear();
+    resourceManager->resetDynamicsWorld();
+    resourceManager->getPhysicInstances().clear();
+    entityManager->clone(*resourceManager->getScenes()[resourceManager->getActiveScene()].getEntityManager());
+    resourceManager->initScriptInstances(entityManager);
+    resourceManager->initPhysicInstances(entityManager);
+    resourceManager->setSceneChanged(true);
+}
 
 void ScriptGlue::DeleteEntity(std::size_t id)
 {
@@ -272,5 +285,6 @@ void ScriptGlue::registerFunctions()
     mono_add_internal_call("InternalCalls::GetMouseMovementX", (void *)GetMouseMovementX);
     mono_add_internal_call("InternalCalls::GetMouseMovementY", (void *)GetMouseMovementY);
     mono_add_internal_call("InternalCalls::SetScene", (void *)SetScene);
+    mono_add_internal_call("InternalCalls::ResetScene", (void *)ResetScene);
     mono_add_internal_call("InternalCalls::DeleteEntity", (void *)DeleteEntity);
 }

@@ -71,7 +71,7 @@
         <Model name="Cube" />
         <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
         <Collider type="Box" tag="ennemy" />
-        <ColliderTest />
+        <ColliderTest name="Greg"/>
       </Components>
     </Entity>
     <Entity name="PhysicDummy3">

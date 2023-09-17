@@ -1,9 +1,9 @@
 #ifndef SCRIPT_INSTANCE_HPP
 #define SCRIPT_INSTANCE_HPP
 
+#include "ECS/Entity/Entity.hpp"
 #include "Includes.hpp"
 #include "Script/ScriptClass.hpp"
-#include "ECS/Entity/Entity.hpp"
 
 namespace Lush
 {

@@ -16,6 +16,8 @@ namespace Lush
         private:
             btKinematicCharacterController *_characterController;
             btPairCachingGhostObject *_ghostObject;
+            btPairCachingGhostObject *_collisionObject;
+            // btRigidBody *_rigidBody;
 
         public:
             CharacterInstance(std::size_t id, Transform &transform, CharacterController &characterController);

@@ -34,6 +34,8 @@ void ScriptComponent::serialize(boost::archive::binary_oarchive &ar, [[maybe_unu
             ar &std::any_cast<float &>(value);
         else if (value.type() == typeid(unsigned long))
             ar &std::any_cast<unsigned long &>(value);
+        else if (value.type() == typeid(std::string))
+            ar &std::any_cast<std::string &>(value);
     }
 }
 
@@ -55,6 +57,10 @@ void ScriptComponent::serialize(boost::archive::binary_iarchive &ar, [[maybe_unu
             value = elem;
         } else if (type == typeid(unsigned long).name()) {
             unsigned long elem{};
+            ar &elem;
+            value = elem;
+        } else if (type == typeid(std::string).name()) {
+            std::string elem{};
             ar &elem;
             value = elem;
         }

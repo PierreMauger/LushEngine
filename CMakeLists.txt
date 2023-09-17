@@ -68,6 +68,7 @@ set(COMMON_SOURCE_FILES
     ${PROJECT_NAME}/Script/ScriptPack.cpp
     ${PROJECT_NAME}/Physic/PhysicInstance.cpp
     ${PROJECT_NAME}/Physic/CharacterInstance.cpp
+    ${PROJECT_NAME}/Physic/TerrainInstance.cpp
     ${PROJECT_NAME}/Physic/CustomContactCallback.cpp
     ${PROJECT_NAME}/File/File.cpp
     ${PROJECT_NAME}/File/Resource.cpp

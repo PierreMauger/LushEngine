@@ -539,22 +539,35 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                             float value = this->_resourceManager->getScriptInstances()[instanceIndex].getFieldValue<float>(fieldName);
                             if (ImGui::DragFloat(fieldName.c_str(), &value))
                                 this->_resourceManager->getScriptInstances()[instanceIndex].setFieldValue(fieldName, value);
-                        }
-                        if (field.type == "Entity" || field.type == "UInt64") {
+                        } else if (field.type == "Entity" || field.type == "UInt64") {
                             unsigned long value = this->_resourceManager->getScriptInstances()[instanceIndex].getFieldValue<unsigned long>(fieldName);
                             const ImU64 increment = 1;
                             if (ImGui::InputScalar(fieldName.c_str(), ImGuiDataType_U64, &value, &increment))
                                 this->_resourceManager->getScriptInstances()[instanceIndex].setFieldValue(fieldName, value);
+                        } else if (field.type == "String") {
+                            // std::string value = this->_resourceManager->getScriptInstances()[instanceIndex].getFieldValue<std::string>(fieldName);
+                            std::string value = "Not supported yet";
+                            static char buffer[256];
+                            strcpy(buffer, value.c_str());
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+                            if (ImGui::InputText(fieldName.c_str(), buffer, sizeof(buffer), ImGuiInputTextFlags_ReadOnly))
+                                this->_resourceManager->getScriptInstances()[instanceIndex].setFieldValue(fieldName, std::string(buffer));
+                            ImGui::PopStyleColor();
                         }
                     } else {
                         if (field.type == "Single") {
                             float &value = entity.getScriptComponent(scriptName).getField<float>(fieldName);
                             ImGui::DragFloat(fieldName.c_str(), &value);
-                        }
-                        if (field.type == "Entity" || field.type == "UInt64") {
+                        } else if (field.type == "Entity" || field.type == "UInt64") {
                             unsigned long &value = entity.getScriptComponent(scriptName).getField<unsigned long>(fieldName);
                             const ImU64 increment = 1;
                             ImGui::InputScalar(fieldName.c_str(), ImGuiDataType_U64, &value, &increment);
+                        } else if (field.type == "String") {
+                            std::string &value = entity.getScriptComponent(scriptName).getField<std::string>(fieldName);
+                            static char buffer[256];
+                            strcpy(buffer, value.c_str());
+                            if (ImGui::InputText(fieldName.c_str(), buffer, sizeof(buffer)))
+                                value = buffer;
                         }
                     }
                 }
@@ -646,6 +659,8 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                         scriptComponent.addField(fieldName, 0.0f);
                     if (field.type == "Entity" || field.type == "UInt64")
                         scriptComponent.addField(fieldName, (unsigned long)0);
+                    if (field.type == "String")
+                        scriptComponent.addField(fieldName, std::string(""));
                 }
                 entity.addScriptComponent(scriptName, scriptComponent);
             }

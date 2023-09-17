@@ -122,9 +122,12 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
                 }
                 if (componentNode->first_attribute("center"))
                     std::sscanf(componentNode->first_attribute("center")->value(), "%f %f %f", &temp.center.x, &temp.center.y, &temp.center.z);
-                if (temp.type == ColliderType::SPHERE || temp.type == ColliderType::CAPSULE) {
+                if (temp.type == ColliderType::SPHERE) {
                     if (componentNode->first_attribute("radius"))
-                        std::sscanf(componentNode->first_attribute("radius")->value(), "%f %f %f", &temp.size.x, &temp.size.y, &temp.size.z);
+                        std::sscanf(componentNode->first_attribute("radius")->value(), "%f", &temp.size.x);
+                } else if (temp.type == ColliderType::CAPSULE) {
+                    if (componentNode->first_attribute("radius"))
+                        std::sscanf(componentNode->first_attribute("radius")->value(), "%f %f", &temp.size.x, &temp.size.y);
                 } else {
                     if (componentNode->first_attribute("size"))
                         std::sscanf(componentNode->first_attribute("size")->value(), "%f %f %f", &temp.size.x, &temp.size.y, &temp.size.z);
@@ -150,6 +153,8 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
                             scriptComponent.addField(fieldName, 0.0f);
                         if (field.type == "Entity" || field.type == "UInt64")
                             scriptComponent.addField(fieldName, (unsigned long)0);
+                        if (field.type == "String")
+                            scriptComponent.addField(fieldName, std::string(""));
                     }
                     for (rapidxml::xml_attribute<> *attribute = componentNode->first_attribute(); attribute; attribute = attribute->next_attribute()) {
                         std::string attributeName = attribute->name();
@@ -158,6 +163,8 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
                                 scriptComponent.addField(attributeName, std::stof(attribute->value()));
                             if (scripts[scriptName].getFields()[attributeName].type == "Entity" || scripts[scriptName].getFields()[attributeName].type == "UInt64")
                                 scriptComponent.addField(attributeName, std::stoul(attribute->value()));
+                            if (scripts[scriptName].getFields()[attributeName].type == "String")
+                                scriptComponent.addField(attributeName, std::string(attribute->value()));
                         }
                     }
                     entity.addScriptComponent(scriptName, scriptComponent);

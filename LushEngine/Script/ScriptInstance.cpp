@@ -38,13 +38,16 @@ bool ScriptInstance::getFieldValueInternal(const std::string &name, void *value)
 
     FieldInfo field = this->_class.getFields()[name];
     if (field.type == "Entity") {
-        MonoType *type = mono_field_get_type(field.field);
-        MonoClass *klass = mono_class_from_mono_type(type);
         MonoObject *obj;
         mono_field_get_value(this->_instance, field.field, &obj);
-        MonoClassField *idField = mono_class_get_field_from_name(klass, "id");
-        auto *idPtr = (unsigned long *)mono_object_unbox(mono_field_get_value_object(mono_domain_get(), idField, obj));
-        *((unsigned long *)value) = *idPtr;
+        *(unsigned long *)value = *(unsigned long *)mono_object_unbox(
+            mono_field_get_value_object(mono_domain_get(), mono_class_get_field_from_name(mono_class_from_mono_type(mono_field_get_type(field.field)), "id"), obj));
+        return true;
+    }
+    if (field.type == "String") {
+        MonoString *monoStr;
+        mono_field_get_value(this->_instance, field.field, &monoStr);
+        *(std::string *)value = std::string(mono_string_to_utf8(monoStr));
         return true;
     }
     mono_field_get_value(this->_instance, field.field, value);
@@ -65,24 +68,29 @@ void ScriptInstance::setFieldValueInternal(const std::string &name, void *value)
         mono_field_set_value(this->_instance, field.field, obj);
         return;
     }
+    if (field.type == "String") {
+        std::string str = *(std::string *)value;
+        MonoString *monoStr = mono_string_new(mono_domain_get(), str.c_str());
+        mono_field_set_value(this->_instance, field.field, monoStr);
+        return;
+    }
     mono_field_set_value(this->_instance, field.field, value);
 }
 
 void ScriptInstance::init()
 {
-    for (auto &[name, value] : this->_defaultFields)
-        if (this->_class.getFields()[name].type == "Entity")
-            this->setFieldValue<unsigned long>(name, std::any_cast<unsigned long>(value));
-    if (this->_onInit) {
-        void *args[0];
-        mono_runtime_invoke(this->_onInit, this->_instance, args, nullptr);
-    }
     for (auto &[name, value] : this->_defaultFields) {
         std::string type = this->_class.getFields()[name].type;
         if (type == "Single")
             this->setFieldValue<float>(name, std::any_cast<float>(value));
-        else if (type == "UInt64")
+        else if (type == "UInt64" || type == "Entity")
             this->setFieldValue<unsigned long>(name, std::any_cast<unsigned long>(value));
+        else if (type == "String")
+            this->setFieldValue<std::string>(name, std::any_cast<std::string>(value));
+    }
+    if (this->_onInit) {
+        void *args[0];
+        mono_runtime_invoke(this->_onInit, this->_instance, args, nullptr);
     }
 }
 

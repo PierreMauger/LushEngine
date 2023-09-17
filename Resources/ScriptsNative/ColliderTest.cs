@@ -2,8 +2,11 @@ using System;
 
 public class ColliderTest : CustomComponent
 {
+    public string name = "Green";
+
     public void onInit()
     {
+        this.entity.log(name, Toast.Warning);
     }
 
     public void onUpdate(float deltaTime)
