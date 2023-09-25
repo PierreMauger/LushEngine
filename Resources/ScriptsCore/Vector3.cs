@@ -6,6 +6,13 @@ public struct Vector3
     public float y;
     public float z;
 
+    public Vector3(float value)
+    {
+        this.x = value;
+        this.y = value;
+        this.z = value;
+    }
+
     public Vector3(float x, float y, float z)
     {
         this.x = x;
@@ -43,6 +50,11 @@ public struct Vector3
     public static Vector3 operator *(Vector3 a, float b)
     {
         return new Vector3(a.x * b, a.y * b, a.z * b);
+    }
+
+    public static Vector3 operator /(Vector3 a, float b)
+    {
+        return new Vector3(a.x / b, a.y / b, a.z / b);
     }
 
     public static Vector3 operator +(Vector3 a, Vector3 b)
