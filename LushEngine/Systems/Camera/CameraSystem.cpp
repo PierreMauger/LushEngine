@@ -11,12 +11,8 @@ void CameraSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
     if (!this->shouldUpdate(deltaTime))
         return;
     for (auto &[id, entity] : entityManager->getEntities()) {
-        if (entity.hasComponent<Transform>() && entity.hasComponent<Camera>()) {
-            auto &transform = entity.getComponent<Transform>();
-            auto &camera = entity.getComponent<Camera>();
-
-            this->_graphic->getRenderView().update(transform, camera);
-        }
+        if (entity.hasComponent<Transform>() && entity.hasComponent<Camera>())
+            this->_graphic->getRenderView().update(entity.getComponent<Transform>(), entity.getComponent<Camera>());
         if (entity.hasComponent<Transform>() && entity.hasComponent<Light>()) {
             auto &transform = entity.getComponent<Transform>();
             auto &light = entity.getComponent<Light>();
@@ -31,17 +27,8 @@ void CameraSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
     }
 
     this->_graphic->getRenderView().use("Model");
-    for (auto &[id, entity] : entityManager->getEntities()) {
-        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Camera>())
-            continue;
-        auto &transform = entity.getComponent<Transform>();
-        auto &camera = entity.getComponent<Camera>();
-
-        this->_graphic->getRenderView().update(transform, camera);
-
-        this->_graphic->getRenderView().setDirLights(this->_dirLights);
-        this->_graphic->getRenderView().setPointLights(this->_pointLights);
-    }
+    this->_graphic->getRenderView().setDirLights(this->_dirLights);
+    this->_graphic->getRenderView().setPointLights(this->_pointLights);
     this->_graphic->getRenderView().use("Map");
     this->_graphic->getRenderView().setDirLights(this->_dirLights);
     this->_graphic->getRenderView().setPointLights(this->_pointLights);

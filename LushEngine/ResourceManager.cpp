@@ -25,6 +25,7 @@ void ResourceManager::loadProject(const std::string &dir)
 {
     this->loadTextures(dir + "/Resources/Textures");
     this->loadModels(dir + "/Resources/Models");
+    this->loadSkyBoxes(dir + "/Resources/Skybox");
     this->reloadScripts(dir + "/Resources/Scripts");
     this->loadScenes(dir + "/Resources/Scenes");
 }
@@ -236,11 +237,31 @@ void ResourceManager::loadShaders(const std::string &dir)
 
 void ResourceManager::loadSkyBoxes(const std::string &dir)
 {
-    this->loadDirectory(dir, [this](const std::string &path) { this->_files[path] = File(path); }, {".jpg"});
+    static int number = 0;
+    this->loadDirectory(dir,
+                        [this](const std::string &path) {
+                            this->_files[path] = File(path);
+                            number++;
+                        },
+                        {".jpg"});
+    if (number == 6) {
+        std::vector<File> files = {this->_files[dir + "/right.jpg"],  this->_files[dir + "/left.jpg"],  this->_files[dir + "/top.jpg"],
+                                   this->_files[dir + "/bottom.jpg"], this->_files[dir + "/front.jpg"], this->_files[dir + "/back.jpg"]};
+        this->_skyBoxes["Sky"] = CubeMap(files);
+    }
 
-    std::vector<File> files = {this->_files[dir + "/right.jpg"],  this->_files[dir + "/left.jpg"],  this->_files[dir + "/top.jpg"],
-                               this->_files[dir + "/bottom.jpg"], this->_files[dir + "/front.jpg"], this->_files[dir + "/back.jpg"]};
-    this->_skyBoxes["Sky"] = CubeMap(files);
+    number = 0;
+    this->loadDirectory(dir,
+                        [this](const std::string &path) {
+                            this->_files[path] = File(path);
+                            number++;
+                        },
+                        {".png"});
+    if (number == 6) {
+        std::vector<File> files = {this->_files[dir + "/right.png"],  this->_files[dir + "/left.png"],  this->_files[dir + "/top.png"],
+                                   this->_files[dir + "/bottom.png"], this->_files[dir + "/front.png"], this->_files[dir + "/back.png"]};
+        this->_skyBoxes["Sky2"] = CubeMap(files);
+    }
 }
 
 void ResourceManager::loadScriptDll(const std::string &dir)

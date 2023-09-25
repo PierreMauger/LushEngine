@@ -73,6 +73,7 @@ namespace Lush
             std::size_t getSelectedEntity() const;
 
             bool isMouseHidden() const;
+            void setMouseHidden(bool mouseHidden);
             void setSceneHovered(bool sceneHovered);
             bool isSceneHovered() const;
             int getMouseButton() const;

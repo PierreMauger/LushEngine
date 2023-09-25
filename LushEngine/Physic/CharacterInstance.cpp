@@ -53,18 +53,10 @@ CharacterInstance::CharacterInstance(std::size_t id, Transform &transform, Chara
     this->_characterController->setGravity(btVector3(0, -9.8, 0));
     this->_characterController->setStepHeight(characterController.stepOffset);
     this->_characterController->setMaxSlope(btRadians(characterController.slopeLimit));
-
-    // btMotionState *motionState = new btDefaultMotionState(startTransform);
-    // this->_rigidBody = new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(1000, motionState, collisionShape));
-    // this->_rigidBody->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
-    // this->_rigidBody->setUserPointer(reinterpret_cast<void *>(id));
 }
 
 CharacterInstance::~CharacterInstance()
 {
-    // delete this->_rigidBody->getMotionState();
-    // delete this->_rigidBody->getCollisionShape();
-    // delete this->_rigidBody;
     delete this->_characterController;
     delete this->_ghostObject->getCollisionShape();
     delete this->_ghostObject;
@@ -87,12 +79,6 @@ void CharacterInstance::preUpdate(Transform &transform)
     btTransform.setIdentity();
     btTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
     this->_collisionObject->setWorldTransform(btTransform);
-
-    // btTransform startTransform;
-    // startTransform.setIdentity();
-    // startTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
-    // this->_rigidBody->setWorldTransform(startTransform);
-    // this->_rigidBody->applyCentralForce(diff * 10.f);
 }
 
 void CharacterInstance::postUpdate(Transform &transform)
@@ -106,12 +92,6 @@ void CharacterInstance::addToWorld(btDiscreteDynamicsWorld *world)
     world->addCollisionObject(this->_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
     world->addCollisionObject(this->_collisionObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
     world->addAction(this->_characterController);
-    // world->addRigidBody(this->_rigidBody);
-
-    // btBroadphaseProxy *ghostProxy = this->_ghostObject->getBroadphaseHandle();
-    // btBroadphaseProxy *rigidProxy = this->_rigidBody->getBroadphaseHandle();
-    // ghostProxy->m_collisionFilterMask = ghostProxy->m_collisionFilterMask & (~btBroadphaseProxy::KinematicFilter);
-    // rigidProxy->m_collisionFilterMask = rigidProxy->m_collisionFilterMask & (~btBroadphaseProxy::CharacterFilter);
 }
 
 void CharacterInstance::removeFromWorld(btDiscreteDynamicsWorld *world)
@@ -119,5 +99,4 @@ void CharacterInstance::removeFromWorld(btDiscreteDynamicsWorld *world)
     world->removeCollisionObject(this->_ghostObject);
     world->removeCollisionObject(this->_collisionObject);
     world->removeAction(this->_characterController);
-    // world->removeRigidBody(this->_rigidBody);
 }

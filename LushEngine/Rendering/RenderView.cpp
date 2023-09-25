@@ -102,7 +102,11 @@ void RenderView::setDirLights(std::vector<std::pair<Transform, Light>> dirLights
     this->_shaders[this->_actShader].setInt("dirLightCount", (int)dirLights.size());
 
     for (std::size_t i = 0; i < dirLights.size() && i < 2; i++) {
-        this->_shaders[this->_actShader].setVec3("dirLights[" + std::to_string(i) + "].direction", dirLights[i].first.rotation);
+        glm::vec3 direction = glm::vec3(0.0f, 0.0f, -1.0f);
+        glm::quat q = glm::quat(glm::radians(dirLights[i].first.rotation));
+        direction = glm::mat3(glm::toMat4(q)) * direction;
+
+        this->_shaders[this->_actShader].setVec3("dirLights[" + std::to_string(i) + "].direction", direction);
         this->_shaders[this->_actShader].setVec3("dirLights[" + std::to_string(i) + "].ambient", dirLights[i].second.color);
         this->_shaders[this->_actShader].setVec3("dirLights[" + std::to_string(i) + "].diffuse", dirLights[i].second.color);
         this->_shaders[this->_actShader].setVec3("dirLights[" + std::to_string(i) + "].specular", dirLights[i].second.color);

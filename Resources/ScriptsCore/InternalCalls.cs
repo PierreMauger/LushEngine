@@ -53,6 +53,8 @@ public static class InternalCalls
     public extern static float GetMouseMovementX();
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     public extern static float GetMouseMovementY();
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    public extern static void SetMouseHidden(bool state);
 
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     public extern static void SetScene(string sceneName);

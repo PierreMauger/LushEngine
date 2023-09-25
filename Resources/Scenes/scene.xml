@@ -17,7 +17,7 @@
     </Entity>
     <Entity id="2" name="MainLight">
       <Components>
-        <Transform position="3 0 0" rotation="30 -30 30" scale="0.5 0.5 0.5" />
+        <Transform position="3 0 0" rotation="0 0 0" scale="0.5 0.5 0.5" />
         <Light type="Dir" />
         <Billboard name="DirectionalLight.png" />
       </Components>

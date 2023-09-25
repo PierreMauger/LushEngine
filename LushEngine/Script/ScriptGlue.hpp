@@ -34,6 +34,7 @@ namespace Lush
             static bool IsKeyDown(int key);
             static float GetMouseMovementX();
             static float GetMouseMovementY();
+            static void SetMouseHidden(bool state);
             static void SetScene(MonoString *sceneName);
             static void ResetScene();
             static void DeleteEntity(std::size_t id);

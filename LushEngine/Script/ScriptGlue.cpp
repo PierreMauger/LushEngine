@@ -188,12 +188,11 @@ void ScriptGlue::Collider_GetTag(std::size_t id, MonoString **tag)
 
 MonoObject *ScriptGlue::GetScriptInstance(std::size_t entityId, MonoString *scriptName)
 {
-    ResourceManager *resourceManager = ResourceManager::getStaticResourceManager();
     Entity &entity = ECS::getStaticEntityManager()->getEntity(entityId);
     std::string name = mono_string_to_utf8(scriptName);
 
     if (entity.hasScriptComponent(name))
-        return resourceManager->getScriptInstances().at(entity.getScriptIndexes()[name]).getInstance();
+        return ResourceManager::getStaticResourceManager()->getScriptInstances().at(entity.getScriptIndexes()[name]).getInstance();
     return nullptr;
 }
 
@@ -220,6 +219,11 @@ float ScriptGlue::GetMouseMovementY()
     if (graphic->isRunning() && !graphic->isMouseHidden())
         return 0;
     return graphic->getMouseOffset().y;
+}
+
+void ScriptGlue::SetMouseHidden(bool state)
+{
+    Graphic::getGraphic()->setMouseHidden(state);
 }
 
 void ScriptGlue::SetScene(MonoString *sceneName)
@@ -284,6 +288,7 @@ void ScriptGlue::registerFunctions()
     mono_add_internal_call("InternalCalls::IsKeyDown", (void *)IsKeyDown);
     mono_add_internal_call("InternalCalls::GetMouseMovementX", (void *)GetMouseMovementX);
     mono_add_internal_call("InternalCalls::GetMouseMovementY", (void *)GetMouseMovementY);
+    mono_add_internal_call("InternalCalls::SetMouseHidden", (void *)SetMouseHidden);
     mono_add_internal_call("InternalCalls::SetScene", (void *)SetScene);
     mono_add_internal_call("InternalCalls::ResetScene", (void *)ResetScene);
     mono_add_internal_call("InternalCalls::DeleteEntity", (void *)DeleteEntity);

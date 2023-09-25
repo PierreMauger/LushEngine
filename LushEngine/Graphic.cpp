@@ -76,13 +76,8 @@ void Graphic::handleKeyboardPress(int key, [[maybe_unused]] int scancode, int ac
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(this->_window, true);
-    if (key == GLFW_KEY_TAB && action == GLFW_PRESS && this->_running) {
-        this->_mouseHidden = !this->_mouseHidden;
-        glfwSetInputMode(this->_window, GLFW_CURSOR, this->_mouseHidden ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-        if (!this->_mouseHidden) {
-            glfwSetCursorPos(this->_window, this->_gameViewPort.z / 2 + this->_gameViewPort.x, this->_gameViewPort.w / 2 + this->_gameViewPort.y);
-        }
-    }
+    if (key == GLFW_KEY_TAB && action == GLFW_PRESS && this->_running)
+        this->setMouseHidden(!this->_mouseHidden);
 }
 
 void Graphic::handleResizeFramebuffer(int width, int height)
@@ -183,6 +178,15 @@ std::size_t Graphic::getSelectedEntity() const
 bool Graphic::isMouseHidden() const
 {
     return this->_mouseHidden;
+}
+
+void Graphic::setMouseHidden(bool mouseHidden)
+{
+    this->_mouseHidden = mouseHidden;
+    glfwSetInputMode(this->_window, GLFW_CURSOR, this->_mouseHidden ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    if (!this->_mouseHidden) {
+        glfwSetCursorPos(this->_window, this->_gameViewPort.z / 2 + this->_gameViewPort.x, this->_gameViewPort.w / 2 + this->_gameViewPort.y);
+    }
 }
 
 void Graphic::setSceneHovered(bool sceneHovered)
