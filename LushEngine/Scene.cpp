@@ -31,7 +31,7 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
         int id = 0;
         if (entityNode->first_attribute("id"))
             id = std::atoi(entityNode->first_attribute("id")->value());
-        else
+        else if (this->_entityManager->getEntities().size() > 0)
             id = this->_entityManager->getEntities().rbegin()->first + 1;
         Entity entity;
         if (entityNode->first_attribute("name"))

@@ -19,12 +19,12 @@ public class ColliderTest : CustomComponent
 
         if (other.getComponent<Collider>().tag == "ennemy") {
             this.entity.log("Collision with Ennemy", Toast.Warning);
+            other.getComponent<Collider>().tag = "dead";
         }
 
         if (other.hasComponent<Controllable>()) {
             this.entity.log("Collision with Controllable " + other.getName(), Toast.Warning);
-            Controllable controllable = other.getComponent<Controllable>();
-            controllable.speed = 0.0f;
+            other.getComponent<Controllable>().speed = 5.0f;
         }
     }
 }

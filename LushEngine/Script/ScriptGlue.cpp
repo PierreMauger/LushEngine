@@ -150,6 +150,32 @@ void ScriptGlue::Transform_SetScale(std::size_t id, glm::vec3 *scale)
         std::cout << "[Toast Error]Entity " << id << " has no Transform component" << std::endl;
 }
 
+void ScriptGlue::Model_GetName(std::size_t id, MonoString **name)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Model>())
+        *name = mono_string_new(mono_domain_get(), entity.getComponent<Model>().name.c_str());
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Model component" << std::endl;
+}
+
+void ScriptGlue::Model_SetName(std::size_t id, MonoString *name)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+    char *utf8 = mono_string_to_utf8(name);
+
+    if (entity.hasComponent<Model>())
+        entity.getComponent<Model>().name = utf8;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Model component" << std::endl;
+    mono_free(utf8);
+}
+
 void ScriptGlue::Camera_GetForward(std::size_t id, glm::vec3 *forward)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
@@ -174,6 +200,187 @@ void ScriptGlue::Camera_SetForward(std::size_t id, glm::vec3 *forward)
         std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
 }
 
+void ScriptGlue::Camera_GetFOV(std::size_t id, float *fov)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Camera>())
+        *fov = entity.getComponent<Camera>().fov;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
+}
+
+void ScriptGlue::Camera_SetFOV(std::size_t id, float *fov)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Camera>())
+        entity.getComponent<Camera>().fov = *fov;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
+}
+
+void ScriptGlue::Camera_GetNear(std::size_t id, float *near)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Camera>())
+        *near = entity.getComponent<Camera>().near;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
+}
+
+void ScriptGlue::Camera_SetNear(std::size_t id, float *near)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Camera>())
+        entity.getComponent<Camera>().near = *near;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
+}
+
+void ScriptGlue::Camera_GetFar(std::size_t id, float *far)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Camera>())
+        *far = entity.getComponent<Camera>().far;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
+}
+
+void ScriptGlue::Camera_SetFar(std::size_t id, float *far)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Camera>())
+        entity.getComponent<Camera>().far = *far;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
+}
+
+void ScriptGlue::Light_GetIntensity(std::size_t id, float *intensity)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Light>())
+        *intensity = entity.getComponent<Light>().intensity;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Light component" << std::endl;
+}
+
+void ScriptGlue::Light_SetIntensity(std::size_t id, float *intensity)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Light>())
+        entity.getComponent<Light>().intensity = *intensity;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Light component" << std::endl;
+}
+
+void ScriptGlue::Light_GetColor(std::size_t id, glm::vec3 *color)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Light>())
+        *color = entity.getComponent<Light>().color;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Light component" << std::endl;
+}
+
+void ScriptGlue::Light_SetColor(std::size_t id, glm::vec3 *color)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Light>())
+        entity.getComponent<Light>().color = *color;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Light component" << std::endl;
+}
+
+void ScriptGlue::Cubemap_GetName(std::size_t id, MonoString **name)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Cubemap>())
+        *name = mono_string_new(mono_domain_get(), entity.getComponent<Cubemap>().name.c_str());
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Cubemap component" << std::endl;
+}
+
+void ScriptGlue::Cubemap_SetName(std::size_t id, MonoString *name)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+    char *utf8 = mono_string_to_utf8(name);
+
+    if (entity.hasComponent<Cubemap>())
+        entity.getComponent<Cubemap>().name = utf8;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Cubemap component" << std::endl;
+    mono_free(utf8);
+}
+
+void ScriptGlue::Billboard_GetName(std::size_t id, MonoString **name)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Billboard>())
+        *name = mono_string_new(mono_domain_get(), entity.getComponent<Billboard>().name.c_str());
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Billboard component" << std::endl;
+}
+
+void ScriptGlue::Billboard_SetName(std::size_t id, MonoString *name)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+    char *utf8 = mono_string_to_utf8(name);
+
+    if (entity.hasComponent<Billboard>())
+        entity.getComponent<Billboard>().name = utf8;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Billboard component" << std::endl;
+    mono_free(utf8);
+}
+
+void ScriptGlue::Billboard_GetLockYAxis(std::size_t id, bool *lock)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    *lock = entity.getComponent<Billboard>().lockYAxis;
+}
+
 void ScriptGlue::Collider_GetTag(std::size_t id, MonoString **tag)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
@@ -182,6 +389,33 @@ void ScriptGlue::Collider_GetTag(std::size_t id, MonoString **tag)
 
     if (entity.hasComponent<Collider>()) {
         *tag = mono_string_new(mono_domain_get(), entity.getComponent<Collider>().tag.c_str());
+    } else
+        std::cout << "[Toast Error]Entity " << id << " has no Billboard component" << std::endl;
+}
+
+void ScriptGlue::Billboard_SetLockYAxis(std::size_t id, bool *lock)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Billboard>())
+        entity.getComponent<Billboard>().lockYAxis = *lock;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Billboard component" << std::endl;
+}
+
+void ScriptGlue::Collider_SetTag(std::size_t id, MonoString *tag)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Collider>()) {
+        char *utf8 = mono_string_to_utf8(tag);
+
+        entity.getComponent<Collider>().tag = utf8;
+        mono_free(utf8);
     } else
         std::cout << "[Toast Error]Entity " << id << " has no Collider component" << std::endl;
 }
@@ -246,6 +480,7 @@ void ScriptGlue::SetScene(MonoString *sceneName)
     resourceManager->setSceneChanged(true);
     mono_free(utf8);
 }
+
 void ScriptGlue::ResetScene()
 {
     auto resourceManager = ResourceManager::getStaticResourceManager();
@@ -281,9 +516,28 @@ void ScriptGlue::registerFunctions()
     mono_add_internal_call("InternalCalls::Transform_SetRotation", (void *)Transform_SetRotation);
     mono_add_internal_call("InternalCalls::Transform_GetScale", (void *)Transform_GetScale);
     mono_add_internal_call("InternalCalls::Transform_SetScale", (void *)Transform_SetScale);
+    mono_add_internal_call("InternalCalls::Model_GetName", (void *)Model_GetName);
+    mono_add_internal_call("InternalCalls::Model_SetName", (void *)Model_SetName);
     mono_add_internal_call("InternalCalls::Camera_GetForward", (void *)Camera_GetForward);
     mono_add_internal_call("InternalCalls::Camera_SetForward", (void *)Camera_SetForward);
+    mono_add_internal_call("InternalCalls::Camera_GetFOV", (void *)Camera_GetFOV);
+    mono_add_internal_call("InternalCalls::Camera_SetFOV", (void *)Camera_SetFOV);
+    mono_add_internal_call("InternalCalls::Camera_GetNear", (void *)Camera_GetNear);
+    mono_add_internal_call("InternalCalls::Camera_SetNear", (void *)Camera_SetNear);
+    mono_add_internal_call("InternalCalls::Camera_GetFar", (void *)Camera_GetFar);
+    mono_add_internal_call("InternalCalls::Camera_SetFar", (void *)Camera_SetFar);
+    mono_add_internal_call("InternalCalls::Light_GetIntensity", (void *)Light_GetIntensity);
+    mono_add_internal_call("InternalCalls::Light_SetIntensity", (void *)Light_SetIntensity);
+    mono_add_internal_call("InternalCalls::Light_GetColor", (void *)Light_GetColor);
+    mono_add_internal_call("InternalCalls::Light_SetColor", (void *)Light_SetColor);
+    mono_add_internal_call("InternalCalls::Cubemap_GetName", (void *)Cubemap_GetName);
+    mono_add_internal_call("InternalCalls::Cubemap_SetName", (void *)Cubemap_SetName);
+    mono_add_internal_call("InternalCalls::Billboard_GetName", (void *)Billboard_GetName);
+    mono_add_internal_call("InternalCalls::Billboard_SetName", (void *)Billboard_SetName);
+    mono_add_internal_call("InternalCalls::Billboard_GetLockYAxis", (void *)Billboard_GetLockYAxis);
+    mono_add_internal_call("InternalCalls::Billboard_SetLockYAxis", (void *)Billboard_SetLockYAxis);
     mono_add_internal_call("InternalCalls::Collider_GetTag", (void *)Collider_GetTag);
+    mono_add_internal_call("InternalCalls::Collider_SetTag", (void *)Collider_SetTag);
     mono_add_internal_call("InternalCalls::GetScriptInstance", (void *)GetScriptInstance);
     mono_add_internal_call("InternalCalls::IsKeyDown", (void *)IsKeyDown);
     mono_add_internal_call("InternalCalls::GetMouseMovementX", (void *)GetMouseMovementX);

@@ -24,24 +24,64 @@ public static class InternalCalls
     internal extern static void Transform_GetPosition(ulong id, out Vector3 position);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void Transform_SetPosition(ulong id, ref Vector3 position);
-
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void Transform_GetRotation(ulong id, out Vector3 rotation);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void Transform_SetRotation(ulong id, ref Vector3 rotation);
-
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void Transform_GetScale(ulong id, out Vector3 scale);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void Transform_SetScale(ulong id, ref Vector3 scale);
 
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Model_GetName(ulong id, out string name);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Model_SetName(ulong id, string name);
+
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void Camera_GetForward(ulong id, out Vector3 forward);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void Camera_SetForward(ulong id, ref Vector3 forward);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Camera_GetFov(ulong id, out float fov);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Camera_SetFov(ulong id, float fov);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Camera_GetNear(ulong id, out float near);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Camera_SetNear(ulong id, float near);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Camera_GetFar(ulong id, out float far);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Camera_SetFar(ulong id, float far);
+
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Light_GetIntensity(ulong id, out float type);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Light_SetIntensity(ulong id, float type);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Light_GetColor(ulong id, out Vector3 color);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Light_SetColor(ulong id, ref Vector3 color);
+
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Cubemap_GetName(ulong id, out string name);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Cubemap_SetName(ulong id, string name);
+
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Billboard_GetName(ulong id, out string name);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Billboard_SetName(ulong id, string name);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Billboard_GetLockYAxis(ulong id, out float lockYAxis);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Billboard_SetLockYAxis(ulong id, float lockYAxis);
 
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void Collider_GetTag(ulong id, out string tag);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Collider_SetTag(ulong id, string tag);
 
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static object GetScriptInstance(ulong entityId, string scriptName);

@@ -1,85 +1,185 @@
 <Scene>
   <Entities>
-    <Entity id="0" name="MaxwellTheCat">
+    <Entity id="0" name="MainCamera">
       <Components>
-        <Transform position="0 0 -5" />
-        <Model name="Maxwell" />
-        <Maxwell time="0" />
-      </Components>
-    </Entity>
-    <Entity id="1" name="MainCamera">
-      <Components>
-        <Transform position="0 1 10" scale="0.5 0.5 0.5" />
-        <Camera />
+        <Transform position="0 1 5" scale="0.5 0.5 0.5" />
+        <Camera far="200" />
         <Billboard name="Camera.png" />
         <ThirdPersonCamera distance="10" playerEntity="3" sensibility="0.1" />
       </Components>
     </Entity>
-    <Entity id="2" name="MainLight">
+
+    <Entity id="1" name="MainLight">
       <Components>
-        <Transform position="3 0 0" rotation="0 0 0" scale="0.5 0.5 0.5" />
+        <Transform position="0 10 0" rotation="-30 0 0" scale="0.5 0.5 0.5" />
         <Light type="Dir" />
         <Billboard name="DirectionalLight.png" />
       </Components>
     </Entity>
-    <!-- <Entity id="3">
-      <Components>
-        <Transform position="2 2 0" scale="0.5 0.5 0.5" />
-        <Light type="Point" />
-        <Billboard name="PointLight.png" lockYAxis="true" />
-      </Components>
-    </Entity> -->
-    <Entity id="3" name="Player">
-      <Components>
-        <Transform position="3 0 -2" />
-        <Model name="Fox" />
-        <CharacterController />
-        <Collider type="Capsule" radius="0.5 1" tag="player" />
-        <Controllable speed="10" cameraEntity="1" />
-      </Components>
-    </Entity>
-    <Entity id="5" name="Skybox">
+    <Entity id="2" name="Skybox">
       <Components>
         <Cubemap name="Sky" />
       </Components>
     </Entity>
-    <Entity id="6">
+    <Entity name="Player">
       <Components>
-        <Transform position="7 2 0" />
-        <Billboard name="heightMap.png" />
+        <Transform position="0 1 -5" rotation="0 90 0"/>
+        <Model name="Fox" />
+        <CharacterController />
+        <Collider type="Capsule" radius="0.5 1" tag="player" />
+        <Controllable speed="10" cameraEntity="0" />
       </Components>
     </Entity>
-    <Entity id="7" name="Terrain">
+    <Entity name="Floor">
       <Components>
-        <Transform />
-        <Map heightMap="gradient.jpeg" diffuseTexture="grass0_DIF.jpg"
-          normalTexture="grass0_NRM.jpg" diffuseTexture2="Ground_17_DIF.jpg"
-          diffuseTexture3="Ground_21_DIF.jpg" />
-      </Components>
-    </Entity>
-    <Entity id="8" name="PhysicDummy1">
-      <Components>
-        <Transform position="1 0 0" />
+        <Transform position="0 -0.5 0" scale="20 0.5 20" />
         <Model name="Cube" />
-        <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
-        <Collider type="Box" tag="ally" />
+        <RigidBody mass="0" />
+        <Collider type="Box" />
       </Components>
     </Entity>
-    <Entity id="9" name="PhysicDummy2">
+
+    <Entity name="Ramp 60">
       <Components>
-        <Transform position="0 3 0" />
+        <Transform position="-15 8.66 -10" rotation="0 0 -60" scale="10 0.2 2" />
         <Model name="Cube" />
-        <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
-        <Collider type="Box" tag="ennemy" />
-        <ColliderTest name="Greg"/>
+        <RigidBody mass="0" />
+        <Collider type="Box" />
       </Components>
     </Entity>
-    <Entity name="PhysicDummy3">
+    <Entity name="Ramp 45">
       <Components>
-        <Transform position="-1 0 0" />
+        <Transform position="-15 5 -6" rotation="0 0 -45" scale="7.07 0.2 2" />
         <Model name="Cube" />
-        <RigidBody mass="1" friction="0.5" restitution="0" kinematic="0" />
-        <Collider type="Box" tag="ennemy" />
+        <RigidBody mass="0" />
+        <Collider type="Box" />
+      </Components>
+    </Entity>
+    <Entity name="Ramp 30">
+      <Components>
+        <Transform position="-15 2.89 -2" rotation="0 0 -30" scale="5.77 0.2 2" />
+        <Model name="Cube" />
+        <RigidBody mass="0" />
+        <Collider type="Box" />
+      </Components>
+    </Entity>
+    <Entity name="Ramp 15">
+      <Components>
+        <Transform position="-15 1.34 2" rotation="0 0 -15" scale="5.18 0.2 2" />
+        <Model name="Cube" />
+        <RigidBody mass="0" />
+        <Collider type="Box" />
+      </Components>
+    </Entity>
+    <Entity name="Ramp 0">
+      <Components>
+        <Transform position="-15 0 6" rotation="0 0 0" scale="5 0.2 2" />
+        <Model name="Cube" />
+        <RigidBody mass="0" />
+        <Collider type="Box" />
+      </Components>
+    </Entity>
+    <Entity name="Wall Ramp">
+      <Components>
+        <Transform position="-20 10 -2" rotation="0 0 0" scale="0.2 10 10" />
+        <Model name="Cube" />
+        <RigidBody mass="0" />
+        <Collider type="Box" />
+      </Components>
+    </Entity>
+
+    <Entity name="Platform">
+      <Components>
+        <Transform position="15 2.8 15" scale="2 0.2 2" />
+        <Model name="Cube" />
+        <RigidBody mass="0" />
+        <Collider type="Box" />
+      </Components>
+    </Entity>
+
+    <Entity name="Step 6">
+      <Components>
+        <Transform position="12.5 2.75 15" scale="0.5 0.25 2" />
+        <Model name="Cube" />
+        <RigidBody mass="0" />
+        <Collider type="Box" />
+      </Components>
+    </Entity>
+    <Entity name="Step 5">
+      <Components>
+        <Transform position="11.5 2.25 15" scale="0.5 0.25 2" />
+        <Model name="Cube" />
+        <RigidBody mass="0" />
+        <Collider type="Box" />
+      </Components>
+    </Entity>
+    <Entity name="Step 4">
+      <Components>
+        <Transform position="10.5 1.75 15" scale="0.5 0.25 2" />
+        <Model name="Cube" />
+        <RigidBody mass="0" />
+        <Collider type="Box" />
+      </Components>
+    </Entity>
+    <Entity name="Step 3">
+      <Components>
+        <Transform position="9.5 1.25 15" scale="0.5 0.25 2" />
+        <Model name="Cube" />
+        <RigidBody mass="0" />
+        <Collider type="Box" />
+      </Components>
+    </Entity>
+    <Entity name="Step 2">
+      <Components>
+        <Transform position="8.5 0.75 15" scale="0.5 0.25 2" />
+        <Model name="Cube" />
+        <RigidBody mass="0" />
+        <Collider type="Box" />
+      </Components>
+    </Entity>
+    <Entity name="Step 1">
+      <Components>
+        <Transform position="7.5 0.25 15" scale="0.5 0.25 2" />
+        <Model name="Cube" />
+        <RigidBody mass="0" />
+        <Collider type="Box" />
+      </Components>
+    </Entity>
+
+    <Entity name="Point Light">
+      <Components>
+        <Transform position="-15 2 15" scale="0.5 0.5 0.5" />
+        <Light type="Point" />
+        <Billboard name="PointLight.png" />
+      </Components>
+    </Entity>
+    <Entity name="Green Light">
+      <Components>
+        <Transform position="-15 2 10" scale="0.5 0.5 0.5" />
+        <Light type="Point" color="0 1 0"/>
+        <Billboard name="PointLight.png" />
+      </Components>
+    </Entity>
+    <Entity name="Red Light">
+      <Components>
+        <Transform position="-10 2 15" scale="0.5 0.5 0.5" />
+        <Light type="Point" color="1 0 0" />
+        <Billboard name="PointLight.png" />
+      </Components>
+    </Entity>
+
+    <Entity name="Terrain">
+      <Components>
+        <Transform position="74 -8.5 0" rotation="0 0 0" />
+        <Map heightMap="gradient.jpeg" diffuseTexture="grass0_DIF.jpg" normalTexture="grass0_NRM.jpg" diffuseTexture2="Ground_17_DIF.jpg" diffuseTexture3="Ground_21_DIF.jpg" />
+      </Components>
+    </Entity>
+
+    <Entity name="Maxwell the cat">
+      <Components>
+        <Transform position="15 0.5 -15" />
+        <Model name="Maxwell" />
+        <Maxwell />
       </Components>
     </Entity>
   </Entities>

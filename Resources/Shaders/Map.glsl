@@ -53,6 +53,7 @@ in vec2 te_TexCoord;
 
 uniform vec3 viewPos;
 uniform sampler2D heightMap;
+uniform mat4 model;
 
 uniform sampler2D diffuseTexture;
 uniform sampler2D normalTexture;
@@ -85,16 +86,17 @@ void main()
     float right = texture(heightMap, te_TexCoord + vec2( uTexelSizex, 0.0f)).r * 32.0f - 1.0f;
     float up = texture(heightMap, te_TexCoord + vec2(0.0f,  uTexelSizey)).r * 32.0f - 1.0f;
     float down = texture(heightMap, te_TexCoord + vec2(0.0f, -uTexelSizey)).r * 32.0f - 1.0f;
-    vec3 norm = normalize(vec3(down - up, 1.0f, left - right));
+    vec3 objectNormal = vec3(down - up, 1.0f, left - right);
+    vec3 worldNormal = normalize(mat3(inverse(model)) * objectNormal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
     vec3 diffuseMap;
-    if (norm.y > 0.4f) {
+    if (worldNormal.y > 0.4f) {
         vec3 normalMap = texture(normalTexture, te_TexCoord * heightTexSize / 8).rgb;
         normalMap = normalize(normalMap * 2.0f - 1.0f);
         diffuseMap = texture(diffuseTexture, te_TexCoord * heightTexSize / 8).rgb;
         diffuseMap = diffuseMap * (1.0f - normalMap.y);
-    } else if (norm.y > 0.3f) {
+    } else if (worldNormal.y > 0.3f) {
         diffuseMap = texture(diffuseTexture2, te_TexCoord * heightTexSize / 8).rgb;
     } else {
         diffuseMap = texture(diffuseTexture3, te_TexCoord * heightTexSize / 8).rgb;
@@ -102,10 +104,10 @@ void main()
 
     vec3 result = vec3(0.0f);
     for (int i = 0; i < dirLightCount && i < NB_DIR_LIGHTS; i++)
-        result += calcDirLight(diffuseMap, dirLights[i], norm, viewDir);
+        result += calcDirLight(diffuseMap, dirLights[i], worldNormal, viewDir);
 
     // for (int i = 0; i < pointLightCount && i < NB_POINT_LIGHTS; i++)
-        // result += calcPointLight(object, pointLights[i], norm, FragPos, viewDir);
+        // result += calcPointLight(object, pointLights[i], worldNormal, FragPos, viewDir);
 
     FragColor = vec4(result, 1.0f);
 }

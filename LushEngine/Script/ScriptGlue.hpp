@@ -24,10 +24,33 @@ namespace Lush
             static void Transform_GetScale(std::size_t id, glm::vec3 *scale);
             static void Transform_SetScale(std::size_t id, glm::vec3 *scale);
 
+            static void Model_GetName(std::size_t id, MonoString **name);
+            static void Model_SetName(std::size_t id, MonoString *name);
+
             static void Camera_GetForward(std::size_t id, glm::vec3 *forward);
             static void Camera_SetForward(std::size_t id, glm::vec3 *forward);
+            static void Camera_GetFOV(std::size_t id, float *fov);
+            static void Camera_SetFOV(std::size_t id, float *fov);
+            static void Camera_GetNear(std::size_t id, float *near);
+            static void Camera_SetNear(std::size_t id, float *near);
+            static void Camera_GetFar(std::size_t id, float *far);
+            static void Camera_SetFar(std::size_t id, float *far);
+
+            static void Light_GetIntensity(std::size_t id, float *intensity);
+            static void Light_SetIntensity(std::size_t id, float *intensity);
+            static void Light_GetColor(std::size_t id, glm::vec3 *color);
+            static void Light_SetColor(std::size_t id, glm::vec3 *color);
+
+            static void Cubemap_GetName(std::size_t id, MonoString **name);
+            static void Cubemap_SetName(std::size_t id, MonoString *name);
+
+            static void Billboard_GetName(std::size_t id, MonoString **name);
+            static void Billboard_SetName(std::size_t id, MonoString *name);
+            static void Billboard_GetLockYAxis(std::size_t id, bool *lock);
+            static void Billboard_SetLockYAxis(std::size_t id, bool *lock);
 
             static void Collider_GetTag(std::size_t id, MonoString **tag);
+            static void Collider_SetTag(std::size_t id, MonoString *tag);
 
             static MonoObject *GetScriptInstance(std::size_t entityId, MonoString *scriptName);
 

@@ -14,13 +14,9 @@ public class Maxwell : CustomComponent
     public void onUpdate(float deltaTime)
     {
         time += deltaTime;
+
         Vector3 tmpRot = transform.rotation;
-        Vector3 tmpPos = transform.position;
-
-        float rot = MathF.Pow(MathF.Asin(MathF.Sin(time * 4)), 2) * MathF.Sin(time * 4);
-        tmpRot.x = rot * 15.0f;
-
+        tmpRot.x = (float)MathF.Sin(time * 4f) * 15f;
         transform.rotation = tmpRot;
-        transform.position = tmpPos;
     }
 }
