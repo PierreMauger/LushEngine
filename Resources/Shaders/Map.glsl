@@ -70,7 +70,7 @@ vec3 calcDirLight(vec3 color, DirLight light, vec3 normal, vec3 viewDir)
     lightDir = vec3(lightDir.z, lightDir.y, lightDir.x);
     float diff = max(dot(normal, lightDir), 0.0f);
 
-    vec3 ambient = light.ambient * 0.6f;
+    vec3 ambient = light.ambient * 0.5f;
     vec3 diffuse = light.diffuse * diff;
     return (ambient + diffuse) * color;
 }

@@ -44,9 +44,7 @@ public class ThirdPersonCamera : CustomComponent
 
         // set camera behind player
         Vector3 tmpPosition = transform.position;
-        tmpPosition.x = playerTransform.position.x - camera.forward.x * distance;
-        tmpPosition.y = playerTransform.position.y - camera.forward.y * distance;
-        tmpPosition.z = playerTransform.position.z - camera.forward.z * distance;
+        tmpPosition = Vector3.lerp(tmpPosition, playerTransform.position - camera.forward * distance, 1.0f);
         transform.position = tmpPosition;
     }
 }

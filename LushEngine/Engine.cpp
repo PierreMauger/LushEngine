@@ -12,9 +12,9 @@ Engine::Engine(bool isEditor) : _isEditor(isEditor)
 
     this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());
 
+    this->_ecs.getSystemManager().bindSystem(std::make_unique<PhysicSystem>(this->_graphic, this->_resourceManager));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<ScriptSystem>(this->_graphic, this->_resourceManager));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<CameraSystem>(this->_graphic));
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<PhysicSystem>(this->_graphic, this->_resourceManager));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<RenderSystem>(this->_graphic, this->_resourceManager));
 #ifdef EDITOR_MODE
     this->_ecs.getSystemManager().bindSystem(std::make_unique<SceneSystem>(this->_graphic, this->_resourceManager));

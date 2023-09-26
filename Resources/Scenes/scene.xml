@@ -12,7 +12,7 @@
         <Transform position="0 1 10" scale="0.5 0.5 0.5" />
         <Camera />
         <Billboard name="Camera.png" />
-        <ThirdPersonCamera distance="10" playerEntity="4" sensibility="0.1" />
+        <ThirdPersonCamera distance="10" playerEntity="3" sensibility="0.1" />
       </Components>
     </Entity>
     <Entity id="2" name="MainLight">
@@ -22,14 +22,14 @@
         <Billboard name="DirectionalLight.png" />
       </Components>
     </Entity>
-    <Entity id="3">
+    <!-- <Entity id="3">
       <Components>
         <Transform position="2 2 0" scale="0.5 0.5 0.5" />
         <Light type="Point" />
         <Billboard name="PointLight.png" lockYAxis="true" />
       </Components>
-    </Entity>
-    <Entity id="4" name="Player">
+    </Entity> -->
+    <Entity id="3" name="Player">
       <Components>
         <Transform position="3 0 -2" />
         <Model name="Fox" />

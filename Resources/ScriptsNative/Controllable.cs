@@ -20,10 +20,8 @@ public class Controllable : CustomComponent
     public void onInit()
     {
         transform = this.entity.getComponent<Transform>();
-        if (cameraEntity == null) {
-            Console.WriteLine("No camera entity specified, using default camera (1).");
-            cameraEntity = new Entity(1);
-        }
+        if (cameraEntity == null)
+            cameraEntity = new Entity(InternalCalls.GetEntityFromName("MainCamera"));
         camera = cameraEntity.getComponent<Camera>();
     }
 
