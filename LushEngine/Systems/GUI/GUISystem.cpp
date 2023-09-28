@@ -1045,6 +1045,7 @@ void GUISystem::drawProjectManager()
         if (ImGui::Button((ICON_FA_TRASH "##" + projectName).c_str(), ImVec2(40, 40))) {
             it = this->_projectSettings.erase(it);
             this->saveProjectSettings();
+            ImGui::PopStyleColor();
             continue;
         }
         ImGui::PopStyleColor();
