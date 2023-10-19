@@ -15,7 +15,7 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Resou
     Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
     this->_graphic->getFrameBuffers()["scene"] = this->_buffer;
 
-    Shapes::setupSkyBox(this->_skybox);
+    Shapes::setupSkybox(this->_skybox);
     Shapes::setupBillboard(this->_billboard);
     Shapes::setupPlane(this->_grid);
     Shapes::setupCube(this->_cameraFrustum);
@@ -199,15 +199,15 @@ void SceneSystem::drawSkybox(std::shared_ptr<EntityManager> &entityManager)
 {
     glDepthFunc(GL_LEQUAL);
     this->_graphic->getRenderView().use("Skybox");
-    this->_graphic->getRenderView().setSkyBoxView();
+    this->_graphic->getRenderView().setSkyboxView();
     for (auto &[id, entity] : entityManager->getEntities()) {
         if (!entity.hasComponent<Cubemap>())
             continue;
         Cubemap cubeMap = entity.getComponent<Cubemap>();
 
-        if (this->_resourceManager->getSkyBoxes().find(cubeMap.name) != this->_resourceManager->getSkyBoxes().end()) {
+        if (this->_resourceManager->getSkyboxes().find(cubeMap.name) != this->_resourceManager->getSkyboxes().end()) {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyBoxes()[cubeMap.name].getId());
+            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyboxes()[cubeMap.name].getId());
             this->_graphic->getRenderView().getShader().setInt("skybox", 0);
             glBindVertexArray(this->_skybox.vao);
             glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -256,7 +256,7 @@ void SceneSystem::drawLightDirection(std::shared_ptr<EntityManager> &entityManag
     if (entityManager->getEntities().find(this->_graphic->getSelectedEntity()) == entityManager->getEntities().end())
         return;
     Entity &entity = entityManager->getEntity(this->_graphic->getSelectedEntity());
-    if (!entity.hasComponent<Transform>() || !entity.hasComponent<Light>())
+    if (!entity.hasComponent<Transform>() || !entity.hasComponent<Light>() || (entity.getComponent<Light>().type != LightType::DIRECTIONAL && entity.getComponent<Light>().type != LightType::SPOT))
         return;
 
     this->_graphic->getRenderView().use("CameraFrustum");

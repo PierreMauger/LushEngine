@@ -1,0 +1,40 @@
+<Scene>
+  <Entities>
+    <Entity id="0" name="MainCamera">
+      <Components>
+        <Transform position="0 1 5" scale="0.5 0.5 0.5" />
+        <Camera far="200" />
+        <Billboard name="Camera.png" />
+      </Components>
+    </Entity>
+
+    <Entity id="1" name="MainLight">
+      <Components>
+        <Transform position="0 10 0" rotation="-30 0 0" scale="0.5 0.5 0.5" />
+        <Light type="Dir" />
+        <Billboard name="DirectionalLight.png" />
+      </Components>
+    </Entity>
+    <Entity id="2" name="Skybox">
+      <Components>
+        <Cubemap name="LearnOpenGL" />
+      </Components>
+    </Entity>
+    <Entity name="Floor">
+      <Components>
+        <Transform position="0 -0.5 0" scale="20 0.5 20" />
+        <Model name="Cube" />
+        <RigidBody mass="0" />
+        <Collider type="box" />
+      </Components>
+    </Entity>
+
+    <Entity name="Test entity">
+      <Components>
+        <Transform position="0 0.5 -5" />
+        <Model name="Maxwell" />
+        <TestScript />
+      </Components>
+    </Entity>
+  </Entities>
+</Scene>

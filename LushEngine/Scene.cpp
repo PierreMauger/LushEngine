@@ -3,7 +3,19 @@
 using namespace Lush;
 
 static const char *lightTypeNames[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
-static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"Box", "Sphere", "Capsule", "Mesh"};
+static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"box", "Sphere", "Capsule", "Mesh"};
+static const std::unordered_map<std::string, std::function<void(rapidxml::xml_node<> *, Entity &)>> componentLoaders = {
+    {"Transform", &Scene::loadTransform},
+    {"Model", &Scene::loadModel},
+    {"Camera", &Scene::loadCamera},
+    {"Light", &Scene::loadLight},
+    {"Cubemap", &Scene::loadCubemap},
+    {"Billboard", &Scene::loadBillboard},
+    {"Map", &Scene::loadMap},
+    {"RigidBody", &Scene::loadRigidBody},
+    {"Collider", &Scene::loadCollider},
+    {"CharacterController", &Scene::loadCharacterController},
+};
 
 Scene::Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts) : Resource(ResourceType::SCENE, file)
 {
@@ -33,143 +45,19 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
             id = std::atoi(entityNode->first_attribute("id")->value());
         else if (this->_entityManager->getEntities().size() > 0)
             id = this->_entityManager->getEntities().rbegin()->first + 1;
+
         Entity entity;
         if (entityNode->first_attribute("name"))
             entity.setName(entityNode->first_attribute("name")->value());
 
         rapidxml::xml_node<> *componentsNode = entityNode->first_node("Components");
         for (rapidxml::xml_node<> *componentNode = componentsNode->first_node(); componentNode; componentNode = componentNode->next_sibling()) {
-            std::string name = componentNode->name();
-            if (name == "Transform") {
-                Transform temp;
-                if (componentNode->first_attribute("position"))
-                    std::sscanf(componentNode->first_attribute("position")->value(), "%f %f %f", &temp.position.x, &temp.position.y, &temp.position.z);
-                if (componentNode->first_attribute("rotation"))
-                    std::sscanf(componentNode->first_attribute("rotation")->value(), "%f %f %f", &temp.rotation.x, &temp.rotation.y, &temp.rotation.z);
-                if (componentNode->first_attribute("scale"))
-                    std::sscanf(componentNode->first_attribute("scale")->value(), "%f %f %f", &temp.scale.x, &temp.scale.y, &temp.scale.z);
-                entity.addComponent(temp);
-            } else if (name == "Model") {
-                Model temp;
-                temp.name = componentNode->first_attribute("name")->value();
-                entity.addComponent(temp);
-            } else if (name == "Camera") {
-                Camera temp;
-                if (componentNode->first_attribute("forward"))
-                    std::sscanf(componentNode->first_attribute("forward")->value(), "%f %f %f", &temp.forward.x, &temp.forward.y, &temp.forward.z);
-                if (componentNode->first_attribute("fov"))
-                    temp.fov = std::atof(componentNode->first_attribute("fov")->value());
-                if (componentNode->first_attribute("near"))
-                    temp.near = std::atof(componentNode->first_attribute("near")->value());
-                if (componentNode->first_attribute("far"))
-                    temp.far = std::atof(componentNode->first_attribute("far")->value());
-                entity.addComponent(temp);
-            } else if (name == "Light") {
-                Light temp;
-                if (componentNode->first_attribute("type")) {
-                    for (int i = 0; i < LightType::LIGHT_TYPE_COUNT; i++) {
-                        if (strcmp(lightTypeNames[i], componentNode->first_attribute("type")->value()) == 0) {
-                            temp.type = (LightType)i;
-                            break;
-                        }
-                    }
-                }
-                if (componentNode->first_attribute("color"))
-                    std::sscanf(componentNode->first_attribute("color")->value(), "%f %f %f", &temp.color.x, &temp.color.y, &temp.color.z);
-                if (componentNode->first_attribute("intensity"))
-                    temp.intensity = std::atof(componentNode->first_attribute("intensity")->value());
-                if (componentNode->first_attribute("cutOff"))
-                    temp.cutOff = std::atof(componentNode->first_attribute("cutOff")->value());
-                entity.addComponent(temp);
-            } else if (name == "Cubemap") {
-                Cubemap temp;
-                temp.name = componentNode->first_attribute("name")->value();
-                entity.addComponent(temp);
-            } else if (name == "Billboard") {
-                Billboard temp;
-                temp.name = componentNode->first_attribute("name")->value();
-                if (componentNode->first_attribute("lockYAxis"))
-                    temp.lockYAxis = componentNode->first_attribute("lockYAxis")->value() == std::string("true") ? true : false;
-                entity.addComponent(temp);
-            } else if (name == "Map") {
-                Map temp;
-                temp.heightMap = componentNode->first_attribute("heightMap")->value();
-                temp.diffuseTexture = componentNode->first_attribute("diffuseTexture")->value();
-                temp.normalTexture = componentNode->first_attribute("normalTexture")->value();
-                temp.diffuseTexture2 = componentNode->first_attribute("diffuseTexture2")->value();
-                temp.diffuseTexture3 = componentNode->first_attribute("diffuseTexture3")->value();
-                entity.addComponent(temp);
-            } else if (name == "RigidBody") {
-                RigidBody temp;
-                if (componentNode->first_attribute("mass"))
-                    temp.mass = std::stof(componentNode->first_attribute("mass")->value());
-                if (componentNode->first_attribute("friction"))
-                    temp.friction = std::stof(componentNode->first_attribute("friction")->value());
-                if (componentNode->first_attribute("restitution"))
-                    temp.restitution = std::stof(componentNode->first_attribute("restitution")->value());
-                if (componentNode->first_attribute("kinematic"))
-                    temp.kinematic = std::atoi(componentNode->first_attribute("kinematic")->value());
-                entity.addComponent(temp);
-            } else if (name == "Collider") {
-                Collider temp;
-                if (componentNode->first_attribute("type")) {
-                    for (int i = 0; i < ColliderType::COLLIDER_TYPE_COUNT; i++) {
-                        if (strcmp(colliderTypeNames[i], componentNode->first_attribute("type")->value()) == 0) {
-                            temp.type = (ColliderType)i;
-                            break;
-                        }
-                    }
-                }
-                if (componentNode->first_attribute("center"))
-                    std::sscanf(componentNode->first_attribute("center")->value(), "%f %f %f", &temp.center.x, &temp.center.y, &temp.center.z);
-                if (temp.type == ColliderType::SPHERE) {
-                    if (componentNode->first_attribute("radius"))
-                        std::sscanf(componentNode->first_attribute("radius")->value(), "%f", &temp.size.x);
-                } else if (temp.type == ColliderType::CAPSULE) {
-                    if (componentNode->first_attribute("radius"))
-                        std::sscanf(componentNode->first_attribute("radius")->value(), "%f %f", &temp.size.x, &temp.size.y);
-                } else {
-                    if (componentNode->first_attribute("size"))
-                        std::sscanf(componentNode->first_attribute("size")->value(), "%f %f %f", &temp.size.x, &temp.size.y, &temp.size.z);
-                }
-                if (componentNode->first_attribute("tag"))
-                    temp.tag = componentNode->first_attribute("tag")->value();
-                entity.addComponent(temp);
-            } else if (name == "CharacterController") {
-                CharacterController temp;
-                if (componentNode->first_attribute("center"))
-                    std::sscanf(componentNode->first_attribute("center")->value(), "%f %f %f", &temp.center.x, &temp.center.y, &temp.center.z);
-                if (componentNode->first_attribute("slopeLimit"))
-                    temp.slopeLimit = std::stof(componentNode->first_attribute("slopeLimit")->value());
-                if (componentNode->first_attribute("stepOffset"))
-                    temp.stepOffset = std::stof(componentNode->first_attribute("stepOffset")->value());
-                entity.addComponent(temp);
-            }
-            for (auto &[scriptName, script] : scripts) {
-                if (scriptName == name) {
-                    ScriptComponent scriptComponent;
-                    for (auto &[fieldName, field] : script.getFields()) {
-                        if (field.type == "Single")
-                            scriptComponent.addField(fieldName, 0.0f);
-                        if (field.type == "Entity" || field.type == "UInt64")
-                            scriptComponent.addField(fieldName, (unsigned long)0);
-                        if (field.type == "String")
-                            scriptComponent.addField(fieldName, std::string(""));
-                    }
-                    for (rapidxml::xml_attribute<> *attribute = componentNode->first_attribute(); attribute; attribute = attribute->next_attribute()) {
-                        std::string attributeName = attribute->name();
-                        if (scripts[scriptName].getFields().find(attributeName) != scripts[scriptName].getFields().end()) {
-                            if (scripts[scriptName].getFields()[attributeName].type == "Single")
-                                scriptComponent.addField(attributeName, std::stof(attribute->value()));
-                            if (scripts[scriptName].getFields()[attributeName].type == "Entity" || scripts[scriptName].getFields()[attributeName].type == "UInt64")
-                                scriptComponent.addField(attributeName, std::stoul(attribute->value()));
-                            if (scripts[scriptName].getFields()[attributeName].type == "String")
-                                scriptComponent.addField(attributeName, std::string(attribute->value()));
-                        }
-                    }
-                    entity.addScriptComponent(scriptName, scriptComponent);
-                }
-            }
+            if (componentLoaders.find(componentNode->name()) != componentLoaders.end())
+                componentLoaders.at(componentNode->name())(componentNode, entity);
+            else if (scripts.find(componentNode->name()) != scripts.end())
+                this->loadScript(componentNode, entity, scripts[componentNode->name()]);
+            else
+                std::cout << "Component loader not found for " << componentNode->name() << std::endl;
         }
         this->_entityManager->addEntity(entity, id);
     }
@@ -180,4 +68,155 @@ void Scene::reload(File &file, std::unordered_map<std::string, ScriptClass> &scr
 {
     this->_entityManager->clear();
     this->load(file, scripts);
+}
+
+void Scene::loadTransform(rapidxml::xml_node<> *node, Entity &entity)
+{
+    Transform transform;
+    if (node->first_attribute("position"))
+        std::sscanf(node->first_attribute("position")->value(), "%f %f %f", &transform.position.x, &transform.position.y, &transform.position.z);
+    if (node->first_attribute("rotation"))
+        std::sscanf(node->first_attribute("rotation")->value(), "%f %f %f", &transform.rotation.x, &transform.rotation.y, &transform.rotation.z);
+    if (node->first_attribute("scale"))
+        std::sscanf(node->first_attribute("scale")->value(), "%f %f %f", &transform.scale.x, &transform.scale.y, &transform.scale.z);
+    entity.addComponent(transform);
+}
+
+void Scene::loadModel(rapidxml::xml_node<> *node, Entity &entity)
+{
+    Model temp;
+    temp.name = node->first_attribute("name")->value();
+    entity.addComponent(temp);
+}
+
+void Scene::loadCamera(rapidxml::xml_node<> *node, Entity &entity)
+{
+    Camera camera;
+    if (node->first_attribute("forward"))
+        std::sscanf(node->first_attribute("forward")->value(), "%f %f %f", &camera.forward.x, &camera.forward.y, &camera.forward.z);
+    if (node->first_attribute("fov"))
+        camera.fov = std::atof(node->first_attribute("fov")->value());
+    if (node->first_attribute("near"))
+        camera.near = std::atof(node->first_attribute("near")->value());
+    if (node->first_attribute("far"))
+        camera.far = std::atof(node->first_attribute("far")->value());
+    entity.addComponent(camera);
+}
+
+void Scene::loadLight(rapidxml::xml_node<> *node, Entity &entity)
+{
+    Light light;
+    if (node->first_attribute("type")) {
+        for (int i = 0; i < LightType::LIGHT_TYPE_COUNT; i++) {
+            if (strcmp(lightTypeNames[i], node->first_attribute("type")->value()) == 0) {
+                light.type = (LightType)i;
+                break;
+            }
+        }
+    }
+    if (node->first_attribute("color"))
+        std::sscanf(node->first_attribute("color")->value(), "%f %f %f", &light.color.x, &light.color.y, &light.color.z);
+    if (node->first_attribute("intensity"))
+        light.intensity = std::atof(node->first_attribute("intensity")->value());
+    if (node->first_attribute("cutOff"))
+        light.cutOff = std::atof(node->first_attribute("cutOff")->value());
+    entity.addComponent(light);
+}
+
+void Scene::loadCubemap(rapidxml::xml_node<> *node, Entity &entity)
+{
+    Cubemap cubemap;
+    cubemap.name = node->first_attribute("name")->value();
+    entity.addComponent(cubemap);
+}
+
+void Scene::loadBillboard(rapidxml::xml_node<> *node, Entity &entity)
+{
+    Billboard billboard;
+    billboard.name = node->first_attribute("name")->value();
+    if (node->first_attribute("lockYAxis"))
+        billboard.lockYAxis = node->first_attribute("lockYAxis")->value() == std::string("true") ? true : false;
+    entity.addComponent(billboard);
+}
+
+void Scene::loadMap(rapidxml::xml_node<> *node, Entity &entity)
+{
+    Map map;
+    map.heightMap = node->first_attribute("heightMap")->value();
+    map.diffuseTexture = node->first_attribute("diffuseTexture")->value();
+    map.normalTexture = node->first_attribute("normalTexture")->value();
+    map.diffuseTexture2 = node->first_attribute("diffuseTexture2")->value();
+    map.diffuseTexture3 = node->first_attribute("diffuseTexture3")->value();
+    entity.addComponent(map);
+}
+
+void Scene::loadRigidBody(rapidxml::xml_node<> *node, Entity &entity)
+{
+    RigidBody rigidBody;
+    if (node->first_attribute("mass"))
+        rigidBody.mass = std::stof(node->first_attribute("mass")->value());
+    if (node->first_attribute("friction"))
+        rigidBody.friction = std::stof(node->first_attribute("friction")->value());
+    if (node->first_attribute("restitution"))
+        rigidBody.restitution = std::stof(node->first_attribute("restitution")->value());
+    if (node->first_attribute("kinematic"))
+        rigidBody.kinematic = std::atoi(node->first_attribute("kinematic")->value());
+    entity.addComponent(rigidBody);
+}
+
+void Scene::loadCollider(rapidxml::xml_node<> *node, Entity &entity)
+{
+    Collider collider;
+    if (node->first_attribute("type")) {
+        for (int i = 0; i < ColliderType::COLLIDER_TYPE_COUNT; i++) {
+            if (strcmp(colliderTypeNames[i], node->first_attribute("type")->value()) == 0) {
+                collider.type = (ColliderType)i;
+                break;
+            }
+        }
+    }
+    if (node->first_attribute("center"))
+        std::sscanf(node->first_attribute("center")->value(), "%f %f %f", &collider.center.x, &collider.center.y, &collider.center.z);
+    if (collider.type == ColliderType::SPHERE) {
+        if (node->first_attribute("radius"))
+            std::sscanf(node->first_attribute("radius")->value(), "%f", &collider.size.x);
+    } else if (collider.type == ColliderType::CAPSULE) {
+        if (node->first_attribute("radius"))
+            std::sscanf(node->first_attribute("radius")->value(), "%f %f", &collider.size.x, &collider.size.y);
+    } else {
+        if (node->first_attribute("size"))
+            std::sscanf(node->first_attribute("size")->value(), "%f %f %f", &collider.size.x, &collider.size.y, &collider.size.z);
+    }
+    if (node->first_attribute("tag"))
+        collider.tag = node->first_attribute("tag")->value();
+    entity.addComponent(collider);
+}
+
+void Scene::loadCharacterController(rapidxml::xml_node<> *node, Entity &entity)
+{
+    CharacterController characterController;
+    if (node->first_attribute("center"))
+        std::sscanf(node->first_attribute("center")->value(), "%f %f %f", &characterController.center.x, &characterController.center.y, &characterController.center.z);
+    if (node->first_attribute("slopeLimit"))
+        characterController.slopeLimit = std::stof(node->first_attribute("slopeLimit")->value());
+    if (node->first_attribute("stepOffset"))
+        characterController.stepOffset = std::stof(node->first_attribute("stepOffset")->value());
+    entity.addComponent(characterController);
+}
+
+void Scene::loadScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &script)
+{
+    ScriptComponent scriptComponent(script);
+
+    for (rapidxml::xml_attribute<> *attribute = node->first_attribute(); attribute; attribute = attribute->next_attribute()) {
+        if (script.getFields().find(attribute->name()) != script.getFields().end()) {
+            if (script.getFields()[attribute->name()].type == "Single")
+                scriptComponent.addField(attribute->name(), std::stof(attribute->value()));
+            else if (script.getFields()[attribute->name()].type == "Entity" || script.getFields()[attribute->name()].type == "UInt64")
+                scriptComponent.addField(attribute->name(), std::stoul(attribute->value()));
+            else if (script.getFields()[attribute->name()].type == "String")
+                scriptComponent.addField(attribute->name(), std::string(attribute->value()));
+        }
+    }
+    entity.addScriptComponent(node->name(), scriptComponent);
 }

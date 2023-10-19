@@ -17,7 +17,7 @@ namespace Lush
             static void deleteFrameBuffer(FrameBuffer &frameBuffer);
             static void setupBillboard(BufferObject &bufferObject);
             static void setupPlane(BufferObject &bufferObject);
-            static void setupSkyBox(BufferObject &bufferObject);
+            static void setupSkybox(BufferObject &bufferObject);
             static void setupCube(BufferObject &bufferObject);
             static void deleteBufferObject(BufferObject &bufferObject);
     };

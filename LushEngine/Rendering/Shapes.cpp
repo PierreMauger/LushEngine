@@ -56,7 +56,7 @@ void Shapes::setupPlane(BufferObject &bufferObject)
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 }
 
-void Shapes::setupSkyBox(BufferObject &bufferObject)
+void Shapes::setupSkybox(BufferObject &bufferObject)
 {
     glGenVertexArrays(1, &bufferObject.vao);
     glGenBuffers(1, &bufferObject.vbo);

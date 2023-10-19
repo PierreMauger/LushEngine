@@ -7,7 +7,7 @@
 #include "File/File.hpp"
 #include "File/Resource.hpp"
 #include "Includes.hpp"
-#include "Rendering/CubeMap.hpp"
+#include "Rendering/Skybox.hpp"
 #include "Rendering/MapMesh.hpp"
 #include "Rendering/RenderModel.hpp"
 #include "Rendering/RenderView.hpp"

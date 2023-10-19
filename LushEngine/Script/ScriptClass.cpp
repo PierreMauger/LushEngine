@@ -31,6 +31,8 @@ void ScriptClass::loadAttributes()
     int fieldCount = mono_class_num_fields(this->_class);
     void *iter = nullptr;
 
+    MonoObject *instance = mono_object_new(this->_domain, this->_class);
+    mono_runtime_object_init(instance);
     for (int i = 0; i < fieldCount; i++) {
         MonoClassField *field = mono_class_get_fields(this->_class, &iter);
         const char *fieldName = mono_field_get_name(field);
@@ -41,8 +43,23 @@ void ScriptClass::loadAttributes()
         MonoClass *fieldClass = mono_class_from_mono_type(fieldType);
         const char *fieldClassName = mono_class_get_name(fieldClass); // ex: Int32
 
-        if (fieldAttrs & MONO_FIELD_ATTR_PUBLIC)
-            this->_fields[fieldName] = {fieldClassName, field};
+        if (fieldAttrs & MONO_FIELD_ATTR_PUBLIC) {
+            if (std::string(fieldClassName) == "Single") {
+                float value;
+                mono_field_get_value(instance, field, &value);
+                this->_fields[fieldName] = {fieldClassName, field, value};
+            } else if (std::string(fieldClassName) == "Entity" || std::string(fieldClassName) == "UInt64") {
+                unsigned long value;
+                mono_field_get_value(instance, field, &value);
+                this->_fields[fieldName] = {fieldClassName, field, value};
+            } else if (std::string(fieldClassName) == "String") {
+                MonoString *value;
+                mono_field_get_value(instance, field, &value);
+                this->_fields[fieldName] = {fieldClassName, field, std::string(mono_string_to_utf8(value))};
+            } else {
+                this->_fields[fieldName] = {fieldClassName, field};
+            }
+        }
     }
 }
 

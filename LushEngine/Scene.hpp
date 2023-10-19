@@ -29,6 +29,18 @@ namespace Lush
             void load(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
             void reload(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
 
+            static void loadTransform(rapidxml::xml_node<> *node, Entity &entity);
+            static void loadModel(rapidxml::xml_node<> *node, Entity &entity);
+            static void loadCamera(rapidxml::xml_node<> *node, Entity &entity);
+            static void loadLight(rapidxml::xml_node<> *node, Entity &entity);
+            static void loadCubemap(rapidxml::xml_node<> *node, Entity &entity);
+            static void loadBillboard(rapidxml::xml_node<> *node, Entity &entity);
+            static void loadMap(rapidxml::xml_node<> *node, Entity &entity);
+            static void loadRigidBody(rapidxml::xml_node<> *node, Entity &entity);
+            static void loadCollider(rapidxml::xml_node<> *node, Entity &entity);
+            static void loadCharacterController(rapidxml::xml_node<> *node, Entity &entity);
+            void loadScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &script);
+
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
                 ar &this->_entityManager;

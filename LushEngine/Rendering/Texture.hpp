@@ -24,20 +24,19 @@ namespace Lush
             unsigned char *_heightData = nullptr;
             std::string _content;
 
-            void setupTexture(unsigned char *data);
-
         public:
             Texture(File &file);
             Texture() = default;
             ~Texture();
 
             void load(File &file);
+            void reload(File &file);
             void createTexture();
 
             unsigned int getId() const;
             int getWidth() const;
             int getHeight() const;
-            unsigned char *getData() const;
+            unsigned char *getHeightData() const;
             std::string getContent() const;
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)

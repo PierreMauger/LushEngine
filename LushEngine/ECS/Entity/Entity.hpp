@@ -50,7 +50,7 @@ namespace Lush
             }
 
             ScriptComponent &getScriptComponent(const std::string &className);
-            void addScriptComponent(const std::string &className, ScriptComponent scriptComponent);
+            void addScriptComponent(const std::string &className, ScriptComponent &scriptComponent);
             void removeScriptComponent(const std::string &className);
             bool hasScriptComponent(const std::string &className);
 

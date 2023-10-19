@@ -11,6 +11,15 @@ void FileWatcherSystem::update(std::shared_ptr<EntityManager> &entityManager, fl
 {
     if (!this->shouldUpdate(deltaTime))
         return;
+
+    // handle deleted files
+    for (auto it = this->_resourceManager->getFiles().begin(); it != this->_resourceManager->getFiles().end();) {
+        if (it->second.isDeleted()) {
+            it = this->_resourceManager->getFiles().erase(it);
+            this->deleteResourcesFromFile(it->second);
+        } else
+            ++it;
+    }
     // handle modified files
     for (auto &[name, file] : this->_resourceManager->getFiles()) {
         if (file.isModified()) {
@@ -18,10 +27,16 @@ void FileWatcherSystem::update(std::shared_ptr<EntityManager> &entityManager, fl
             this->reloadResourcesFromFile(file, entityManager);
         }
     }
+
     // handle scheduled resources
+    if (!this->_graphic->isRunning() && !this->_scheduledDelete.empty()) {
+        for (auto &res : this->_scheduledDelete)
+            this->deleteResource(res);
+        this->_scheduledDelete.clear();
+    }
     if (!this->_graphic->isRunning() && !this->_scheduledReload.empty()) {
         for (auto &res : this->_scheduledReload)
-            this->updateResource(res, entityManager);
+            this->reloadResource(res, entityManager);
         this->_scheduledReload.clear();
     }
 }
@@ -31,15 +46,30 @@ void FileWatcherSystem::reloadResourcesFromFile(File &file, std::shared_ptr<Enti
     for (auto &res : Resource::getResources())
         if (res.hasFile(file)) {
             std::cout << "[Toast Info]Reloading resource " << res.getUUID() << " for file " << file.getPath() << std::endl;
-            this->updateResource(res, entityManager);
+            this->reloadResource(res, entityManager);
         }
 }
 
-void FileWatcherSystem::updateResource(Resource &resource, std::shared_ptr<EntityManager> &entityManager)
+void FileWatcherSystem::deleteResourcesFromFile(File &file)
+{
+    for (auto &res : Resource::getResources())
+        if (res.hasFile(file)) {
+            std::cout << "[Toast Info]Deleting resource " << res.getUUID() << " for file " << file.getPath() << std::endl;
+            this->deleteResource(res);
+        }
+}
+
+void FileWatcherSystem::reloadResource(Resource &resource, std::shared_ptr<EntityManager> &entityManager)
 {
     switch (resource.getType()) {
     case ResourceType::MODEL:
         this->reloadModel(resource);
+        break;
+    case ResourceType::TEXTURE:
+        this->reloadTexture(resource);
+        break;
+    case ResourceType::SKYBOX:
+        this->reloadSkybox(resource);
         break;
     case ResourceType::SHADER:
         this->reloadShader(resource);
@@ -63,38 +93,87 @@ void FileWatcherSystem::updateResource(Resource &resource, std::shared_ptr<Entit
     }
 }
 
+void FileWatcherSystem::deleteResource(Resource &resource)
+{
+    switch (resource.getType()) {
+    case ResourceType::MODEL:
+        this->_resourceManager->getModels().erase(resource.getUUID());
+        break;
+    case ResourceType::TEXTURE:
+        this->_resourceManager->getTextures().erase(resource.getUUID());
+        break;
+    case ResourceType::SKYBOX:
+        this->_resourceManager->getSkyboxes().erase(resource.getUUID());
+        break;
+    case ResourceType::SHADER:
+        this->_resourceManager->getShaders().erase(resource.getUUID());
+        break;
+    case ResourceType::SCENE:
+        if (this->_graphic->isRunning()) {
+            this->_scheduledDelete.push_back(resource);
+            std::cout << "[Toast Info]Scheduled deleting scene " << resource.getUUID() << std::endl;
+        } else
+            this->_resourceManager->getScenes().erase(resource.getUUID());
+        break;
+    default:
+        break;
+    }
+}
+
 void FileWatcherSystem::reloadModel(Resource &resource)
 {
-    for (auto &[name, model] : this->_resourceManager->getModels()) {
-        if (model != resource)
-            continue;
+    auto it = std::ranges::find_if(this->_resourceManager->getModels(), [&resource](const auto &pair) { return pair.second == resource; });
 
-        std::vector<File> files = resource.getFiles();
-        try {
-            model.reload(files[0], this->_resourceManager->getTextures());
-            std::cout << "[Toast Success]Reloaded model " << name << std::endl;
-        } catch (const std::exception &e) {
-            std::cout << "[Toast Error]" << e.what() << std::endl;
-        }
-        break;
+    if (it == this->_resourceManager->getModels().end())
+        return;
+    try {
+        it->second.reload(resource.getFiles()[0], this->_resourceManager->getTextures());
+        std::cout << "[Toast Success]Reloaded model " << it->first << std::endl;
+    } catch (const std::exception &e) {
+        std::cout << "[Toast Error]" << e.what() << std::endl;
+    }
+}
+
+void FileWatcherSystem::reloadTexture(Resource &resource)
+{
+    auto it = std::ranges::find_if(this->_resourceManager->getTextures(), [&resource](const auto &pair) { return pair.second == resource; });
+
+    if (it == this->_resourceManager->getTextures().end())
+        return;
+    try {
+        it->second.reload(resource.getFiles()[0]);
+        std::cout << "[Toast Success]Reloaded texture " << it->first << std::endl;
+    } catch (const std::exception &e) {
+        std::cout << "[Toast Error]" << e.what() << std::endl;
+    }
+}
+
+void FileWatcherSystem::reloadSkybox(Resource &resource)
+{
+    auto it = std::ranges::find_if(this->_resourceManager->getSkyboxes(), [&resource](const auto &pair) { return pair.second == resource; });
+
+    if (it == this->_resourceManager->getSkyboxes().end())
+        return;
+    try {
+        it->second.reload(resource.getFiles()[0]);
+        std::cout << "[Toast Success]Reloaded skybox " << it->first << std::endl;
+    } catch (const std::exception &e) {
+        std::cout << "[Toast Error]" << e.what() << std::endl;
     }
 }
 
 void FileWatcherSystem::reloadShader(Resource &resource)
 {
-    for (auto &[name, shader] : this->_resourceManager->getShaders()) {
-        if (shader != resource)
-            continue;
+    auto it = std::ranges::find_if(this->_resourceManager->getShaders(), [&resource](const auto &pair) { return pair.second == resource; });
 
-        std::vector<File> files = resource.getFiles();
-        try {
-            shader.reload(files[0]);
-            this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());
-            std::cout << "[Toast Success]Reloaded shader " << name << std::endl;
-        } catch (const std::exception &e) {
-            std::cout << "[Toast Error]" << e.what() << std::endl;
-        }
-        break;
+    if (it == this->_resourceManager->getShaders().end())
+        return;
+    try {
+        it->second.reload(resource.getFiles()[0]);
+        this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());
+        std::cout << "[Toast Success]Reloaded shader " << it->first << std::endl;
+    } catch (const std::exception &e) {
+        std::cout << "[Toast Error]" << e.what() << std::endl;
     }
 }
 
@@ -115,20 +194,11 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, std::shared_ptr<Ent
                 if (!entity.hasScriptComponent(className))
                     continue;
 
-                ScriptComponent scriptComponent;
-                for (auto &[fieldName, field] : this->_resourceManager->getScripts()[className].getFields()) {
-                    if (field.type == "Single")
-                        scriptComponent.addField(fieldName, 0.0f);
-                    else if (field.type == "Entity" || field.type == "UInt64")
-                        scriptComponent.addField(fieldName, (unsigned long)0);
-                    else if (field.type == "String")
-                        scriptComponent.addField(fieldName, std::string(""));
-                }
+                ScriptComponent scriptComponent(this->_resourceManager->getScripts()[className]);
 
-                for (auto &[fieldName, field] : entity.getScriptComponent(className).getFields()) {
+                for (auto &[fieldName, field] : entity.getScriptComponent(className).getFields())
                     if (scriptComponent.hasField(fieldName))
                         scriptComponent.addField(fieldName, field);
-                }
                 entity.addScriptComponent(className, scriptComponent);
             }
         }
@@ -139,15 +209,14 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, std::shared_ptr<Ent
 
 void FileWatcherSystem::reloadScene(Resource &resource, std::shared_ptr<EntityManager> &entityManager)
 {
-    for (auto &[name, scene] : this->_resourceManager->getScenes()) {
-        if (scene != resource)
-            continue;
+    auto it = std::ranges::find_if(this->_resourceManager->getScenes(), [&resource](const auto &pair) { return pair.second == resource; });
 
-        std::vector<File> files = resource.getFiles();
-        scene.reload(files[0], this->_resourceManager->getScripts());
-        if (this->_resourceManager->getActiveScene() == name)
-            entityManager = scene.getEntityManager();
-        std::cout << "[Toast Success]Reloaded scene " << name << std::endl;
-        break;
+    if (it == this->_resourceManager->getScenes().end())
+        return;
+    try {
+        it->second.reload(resource.getFiles()[0], this->_resourceManager->getScripts());
+        std::cout << "[Toast Success]Reloaded scene " << it->first << std::endl;
+    } catch (const std::exception &e) {
+        std::cout << "[Toast Error]" << e.what() << std::endl;
     }
 }

@@ -25,7 +25,7 @@ void ResourceManager::loadProject(const std::string &dir)
 {
     this->loadTextures(dir + "/Resources/Textures");
     this->loadModels(dir + "/Resources/Models");
-    this->loadSkyBoxes(dir + "/Resources/Skybox");
+    this->loadSkyboxes(dir + "/Resources/Skybox");
     this->reloadScripts(dir + "/Resources/Scripts");
     this->loadScenes(dir + "/Resources/Scenes");
 }
@@ -35,7 +35,7 @@ void ResourceManager::loadEditor()
     this->loadTextures("Resources/Textures");
     this->loadModels("Resources/Models");
     this->loadShaders("Resources/Shaders");
-    this->loadSkyBoxes("Resources/Skybox");
+    this->loadSkyboxes("Resources/Skybox");
     this->loadScriptPack("Resources/ScriptsCore", "Core");
     this->loadScriptPack("Resources/ScriptsNative", "Game");
     this->loadScenes("Resources/Scenes");
@@ -44,7 +44,7 @@ void ResourceManager::loadEditor()
 void ResourceManager::loadGame()
 {
     this->loadShaders("Resources/Shaders");
-    this->loadSkyBoxes("Resources/Skybox");
+    this->loadSkyboxes("Resources/Skybox");
 
     this->loadScriptDll("Data");
     this->deserializeAssetPack("Data/AssetPack.data");
@@ -86,6 +86,14 @@ void ResourceManager::serializeAssetPack(std::string path)
             continue;
         oa << name;
         oa << model;
+    }
+
+    oa << std::ranges::count_if(this->_skyboxes, [](const auto &skybox) { return skybox.second.isUsed(); });
+    for (auto &[name, skybox] : this->_skyboxes) {
+        if (!skybox.isUsed())
+            continue;
+        oa << name;
+        oa << skybox;
     }
 
     oa << this->_scenes.size();
@@ -179,12 +187,12 @@ void ResourceManager::initPhysicInstances(std::shared_ptr<EntityManager> &entity
                         std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>(), entity.getComponent<Collider>()));
                 else
                     this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>()));
-
+            } else if (entity.hasComponent<Map>()) {
+                if (entity.hasComponent<Collider>())
+                    this->_physicInstances.emplace_back(
+                        std::make_unique<TerrainInstance>(id, entity.getComponent<Transform>(), this->_textures[entity.getComponent<Map>().heightMap]));
             } else if (entity.hasComponent<Collider>()) {
                 this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<Collider>()));
-
-            } else if (entity.hasComponent<Map>()) {
-                this->_physicInstances.emplace_back(std::make_unique<TerrainInstance>(id, entity.getComponent<Transform>(), this->_textures[entity.getComponent<Map>().heightMap]));
             }
         }
     }
@@ -203,6 +211,16 @@ void ResourceManager::loadDirectory(const std::filesystem::path &path, const std
         else if (entry.is_directory())
             this->loadDirectory(entry.path(), func, extensions);
     }
+}
+
+void ResourceManager::loadShaders(const std::string &dir)
+{
+    this->loadDirectory(dir,
+                        [this](const std::string &path) {
+                            this->_files[path] = File(path);
+                            this->_shaders[this->_files[path].getName()] = Shader(this->_files[path]);
+                        },
+                        {".glsl"});
 }
 
 void ResourceManager::loadTextures(const std::string &dir)
@@ -225,43 +243,24 @@ void ResourceManager::loadModels(const std::string &dir)
                         {".dae"});
 }
 
-void ResourceManager::loadShaders(const std::string &dir)
+void ResourceManager::loadSkyboxes(const std::string &dir)
 {
     this->loadDirectory(dir,
                         [this](const std::string &path) {
                             this->_files[path] = File(path);
-                            this->_shaders[this->_files[path].getName()] = Shader(this->_files[path]);
+                            this->_skyboxes[this->_files[path].getName()] = Skybox(this->_files[path]);
                         },
-                        {".glsl"});
+                        {".png", ".jpg", ".jpeg"});
 }
 
-void ResourceManager::loadSkyBoxes(const std::string &dir)
+void ResourceManager::loadScenes(const std::string &dir)
 {
-    static int number = 0;
     this->loadDirectory(dir,
                         [this](const std::string &path) {
                             this->_files[path] = File(path);
-                            number++;
+                            this->_scenes[this->_files[path].getName()] = Scene(this->_files[path], this->_scripts);
                         },
-                        {".jpg"});
-    if (number == 6) {
-        std::vector<File> files = {this->_files[dir + "/right.jpg"],  this->_files[dir + "/left.jpg"],  this->_files[dir + "/top.jpg"],
-                                   this->_files[dir + "/bottom.jpg"], this->_files[dir + "/front.jpg"], this->_files[dir + "/back.jpg"]};
-        this->_skyBoxes["Sky"] = CubeMap(files);
-    }
-
-    number = 0;
-    this->loadDirectory(dir,
-                        [this](const std::string &path) {
-                            this->_files[path] = File(path);
-                            number++;
-                        },
-                        {".png"});
-    if (number == 6) {
-        std::vector<File> files = {this->_files[dir + "/right.png"],  this->_files[dir + "/left.png"],  this->_files[dir + "/top.png"],
-                                   this->_files[dir + "/bottom.png"], this->_files[dir + "/front.png"], this->_files[dir + "/back.png"]};
-        this->_skyBoxes["Sky2"] = CubeMap(files);
-    }
+                        {".xml"});
 }
 
 void ResourceManager::loadScriptDll(const std::string &dir)
@@ -312,16 +311,6 @@ void ResourceManager::reloadScripts(const std::string &dir)
     tempFiles.clear();
 }
 
-void ResourceManager::loadScenes(const std::string &dir)
-{
-    this->loadDirectory(dir,
-                        [this](const std::string &path) {
-                            this->_files[path] = File(path);
-                            this->_scenes[this->_files[path].getName()] = Scene(this->_files[path], this->_scripts);
-                        },
-                        {".xml"});
-}
-
 std::unordered_map<std::string, File> &ResourceManager::getFiles()
 {
     return this->_files;
@@ -342,9 +331,9 @@ std::unordered_map<std::string, RenderModel> &ResourceManager::getModels()
     return this->_models;
 }
 
-std::unordered_map<std::string, CubeMap> &ResourceManager::getSkyBoxes()
+std::unordered_map<std::string, Skybox> &ResourceManager::getSkyboxes()
 {
-    return this->_skyBoxes;
+    return this->_skyboxes;
 }
 
 MonoClass *ResourceManager::getEntityClass()

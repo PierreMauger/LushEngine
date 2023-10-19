@@ -91,7 +91,7 @@ void RenderView::setView()
     this->_shaders[this->_actShader].setMat4("projection", this->_projection);
 }
 
-void RenderView::setSkyBoxView()
+void RenderView::setSkyboxView()
 {
     this->_shaders[this->_actShader].setMat4("view", glm::mat4(glm::mat3(this->_view))); // remove translation from the view matrix
     this->_shaders[this->_actShader].setMat4("projection", this->_projection);

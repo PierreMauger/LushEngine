@@ -17,14 +17,24 @@ namespace Lush
             std::shared_ptr<ResourceManager> _resourceManager;
 
             std::vector<Resource> _scheduledReload;
+            std::vector<Resource> _scheduledDelete;
 
             void reloadResourcesFromFile(File &file, std::shared_ptr<EntityManager> &entityManager);
-            void updateResource(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
+            void deleteResourcesFromFile(File &file);
+            void reloadResource(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
+            void deleteResource(Resource &resource);
 
             void reloadModel(Resource &resource);
+            void reloadTexture(Resource &resource);
+            void reloadSkybox(Resource &resource);
             void reloadShader(Resource &resource);
             void reloadScriptPack(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
             void reloadScene(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
+
+            // void deleteModel(Resource &resource);
+            // void deleteShader(Resource &resource);
+            // void deleteScriptPack(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
+            // void deleteScene(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
 
         public:
             FileWatcherSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);

@@ -2,6 +2,23 @@
 
 using namespace Lush;
 
+ScriptComponent::ScriptComponent(ScriptClass &script)
+{
+    this->loadFromScript(script);
+}
+
+void ScriptComponent::loadFromScript(ScriptClass &script)
+{
+    for (auto &[fieldName, field] : script.getFields()) {
+        if (field.type == "Single")
+            this->addField(fieldName, std:: any_cast<float>(field.value));
+        else if (field.type == "Entity" || field.type == "UInt64")
+            this->addField(fieldName, std:: any_cast<unsigned long>(field.value));
+        else if (field.type == "String")
+            this->addField(fieldName, std:: any_cast<std::string>(field.value));
+    }
+}
+
 std::unordered_map<std::string, std::any> &ScriptComponent::getFields()
 {
     return this->_fields;

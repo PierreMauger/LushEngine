@@ -15,7 +15,7 @@
 #include "Physic/PhysicInstance.hpp"
 #include "Physic/TerrainInstance.hpp"
 #include "Physic/CharacterInstance.hpp"
-#include "Rendering/CubeMap.hpp"
+#include "Rendering/Skybox.hpp"
 #include "Rendering/MapMesh.hpp"
 #include "Rendering/RenderModel.hpp"
 #include "Rendering/RenderView.hpp"
@@ -37,15 +37,17 @@ namespace Lush
             std::unordered_map<std::string, Shader> _shaders;
             std::unordered_map<std::string, Texture> _textures;
             std::unordered_map<std::string, RenderModel> _models;
-            std::unordered_map<std::string, CubeMap> _skyBoxes;
+            std::unordered_map<std::string, Skybox> _skyboxes;
+            std::unordered_map<std::string, Scene> _scenes;
             std::unique_ptr<ScriptPack> _corePack;
             std::shared_ptr<ScriptPack> _gamePack;
+
             std::unordered_map<std::string, ScriptClass> _scripts;
             std::vector<ScriptInstance> _scriptInstances;
             std::vector<std::unique_ptr<BasicInstance>> _physicInstances;
-            std::unordered_map<std::string, Scene> _scenes;
-            std::string _activeScene;
+
             std::string _logoName = "Lush.png";
+            std::string _activeScene;
             bool _sceneChanged = false;
 
             std::unique_ptr<MapMesh> _mapMesh;
@@ -54,14 +56,14 @@ namespace Lush
 
             void loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions);
 
+            void loadShaders(const std::string &dir);
             void loadTextures(const std::string &dir);
             void loadModels(const std::string &dir);
-            void loadShaders(const std::string &dir);
-            void loadSkyBoxes(const std::string &dir);
+            void loadSkyboxes(const std::string &dir);
+            void loadScenes(const std::string &dir);
             void loadScriptDll(const std::string &dir);
             void loadScriptPack(const std::string &dir, const std::string &name);
             void reloadScripts(const std::string &dir);
-            void loadScenes(const std::string &dir);
 
             // void setUsage();
 
@@ -72,8 +74,8 @@ namespace Lush
             void loadProject(const std::string &dir);
             void loadEditor();
             void loadGame();
-            void initScriptDomain(const std::string &dir);
 
+            void initScriptDomain(const std::string &dir);
             void initScriptInstances(std::shared_ptr<EntityManager> &entityManager);
             void initPhysicInstances(std::shared_ptr<EntityManager> &entityManager);
 
@@ -85,20 +87,21 @@ namespace Lush
             std::unordered_map<std::string, Shader> &getShaders();
             std::unordered_map<std::string, Texture> &getTextures();
             std::unordered_map<std::string, RenderModel> &getModels();
-            std::unordered_map<std::string, CubeMap> &getSkyBoxes();
-            MonoClass *getEntityClass();
+            std::unordered_map<std::string, Skybox> &getSkyboxes();
+            std::unordered_map<std::string, Scene> &getScenes();
             std::shared_ptr<ScriptPack> &getGamePack();
+
+            MonoClass *getEntityClass();
             std::unordered_map<std::string, ScriptClass> &getScripts();
             std::vector<ScriptInstance> &getScriptInstances();
             std::vector<std::unique_ptr<BasicInstance>> &getPhysicInstances();
 
-            std::unordered_map<std::string, Scene> &getScenes();
             std::string getActiveScene() const;
             void setActiveScene(const std::string &name);
-            MapMesh &getMapMesh();
             Texture &getLogo();
             void setLogo(const std::string &name);
 
+            MapMesh &getMapMesh();
             btDiscreteDynamicsWorld *getDynamicsWorld() const;
             void setDynamicsWorld(btDiscreteDynamicsWorld *dynamicsWorld);
             void resetDynamicsWorld();

@@ -5,7 +5,7 @@ using namespace Lush;
 TerrainInstance::TerrainInstance(std::size_t id, Transform &transform, Texture &texture) : BasicInstance(id)
 {
     btHeightfieldTerrainShape *terrainShape =
-        new btHeightfieldTerrainShape(texture.getWidth(), texture.getHeight(), texture.getData(), 32.0f / 256.0f, 0.0f, 32.0f, 1, PHY_UCHAR, false);
+        new btHeightfieldTerrainShape(texture.getWidth(), texture.getHeight(), texture.getHeightData(), 32.0f / 256.0f, 0.0f, 32.0f, 1, PHY_UCHAR, false);
     terrainShape->setUseDiamondSubdivision(true); // Enable diamond subdivision for better terrain smoothness
     terrainShape->setLocalScaling(btVector3(transform.scale.x, transform.scale.y, transform.scale.z));
     btDefaultMotionState *motionState = new btDefaultMotionState();

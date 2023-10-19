@@ -10,6 +10,7 @@ namespace Lush
     enum class ResourceType {
         MODEL,
         TEXTURE,
+        SKYBOX,
         SHADER,
         SCRIPT,
         SCENE,

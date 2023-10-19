@@ -9,7 +9,7 @@ RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Res
     Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
     this->_graphic->getFrameBuffers()["render"] = this->_buffer;
 
-    Shapes::setupSkyBox(this->_skybox);
+    Shapes::setupSkybox(this->_skybox);
     Shapes::setupBillboard(this->_billboard);
 }
 
@@ -126,15 +126,15 @@ void RenderSystem::drawSkybox(std::shared_ptr<EntityManager> &entityManager)
 {
     glDepthFunc(GL_LEQUAL);
     this->_graphic->getRenderView().use("Skybox");
-    this->_graphic->getRenderView().setSkyBoxView();
+    this->_graphic->getRenderView().setSkyboxView();
     for (auto &[id, entity] : entityManager->getEntities()) {
         if (!entity.hasComponent<Cubemap>())
             continue;
         Cubemap cubemap = entity.getComponent<Cubemap>();
 
-        if (this->_resourceManager->getSkyBoxes().find(cubemap.name) != this->_resourceManager->getSkyBoxes().end()) {
+        if (this->_resourceManager->getSkyboxes().find(cubemap.name) != this->_resourceManager->getSkyboxes().end()) {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyBoxes()[cubemap.name].getId());
+            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyboxes()[cubemap.name].getId());
             this->_graphic->getRenderView().getShader().setInt("skybox", 0);
             glBindVertexArray(this->_skybox.vao);
             glDrawArrays(GL_TRIANGLES, 0, 36);

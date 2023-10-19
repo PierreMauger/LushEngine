@@ -6,6 +6,7 @@
 #include <boost/serialization/string.hpp>
 
 #include "Includes.hpp"
+#include "Script/ScriptClass.hpp"
 
 namespace Lush
 {
@@ -16,7 +17,10 @@ namespace Lush
 
         public:
             ScriptComponent() = default;
+            ScriptComponent(ScriptClass &script);
             ~ScriptComponent() = default;
+
+            void loadFromScript(ScriptClass &script);
 
             template <typename T> T &getField(const std::string &name)
             {

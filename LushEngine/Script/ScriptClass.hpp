@@ -17,6 +17,7 @@ namespace Lush
     typedef struct {
         std::string type;
         MonoClassField *field;
+        std::any value;
     } FieldInfo;
 
     class ScriptClass

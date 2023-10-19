@@ -52,7 +52,7 @@ set(COMMON_SOURCE_FILES
     ${PROJECT_NAME}/Serialization.cpp
     ${PROJECT_NAME}/Rendering/Shapes.cpp
     ${PROJECT_NAME}/Rendering/Texture.cpp
-    ${PROJECT_NAME}/Rendering/CubeMap.cpp
+    ${PROJECT_NAME}/Rendering/Skybox.cpp
     ${PROJECT_NAME}/Rendering/RenderView.cpp
     ${PROJECT_NAME}/Rendering/Shader.cpp
     ${PROJECT_NAME}/Rendering/Mesh.cpp

@@ -3,7 +3,7 @@
 using namespace Lush;
 
 static const char *lightTypeNames[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
-static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"Box", "Sphere", "Capsule", "Mesh"};
+static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"box", "Sphere", "Capsule", "Mesh"};
 
 GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
@@ -408,7 +408,7 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
 
             std::string selectedItem = cubemap.name;
             if (ImGui::BeginCombo("Select Item##Cubemap", selectedItem.c_str())) {
-                for (auto &[key, value] : this->_resourceManager->getSkyBoxes()) {
+                for (auto &[key, value] : this->_resourceManager->getSkyboxes()) {
                     bool isSelected = (selectedItem == key);
                     if (ImGui::Selectable(key.c_str(), isSelected))
                         cubemap.name = key;
@@ -532,6 +532,7 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
     for (auto &[scriptName, script] : this->_resourceManager->getScripts()) {
         if (entity.hasScriptComponent(scriptName)) {
             if (ImGui::CollapsingHeader((ICON_FA_FILE_CODE " " + scriptName).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                ImGui::PushID(it);
                 for (auto &[fieldName, field] : script.getFields()) {
                     if (this->_graphic->isRunning()) {
                         std::size_t instanceIndex = entity.getScriptIndexes()[scriptName];
@@ -571,6 +572,7 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                         }
                     }
                 }
+                ImGui::PopID();
                 if (ImGui::Button(("Remove##" + std::to_string(it)).c_str()))
                     entity.removeScriptComponent(scriptName);
                 ImGui::Separator();
@@ -653,15 +655,7 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
             ImGui::Text(ICON_FA_FILE_CODE);
             ImGui::SameLine(30, 0);
             if (ImGui::Selectable((scriptName + "##selectable").c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
-                ScriptComponent scriptComponent;
-                for (auto &[fieldName, field] : script.getFields()) {
-                    if (field.type == "Single")
-                        scriptComponent.addField(fieldName, 0.0f);
-                    if (field.type == "Entity" || field.type == "UInt64")
-                        scriptComponent.addField(fieldName, (unsigned long)0);
-                    if (field.type == "String")
-                        scriptComponent.addField(fieldName, std::string(""));
-                }
+                ScriptComponent scriptComponent(script);
                 entity.addScriptComponent(scriptName, scriptComponent);
             }
             ImGui::PopID();
@@ -1069,9 +1063,9 @@ void GUISystem::drawProjectManager()
 std::size_t GUISystem::getPhysicInstanceIndex(std::size_t entityId)
 {
     std::size_t i = 0;
-
     for (auto &instance : this->_resourceManager->getPhysicInstances()) {
-        return i;
+        if (instance->getId() == entityId)
+            return i;
         i++;
     }
     return (std::size_t)-1;

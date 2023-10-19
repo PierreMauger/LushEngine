@@ -4,8 +4,6 @@
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
 #include <btBulletDynamicsCommon.h>
 
-#include "ECS/Component/Component.hpp"
-#include "Includes.hpp"
 #include "Physic/BasicInstance.hpp"
 
 namespace Lush
