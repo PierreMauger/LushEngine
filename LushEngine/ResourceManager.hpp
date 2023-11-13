@@ -12,14 +12,14 @@
 #include "File/File.hpp"
 #include "File/Resource.hpp"
 #include "Includes.hpp"
+#include "Physic/CharacterInstance.hpp"
 #include "Physic/PhysicInstance.hpp"
 #include "Physic/TerrainInstance.hpp"
-#include "Physic/CharacterInstance.hpp"
-#include "Rendering/Skybox.hpp"
 #include "Rendering/MapMesh.hpp"
 #include "Rendering/RenderModel.hpp"
 #include "Rendering/RenderView.hpp"
 #include "Rendering/Shader.hpp"
+#include "Rendering/Skybox.hpp"
 #include "Rendering/Texture.hpp"
 #include "Scene.hpp"
 #include "Script/ScriptClass.hpp"
@@ -65,7 +65,11 @@ namespace Lush
             void loadScriptPack(const std::string &dir, const std::string &name);
             void reloadScripts(const std::string &dir);
 
-            // void setUsage();
+            void setUsage();
+
+            bool isModelUsed(std::string modelName);
+            bool isSkyboxUsed(std::string skyboxName);
+            bool isTextureUsed(std::string textureName);
 
         public:
             ResourceManager();

@@ -103,6 +103,7 @@ namespace Lush
 
             void rebindTextureIds(std::unordered_map<std::string, Texture> &textures);
             void draw(Shader &shader);
+            std::vector<std::string> getTextureNames();
 
             void serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version)
             {

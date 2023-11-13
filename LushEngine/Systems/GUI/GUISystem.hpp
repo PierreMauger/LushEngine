@@ -28,6 +28,7 @@ namespace Lush
             std::string execName;
             glm::vec3 color = glm::vec3(0.26f, 0.59f, 0.98f);
             std::string iconName = "None";
+            std::vector<std::string> hiddenScenes;
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
@@ -36,6 +37,7 @@ namespace Lush
                 ar & execName;
                 ar & color;
                 ar & iconName;
+                ar & hiddenScenes;
             }
     };
 

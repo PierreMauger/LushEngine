@@ -987,11 +987,24 @@ void GUISystem::drawProjectManager()
         ImGui::SameLine();
         if (this->drawTextureSelect("##Icon", this->_projectSettings[this->_editingProject].iconName))
             isEdited = true;
-        ImGui::SameLine();
         if (this->_projectSettings[this->_editingProject].iconName != "None") {
+            ImGui::SameLine();
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 15);
             GLuint texture = this->_resourceManager->getTextures()[this->_projectSettings[this->_editingProject].iconName].getId();
             ImGui::Image((void *)(intptr_t)texture, ImVec2(50, 50));
+        }
+        ImGui::Separator();
+        ImGui::Text("Scenes in Build:");
+        for (auto &[sceneName, scene] : this->_resourceManager->getScenes()) {
+            isEdited = true;
+            bool isUsed = scene.isUsed();
+            if (ImGui::Checkbox(sceneName.c_str(), &isUsed)) {
+                scene.setUsed(!scene.isUsed());
+                if (scene.isUsed())
+                    std::remove(this->_projectSettings[this->_editingProject].hiddenScenes.begin(), this->_projectSettings[this->_editingProject].hiddenScenes.end(), sceneName);
+                else
+                    this->_projectSettings[this->_editingProject].hiddenScenes.push_back(sceneName);
+            }
         }
 
         if (this->_showRootBrowser) {

@@ -54,6 +54,7 @@ namespace Lush
             void draw(Shader &shader);
 
             std::vector<Mesh> &getMeshes();
+            std::vector<std::string> getTextureNames();
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {

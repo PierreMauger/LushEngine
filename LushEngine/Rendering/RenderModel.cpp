@@ -198,3 +198,14 @@ std::vector<Mesh> &RenderModel::getMeshes()
 {
     return this->_meshes;
 }
+
+std::vector<std::string> RenderModel::getTextureNames()
+{
+    std::vector<std::string> names;
+
+    for (auto &mesh : this->_meshes) {
+        auto meshNames = mesh.getTextureNames();
+        names.insert(names.end(), meshNames.begin(), meshNames.end());
+    }
+    return names;
+}

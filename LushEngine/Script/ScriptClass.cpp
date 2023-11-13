@@ -55,7 +55,7 @@ void ScriptClass::loadAttributes()
             } else if (std::string(fieldClassName) == "String") {
                 MonoString *value;
                 mono_field_get_value(instance, field, &value);
-                this->_fields[fieldName] = {fieldClassName, field, std::string(mono_string_to_utf8(value))};
+                this->_fields[fieldName] = {fieldClassName, field, value ? std::string(mono_string_to_utf8(value)) : ""};
             } else {
                 this->_fields[fieldName] = {fieldClassName, field};
             }

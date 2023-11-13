@@ -15,20 +15,12 @@ Texture::~Texture()
 
 void Texture::load(File &file)
 {
-    glGenTextures(1, &this->_id);
-    this->_content = file.load();
-    this->createTexture();
-}
-
-void Texture::reload(File &file)
-{
     this->_content = file.load();
     this->createTexture();
 }
 
 void Texture::createTexture()
 {
-    glGenTextures(1, &this->_id);
     unsigned char *data = stbi_load_from_memory((const stbi_uc *)this->_content.c_str(), this->_content.length(), &this->_width, &this->_height, &this->_nrChannels, 0);
     GLenum format = this->_nrChannels == 1 ? GL_RED : this->_nrChannels == 3 ? GL_RGB : GL_RGBA;
 

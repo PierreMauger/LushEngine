@@ -44,33 +44,82 @@ void ResourceManager::loadEditor()
 void ResourceManager::loadGame()
 {
     this->loadShaders("Resources/Shaders");
-    this->loadSkyboxes("Resources/Skybox");
 
     this->loadScriptDll("Data");
     this->deserializeAssetPack("Data/AssetPack.data");
 }
 
-// void ResourceManager::setUsage()
-// {
-//     for (auto &[name, texture] : this->_textures)
-//         texture.setUsed(false);
-//     for (auto &[name, model] : this->_models)
-//         model.setUsed(false);
+void ResourceManager::setUsage()
+{
+    for (auto &[name, model] : this->_models)
+        model.setUsed(false);
+    for (auto &[name, skybox] : this->_skyboxes)
+        skybox.setUsed(false);
+    for (auto &[name, texture] : this->_textures)
+        texture.setUsed(false);
 
-//     for (auto &[sceneName, scene] : this->_scenes) {
-//         for (auto &[modelName, model] : this->_models)
-//             for (auto &[id, entity] : scene.getEntityManager().getEntities())
-//                 if (entity.hasComponent<Model>() && entity.getComponent<Model>().name == modelName)
-//                     return model.setUsed(true);
-//     }
-// }
+    for (auto &[modelName, model] : this->_models)
+        if (this->isModelUsed(modelName)) {
+            model.setUsed(true);
+            for (auto textureName : model.getTextureNames())
+                this->_textures[textureName].setUsed(true);
+        }
+    for (auto &[skyboxName, skybox] : this->_skyboxes)
+        if (this->isSkyboxUsed(skyboxName))
+            skybox.setUsed(true);
+    for (auto &[textureName, texture] : this->_textures)
+        if (this->isTextureUsed(textureName))
+            texture.setUsed(true);
+    this->_textures[this->_logoName].setUsed(true);
+}
+
+bool ResourceManager::isModelUsed(std::string modelName)
+{
+    for (auto &[name, scene] : this->_scenes) {
+        if (!scene.isUsed())
+            continue;
+        for (auto &[id, entity] : scene.getEntityManager()->getEntities())
+            if (entity.hasComponent<Model>() && entity.getComponent<Model>().name == modelName)
+                return true;
+    }
+    return false;
+}
+
+bool ResourceManager::isSkyboxUsed(std::string skyboxName)
+{
+    for (auto &[name, scene] : this->_scenes) {
+        if (!scene.isUsed())
+            continue;
+        for (auto &[id, entity] : scene.getEntityManager()->getEntities())
+            if (entity.hasComponent<Cubemap>() && entity.getComponent<Cubemap>().name == skyboxName)
+                return true;
+    }
+    return false;
+}
+
+bool ResourceManager::isTextureUsed(std::string textureName)
+{
+    for (auto &[name, scene] : this->_scenes) {
+        if (!scene.isUsed())
+            continue;
+        for (auto &[id, entity] : scene.getEntityManager()->getEntities()) {
+            if (entity.hasComponent<Billboard>() && entity.getComponent<Billboard>().name == textureName)
+                return true;
+            if (entity.hasComponent<Map>() && (entity.getComponent<Map>().heightMap == textureName || entity.getComponent<Map>().diffuseTexture == textureName ||
+                                               entity.getComponent<Map>().normalTexture == textureName || entity.getComponent<Map>().diffuseTexture2 == textureName ||
+                                               entity.getComponent<Map>().diffuseTexture3 == textureName))
+                return true;
+        }
+    }
+    return false;
+}
 
 void ResourceManager::serializeAssetPack(std::string path)
 {
     std::ofstream ofs(path, std::ios::binary);
     boost::archive::binary_oarchive oa(ofs, boost::archive::no_header);
 
-    // this->setUsage();
+    this->setUsage();
 
     oa << std::ranges::count_if(this->_textures, [](const auto &texture) { return texture.second.isUsed(); });
     for (auto &[name, texture] : this->_textures) {
@@ -128,6 +177,14 @@ void ResourceManager::deserializeAssetPack(std::string path)
         ia >> this->_models[name];
         for (auto &mesh : this->_models[name].getMeshes())
             mesh.rebindTextureIds(this->_textures);
+    }
+
+    ia >> size;
+    for (std::size_t i = 0; i < size; i++) {
+        std::string name;
+        ia >> name;
+        ia >> this->_skyboxes[name];
+        this->_skyboxes[name].createSkybox();
     }
 
     ia >> size;

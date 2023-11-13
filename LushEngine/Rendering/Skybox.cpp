@@ -15,13 +15,6 @@ Skybox::Skybox(File &file)
 
 void Skybox::load(File &file)
 {
-    glGenTextures(1, &this->_id);
-    this->_content = file.load();
-    this->createSkybox();
-}
-
-void Skybox::reload(File &file)
-{
     this->_content = file.load();
     this->createSkybox();
 }
@@ -34,6 +27,7 @@ void Skybox::createSkybox()
 
     if (!data)
         return;
+    glGenTextures(1, &this->_id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, this->_id);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, this->_width);
     for (int i = 0; i < 3; i++) {

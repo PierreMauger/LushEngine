@@ -49,6 +49,15 @@ void Mesh::rebindTextureIds(std::unordered_map<std::string, Texture> &textures)
     }
 }
 
+std::vector<std::string> Mesh::getTextureNames()
+{
+    std::vector<std::string> names;
+
+    for (auto &texture : this->_textures)
+        names.push_back(texture.name);
+    return names;
+}
+
 void Mesh::draw(Shader &shader)
 {
     shader.setBool("hasTexture", !this->_textures.empty());

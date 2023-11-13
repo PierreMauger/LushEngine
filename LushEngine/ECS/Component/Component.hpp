@@ -97,7 +97,7 @@ namespace Lush
     };
 
     struct Cubemap : public Component {
-            std::string name = "Sky";
+            std::string name = "LearnOpenGL";
 
             Cubemap *clone() const override
             {

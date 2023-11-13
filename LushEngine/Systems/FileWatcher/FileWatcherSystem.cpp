@@ -141,7 +141,7 @@ void FileWatcherSystem::reloadTexture(Resource &resource)
     if (it == this->_resourceManager->getTextures().end())
         return;
     try {
-        it->second.reload(resource.getFiles()[0]);
+        it->second.load(resource.getFiles()[0]);
         std::cout << "[Toast Success]Reloaded texture " << it->first << std::endl;
     } catch (const std::exception &e) {
         std::cout << "[Toast Error]" << e.what() << std::endl;
@@ -155,7 +155,7 @@ void FileWatcherSystem::reloadSkybox(Resource &resource)
     if (it == this->_resourceManager->getSkyboxes().end())
         return;
     try {
-        it->second.reload(resource.getFiles()[0]);
+        it->second.load(resource.getFiles()[0]);
         std::cout << "[Toast Success]Reloaded skybox " << it->first << std::endl;
     } catch (const std::exception &e) {
         std::cout << "[Toast Error]" << e.what() << std::endl;
