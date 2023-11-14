@@ -28,7 +28,7 @@ std::shared_ptr<EntityManager> Scene::getEntityManager()
     return this->_entityManager;
 }
 
-void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scripts)
+void Scene::load(const File &file, std::unordered_map<std::string, ScriptClass> &scripts)
 {
     rapidxml::xml_document<> doc;
     std::string xml = file.load();
@@ -64,7 +64,7 @@ void Scene::load(File &file, std::unordered_map<std::string, ScriptClass> &scrip
     delete[] xmlCopy;
 }
 
-void Scene::reload(File &file, std::unordered_map<std::string, ScriptClass> &scripts)
+void Scene::reload(const File &file, std::unordered_map<std::string, ScriptClass> &scripts)
 {
     this->_entityManager->clear();
     this->load(file, scripts);

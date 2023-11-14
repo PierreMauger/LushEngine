@@ -41,7 +41,7 @@ RenderModel::RenderModel(File &file, std::unordered_map<std::string, Texture> te
 //     return this->_boneCounter;
 // }
 
-void RenderModel::load(File &file, std::unordered_map<std::string, Texture> &textures)
+void RenderModel::load(const File &file, std::unordered_map<std::string, Texture> &textures)
 {
     std::string content = file.load();
     Assimp::Importer importer;
@@ -53,7 +53,7 @@ void RenderModel::load(File &file, std::unordered_map<std::string, Texture> &tex
     this->processNode(*scene->mRootNode, *scene, textures);
 }
 
-void RenderModel::reload(File &file, std::unordered_map<std::string, Texture> &textures)
+void RenderModel::reload(const File &file, std::unordered_map<std::string, Texture> &textures)
 {
     this->_meshes.clear();
     this->load(file, textures);

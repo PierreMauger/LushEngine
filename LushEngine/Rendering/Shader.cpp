@@ -7,9 +7,10 @@ Shader::Shader(const File &file) : Resource(ResourceType::SHADER, file)
     this->load(file);
 }
 
-unsigned int compileShader(unsigned int shaderType, const std::string& source) {
+unsigned int compileShader(unsigned int shaderType, const std::string &source)
+{
     unsigned int shaderID = glCreateShader(shaderType);
-    const char* sourcePtr = source.c_str();
+    const char *sourcePtr = source.c_str();
     glShaderSource(shaderID, 1, &sourcePtr, nullptr);
     glCompileShader(shaderID);
 
@@ -25,10 +26,21 @@ unsigned int compileShader(unsigned int shaderType, const std::string& source) {
 
 void Shader::load(const File &file)
 {
-    std::string source = file.load();
+    this->_content = file.load();
+    this->createShader();
+}
+
+void Shader::reload(const File &file)
+{
+    glDeleteProgram(this->_ID);
+    this->load(file);
+}
+
+void Shader::createShader()
+{
     std::regex patern("#shader\\s+(\\w+)\n*([\\s\\S]*?)(?=#shader\\s+\\w+|$)");
 
-    std::sregex_iterator next(source.begin(), source.end(), patern);
+    std::sregex_iterator next(this->_content.begin(), this->_content.end(), patern);
     std::sregex_iterator end;
     std::unordered_map<std::string, std::string> shaders;
     while (next != end) {
@@ -58,12 +70,6 @@ void Shader::load(const File &file)
     }
     for (const auto &shaderID : shaderIDs)
         glDeleteShader(shaderID);
-}
-
-void Shader::reload(const File &file)
-{
-    glDeleteProgram(this->_ID);
-    this->load(file);
 }
 
 void Shader::use() const

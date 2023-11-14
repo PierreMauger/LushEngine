@@ -26,8 +26,8 @@ namespace Lush
 
             std::shared_ptr<EntityManager> getEntityManager();
 
-            void load(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
-            void reload(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
+            void load(const File &file, std::unordered_map<std::string, ScriptClass> &scripts);
+            void reload(const File &file, std::unordered_map<std::string, ScriptClass> &scripts);
 
             static void loadTransform(rapidxml::xml_node<> *node, Entity &entity);
             static void loadModel(rapidxml::xml_node<> *node, Entity &entity);

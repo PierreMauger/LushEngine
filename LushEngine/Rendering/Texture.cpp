@@ -13,7 +13,7 @@ Texture::~Texture()
     // glDeleteTextures(1, &_id);
 }
 
-void Texture::load(File &file)
+void Texture::load(const File &file)
 {
     this->_content = file.load();
     this->createTexture();

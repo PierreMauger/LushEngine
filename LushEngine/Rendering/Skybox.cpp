@@ -13,7 +13,7 @@ Skybox::Skybox(File &file)
 //     glDeleteTextures(1, &this->_id);
 // }
 
-void Skybox::load(File &file)
+void Skybox::load(const File &file)
 {
     this->_content = file.load();
     this->createSkybox();

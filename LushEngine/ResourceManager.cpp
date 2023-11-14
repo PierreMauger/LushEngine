@@ -43,8 +43,6 @@ void ResourceManager::loadEditor()
 
 void ResourceManager::loadGame()
 {
-    this->loadShaders("Resources/Shaders");
-
     this->loadScriptDll("Data");
     this->deserializeAssetPack("Data/AssetPack.data");
 }
@@ -145,6 +143,12 @@ void ResourceManager::serializeAssetPack(std::string path)
         oa << skybox;
     }
 
+    oa << this->_shaders.size();
+    for (auto &[name, shader] : this->_shaders) {
+        oa << name;
+        oa << shader;
+    }
+
     oa << this->_scenes.size();
     for (auto &[name, scene] : this->_scenes) {
         oa << name;
@@ -185,6 +189,14 @@ void ResourceManager::deserializeAssetPack(std::string path)
         ia >> name;
         ia >> this->_skyboxes[name];
         this->_skyboxes[name].createSkybox();
+    }
+
+    ia >> size;
+    for (std::size_t i = 0; i < size; i++) {
+        std::string name;
+        ia >> name;
+        ia >> this->_shaders[name];
+        this->_shaders[name].createShader();
     }
 
     ia >> size;

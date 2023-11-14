@@ -25,7 +25,7 @@ namespace Lush
             Skybox() = default;
             ~Skybox() = default;
 
-            void load(File &file);
+            void load(const File &file);
 
             void createSkybox();
 

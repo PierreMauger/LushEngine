@@ -29,7 +29,7 @@ namespace Lush
             Texture() = default;
             ~Texture();
 
-            void load(File &file);
+            void load(const File &file);
             void createTexture();
 
             unsigned int getId() const;

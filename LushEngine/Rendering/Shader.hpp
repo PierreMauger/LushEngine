@@ -6,23 +6,24 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Includes.hpp"
 #include "File/Resource.hpp"
+#include "Includes.hpp"
 
 namespace Lush
 {
-    static std::map<std::string, unsigned int> shaderTypes = {
-        {"vertex", GL_VERTEX_SHADER},
-        {"fragment", GL_FRAGMENT_SHADER},
-        {"geometry", GL_GEOMETRY_SHADER},
-        {"tessControl", GL_TESS_CONTROL_SHADER},
-        {"tessEval", GL_TESS_EVALUATION_SHADER}
-    };
+    static std::map<std::string, unsigned int> shaderTypes = {{"vertex", GL_VERTEX_SHADER},
+                                                              {"fragment", GL_FRAGMENT_SHADER},
+                                                              {"geometry", GL_GEOMETRY_SHADER},
+                                                              {"tessControl", GL_TESS_CONTROL_SHADER},
+                                                              {"tessEval", GL_TESS_EVALUATION_SHADER}};
 
     class Shader : public Resource
     {
         private:
             unsigned int _ID = 0;
+            std::string _content;
+
+            void checkCompileErrors(GLuint shader, const std::string &type);
 
         public:
             Shader(const File &file);
@@ -32,6 +33,7 @@ namespace Lush
             void load(const File &file);
             void reload(const File &file);
 
+            void createShader();
             void use() const;
             void setBool(const std::string &name, bool value) const;
             void setInt(const std::string &name, int value) const;
@@ -43,8 +45,10 @@ namespace Lush
             void setMat3(const std::string &name, const glm::mat3 &mat) const;
             void setMat4(const std::string &name, const glm::mat4 &mat) const;
 
-        private:
-            void checkCompileErrors(GLuint shader, const std::string &type);
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &_content;
+            }
     };
 }
 

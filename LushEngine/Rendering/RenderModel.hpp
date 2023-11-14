@@ -49,8 +49,8 @@ namespace Lush
             RenderModel() = default;
             ~RenderModel() override = default;
 
-            void load(File &file, std::unordered_map<std::string, Texture> &textures);
-            void reload(File &file, std::unordered_map<std::string, Texture> &textures);
+            void load(const File &file, std::unordered_map<std::string, Texture> &textures);
+            void reload(const File &file, std::unordered_map<std::string, Texture> &textures);
             void draw(Shader &shader);
 
             std::vector<Mesh> &getMeshes();
