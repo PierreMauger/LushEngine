@@ -22,8 +22,6 @@ RenderSystem::~RenderSystem()
 
 void RenderSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
-    if (!this->shouldUpdate(deltaTime))
-        return;
     this->_graphic->getRenderView().setAspectRatio(this->_graphic->getGameViewPort().z / this->_graphic->getGameViewPort().w);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
 

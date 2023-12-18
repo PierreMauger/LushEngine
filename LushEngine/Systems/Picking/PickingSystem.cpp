@@ -21,8 +21,6 @@ PickingSystem::~PickingSystem()
 
 void PickingSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
-    if (!this->shouldUpdate(deltaTime))
-        return;
     glm::vec4 viewport = this->_graphic->getSceneViewPort();
     glm::vec2 windowSize = this->_graphic->getWindowSize();
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);

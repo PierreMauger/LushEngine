@@ -16,5 +16,5 @@ void SystemManager::bindSystem(std::unique_ptr<ASystem> system)
 void SystemManager::updateSystems(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
     for (auto &system : this->_systems)
-        system->update(entityManager, deltaTime);
+        system->safeUpdate(entityManager, deltaTime);
 }

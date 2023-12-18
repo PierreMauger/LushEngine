@@ -33,8 +33,6 @@ SceneSystem::~SceneSystem()
 
 void SceneSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
-    if (!this->shouldUpdate(deltaTime))
-        return;
     this->_graphic->getRenderView().setAspectRatio(this->_graphic->getSceneViewPort().z / this->_graphic->getSceneViewPort().w);
     this->_graphic->getRenderView().update(this->_cameraTransform, this->_camera);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);

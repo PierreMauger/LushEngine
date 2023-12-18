@@ -19,8 +19,6 @@ namespace Lush
             std::vector<Resource> _scheduledReload;
             std::vector<Resource> _scheduledDelete;
 
-            void reloadResourcesFromFile(File &file, std::shared_ptr<EntityManager> &entityManager);
-            void deleteResourcesFromFile(File &file);
             void reloadResource(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
             void deleteResource(Resource &resource);
 
@@ -31,8 +29,6 @@ namespace Lush
             void reloadScriptPack(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
             void reloadScene(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
 
-            // void deleteModel(Resource &resource);
-            // void deleteShader(Resource &resource);
             // void deleteScriptPack(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
             // void deleteScene(Resource &resource, std::shared_ptr<EntityManager> &entityManager);
 

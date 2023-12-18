@@ -8,8 +8,6 @@ CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic) : ASystem(60.0f), _
 
 void CameraSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
-    if (!this->shouldUpdate(deltaTime))
-        return;
     for (auto &[id, entity] : entityManager->getEntities()) {
         if (entity.hasComponent<Transform>() && entity.hasComponent<Camera>())
             this->_graphic->getRenderView().update(entity.getComponent<Transform>(), entity.getComponent<Camera>());

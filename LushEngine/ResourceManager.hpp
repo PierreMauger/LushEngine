@@ -33,6 +33,7 @@ namespace Lush
     {
         private:
             std::unordered_map<std::string, File> _files;
+            std::vector<std::string> _directories;
 
             std::unordered_map<std::string, Shader> _shaders;
             std::unordered_map<std::string, Texture> _textures;
@@ -54,6 +55,7 @@ namespace Lush
             MonoDomain *_domain = nullptr;
             btDiscreteDynamicsWorld *_dynamicsWorld = nullptr;
 
+            void initScriptDomain(const std::string &dir);
             void loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions);
 
             void loadShaders(const std::string &dir);
@@ -65,21 +67,20 @@ namespace Lush
             void loadScriptPack(const std::string &dir, const std::string &name);
             void reloadScripts(const std::string &dir);
 
-            void setUsage();
+            void setAllResourcesUsage();
 
             bool isModelUsed(std::string modelName);
             bool isSkyboxUsed(std::string skyboxName);
             bool isTextureUsed(std::string textureName);
 
         public:
-            ResourceManager();
+            ResourceManager(const std::string &resourceDir);
             ~ResourceManager();
 
             void loadProject(const std::string &dir);
             void loadEditor();
             void loadGame();
 
-            void initScriptDomain(const std::string &dir);
             void initScriptInstances(std::shared_ptr<EntityManager> &entityManager);
             void initPhysicInstances(std::shared_ptr<EntityManager> &entityManager);
 
@@ -95,12 +96,13 @@ namespace Lush
             std::unordered_map<std::string, Scene> &getScenes();
             std::shared_ptr<ScriptPack> &getGamePack();
 
-            MonoClass *getEntityClass();
+            MonoClass *getComponentClass();
             std::unordered_map<std::string, ScriptClass> &getScripts();
             std::vector<ScriptInstance> &getScriptInstances();
             std::vector<std::unique_ptr<BasicInstance>> &getPhysicInstances();
 
-            std::string getActiveScene() const;
+            Scene &getActiveScene();
+            std::string getActiveSceneName() const;
             void setActiveScene(const std::string &name);
             Texture &getLogo();
             void setLogo(const std::string &name);

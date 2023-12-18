@@ -12,13 +12,15 @@ namespace Lush
             float _timeSinceLastUpdate = 0.0f;
             float _updateInterval = 0.0f;
 
+            bool shouldUpdate(float deltaTime);
+
         public:
             explicit ASystem(float updateFrequency);
             virtual ~ASystem() = default;
 
             virtual void update(std::shared_ptr<EntityManager> &entityManager, float deltaTime) = 0;
 
-            bool shouldUpdate(float deltaTime);
+            void safeUpdate(std::shared_ptr<EntityManager> &entityManager, float deltaTime);
             [[nodiscard]] float getDeltaTime() const;
     };
 }

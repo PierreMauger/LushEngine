@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-Skybox::Skybox(File &file)
+Skybox::Skybox(File &file) : Resource(ResourceType::SKYBOX, file)
 {
     this->load(file);
 }

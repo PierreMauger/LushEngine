@@ -489,7 +489,7 @@ void ScriptGlue::ResetScene()
     resourceManager->getScriptInstances().clear();
     resourceManager->resetDynamicsWorld();
     resourceManager->getPhysicInstances().clear();
-    entityManager->clone(*resourceManager->getScenes()[resourceManager->getActiveScene()].getEntityManager());
+    entityManager->clone(*resourceManager->getActiveScene().getEntityManager());
     resourceManager->initScriptInstances(entityManager);
     resourceManager->initPhysicInstances(entityManager);
     resourceManager->setSceneChanged(true);

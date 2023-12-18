@@ -30,6 +30,7 @@ namespace Lush
             ~Texture();
 
             void load(const File &file);
+            void reload(const File &file);
             void createTexture();
 
             unsigned int getId() const;

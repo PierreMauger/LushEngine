@@ -19,6 +19,12 @@ void Texture::load(const File &file)
     this->createTexture();
 }
 
+void Texture::reload(const File &file)
+{
+    glDeleteTextures(1, &this->_id);
+    this->load(file);
+}
+
 void Texture::createTexture()
 {
     unsigned char *data = stbi_load_from_memory((const stbi_uc *)this->_content.c_str(), this->_content.length(), &this->_width, &this->_height, &this->_nrChannels, 0);

@@ -20,7 +20,7 @@ PhysicSystem::PhysicSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Res
 
 void PhysicSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
-    if (this->_graphic->isPaused() || !this->_graphic->isRunning() || !this->shouldUpdate(deltaTime))
+    if (this->_graphic->isPaused() || !this->_graphic->isRunning())
         return;
 
     for (auto &instance : this->_resourceManager->getPhysicInstances()) {

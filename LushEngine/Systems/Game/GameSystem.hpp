@@ -18,8 +18,6 @@ namespace Lush
 
             BufferObject _screen{};
 
-            bool _started = false;
-
         public:
             GameSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~GameSystem() override = default;

@@ -9,7 +9,7 @@ ResourceManager *ResourceManager::getStaticResourceManager()
     return resourceManager;
 }
 
-ResourceManager::ResourceManager()
+ResourceManager::ResourceManager(const std::string &resourceDir)
 {
     resourceManager = this;
     this->_mapMesh = std::make_unique<MapMesh>();
@@ -25,7 +25,7 @@ void ResourceManager::loadProject(const std::string &dir)
 {
     this->loadTextures(dir + "/Resources/Textures");
     this->loadModels(dir + "/Resources/Models");
-    this->loadSkyboxes(dir + "/Resources/Skybox");
+    this->loadSkyboxes(dir + "/Resources/Skyboxes");
     this->reloadScripts(dir + "/Resources/Scripts");
     this->loadScenes(dir + "/Resources/Scenes");
 }
@@ -35,7 +35,7 @@ void ResourceManager::loadEditor()
     this->loadTextures("Resources/Textures");
     this->loadModels("Resources/Models");
     this->loadShaders("Resources/Shaders");
-    this->loadSkyboxes("Resources/Skybox");
+    this->loadSkyboxes("Resources/Skyboxes");
     this->loadScriptPack("Resources/ScriptsCore", "Core");
     this->loadScriptPack("Resources/ScriptsNative", "Game");
     this->loadScenes("Resources/Scenes");
@@ -47,7 +47,7 @@ void ResourceManager::loadGame()
     this->deserializeAssetPack("Data/AssetPack.data");
 }
 
-void ResourceManager::setUsage()
+void ResourceManager::setAllResourcesUsage()
 {
     for (auto &[name, model] : this->_models)
         model.setUsed(false);
@@ -117,7 +117,7 @@ void ResourceManager::serializeAssetPack(std::string path)
     std::ofstream ofs(path, std::ios::binary);
     boost::archive::binary_oarchive oa(ofs, boost::archive::no_header);
 
-    this->setUsage();
+    this->setAllResourcesUsage();
 
     oa << std::ranges::count_if(this->_textures, [](const auto &texture) { return texture.second.isUsed(); });
     for (auto &[name, texture] : this->_textures) {
@@ -274,11 +274,9 @@ void ResourceManager::loadDirectory(const std::filesystem::path &path, const std
 {
     if (!std::filesystem::exists(path))
         return;
-    for (const auto &entry : std::filesystem::directory_iterator(path)) {
+    for (const auto &entry : std::filesystem::recursive_directory_iterator(path)) {
         if (entry.is_regular_file() && std::find(extensions.begin(), extensions.end(), entry.path().extension().string()) != extensions.end())
             func(entry.path().string());
-        else if (entry.is_directory())
-            this->loadDirectory(entry.path(), func, extensions);
     }
 }
 
@@ -405,7 +403,7 @@ std::unordered_map<std::string, Skybox> &ResourceManager::getSkyboxes()
     return this->_skyboxes;
 }
 
-MonoClass *ResourceManager::getEntityClass()
+MonoClass *ResourceManager::getComponentClass()
 {
     return this->_corePack->getClasses()["Component"];
 }
@@ -435,7 +433,12 @@ std::unordered_map<std::string, Scene> &ResourceManager::getScenes()
     return this->_scenes;
 }
 
-std::string ResourceManager::getActiveScene() const
+Scene &ResourceManager::getActiveScene()
+{
+    return this->_scenes[this->_activeScene];
+}
+
+std::string ResourceManager::getActiveSceneName() const
 {
     return this->_activeScene;
 }

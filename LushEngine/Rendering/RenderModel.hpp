@@ -47,7 +47,7 @@ namespace Lush
         public:
             RenderModel(File &file, std::unordered_map<std::string, Texture> textures);
             RenderModel() = default;
-            ~RenderModel() override = default;
+            ~RenderModel() = default;
 
             void load(const File &file, std::unordered_map<std::string, Texture> &textures);
             void reload(const File &file, std::unordered_map<std::string, Texture> &textures);

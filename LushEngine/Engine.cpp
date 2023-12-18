@@ -5,13 +5,18 @@ using namespace Lush;
 Engine::Engine(bool isEditor) : _isEditor(isEditor)
 {
     this->_graphic = std::make_shared<Graphic>(1280, 720, "Lush Engine");
-    this->_resourceManager = std::make_shared<ResourceManager>();
-    this->_resourceManager->initScriptDomain(isEditor ? "libs" : "Data");
+    // init resources
+    this->_resourceManager = std::make_shared<ResourceManager>(isEditor ? "libs" : "Data");
     this->_isEditor ? this->_resourceManager->loadEditor() : this->_resourceManager->loadGame();
-    this->_graphic->setLogo(this->_resourceManager->getLogo());
+    auto &scenes = this->_resourceManager->getScenes();
+    std::string mainSceneName = scenes.find("main") != scenes.end() ? "main" : scenes.begin()->first;
+    this->_resourceManager->setActiveScene(mainSceneName);
 
+    // init graphic
+    this->_graphic->setLogo(this->_resourceManager->getLogo());
     this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());
 
+    // init ecs
     this->_ecs.getSystemManager().bindSystem(std::make_unique<PhysicSystem>(this->_graphic, this->_resourceManager));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<ScriptSystem>(this->_graphic, this->_resourceManager));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<CameraSystem>(this->_graphic));
@@ -22,18 +27,14 @@ Engine::Engine(bool isEditor) : _isEditor(isEditor)
     this->_ecs.getSystemManager().bindSystem(std::make_unique<GUISystem>(this->_graphic, this->_resourceManager));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<FileWatcherSystem>(this->_graphic, this->_resourceManager));
 
-    this->_resourceManager->setActiveScene(this->_resourceManager->getScenes().begin()->first);
-    this->_ecs.getEntityManager() = this->_resourceManager->getScenes().begin()->second.getEntityManager();
-
+    this->_ecs.getEntityManager() = this->_resourceManager->getActiveScene().getEntityManager();
 #else
     this->_ecs.getSystemManager().bindSystem(std::make_unique<GameSystem>(this->_graphic, this->_resourceManager));
 
-    std::string mainSceneName = "main";
-    if (this->_resourceManager->getScenes().find("main") == this->_resourceManager->getScenes().end())
-        mainSceneName = this->_resourceManager->getScenes().begin()->first;
-
-    this->_resourceManager->setActiveScene(mainSceneName);
-    this->_ecs.getEntityManager()->clone(*this->_resourceManager->getScenes()[mainSceneName].getEntityManager());
+    this->_ecs.getEntityManager()->clone(*this->_resourceManager->getActiveScene().getEntityManager());
+    this->_resourceManager->initScriptInstances(this->_ecs.getEntityManager());
+    this->_resourceManager->initPhysicInstances(this->_ecs.getEntityManager());
+    this->_graphic->setRunning(true);
 #endif
 }
 

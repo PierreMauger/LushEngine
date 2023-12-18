@@ -67,8 +67,6 @@ void GUISystem::saveProjectSettings()
 
 void GUISystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
-    if (!this->shouldUpdate(deltaTime))
-        return;
     if (this->_singleFrame) {
         this->_singleFrame = false;
         this->_graphic->setPaused(true);
@@ -227,14 +225,14 @@ void GUISystem::drawActionBar(std::shared_ptr<EntityManager> &entityManager)
                 this->_graphic->setRunning(!this->_graphic->isRunning());
                 if (this->_graphic->isRunning()) {
                     entityManager = std::make_shared<EntityManager>();
-                    entityManager->clone(*this->_resourceManager->getScenes()[this->_resourceManager->getActiveScene()].getEntityManager());
+                    entityManager->clone(*this->_resourceManager->getActiveScene().getEntityManager());
                     this->_resourceManager->initScriptInstances(entityManager);
                     this->_resourceManager->initPhysicInstances(entityManager);
                 } else {
                     this->_resourceManager->getScriptInstances().clear();
                     this->_resourceManager->resetDynamicsWorld();
                     this->_resourceManager->getPhysicInstances().clear();
-                    entityManager = this->_resourceManager->getScenes()[this->_resourceManager->getActiveScene()].getEntityManager();
+                    entityManager = this->_resourceManager->getActiveScene().getEntityManager();
                 }
             }
             ImGui::PopStyleColor();
@@ -262,13 +260,13 @@ void GUISystem::drawSceneHierarchy(std::shared_ptr<EntityManager> &entityManager
     }
     if (ImGui::CollapsingHeader("Scenes")) {
         for (auto &[name, scene] : this->_resourceManager->getScenes()) {
-            if (ImGui::Selectable(name.c_str(), this->_resourceManager->getActiveScene() == name)) {
+            if (ImGui::Selectable(name.c_str(), this->_resourceManager->getActiveSceneName() == name)) {
                 this->_resourceManager->setActiveScene(name);
                 entityManager = scene.getEntityManager();
             }
         }
     }
-    if (this->_resourceManager->getActiveScene().empty()) {
+    if (this->_resourceManager->getActiveSceneName().empty()) {
         ImGui::End();
         return;
     }

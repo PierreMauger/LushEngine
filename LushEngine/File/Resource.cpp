@@ -9,7 +9,7 @@ std::vector<Resource> &Resource::getResources()
     return resources;
 }
 
-bool Resource::hasFile(File &file) const
+bool Resource::hasFile(const File &file) const
 {
     return std::ranges::any_of(this->_files, [&file](const File &f) { return f.getPath() == file.getPath(); });
 }
