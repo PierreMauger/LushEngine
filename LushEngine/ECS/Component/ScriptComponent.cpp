@@ -36,7 +36,7 @@ void ScriptComponent::removeField(const std::string &name)
 
 bool ScriptComponent::hasField(const std::string &name)
 {
-    return this->_fields.find(name) != this->_fields.end();
+    return this->_fields.contains(name);
 }
 
 void ScriptComponent::serialize(boost::archive::binary_oarchive &ar, [[maybe_unused]] const unsigned int version)

@@ -13,6 +13,7 @@ ResourceManager::ResourceManager(const std::string &resourceDir)
 {
     resourceManager = this;
     this->_mapMesh = std::make_unique<MapMesh>();
+    this->initScriptDomain(resourceDir);
 }
 
 ResourceManager::~ResourceManager()
@@ -50,33 +51,33 @@ void ResourceManager::loadGame()
 void ResourceManager::setAllResourcesUsage()
 {
     for (auto &[name, model] : this->_models)
-        model.setUsed(false);
+        model->setUsed(false);
     for (auto &[name, skybox] : this->_skyboxes)
-        skybox.setUsed(false);
+        skybox->setUsed(false);
     for (auto &[name, texture] : this->_textures)
-        texture.setUsed(false);
+        texture->setUsed(false);
 
     for (auto &[modelName, model] : this->_models)
         if (this->isModelUsed(modelName)) {
-            model.setUsed(true);
-            for (auto textureName : model.getTextureNames())
-                this->_textures[textureName].setUsed(true);
+            model->setUsed(true);
+            for (auto textureName : model->getTextureNames())
+                this->_textures[textureName]->setUsed(true);
         }
     for (auto &[skyboxName, skybox] : this->_skyboxes)
         if (this->isSkyboxUsed(skyboxName))
-            skybox.setUsed(true);
+            skybox->setUsed(true);
     for (auto &[textureName, texture] : this->_textures)
         if (this->isTextureUsed(textureName))
-            texture.setUsed(true);
-    this->_textures[this->_logoName].setUsed(true);
+            texture->setUsed(true);
+    this->_textures[this->_logoName]->setUsed(true);
 }
 
 bool ResourceManager::isModelUsed(std::string modelName)
 {
     for (auto &[name, scene] : this->_scenes) {
-        if (!scene.isUsed())
+        if (!scene->isUsed())
             continue;
-        for (auto &[id, entity] : scene.getEntityManager()->getEntities())
+        for (auto &[id, entity] : scene->getEntityManager().getEntities())
             if (entity.hasComponent<Model>() && entity.getComponent<Model>().name == modelName)
                 return true;
     }
@@ -86,9 +87,9 @@ bool ResourceManager::isModelUsed(std::string modelName)
 bool ResourceManager::isSkyboxUsed(std::string skyboxName)
 {
     for (auto &[name, scene] : this->_scenes) {
-        if (!scene.isUsed())
+        if (!scene->isUsed())
             continue;
-        for (auto &[id, entity] : scene.getEntityManager()->getEntities())
+        for (auto &[id, entity] : scene->getEntityManager().getEntities())
             if (entity.hasComponent<Cubemap>() && entity.getComponent<Cubemap>().name == skyboxName)
                 return true;
     }
@@ -98,9 +99,9 @@ bool ResourceManager::isSkyboxUsed(std::string skyboxName)
 bool ResourceManager::isTextureUsed(std::string textureName)
 {
     for (auto &[name, scene] : this->_scenes) {
-        if (!scene.isUsed())
+        if (!scene->isUsed())
             continue;
-        for (auto &[id, entity] : scene.getEntityManager()->getEntities()) {
+        for (auto &[id, entity] : scene->getEntityManager().getEntities()) {
             if (entity.hasComponent<Billboard>() && entity.getComponent<Billboard>().name == textureName)
                 return true;
             if (entity.hasComponent<Map>() && (entity.getComponent<Map>().heightMap == textureName || entity.getComponent<Map>().diffuseTexture == textureName ||
@@ -119,40 +120,40 @@ void ResourceManager::serializeAssetPack(std::string path)
 
     this->setAllResourcesUsage();
 
-    oa << std::ranges::count_if(this->_textures, [](const auto &texture) { return texture.second.isUsed(); });
+    oa << std::ranges::count_if(this->_textures, [](const auto &texture) { return texture.second->isUsed(); });
     for (auto &[name, texture] : this->_textures) {
-        if (!texture.isUsed())
+        if (!texture->isUsed())
             continue;
         oa << name;
-        oa << texture;
+        oa << *texture;
     }
 
-    oa << std::ranges::count_if(this->_models, [](const auto &model) { return model.second.isUsed(); });
+    oa << std::ranges::count_if(this->_models, [](const auto &model) { return model.second->isUsed(); });
     for (auto &[name, model] : this->_models) {
-        if (!model.isUsed())
+        if (!model->isUsed())
             continue;
         oa << name;
-        oa << model;
+        oa << *model;
     }
 
-    oa << std::ranges::count_if(this->_skyboxes, [](const auto &skybox) { return skybox.second.isUsed(); });
+    oa << std::ranges::count_if(this->_skyboxes, [](const auto &skybox) { return skybox.second->isUsed(); });
     for (auto &[name, skybox] : this->_skyboxes) {
-        if (!skybox.isUsed())
+        if (!skybox->isUsed())
             continue;
         oa << name;
-        oa << skybox;
+        oa << *skybox;
     }
 
     oa << this->_shaders.size();
     for (auto &[name, shader] : this->_shaders) {
         oa << name;
-        oa << shader;
+        oa << *shader;
     }
 
     oa << this->_scenes.size();
     for (auto &[name, scene] : this->_scenes) {
         oa << name;
-        oa << scene;
+        oa << *scene;
     }
 
     oa << this->_logoName;
@@ -170,16 +171,18 @@ void ResourceManager::deserializeAssetPack(std::string path)
     for (std::size_t i = 0; i < size; i++) {
         std::string name;
         ia >> name;
-        ia >> this->_textures[name];
-        this->_textures[name].createTexture();
+        this->_textures[name] = std::make_unique<Texture>();
+        ia >> *this->_textures[name];
+        this->_textures[name]->createTexture();
     }
 
     ia >> size;
     for (std::size_t i = 0; i < size; i++) {
         std::string name;
         ia >> name;
-        ia >> this->_models[name];
-        for (auto &mesh : this->_models[name].getMeshes())
+        this->_models[name] = std::make_unique<RenderModel>();
+        ia >> *this->_models[name];
+        for (auto &mesh : this->_models[name]->getMeshes())
             mesh.rebindTextureIds(this->_textures);
     }
 
@@ -187,23 +190,26 @@ void ResourceManager::deserializeAssetPack(std::string path)
     for (std::size_t i = 0; i < size; i++) {
         std::string name;
         ia >> name;
-        ia >> this->_skyboxes[name];
-        this->_skyboxes[name].createSkybox();
+        this->_skyboxes[name] = std::make_unique<Skybox>();
+        ia >> *this->_skyboxes[name];
+        this->_skyboxes[name]->createSkybox();
     }
 
     ia >> size;
     for (std::size_t i = 0; i < size; i++) {
         std::string name;
         ia >> name;
-        ia >> this->_shaders[name];
-        this->_shaders[name].createShader();
+        this->_shaders[name] = std::make_unique<Shader>();
+        ia >> *this->_shaders[name];
+        this->_shaders[name]->createShader();
     }
 
     ia >> size;
     for (std::size_t i = 0; i < size; i++) {
         std::string name;
         ia >> name;
-        ia >> this->_scenes[name];
+        this->_scenes[name] = std::make_unique<Scene>();
+        ia >> *this->_scenes[name];
     }
 
     ia >> this->_logoName;
@@ -259,7 +265,7 @@ void ResourceManager::initPhysicInstances(std::shared_ptr<EntityManager> &entity
             } else if (entity.hasComponent<Map>()) {
                 if (entity.hasComponent<Collider>())
                     this->_physicInstances.emplace_back(
-                        std::make_unique<TerrainInstance>(id, entity.getComponent<Transform>(), this->_textures[entity.getComponent<Map>().heightMap]));
+                        std::make_unique<TerrainInstance>(id, entity.getComponent<Transform>(), *this->_textures[entity.getComponent<Map>().heightMap]));
             } else if (entity.hasComponent<Collider>()) {
                 this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<Collider>()));
             }
@@ -270,64 +276,59 @@ void ResourceManager::initPhysicInstances(std::shared_ptr<EntityManager> &entity
         physicInstance->addToWorld(this->_dynamicsWorld);
 }
 
-void ResourceManager::loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions)
+void ResourceManager::loadDirectoryFiles(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions)
 {
     if (!std::filesystem::exists(path))
         return;
     for (const auto &entry : std::filesystem::recursive_directory_iterator(path)) {
-        if (entry.is_regular_file() && std::find(extensions.begin(), extensions.end(), entry.path().extension().string()) != extensions.end())
-            func(entry.path().string());
+        std::string fullPath = entry.path().string();
+        if (entry.is_regular_file() && std::find(extensions.begin(), extensions.end(), entry.path().extension().string()) != extensions.end()) {
+            this->_files[fullPath] = File(fullPath);
+            func(fullPath);
+        }
+    }
+}
+
+void ResourceManager::loadDirectoryNewFiles(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions)
+{
+    if (!std::filesystem::exists(path))
+        return;
+    for (const auto &entry : std::filesystem::recursive_directory_iterator(path)) {
+        std::string fullPath = entry.path().string();
+        if (entry.is_regular_file() && !this->_files.contains(fullPath) && std::find(extensions.begin(), extensions.end(), entry.path().extension().string()) != extensions.end()) {
+            this->_files[fullPath] = File(fullPath);
+            func(fullPath);
+        }
     }
 }
 
 void ResourceManager::loadShaders(const std::string &dir)
 {
-    this->loadDirectory(dir,
-                        [this](const std::string &path) {
-                            this->_files[path] = File(path);
-                            this->_shaders[this->_files[path].getName()] = Shader(this->_files[path]);
-                        },
-                        {".glsl"});
+    this->loadDirectoryFiles(dir, [this](const std::string &path) { this->_shaders[this->_files[path].getName()] = std::make_unique<Shader>(this->_files[path]); }, {".glsl"});
 }
 
 void ResourceManager::loadTextures(const std::string &dir)
 {
-    this->loadDirectory(dir,
-                        [this](const std::string &path) {
-                            this->_files[path] = File(path);
-                            this->_textures[std::filesystem::path(path).filename()] = Texture(this->_files[path]);
-                        },
-                        {".png", ".jpg", ".jpeg"});
+    this->loadDirectoryFiles(dir, [this](const std::string &path) { this->_textures[std::filesystem::path(path).filename()] = std::make_unique<Texture>(this->_files[path]); },
+                             {".png", ".jpg", ".jpeg"});
 }
 
 void ResourceManager::loadModels(const std::string &dir)
 {
-    this->loadDirectory(dir,
-                        [this](const std::string &path) {
-                            this->_files[path] = File(path);
-                            this->_models[this->_files[path].getName()] = RenderModel(this->_files[path], this->_textures);
-                        },
-                        {".dae"});
+    this->loadDirectoryFiles(
+        dir, [this](const std::string &path) { this->_models[this->_files[path].getName()] = std::make_unique<RenderModel>(this->_files[path], this->_textures); }, {".dae"});
 }
 
 void ResourceManager::loadSkyboxes(const std::string &dir)
 {
-    this->loadDirectory(dir,
-                        [this](const std::string &path) {
-                            this->_files[path] = File(path);
-                            this->_skyboxes[this->_files[path].getName()] = Skybox(this->_files[path]);
-                        },
-                        {".png", ".jpg", ".jpeg"});
+    this->loadDirectoryFiles(dir, [this](const std::string &path) { this->_skyboxes[this->_files[path].getName()] = std::make_unique<Skybox>(this->_files[path]); },
+                             {".png", ".jpg", ".jpeg"});
 }
 
 void ResourceManager::loadScenes(const std::string &dir)
 {
-    this->loadDirectory(dir,
-                        [this](const std::string &path) {
-                            this->_files[path] = File(path);
-                            this->_scenes[this->_files[path].getName()] = Scene(this->_files[path], this->_scripts);
-                        },
-                        {".xml"});
+    this->loadDirectoryFiles(dir, [this](const std::string &path) { this->_scenes[this->_files[path].getName()] = std::make_unique<Scene>(this->_files[path], this->_scripts); },
+                             {".xml"});
 }
 
 void ResourceManager::loadScriptDll(const std::string &dir)
@@ -336,46 +337,34 @@ void ResourceManager::loadScriptDll(const std::string &dir)
     std::vector<File> files = {File(dir + "/Game.dll")};
 
     this->_corePack = std::make_unique<ScriptPack>(coreFiles, "Core");
-    this->_gamePack = std::make_shared<ScriptPack>(files, "Game");
+    this->_gamePack = std::make_unique<ScriptPack>(files, "Game");
 
     for (auto &[name, klass] : this->_gamePack->getClasses())
-        this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->_corePack->getClasses()["Component"]);
+        this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->getComponentClass());
 }
 
 void ResourceManager::loadScriptPack(const std::string &dir, const std::string &packName)
 {
-    static std::vector<File> tempFiles;
-    this->loadDirectory(dir,
-                        [this](const std::string &path) {
-                            this->_files[path] = File(path);
-                            tempFiles.push_back(this->_files[path]);
-                        },
-                        {".cs"});
+    std::vector<File> tempFiles;
+    this->loadDirectoryFiles(dir, [&tempFiles, this](const std::string &path) { tempFiles.push_back(this->_files[path]); }, {".cs"});
     if (packName != "Core") {
-        this->_gamePack = std::make_shared<ScriptPack>(tempFiles, packName);
+        this->_gamePack = std::make_unique<ScriptPack>(tempFiles, packName);
         for (auto &[name, klass] : this->_gamePack->getClasses())
-            this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->_corePack->getClasses()["Component"]);
+            this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->getComponentClass());
     } else {
         this->_corePack = std::make_unique<ScriptPack>(tempFiles, packName);
     }
-    tempFiles.clear();
 }
 
 void ResourceManager::reloadScripts(const std::string &dir)
 {
-    static std::vector<File> tempFiles;
-    this->loadDirectory(dir,
-                        [this](const std::string &path) {
-                            this->_files[path] = File(path);
-                            tempFiles.push_back(this->_files[path]);
-                        },
-                        {".cs"});
+    std::vector<File> tempFiles;
+    this->loadDirectoryFiles(dir, [&tempFiles, this](const std::string &path) { tempFiles.push_back(this->_files[path]); }, {".cs"});
     for (auto &file : this->_gamePack->getFiles())
         tempFiles.push_back(file);
     this->_gamePack->reload(tempFiles);
     for (auto &[name, klass] : this->_gamePack->getClasses())
-        this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->_corePack->getClasses()["Component"]);
-    tempFiles.clear();
+        this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->getComponentClass());
 }
 
 std::unordered_map<std::string, File> &ResourceManager::getFiles()
@@ -383,22 +372,22 @@ std::unordered_map<std::string, File> &ResourceManager::getFiles()
     return this->_files;
 }
 
-std::unordered_map<std::string, Shader> &ResourceManager::getShaders()
+std::unordered_map<std::string, std::unique_ptr<Shader>> &ResourceManager::getShaders()
 {
     return this->_shaders;
 }
 
-std::unordered_map<std::string, Texture> &ResourceManager::getTextures()
+std::unordered_map<std::string, std::unique_ptr<Texture>> &ResourceManager::getTextures()
 {
     return this->_textures;
 }
 
-std::unordered_map<std::string, RenderModel> &ResourceManager::getModels()
+std::unordered_map<std::string, std::unique_ptr<RenderModel>> &ResourceManager::getModels()
 {
     return this->_models;
 }
 
-std::unordered_map<std::string, Skybox> &ResourceManager::getSkyboxes()
+std::unordered_map<std::string, std::unique_ptr<Skybox>> &ResourceManager::getSkyboxes()
 {
     return this->_skyboxes;
 }
@@ -408,7 +397,7 @@ MonoClass *ResourceManager::getComponentClass()
     return this->_corePack->getClasses()["Component"];
 }
 
-std::shared_ptr<ScriptPack> &ResourceManager::getGamePack()
+std::unique_ptr<ScriptPack> &ResourceManager::getGamePack()
 {
     return this->_gamePack;
 }
@@ -428,14 +417,14 @@ std::vector<std::unique_ptr<BasicInstance>> &ResourceManager::getPhysicInstances
     return this->_physicInstances;
 }
 
-std::unordered_map<std::string, Scene> &ResourceManager::getScenes()
+std::unordered_map<std::string, std::unique_ptr<Scene>> &ResourceManager::getScenes()
 {
     return this->_scenes;
 }
 
 Scene &ResourceManager::getActiveScene()
 {
-    return this->_scenes[this->_activeScene];
+    return *this->_scenes[this->_activeScene];
 }
 
 std::string ResourceManager::getActiveSceneName() const
@@ -455,7 +444,7 @@ MapMesh &ResourceManager::getMapMesh()
 
 Texture &ResourceManager::getLogo()
 {
-    return this->_textures[this->_logoName];
+    return *this->_textures[this->_logoName];
 }
 
 void ResourceManager::setLogo(const std::string &name)

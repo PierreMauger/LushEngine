@@ -14,61 +14,49 @@ void EntityManager::addEntity(Entity &entity, std::size_t index)
 
 void EntityManager::removeEntity(Entity &entity)
 {
-    auto it = std::ranges::find_if(this->_entities, [&entity](const auto &pair) {
-        return pair.second == entity;
-    });
+    auto it = std::ranges::find_if(this->_entities, [&entity](const auto &pair) { return pair.second == entity; });
 
-    if (it != this->_entities.end()) {
+    if (it != this->_entities.end())
         this->_entities.erase(it);
-    }
 }
 
 void EntityManager::removeEntity(const std::string &name)
 {
-    auto it = std::ranges::find_if(this->_entities, [&name](const auto &pair) {
-        return pair.second.getName() == name;
-    });
+    auto it = std::ranges::find_if(this->_entities, [&name](const auto &pair) { return pair.second.getName() == name; });
 
-    if (it != this->_entities.end()) {
+    if (it != this->_entities.end())
         this->_entities.erase(it);
-    }
 }
 
 void EntityManager::removeEntity(std::size_t index)
 {
-    auto it = this->_entities.find(index);
-
-    if (it != this->_entities.end()) {
-        this->_entities.erase(it);
-    }
+    if (!this->_entities.contains(index))
+        throw std::runtime_error("removeEntity: Entity not found " + std::to_string(index));
+    this->_entities.erase(index);
 }
 
 bool EntityManager::hasEntity(const std::string &name)
 {
-    for (auto &[index, entity] : this->_entities) {
-        if (entity.getName() == name)
-            return true;
-    }
-    return false;
+    return std::ranges::any_of(this->_entities, [&name](const auto &pair) { return pair.second.getName() == name; });
 }
 
 bool EntityManager::hasEntity(std::size_t index)
 {
-    return this->_entities.find(index) != this->_entities.end();
+    return this->_entities.contains(index);
 }
 
 std::size_t EntityManager::getEntityIndex(const std::string &name)
 {
-    for (auto &[index, entity] : this->_entities) {
-        if (entity.getName() == name)
-            return index;
-    }
+    auto it = std::ranges::find_if(this->_entities, [&name](const auto &pair) { return pair.second.getName() == name; });
+
+    if (it != this->_entities.end())
+        return it->first;
     throw std::runtime_error("getEntityIndex: Entity not found " + name);
 }
 
 Entity &EntityManager::getEntity(std::size_t index)
 {
-    if (this->_entities.find(index) == this->_entities.end())
+    if (!this->_entities.contains(index))
         throw std::runtime_error("getEntity: Entity not found " + std::to_string(index));
     return this->_entities[index];
 }

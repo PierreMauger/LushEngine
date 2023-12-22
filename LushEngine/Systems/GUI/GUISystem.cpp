@@ -225,14 +225,14 @@ void GUISystem::drawActionBar(std::shared_ptr<EntityManager> &entityManager)
                 this->_graphic->setRunning(!this->_graphic->isRunning());
                 if (this->_graphic->isRunning()) {
                     entityManager = std::make_shared<EntityManager>();
-                    entityManager->clone(*this->_resourceManager->getActiveScene().getEntityManager());
+                    entityManager->clone(this->_resourceManager->getActiveScene().getEntityManager());
                     this->_resourceManager->initScriptInstances(entityManager);
                     this->_resourceManager->initPhysicInstances(entityManager);
                 } else {
                     this->_resourceManager->getScriptInstances().clear();
                     this->_resourceManager->resetDynamicsWorld();
                     this->_resourceManager->getPhysicInstances().clear();
-                    entityManager = this->_resourceManager->getActiveScene().getEntityManager();
+                    *entityManager = this->_resourceManager->getActiveScene().getEntityManager();
                 }
             }
             ImGui::PopStyleColor();
@@ -262,7 +262,7 @@ void GUISystem::drawSceneHierarchy(std::shared_ptr<EntityManager> &entityManager
         for (auto &[name, scene] : this->_resourceManager->getScenes()) {
             if (ImGui::Selectable(name.c_str(), this->_resourceManager->getActiveSceneName() == name)) {
                 this->_resourceManager->setActiveScene(name);
-                entityManager = scene.getEntityManager();
+                *entityManager = scene->getEntityManager();
             }
         }
     }
@@ -988,17 +988,17 @@ void GUISystem::drawProjectManager()
         if (this->_projectSettings[this->_editingProject].iconName != "None") {
             ImGui::SameLine();
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 15);
-            GLuint texture = this->_resourceManager->getTextures()[this->_projectSettings[this->_editingProject].iconName].getId();
+            GLuint texture = this->_resourceManager->getTextures()[this->_projectSettings[this->_editingProject].iconName]->getId();
             ImGui::Image((void *)(intptr_t)texture, ImVec2(50, 50));
         }
         ImGui::Separator();
         ImGui::Text("Scenes in Build:");
         for (auto &[sceneName, scene] : this->_resourceManager->getScenes()) {
             isEdited = true;
-            bool isUsed = scene.isUsed();
+            bool isUsed = scene->isUsed();
             if (ImGui::Checkbox(sceneName.c_str(), &isUsed)) {
-                scene.setUsed(!scene.isUsed());
-                if (scene.isUsed())
+                scene->setUsed(!scene->isUsed());
+                if (scene->isUsed())
                     std::remove(this->_projectSettings[this->_editingProject].hiddenScenes.begin(), this->_projectSettings[this->_editingProject].hiddenScenes.end(), sceneName);
                 else
                     this->_projectSettings[this->_editingProject].hiddenScenes.push_back(sceneName);

@@ -8,7 +8,7 @@ btScalar CustomContactCallback::addSingleResult([[maybe_unused]] btManifoldPoint
     const btCollisionObject *obj0 = colObj0Wrap->getCollisionObject();
     const btCollisionObject *obj1 = colObj1Wrap->getCollisionObject();
 
-    if (this->_collisionTable.find({obj0, obj1}) == this->_collisionTable.end()) {
+    if (!this->_collisionTable.contains({obj0, obj1})) {
         this->_collisionTable[{obj0, obj1}] = COLLISION_ENTER;
         onCollision(obj0, obj1, COLLISION_ENTER);
     } else {

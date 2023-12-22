@@ -31,11 +31,13 @@ namespace Lush
                 this->_type = type;
                 this->_files = {args...};
                 this->_uuid = UUID();
-                getResources().push_back(*this);
+                getResources().push_back(this);
             }
 
             Resource() = default;
-            virtual ~Resource() = default;
+
+            ~Resource();
+            // virtual ~Resource() = default;
 
             bool hasFile(const File &file) const;
             void setFiles(std::vector<File> &files);
@@ -47,7 +49,7 @@ namespace Lush
 
             bool operator==(const Resource &other) const;
 
-            static std::vector<Resource> &getResources();
+            static std::vector<Resource *> &getResources();
     };
 }
 

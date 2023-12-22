@@ -73,7 +73,7 @@ void ScriptClass::reload(MonoDomain *domain, MonoClass *scriptClass, MonoClass *
 
 MonoMethod *ScriptClass::getMethod(const std::string &name)
 {
-    if (this->_methods.find(name) != this->_methods.end())
+    if (this->_methods.contains(name))
         return this->_methods[name];
     return nullptr;
 }

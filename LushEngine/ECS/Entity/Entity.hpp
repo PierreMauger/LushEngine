@@ -22,15 +22,14 @@ namespace Lush
             Entity();
             ~Entity() = default;
 
-            std::string getName() const;
+            const std::string &getName() const;
             void setName(const std::string &name);
 
             template <typename T> T &getComponent()
             {
                 auto it = this->_components.find(typeid(T));
-                if (it != this->_components.end()) {
+                if (it != this->_components.end())
                     return static_cast<T &>(*it->second);
-                }
                 throw std::runtime_error("getComponent: Component not found " + std::string(typeid(T).name()));
             }
 
@@ -46,7 +45,7 @@ namespace Lush
 
             template <typename T> bool hasComponent()
             {
-                return this->_components.find(typeid(T)) != this->_components.end();
+                return this->_components.contains(typeid(T));
             }
 
             ScriptComponent &getScriptComponent(const std::string &className);

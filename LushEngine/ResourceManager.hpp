@@ -35,13 +35,13 @@ namespace Lush
             std::unordered_map<std::string, File> _files;
             std::vector<std::string> _directories;
 
-            std::unordered_map<std::string, Shader> _shaders;
-            std::unordered_map<std::string, Texture> _textures;
-            std::unordered_map<std::string, RenderModel> _models;
-            std::unordered_map<std::string, Skybox> _skyboxes;
-            std::unordered_map<std::string, Scene> _scenes;
+            std::unordered_map<std::string, std::unique_ptr<Shader>> _shaders;
+            std::unordered_map<std::string, std::unique_ptr<Texture>> _textures;
+            std::unordered_map<std::string, std::unique_ptr<RenderModel>> _models;
+            std::unordered_map<std::string, std::unique_ptr<Skybox>> _skyboxes;
+            std::unordered_map<std::string, std::unique_ptr<Scene>> _scenes;
             std::unique_ptr<ScriptPack> _corePack;
-            std::shared_ptr<ScriptPack> _gamePack;
+            std::unique_ptr<ScriptPack> _gamePack;
 
             std::unordered_map<std::string, ScriptClass> _scripts;
             std::vector<ScriptInstance> _scriptInstances;
@@ -56,7 +56,7 @@ namespace Lush
             btDiscreteDynamicsWorld *_dynamicsWorld = nullptr;
 
             void initScriptDomain(const std::string &dir);
-            void loadDirectory(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions);
+            void loadDirectoryFiles(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions);
 
             void loadShaders(const std::string &dir);
             void loadTextures(const std::string &dir);
@@ -81,6 +81,8 @@ namespace Lush
             void loadEditor();
             void loadGame();
 
+            void loadDirectoryNewFiles(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions);
+
             void initScriptInstances(std::shared_ptr<EntityManager> &entityManager);
             void initPhysicInstances(std::shared_ptr<EntityManager> &entityManager);
 
@@ -89,12 +91,12 @@ namespace Lush
 
             std::unordered_map<std::string, File> &getFiles();
 
-            std::unordered_map<std::string, Shader> &getShaders();
-            std::unordered_map<std::string, Texture> &getTextures();
-            std::unordered_map<std::string, RenderModel> &getModels();
-            std::unordered_map<std::string, Skybox> &getSkyboxes();
-            std::unordered_map<std::string, Scene> &getScenes();
-            std::shared_ptr<ScriptPack> &getGamePack();
+            std::unordered_map<std::string, std::unique_ptr<Shader>> &getShaders();
+            std::unordered_map<std::string, std::unique_ptr<Texture>> &getTextures();
+            std::unordered_map<std::string, std::unique_ptr<RenderModel>> &getModels();
+            std::unordered_map<std::string, std::unique_ptr<Skybox>> &getSkyboxes();
+            std::unordered_map<std::string, std::unique_ptr<Scene>> &getScenes();
+            std::unique_ptr<ScriptPack> &getGamePack();
 
             MonoClass *getComponentClass();
             std::unordered_map<std::string, ScriptClass> &getScripts();

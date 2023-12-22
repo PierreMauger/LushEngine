@@ -2,9 +2,17 @@
 
 using namespace Lush;
 
-static std::vector<Resource> resources;
+static std::vector<Resource *> resources;
 
-std::vector<Resource> &Resource::getResources()
+Resource::~Resource()
+{
+    auto it = std::ranges::find(resources, this);
+
+    if (it != std::end(resources))
+        resources.erase(it);
+}
+
+std::vector<Resource *> &Resource::getResources()
 {
     return resources;
 }

@@ -65,8 +65,8 @@ void PickingSystem::drawModels(std::shared_ptr<EntityManager> &entityManager)
 
         this->_graphic->getRenderView().getShader().setVec4("id", color);
         this->_graphic->getRenderView().setModel(transform);
-        if (this->_resourceManager->getModels().find(model.name) != this->_resourceManager->getModels().end())
-            this->_resourceManager->getModels()[model.name].draw(this->_graphic->getRenderView().getShader());
+        if (this->_resourceManager->getModels().contains(model.name))
+            this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader());
     }
 }
 

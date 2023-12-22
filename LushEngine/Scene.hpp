@@ -17,14 +17,14 @@ namespace Lush
     class Scene : public Resource
     {
         private:
-            std::shared_ptr<EntityManager> _entityManager;
+            EntityManager _entityManager;
 
         public:
             Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
             Scene() = default;
             ~Scene() = default;
 
-            std::shared_ptr<EntityManager> getEntityManager();
+            EntityManager &getEntityManager();
 
             void load(const File &file, std::unordered_map<std::string, ScriptClass> &scripts);
             void reload(const File &file, std::unordered_map<std::string, ScriptClass> &scripts);

@@ -119,8 +119,8 @@ void SceneSystem::drawModels(std::shared_ptr<EntityManager> &entityManager)
         Model model = entity.getComponent<Model>();
 
         this->_graphic->getRenderView().setModel(transform);
-        if (this->_resourceManager->getModels().find(model.name) != this->_resourceManager->getModels().end())
-            this->_resourceManager->getModels()[model.name].draw(this->_graphic->getRenderView().getShader());
+        if (this->_resourceManager->getModels().contains(model.name))
+            this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader());
     }
 }
 
@@ -136,8 +136,8 @@ void SceneSystem::drawBillboards(std::shared_ptr<EntityManager> &entityManager)
 
         this->_graphic->getRenderView().setBillboard(transform);
         glActiveTexture(GL_TEXTURE0);
-        if (this->_resourceManager->getTextures().find(billboard.name) != this->_resourceManager->getTextures().end())
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[billboard.name].getId());
+        if (this->_resourceManager->getTextures().contains(billboard.name))
+            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[billboard.name]->getId());
         else
             glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("tex", 0);
@@ -160,32 +160,32 @@ void SceneSystem::drawMap(std::shared_ptr<EntityManager> &entityManager)
         this->_graphic->getRenderView().setModel(entity.getComponent<Transform>());
         // TODO : clean this
         glActiveTexture(GL_TEXTURE0);
-        if (this->_resourceManager->getTextures().find(map.heightMap) != this->_resourceManager->getTextures().end())
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.heightMap].getId());
+        if (this->_resourceManager->getTextures().contains(map.heightMap))
+            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.heightMap]->getId());
         else
             glBindTexture(GL_TEXTURE_2D, this->_perlinTexture);
         this->_graphic->getRenderView().getShader().setInt("heightMap", 0);
         glActiveTexture(GL_TEXTURE1);
-        if (this->_resourceManager->getTextures().find(map.diffuseTexture) != this->_resourceManager->getTextures().end())
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.diffuseTexture].getId());
+        if (this->_resourceManager->getTextures().contains(map.diffuseTexture))
+            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.diffuseTexture]->getId());
         else
             glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("diffuseTexture", 1);
         glActiveTexture(GL_TEXTURE2);
-        if (this->_resourceManager->getTextures().find(map.normalTexture) != this->_resourceManager->getTextures().end())
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.normalTexture].getId());
+        if (this->_resourceManager->getTextures().contains(map.normalTexture))
+            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.normalTexture]->getId());
         else
             glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("normalTexture", 2);
         glActiveTexture(GL_TEXTURE3);
-        if (this->_resourceManager->getTextures().find(map.diffuseTexture2) != this->_resourceManager->getTextures().end())
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.diffuseTexture2].getId());
+        if (this->_resourceManager->getTextures().contains(map.diffuseTexture2))
+            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.diffuseTexture2]->getId());
         else
             glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("diffuseTexture2", 3);
         glActiveTexture(GL_TEXTURE4);
-        if (this->_resourceManager->getTextures().find(map.diffuseTexture3) != this->_resourceManager->getTextures().end())
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.diffuseTexture3].getId());
+        if (this->_resourceManager->getTextures().contains(map.diffuseTexture3))
+            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.diffuseTexture3]->getId());
         else
             glBindTexture(GL_TEXTURE_2D, 0);
         this->_graphic->getRenderView().getShader().setInt("diffuseTexture3", 4);
@@ -203,9 +203,9 @@ void SceneSystem::drawSkybox(std::shared_ptr<EntityManager> &entityManager)
             continue;
         Cubemap cubeMap = entity.getComponent<Cubemap>();
 
-        if (this->_resourceManager->getSkyboxes().find(cubeMap.name) != this->_resourceManager->getSkyboxes().end()) {
+        if (this->_resourceManager->getSkyboxes().contains(cubeMap.name)) {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyboxes()[cubeMap.name].getId());
+            glBindTexture(GL_TEXTURE_CUBE_MAP, this->_resourceManager->getSkyboxes()[cubeMap.name]->getId());
             this->_graphic->getRenderView().getShader().setInt("skybox", 0);
             glBindVertexArray(this->_skybox.vao);
             glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -228,7 +228,7 @@ void SceneSystem::drawGrid()
 
 void SceneSystem::drawCameraFrustum(std::shared_ptr<EntityManager> &entityManager)
 {
-    if (entityManager->getEntities().find(this->_graphic->getSelectedEntity()) == entityManager->getEntities().end())
+    if (!entityManager->getEntities().contains(this->_graphic->getSelectedEntity()))
         return;
     Entity &entity = entityManager->getEntity(this->_graphic->getSelectedEntity());
     if (!entity.hasComponent<Transform>() || !entity.hasComponent<Camera>())
@@ -251,7 +251,7 @@ void SceneSystem::drawCameraFrustum(std::shared_ptr<EntityManager> &entityManage
 
 void SceneSystem::drawLightDirection(std::shared_ptr<EntityManager> &entityManager)
 {
-    if (entityManager->getEntities().find(this->_graphic->getSelectedEntity()) == entityManager->getEntities().end())
+    if (!entityManager->getEntities().contains(this->_graphic->getSelectedEntity()))
         return;
     Entity &entity = entityManager->getEntity(this->_graphic->getSelectedEntity());
     if (!entity.hasComponent<Transform>() || !entity.hasComponent<Light>() || (entity.getComponent<Light>().type != LightType::DIRECTIONAL && entity.getComponent<Light>().type != LightType::SPOT))

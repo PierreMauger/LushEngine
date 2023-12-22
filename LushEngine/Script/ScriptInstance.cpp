@@ -33,7 +33,7 @@ std::size_t ScriptInstance::getId() const
 
 bool ScriptInstance::getFieldValueInternal(const std::string &name, void *value)
 {
-    if (this->_class.getFields().find(name) == this->_class.getFields().end())
+    if (!this->_class.getFields().contains(name))
         return false;
 
     FieldInfo field = this->_class.getFields()[name];

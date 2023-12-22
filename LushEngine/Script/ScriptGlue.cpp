@@ -466,14 +466,14 @@ void ScriptGlue::SetScene(MonoString *sceneName)
     auto entityManager = ECS::getStaticEntityManager();
     char *utf8 = mono_string_to_utf8(sceneName);
 
-    if (resourceManager->getScenes().find(utf8) == resourceManager->getScenes().end()) {
+    if (!resourceManager->getScenes().contains(utf8)) {
         std::cout << "[Toast Error]Scene " << utf8 << " does not exist" << std::endl;
         return;
     }
     resourceManager->getScriptInstances().clear();
     resourceManager->resetDynamicsWorld();
     resourceManager->getPhysicInstances().clear();
-    entityManager->clone(*resourceManager->getScenes()[utf8].getEntityManager());
+    entityManager->clone(resourceManager->getScenes()[utf8]->getEntityManager());
     resourceManager->setActiveScene(utf8);
     resourceManager->initScriptInstances(entityManager);
     resourceManager->initPhysicInstances(entityManager);
@@ -489,7 +489,7 @@ void ScriptGlue::ResetScene()
     resourceManager->getScriptInstances().clear();
     resourceManager->resetDynamicsWorld();
     resourceManager->getPhysicInstances().clear();
-    entityManager->clone(*resourceManager->getActiveScene().getEntityManager());
+    entityManager->clone(resourceManager->getActiveScene().getEntityManager());
     resourceManager->initScriptInstances(entityManager);
     resourceManager->initPhysicInstances(entityManager);
     resourceManager->setSceneChanged(true);

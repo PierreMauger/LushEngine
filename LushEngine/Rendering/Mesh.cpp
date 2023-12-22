@@ -41,11 +41,11 @@ void Mesh::setupMesh()
     glBindVertexArray(0);
 }
 
-void Mesh::rebindTextureIds(std::unordered_map<std::string, Texture> &textures)
+void Mesh::rebindTextureIds(std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
 {
     for (auto &texture : this->_textures) {
-        if (textures.find(texture.name) != textures.end())
-            texture.id = textures[texture.name].getId();
+        if (textures.contains(texture.name))
+            texture.id = textures[texture.name]->getId();
     }
 }
 

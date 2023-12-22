@@ -13,36 +13,62 @@ void FileWatcherSystem::update(std::shared_ptr<EntityManager> &entityManager, fl
     std::erase_if(this->_resourceManager->getFiles(), [this](const auto &entry) {
         if (entry.second.isDeleted()) {
             File file = entry.second;
-            auto it = std::ranges::find_if(Resource::getResources(), [&file](const auto &res) { return res.hasFile(file); });
+            auto it = std::ranges::find_if(Resource::getResources(), [&file](const auto &res) { return res->hasFile(file); });
             if (it == Resource::getResources().end())
                 return false;
-            std::cout << "[Toast Info]Deleting " << file.getPath() << " (" << (*it).getUUID() << ")" << std::endl;
-            this->deleteResource(*it);
+            std::cout << "[Toast Info]Deleting " << file.getPath() << " (" << (*it)->getUUID() << ")" << std::endl;
+            this->deleteResource(*(*it));
             return true;
         }
         return false;
     });
     std::cout << Resource::getResources().size() << std::endl;
     // handle added files
-    for (const auto &entry : std::filesystem::recursive_directory_iterator("Resources/Models")) {
-        std::string path = entry.path().string();
-        if (this->_resourceManager->getFiles().contains(path))
-            continue;
-        std::cout << "[Toast Info]Adding " << path << std::endl;
-        File file(path);
-        this->_resourceManager->getFiles()[path] = file;
-        this->_resourceManager->getModels()[file.getName()] = RenderModel(file, this->_resourceManager->getTextures());
-    }
+    this->_resourceManager->loadDirectoryNewFiles("Resources/Textures",
+                                                  [this](const std::string &path) {
+                                                      std::cout << "[Toast Info]Adding Texture " << path << std::endl;
+                                                      this->_resourceManager->getTextures()[std::filesystem::path(path).filename()] =
+                                                          std::make_unique<Texture>(this->_resourceManager->getFiles()[path]);
+                                                  },
+                                                  {".png", ".jpg", ".jpeg"});
+    this->_resourceManager->loadDirectoryNewFiles("Resources/Models",
+                                                  [this](const std::string &path) {
+                                                      std::cout << "[Toast Info]Adding Model " << path << std::endl;
+                                                      this->_resourceManager->getModels()[this->_resourceManager->getFiles()[path].getName()] =
+                                                          std::make_unique<RenderModel>(this->_resourceManager->getFiles()[path], this->_resourceManager->getTextures());
+                                                  },
+                                                  {".dae"});
+    this->_resourceManager->loadDirectoryNewFiles("Resources/Skyboxes",
+                                                  [this](const std::string &path) {
+                                                      std::cout << "[Toast Info]Adding Skybox " << path << std::endl;
+                                                      this->_resourceManager->getSkyboxes()[this->_resourceManager->getFiles()[path].getName()] =
+                                                          std::make_unique<Skybox>(this->_resourceManager->getFiles()[path]);
+                                                  },
+                                                  {".png", ".jpg", ".jpeg"});
+    // this->_resourceManager->loadDirectoryNewFiles("Resources/Shaders",
+    //                                               [this](const std::string &path) {
+    //                                                   std::cout << "[Toast Info]Adding Shader " << path << std::endl;
+    //                                                   this->_resourceManager->getShaders()[this->_resourceManager->getFiles()[path].getName()] =
+    //                                                       std::make_unique<Shader>(this->_resourceManager->getFiles()[path]);
+    //                                               },
+    //                                               {".glsl"});
+    this->_resourceManager->loadDirectoryNewFiles("Resources/Scenes",
+                                                  [this](const std::string &path) {
+                                                      std::cout << "[Toast Info]Adding Scene " << path << std::endl;
+                                                      this->_resourceManager->getScenes()[this->_resourceManager->getFiles()[path].getName()] =
+                                                          std::make_unique<Scene>(this->_resourceManager->getFiles()[path], this->_resourceManager->getScripts());
+                                                  },
+                                                  {".xml"});
 
     // handle modified files
     for (auto &[name, file] : this->_resourceManager->getFiles()) {
         if (file.isModified()) {
             file.updateLastModify();
-            auto it = std::ranges::find_if(Resource::getResources(), [&file](const auto &res) { return res.hasFile(file); });
+            auto it = std::ranges::find_if(Resource::getResources(), [&file](const auto &res) { return res->hasFile(file); });
             if (it == Resource::getResources().end())
                 continue;
-            std::cout << "[Toast Info]Reloading " << file.getPath() << " (" << (*it).getUUID() << ")" << std::endl;
-            this->reloadResource(*it, entityManager);
+            std::cout << "[Toast Info]Reloading " << file.getPath() << " (" << (*it)->getUUID() << ")" << std::endl;
+            this->reloadResource(*(*it), entityManager);
         }
     }
 
@@ -103,24 +129,24 @@ void FileWatcherSystem::deleteResource(Resource &resource)
 {
     switch (resource.getType()) {
     case ResourceType::MODEL:
-        std::erase_if(this->_resourceManager->getModels(), [&resource](const auto &pair) { return pair.second == resource; });
+        std::erase_if(this->_resourceManager->getModels(), [&resource](const auto &pair) { return *pair.second == resource; });
         break;
     case ResourceType::TEXTURE:
-        std::erase_if(this->_resourceManager->getTextures(), [&resource](const auto &pair) { return pair.second == resource; });
+        std::erase_if(this->_resourceManager->getTextures(), [&resource](const auto &pair) { return *pair.second == resource; });
         break;
     case ResourceType::SKYBOX:
-        std::erase_if(this->_resourceManager->getSkyboxes(), [&resource](const auto &pair) { return pair.second == resource; });
+        std::erase_if(this->_resourceManager->getSkyboxes(), [&resource](const auto &pair) { return *pair.second == resource; });
         break;
     case ResourceType::SHADER:
-        std::erase_if(this->_resourceManager->getShaders(), [&resource](const auto &pair) { return pair.second == resource; });
+        std::erase_if(this->_resourceManager->getShaders(), [&resource](const auto &pair) { return *pair.second == resource; });
         break;
     case ResourceType::SCRIPT:
         if (this->_graphic->isRunning()) {
             this->_scheduledDelete.push_back(resource);
             std::cout << "[Toast Info]Scheduled deleting script " << resource.getUUID() << std::endl;
-        } else
-            // TODO reload script pack
-            this->_resourceManager->getScripts().erase(resource.getUUID());
+        }
+        // TODO reload script pack
+        // std::erase_if(this->_resourceManager->getScripts(), [&resource](const auto &pair) { return *pair.second == resource; });
         break;
     case ResourceType::SCENE:
         if (this->_graphic->isRunning()) {
@@ -128,7 +154,7 @@ void FileWatcherSystem::deleteResource(Resource &resource)
             std::cout << "[Toast Info]Scheduled deleting scene " << resource.getUUID() << std::endl;
         } else
             // TODO test
-            this->_resourceManager->getScenes().erase(resource.getUUID());
+            std::erase_if(this->_resourceManager->getScenes(), [&resource](const auto &pair) { return *pair.second == resource; });
         break;
     default:
         break;
@@ -137,41 +163,41 @@ void FileWatcherSystem::deleteResource(Resource &resource)
 
 void FileWatcherSystem::reloadModel(Resource &resource)
 {
-    auto it = std::ranges::find_if(this->_resourceManager->getModels(), [&resource](const auto &pair) { return pair.second == resource; });
+    auto it = std::ranges::find_if(this->_resourceManager->getModels(), [&resource](const auto &pair) { return *pair.second == resource; });
     if (it == this->_resourceManager->getModels().end())
         return;
 
-    it->second.reload(resource.getFiles()[0], this->_resourceManager->getTextures());
+    it->second->reload(resource.getFiles()[0], this->_resourceManager->getTextures());
     std::cout << "[Toast Success]Reloaded model " << it->first << std::endl;
 }
 
 void FileWatcherSystem::reloadTexture(Resource &resource)
 {
-    auto it = std::ranges::find_if(this->_resourceManager->getTextures(), [&resource](const auto &pair) { return pair.second == resource; });
+    auto it = std::ranges::find_if(this->_resourceManager->getTextures(), [&resource](const auto &pair) { return *pair.second == resource; });
     if (it == this->_resourceManager->getTextures().end())
         return;
 
-    it->second.reload(resource.getFiles()[0]);
+    it->second->reload(resource.getFiles()[0]);
     std::cout << "[Toast Success]Reloaded texture " << it->first << std::endl;
 }
 
 void FileWatcherSystem::reloadSkybox(Resource &resource)
 {
-    auto it = std::ranges::find_if(this->_resourceManager->getSkyboxes(), [&resource](const auto &pair) { return pair.second == resource; });
+    auto it = std::ranges::find_if(this->_resourceManager->getSkyboxes(), [&resource](const auto &pair) { return *pair.second == resource; });
     if (it == this->_resourceManager->getSkyboxes().end())
         return;
 
-    it->second.load(resource.getFiles()[0]);
+    it->second->load(resource.getFiles()[0]);
     std::cout << "[Toast Success]Reloaded skybox " << it->first << std::endl;
 }
 
 void FileWatcherSystem::reloadShader(Resource &resource)
 {
-    auto it = std::ranges::find_if(this->_resourceManager->getShaders(), [&resource](const auto &pair) { return pair.second == resource; });
+    auto it = std::ranges::find_if(this->_resourceManager->getShaders(), [&resource](const auto &pair) { return *pair.second == resource; });
     if (it == this->_resourceManager->getShaders().end())
         return;
 
-    it->second.reload(resource.getFiles()[0]);
+    it->second->reload(resource.getFiles()[0]);
     this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());
     std::cout << "[Toast Success]Reloaded shader " << it->first << std::endl;
 }
@@ -204,10 +230,10 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, std::shared_ptr<Ent
 
 void FileWatcherSystem::reloadScene(Resource &resource, std::shared_ptr<EntityManager> &entityManager)
 {
-    auto it = std::ranges::find_if(this->_resourceManager->getScenes(), [&resource](const auto &pair) { return pair.second == resource; });
+    auto it = std::ranges::find_if(this->_resourceManager->getScenes(), [&resource](const auto &pair) { return *pair.second == resource; });
     if (it == this->_resourceManager->getScenes().end())
         return;
 
-    it->second.reload(resource.getFiles()[0], this->_resourceManager->getScripts());
+    it->second->reload(resource.getFiles()[0], this->_resourceManager->getScripts());
     std::cout << "[Toast Success]Reloaded scene " << it->first << std::endl;
 }

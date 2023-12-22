@@ -52,10 +52,10 @@ void Shader::createShader()
     this->_ID = glCreateProgram();
     std::vector<unsigned int> shaderIDs;
 
-    for (const auto &shader : shaders) {
-        if (shaderTypes.find(shader.first) == shaderTypes.end())
-            throw std::runtime_error("Unknown shader type: " + shader.first);
-        unsigned int shaderID = compileShader(shaderTypes[shader.first], shader.second);
+    for (const auto &[name, shader] : shaders) {
+        if (!shaderTypes.contains(name))
+            throw std::runtime_error("Unknown shader type: " + name);
+        unsigned int shaderID = compileShader(shaderTypes[name], shader);
         glAttachShader(this->_ID, shaderID);
         shaderIDs.push_back(shaderID);
     }

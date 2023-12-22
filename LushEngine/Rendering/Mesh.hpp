@@ -101,7 +101,7 @@ namespace Lush
             Mesh() = default;
             ~Mesh() = default;
 
-            void rebindTextureIds(std::unordered_map<std::string, Texture> &textures);
+            void rebindTextureIds(std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
             void draw(Shader &shader);
             std::vector<std::string> getTextureNames();
 

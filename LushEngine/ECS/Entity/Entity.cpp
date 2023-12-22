@@ -6,7 +6,7 @@ Entity::Entity()
 {
 }
 
-std::string Entity::getName() const
+const std::string &Entity::getName() const
 {
     return this->_name;
 }
@@ -19,9 +19,8 @@ void Entity::setName(const std::string &name)
 ScriptComponent &Entity::getScriptComponent(const std::string &className)
 {
     auto it = this->_scriptComponents.find(className);
-    if (it != this->_scriptComponents.end()) {
+    if (it != this->_scriptComponents.end())
         return it->second;
-    }
     throw std::runtime_error("Script component not found");
 }
 
@@ -37,7 +36,7 @@ void Entity::removeScriptComponent(const std::string &className)
 
 bool Entity::hasScriptComponent(const std::string &className)
 {
-    return this->_scriptComponents.find(className) != this->_scriptComponents.end();
+    return this->_scriptComponents.contains(className);
 }
 
 std::unordered_map<std::string, std::size_t> &Entity::getScriptIndexes()

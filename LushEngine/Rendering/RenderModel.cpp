@@ -26,7 +26,7 @@ static glm::mat4 ConvertMatrixToGLMFormat(const aiMatrix4x4 &from)
     return to;
 }
 
-RenderModel::RenderModel(File &file, std::unordered_map<std::string, Texture> textures) : Resource(ResourceType::MODEL, file)
+RenderModel::RenderModel(File &file, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures) : Resource(ResourceType::MODEL, file)
 {
     this->load(file, textures);
 }
@@ -41,7 +41,7 @@ RenderModel::RenderModel(File &file, std::unordered_map<std::string, Texture> te
 //     return this->_boneCounter;
 // }
 
-void RenderModel::load(const File &file, std::unordered_map<std::string, Texture> &textures)
+void RenderModel::load(const File &file, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
 {
     std::string content = file.load();
     Assimp::Importer importer;
@@ -53,13 +53,13 @@ void RenderModel::load(const File &file, std::unordered_map<std::string, Texture
     this->processNode(*scene->mRootNode, *scene, textures);
 }
 
-void RenderModel::reload(const File &file, std::unordered_map<std::string, Texture> &textures)
+void RenderModel::reload(const File &file, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
 {
     this->_meshes.clear();
     this->load(file, textures);
 }
 
-void RenderModel::processNode(aiNode &node, const aiScene &scene, std::unordered_map<std::string, Texture> &textures)
+void RenderModel::processNode(aiNode &node, const aiScene &scene, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
 {
     for (unsigned int i = 0; i < node.mNumMeshes; i++)
         this->_meshes.push_back(this->processMesh(*scene.mMeshes[node.mMeshes[i]], scene, textures));
@@ -94,7 +94,7 @@ void RenderModel::extractBoneWeightForVertices(std::vector<Vertex> &vertices, ai
     for (unsigned int boneIndex = 0; boneIndex < mesh.mNumBones; ++boneIndex) {
         int boneID = -1;
         std::string boneName = mesh.mBones[boneIndex]->mName.C_Str();
-        if (boneInfoMap.find(boneName) == boneInfoMap.end()) {
+        if (!boneInfoMap.contains(boneName)) {
             BoneInfo newBoneInfo = {boneCount, ConvertMatrixToGLMFormat(mesh.mBones[boneIndex]->mOffsetMatrix)};
             boneInfoMap[boneName] = newBoneInfo;
             boneID = boneCount;
@@ -116,7 +116,7 @@ void RenderModel::extractBoneWeightForVertices(std::vector<Vertex> &vertices, ai
     }
 }
 
-Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered_map<std::string, Texture> &textures)
+Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
 {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
@@ -160,30 +160,30 @@ Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered
 
     this->extractBoneWeightForVertices(vertices, mesh);
 
-    std::vector<Tex> diffuseMaps = Lush::RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_DIFFUSE, "tex.diffuse", textures);
+    std::vector<Tex> diffuseMaps = RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_DIFFUSE, "tex.diffuse", textures);
     tex.insert(tex.end(), diffuseMaps.begin(), diffuseMaps.end());
-    std::vector<Tex> specularMaps = Lush::RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_SPECULAR, "tex.specular", textures);
+    std::vector<Tex> specularMaps = RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_SPECULAR, "tex.specular", textures);
     tex.insert(tex.end(), specularMaps.begin(), specularMaps.end());
-    std::vector<Tex> emissiveMaps = Lush::RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_EMISSIVE, "tex.emission", textures);
+    std::vector<Tex> emissiveMaps = RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_EMISSIVE, "tex.emission", textures);
     tex.insert(tex.end(), emissiveMaps.begin(), emissiveMaps.end());
-    std::vector<Tex> normalMaps = Lush::RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_NORMALS, "tex.normal", textures);
+    std::vector<Tex> normalMaps = RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_NORMALS, "tex.normal", textures);
     tex.insert(tex.end(), normalMaps.begin(), normalMaps.end());
-    std::vector<Tex> heightMaps = Lush::RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "tex.height", textures);
+    std::vector<Tex> heightMaps = RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "tex.height", textures);
     tex.insert(tex.end(), heightMaps.begin(), heightMaps.end());
 
     return {vertices, indices, tex, material};
 }
 
-std::vector<Tex> RenderModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string &typeName, std::unordered_map<std::string, Texture> &textures)
+std::vector<Tex> RenderModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string &typeName, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
 {
     std::vector<Tex> tex;
 
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
         aiString str;
         mat->GetTexture(type, i, &str);
-        if (textures.find(str.C_Str()) == textures.end())
+        if (!textures.contains(str.C_Str()))
             throw std::runtime_error("Couldn't find texture: " + std::string(str.C_Str()));
-        tex.push_back({textures[str.C_Str()].getId(), str.C_Str(), typeName});
+        tex.push_back({textures[str.C_Str()]->getId(), str.C_Str(), typeName});
     }
     return tex;
 }
