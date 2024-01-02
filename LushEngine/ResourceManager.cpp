@@ -77,7 +77,7 @@ bool ResourceManager::isModelUsed(std::string modelName)
     for (auto &[name, scene] : this->_scenes) {
         if (!scene->isUsed())
             continue;
-        for (auto &[id, entity] : scene->getEntityManager().getEntities())
+        for (auto &[id, entity] : scene->getEntityManager()->getEntities())
             if (entity.hasComponent<Model>() && entity.getComponent<Model>().name == modelName)
                 return true;
     }
@@ -89,7 +89,7 @@ bool ResourceManager::isSkyboxUsed(std::string skyboxName)
     for (auto &[name, scene] : this->_scenes) {
         if (!scene->isUsed())
             continue;
-        for (auto &[id, entity] : scene->getEntityManager().getEntities())
+        for (auto &[id, entity] : scene->getEntityManager()->getEntities())
             if (entity.hasComponent<Cubemap>() && entity.getComponent<Cubemap>().name == skyboxName)
                 return true;
     }
@@ -101,7 +101,7 @@ bool ResourceManager::isTextureUsed(std::string textureName)
     for (auto &[name, scene] : this->_scenes) {
         if (!scene->isUsed())
             continue;
-        for (auto &[id, entity] : scene->getEntityManager().getEntities()) {
+        for (auto &[id, entity] : scene->getEntityManager()->getEntities()) {
             if (entity.hasComponent<Billboard>() && entity.getComponent<Billboard>().name == textureName)
                 return true;
             if (entity.hasComponent<Map>() && (entity.getComponent<Map>().heightMap == textureName || entity.getComponent<Map>().diffuseTexture == textureName ||

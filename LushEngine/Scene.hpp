@@ -17,14 +17,14 @@ namespace Lush
     class Scene : public Resource
     {
         private:
-            EntityManager _entityManager;
+            std::shared_ptr<EntityManager> _entityManager;
 
         public:
             Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts);
             Scene() = default;
             ~Scene() = default;
 
-            EntityManager &getEntityManager();
+            std::shared_ptr<EntityManager> getEntityManager();
 
             void load(const File &file, std::unordered_map<std::string, ScriptClass> &scripts);
             void reload(const File &file, std::unordered_map<std::string, ScriptClass> &scripts);
@@ -43,7 +43,7 @@ namespace Lush
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
-                ar &this->_entityManager;
+                ar &*this->_entityManager;
             }
     };
 }

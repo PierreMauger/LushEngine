@@ -19,11 +19,11 @@ static const std::unordered_map<std::string, std::function<void(rapidxml::xml_no
 
 Scene::Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts) : Resource(ResourceType::SCENE, file)
 {
-    // this->_entityManager = std::make_shared<EntityManager>();
+    this->_entityManager = std::make_shared<EntityManager>();
     this->load(file, scripts);
 }
 
-EntityManager &Scene::getEntityManager()
+std::shared_ptr<EntityManager> Scene::getEntityManager()
 {
     return this->_entityManager;
 }
@@ -43,8 +43,8 @@ void Scene::load(const File &file, std::unordered_map<std::string, ScriptClass> 
         int id = 0;
         if (entityNode->first_attribute("id"))
             id = std::atoi(entityNode->first_attribute("id")->value());
-        else if (this->_entityManager.getEntities().size() > 0)
-            id = this->_entityManager.getEntities().rbegin()->first + 1;
+        else if (this->_entityManager->getEntities().size() > 0)
+            id = this->_entityManager->getEntities().rbegin()->first + 1;
 
         Entity entity;
         if (entityNode->first_attribute("name"))
@@ -59,14 +59,14 @@ void Scene::load(const File &file, std::unordered_map<std::string, ScriptClass> 
             else
                 std::cout << "Component loader not found for " << componentNode->name() << std::endl;
         }
-        this->_entityManager.addEntity(entity, id);
+        this->_entityManager->addEntity(entity, id);
     }
     delete[] xmlCopy;
 }
 
 void Scene::reload(const File &file, std::unordered_map<std::string, ScriptClass> &scripts)
 {
-    this->_entityManager.clear();
+    this->_entityManager->clear();
     this->load(file, scripts);
 }
 

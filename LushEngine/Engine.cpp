@@ -27,12 +27,12 @@ Engine::Engine(bool isEditor) : _isEditor(isEditor)
     this->_ecs.getSystemManager().bindSystem(std::make_unique<GUISystem>(this->_graphic, this->_resourceManager));
     this->_ecs.getSystemManager().bindSystem(std::make_unique<FileWatcherSystem>(this->_graphic, this->_resourceManager));
 
-    *this->_ecs.getEntityManager() = this->_resourceManager->getActiveScene().getEntityManager();
+    this->_ecs.getEntityManager() = this->_resourceManager->getActiveScene().getEntityManager();
     // this->_ecs.getEntityManager() = std::make_shared<EntityManager>(this->_resourceManager->getActiveScene().getEntityManager());
 #else
     this->_ecs.getSystemManager().bindSystem(std::make_unique<GameSystem>(this->_graphic, this->_resourceManager));
 
-    this->_ecs.getEntityManager()->clone(this->_resourceManager->getActiveScene().getEntityManager());
+    this->_ecs.getEntityManager()->clone(*this->_resourceManager->getActiveScene().getEntityManager());
     this->_resourceManager->initScriptInstances(this->_ecs.getEntityManager());
     this->_resourceManager->initPhysicInstances(this->_ecs.getEntityManager());
     this->_graphic->setRunning(true);

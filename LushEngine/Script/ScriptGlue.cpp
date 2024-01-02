@@ -473,7 +473,7 @@ void ScriptGlue::SetScene(MonoString *sceneName)
     resourceManager->getScriptInstances().clear();
     resourceManager->resetDynamicsWorld();
     resourceManager->getPhysicInstances().clear();
-    entityManager->clone(resourceManager->getScenes()[utf8]->getEntityManager());
+    entityManager->clone(*resourceManager->getScenes()[utf8]->getEntityManager());
     resourceManager->setActiveScene(utf8);
     resourceManager->initScriptInstances(entityManager);
     resourceManager->initPhysicInstances(entityManager);
@@ -489,7 +489,7 @@ void ScriptGlue::ResetScene()
     resourceManager->getScriptInstances().clear();
     resourceManager->resetDynamicsWorld();
     resourceManager->getPhysicInstances().clear();
-    entityManager->clone(resourceManager->getActiveScene().getEntityManager());
+    entityManager->clone(*resourceManager->getActiveScene().getEntityManager());
     resourceManager->initScriptInstances(entityManager);
     resourceManager->initPhysicInstances(entityManager);
     resourceManager->setSceneChanged(true);

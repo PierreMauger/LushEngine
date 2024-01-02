@@ -225,14 +225,14 @@ void GUISystem::drawActionBar(std::shared_ptr<EntityManager> &entityManager)
                 this->_graphic->setRunning(!this->_graphic->isRunning());
                 if (this->_graphic->isRunning()) {
                     entityManager = std::make_shared<EntityManager>();
-                    entityManager->clone(this->_resourceManager->getActiveScene().getEntityManager());
+                    entityManager->clone(*this->_resourceManager->getActiveScene().getEntityManager());
                     this->_resourceManager->initScriptInstances(entityManager);
                     this->_resourceManager->initPhysicInstances(entityManager);
                 } else {
                     this->_resourceManager->getScriptInstances().clear();
                     this->_resourceManager->resetDynamicsWorld();
                     this->_resourceManager->getPhysicInstances().clear();
-                    *entityManager = this->_resourceManager->getActiveScene().getEntityManager();
+                    entityManager = this->_resourceManager->getActiveScene().getEntityManager();
                 }
             }
             ImGui::PopStyleColor();
@@ -262,7 +262,7 @@ void GUISystem::drawSceneHierarchy(std::shared_ptr<EntityManager> &entityManager
         for (auto &[name, scene] : this->_resourceManager->getScenes()) {
             if (ImGui::Selectable(name.c_str(), this->_resourceManager->getActiveSceneName() == name)) {
                 this->_resourceManager->setActiveScene(name);
-                *entityManager = scene->getEntityManager();
+                entityManager = scene->getEntityManager();
             }
         }
     }
