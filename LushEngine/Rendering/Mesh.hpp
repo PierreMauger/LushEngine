@@ -83,6 +83,7 @@ namespace Lush
             GLuint framebuffer;
             GLuint texture;
             GLuint depthbuffer;
+            bool resizable = true;
     };
 
     class Mesh

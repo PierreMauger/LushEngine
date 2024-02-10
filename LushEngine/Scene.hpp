@@ -1,6 +1,8 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
 #include "ECS/Component/Component.hpp"
@@ -41,7 +43,13 @@ namespace Lush
             static void loadCharacterController(rapidxml::xml_node<> *node, Entity &entity);
             void loadScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &script);
 
-            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            void serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                this->_entityManager = std::make_shared<EntityManager>();
+                ar &*this->_entityManager;
+            }
+
+            void serialize(boost::archive::binary_oarchive &ar, [[maybe_unused]] const unsigned int version)
             {
                 ar &*this->_entityManager;
             }

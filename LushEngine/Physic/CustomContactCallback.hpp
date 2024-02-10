@@ -9,7 +9,7 @@
 namespace std
 {
     template <> struct hash<std::pair<const btCollisionObject *, const btCollisionObject *>> {
-            size_t operator()(const std::pair<const btCollisionObject *, const btCollisionObject *> &p) const
+            std::size_t operator()(const std::pair<const btCollisionObject *, const btCollisionObject *> &p) const
             {
                 return hash<const btCollisionObject *>()(p.first) ^ hash<const btCollisionObject *>()(p.second);
             }

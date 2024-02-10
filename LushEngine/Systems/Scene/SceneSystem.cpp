@@ -2,14 +2,13 @@
 
 using namespace Lush;
 
-SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
-    : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
+SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
     this->_cameraTransform.position = glm::vec3(10.0f, 5.0f, 15.0f);
     this->_cameraTransform.rotation = glm::vec3(-130.0f, -15.0f, 0.0f);
-    this->_camera.forward.x = (float)(cos(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y)));
-    this->_camera.forward.y = (float)(sin(glm::radians(this->_cameraTransform.rotation.y)));
-    this->_camera.forward.z = (float)(sin(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y)));
+    this->_camera.forward.x = std::cos(glm::radians(this->_cameraTransform.rotation.x)) * std::cos(glm::radians(this->_cameraTransform.rotation.y));
+    this->_camera.forward.y = std::sin(glm::radians(this->_cameraTransform.rotation.y));
+    this->_camera.forward.z = std::sin(glm::radians(this->_cameraTransform.rotation.x)) * std::cos(glm::radians(this->_cameraTransform.rotation.y));
     this->_camera.far = 1000.0f;
 
     Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
@@ -102,9 +101,9 @@ void SceneSystem::handleMouse()
         }
         if (this->_graphic->getMouseButton() == 3)
             this->generatePerlinTexture();
-        this->_camera.forward.x = (float)(cos(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y)));
-        this->_camera.forward.y = (float)(sin(glm::radians(this->_cameraTransform.rotation.y)));
-        this->_camera.forward.z = (float)(sin(glm::radians(this->_cameraTransform.rotation.x)) * cos(glm::radians(this->_cameraTransform.rotation.y)));
+        this->_camera.forward.x = std::cos(glm::radians(this->_cameraTransform.rotation.x)) * std::cos(glm::radians(this->_cameraTransform.rotation.y));
+        this->_camera.forward.y = std::sin(glm::radians(this->_cameraTransform.rotation.y));
+        this->_camera.forward.z = std::sin(glm::radians(this->_cameraTransform.rotation.x)) * std::cos(glm::radians(this->_cameraTransform.rotation.y));
     }
 }
 
@@ -254,7 +253,8 @@ void SceneSystem::drawLightDirection(std::shared_ptr<EntityManager> &entityManag
     if (!entityManager->getEntities().contains(this->_graphic->getSelectedEntity()))
         return;
     Entity &entity = entityManager->getEntity(this->_graphic->getSelectedEntity());
-    if (!entity.hasComponent<Transform>() || !entity.hasComponent<Light>() || (entity.getComponent<Light>().type != LightType::DIRECTIONAL && entity.getComponent<Light>().type != LightType::SPOT))
+    if (!entity.hasComponent<Transform>() || !entity.hasComponent<Light>() ||
+        (entity.getComponent<Light>().type != LightType::DIRECTIONAL && entity.getComponent<Light>().type != LightType::SPOT))
         return;
 
     this->_graphic->getRenderView().use("CameraFrustum");
@@ -268,6 +268,13 @@ void SceneSystem::drawLightDirection(std::shared_ptr<EntityManager> &entityManag
     glm::mat4 view = glm::lookAt(transform.position, transform.position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 frustum = glm::inverse(glm::perspective(glm::radians(15.0f), 1.0f, 0.1f, 5.0f) * view);
     this->_graphic->getRenderView().getShader().setMat4("frustum", frustum);
+
+    glBindVertexArray(this->_cameraFrustum.vao);
+    glDrawArrays(GL_LINES, 0, 24);
+    glBindVertexArray(0);
+
+    glm::mat4 lightSpaceMatrix = glm::inverse(this->_graphic->getRenderView().getLightMatrix());
+    this->_graphic->getRenderView().getShader().setMat4("frustum", lightSpaceMatrix);
 
     glBindVertexArray(this->_cameraFrustum.vao);
     glDrawArrays(GL_LINES, 0, 24);

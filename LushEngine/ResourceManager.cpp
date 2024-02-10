@@ -144,16 +144,18 @@ void ResourceManager::serializeAssetPack(std::string path)
         oa << *skybox;
     }
 
+    oa << std::ranges::count_if(this->_scenes, [](const auto &scene) { return scene.second->isUsed(); });
+    for (auto &[name, scene] : this->_scenes) {
+        if (!scene->isUsed())
+            continue;
+        oa << name;
+        oa << *scene;
+    }
+
     oa << this->_shaders.size();
     for (auto &[name, shader] : this->_shaders) {
         oa << name;
         oa << *shader;
-    }
-
-    oa << this->_scenes.size();
-    for (auto &[name, scene] : this->_scenes) {
-        oa << name;
-        oa << *scene;
     }
 
     oa << this->_logoName;
@@ -199,17 +201,17 @@ void ResourceManager::deserializeAssetPack(std::string path)
     for (std::size_t i = 0; i < size; i++) {
         std::string name;
         ia >> name;
-        this->_shaders[name] = std::make_unique<Shader>();
-        ia >> *this->_shaders[name];
-        this->_shaders[name]->createShader();
+        this->_scenes[name] = std::make_unique<Scene>();
+        ia >> *this->_scenes[name];
     }
 
     ia >> size;
     for (std::size_t i = 0; i < size; i++) {
         std::string name;
         ia >> name;
-        this->_scenes[name] = std::make_unique<Scene>();
-        ia >> *this->_scenes[name];
+        this->_shaders[name] = std::make_shared<Shader>();
+        ia >> *this->_shaders[name];
+        this->_shaders[name]->createShader();
     }
 
     ia >> this->_logoName;
@@ -304,7 +306,7 @@ void ResourceManager::loadDirectoryNewFiles(const std::filesystem::path &path, c
 
 void ResourceManager::loadShaders(const std::string &dir)
 {
-    this->loadDirectoryFiles(dir, [this](const std::string &path) { this->_shaders[this->_files[path].getName()] = std::make_unique<Shader>(this->_files[path]); }, {".glsl"});
+    this->loadDirectoryFiles(dir, [this](const std::string &path) { this->_shaders[this->_files[path].getName()] = std::make_shared<Shader>(this->_files[path]); }, {".glsl"});
 }
 
 void ResourceManager::loadTextures(const std::string &dir)
@@ -372,7 +374,7 @@ std::unordered_map<std::string, File> &ResourceManager::getFiles()
     return this->_files;
 }
 
-std::unordered_map<std::string, std::unique_ptr<Shader>> &ResourceManager::getShaders()
+std::unordered_map<std::string, std::shared_ptr<Shader>> &ResourceManager::getShaders()
 {
     return this->_shaders;
 }

@@ -2,6 +2,7 @@
 
 using namespace Lush;
 
+static const char *cameraTypeNames[CameraType::CAMERA_TYPE_COUNT] = {"Perspective", "Orthographic"};
 static const char *lightTypeNames[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
 static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"box", "Sphere", "Capsule", "Mesh"};
 
@@ -99,7 +100,14 @@ void GUISystem::update(std::shared_ptr<EntityManager> &entityManager, float delt
     if (this->_showProfiler)
         this->drawProfiler();
     if (this->_showProjectManager)
-        this->drawProjectManager();
+        this->drawProjectManager(entityManager);
+
+    if (ImGui::Begin("Debug light")) {
+        GLuint texture = this->_graphic->getFrameBuffers()["light"].texture;
+        ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::End();
+    }
+
     DrawToasts();
 
     ImGui::Render();
@@ -183,8 +191,10 @@ void GUISystem::drawMenuBar()
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Project")) {
-            if (ImGui::MenuItem("Project Manager"))
+            if (ImGui::MenuItem("Project Manager")) {
                 this->_showProjectManager = true;
+                this->_editingProject.clear();
+            }
             if (ImGui::MenuItem("Build"))
                 this->build();
             ImGui::EndMenu();
@@ -378,6 +388,7 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
         if (ImGui::CollapsingHeader(ICON_FA_VIDEO " Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
             Camera &camera = entity.getComponent<Camera>();
 
+            ImGui::SliderInt("Type##Camera", (int *)&camera.type, 0, CameraType::CAMERA_TYPE_COUNT - 1, cameraTypeNames[camera.type]);
             ImGui::DragFloat3("Forward##Camera", (float *)&camera.forward, 0.01f, -1.0f, 1.0f);
             ImGui::SliderFloat("FOV##Camera", &camera.fov, 30.0f, 90.0f);
             ImGui::SliderFloat("Near##Camera", &camera.near, 0.1f, 100.0f);
@@ -924,7 +935,7 @@ bool GUISystem::openFolderBrowser(std::string title, std::string &path, bool &mo
     return false;
 }
 
-void GUISystem::drawProjectManager()
+void GUISystem::drawProjectManager(std::shared_ptr<EntityManager> &entityManager)
 {
     ImGui::SetNextWindowSize(ImVec2(600, 400));
     ImGuiWindowClass windowClass;
@@ -988,20 +999,40 @@ void GUISystem::drawProjectManager()
         if (this->_projectSettings[this->_editingProject].iconName != "None") {
             ImGui::SameLine();
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 15);
-            GLuint texture = this->_resourceManager->getTextures()[this->_projectSettings[this->_editingProject].iconName]->getId();
-            ImGui::Image((void *)(intptr_t)texture, ImVec2(50, 50));
+            if (this->_resourceManager->getTextures().contains(this->_projectSettings[this->_editingProject].iconName)) {
+                GLuint texture = this->_resourceManager->getTextures()[this->_projectSettings[this->_editingProject].iconName]->getId();
+                ImGui::Image((void *)(intptr_t)texture, ImVec2(50, 50));
+            }
         }
         ImGui::Separator();
         ImGui::Text("Scenes in Build:");
-        for (auto &[sceneName, scene] : this->_resourceManager->getScenes()) {
-            isEdited = true;
-            bool isUsed = scene->isUsed();
-            if (ImGui::Checkbox(sceneName.c_str(), &isUsed)) {
-                scene->setUsed(!scene->isUsed());
-                if (scene->isUsed())
-                    std::remove(this->_projectSettings[this->_editingProject].hiddenScenes.begin(), this->_projectSettings[this->_editingProject].hiddenScenes.end(), sceneName);
-                else
-                    this->_projectSettings[this->_editingProject].hiddenScenes.push_back(sceneName);
+        if (this->_currentProject == this->_editingProject) {
+            for (auto &[sceneName, scene] : this->_resourceManager->getScenes()) {
+                bool isUsed = std::find(this->_projectSettings[this->_editingProject].scenes.begin(), this->_projectSettings[this->_editingProject].scenes.end(), sceneName) !=
+                              this->_projectSettings[this->_editingProject].scenes.end();
+                if (ImGui::Checkbox(sceneName.c_str(), &isUsed)) {
+                    scene->setUsed(isUsed);
+                    if (isUsed)
+                        this->_projectSettings[this->_editingProject].scenes.push_back(sceneName);
+                    else
+                        this->_projectSettings[this->_editingProject].scenes.erase(
+                            std::find(this->_projectSettings[this->_editingProject].scenes.begin(), this->_projectSettings[this->_editingProject].scenes.end(), sceneName));
+                    isEdited = true;
+                }
+                if (sceneName == "main") {
+                    ImGui::SameLine();
+                    ImGui::Text("(Start scene)");
+                }
+            }
+        } else {
+            ImGui::SameLine();
+            ImGui::Text("%s", ICON_FA_EXCLAMATION_TRIANGLE " Open project to edit scenes");
+            for (auto &sceneName : this->_projectSettings[this->_editingProject].scenes) {
+                ImGui::Text("   %s", sceneName.c_str());
+                if (sceneName == "main") {
+                    ImGui::SameLine();
+                    ImGui::Text("(Start scene)");
+                }
             }
         }
 
@@ -1021,6 +1052,7 @@ void GUISystem::drawProjectManager()
         return;
     }
 
+    bool disableAll = !this->_currentProject.empty();
     for (auto it = this->_projectSettings.begin(); it != this->_projectSettings.end();) {
         auto &projectName = it->first;
         auto &project = it->second;
@@ -1032,13 +1064,26 @@ void GUISystem::drawProjectManager()
         ImGui::SameLine();
         ImGui::SetCursorPosX(22);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1);
+        if (disableAll) {
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_COLOR_DISABLED);
+        }
         if (ImGui::Selectable(("##" + projectName).c_str(), this->_currentProject == projectName, 0, ImVec2(ImGui::GetWindowWidth() - 100, 36))) {
             glfwSetWindowTitle(this->_graphic->getWindow(), std::string("Lush Engine - " + projectName).c_str());
             this->_currentProject = projectName;
             this->_resourceManager->loadProject(project.rootPath);
+            entityManager = this->_resourceManager->getActiveScene().getEntityManager();
+            for (auto &sceneName : project.scenes) {
+                if (this->_resourceManager->getScenes().contains(sceneName))
+                    this->_resourceManager->getScenes()[sceneName]->setUsed(true);
+            }
             this->_resourceManager->setLogo(project.iconName);
             this->_fileExplorerPath = project.rootPath;
             this->_showProjectManager = false;
+        }
+        if (disableAll) {
+            ImGui::PopStyleColor();
+            ImGui::PopItemFlag();
         }
         ImGui::PopStyleColor();
         ImGui::SameLine();

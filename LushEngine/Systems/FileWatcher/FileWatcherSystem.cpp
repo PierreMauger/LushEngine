@@ -22,7 +22,6 @@ void FileWatcherSystem::update(std::shared_ptr<EntityManager> &entityManager, fl
         }
         return false;
     });
-    std::cout << Resource::getResources().size() << std::endl;
     // handle added files
     this->_resourceManager->loadDirectoryNewFiles("Resources/Textures",
                                                   [this](const std::string &path) {
@@ -49,7 +48,7 @@ void FileWatcherSystem::update(std::shared_ptr<EntityManager> &entityManager, fl
     //                                               [this](const std::string &path) {
     //                                                   std::cout << "[Toast Info]Adding Shader " << path << std::endl;
     //                                                   this->_resourceManager->getShaders()[this->_resourceManager->getFiles()[path].getName()] =
-    //                                                       std::make_unique<Shader>(this->_resourceManager->getFiles()[path]);
+    //                                                       std::make_shared<Shader>(this->_resourceManager->getFiles()[path]);
     //                                               },
     //                                               {".glsl"});
     this->_resourceManager->loadDirectoryNewFiles("Resources/Scenes",
@@ -59,6 +58,12 @@ void FileWatcherSystem::update(std::shared_ptr<EntityManager> &entityManager, fl
                                                           std::make_unique<Scene>(this->_resourceManager->getFiles()[path], this->_resourceManager->getScripts());
                                                   },
                                                   {".xml"});
+    this->_resourceManager->loadDirectoryNewFiles("Resources/ScriptsNative",
+                                                  [this](const std::string &path) {
+                                                      std::cout << "[Toast Info]Adding Script " << path << std::endl;
+                                                      this->_resourceManager->getGamePack()->getFiles().push_back(this->_resourceManager->getFiles()[path]);
+                                                  },
+                                                  {".cs"});
 
     // handle modified files
     for (auto &[name, file] : this->_resourceManager->getFiles()) {
@@ -137,9 +142,9 @@ void FileWatcherSystem::deleteResource(Resource &resource)
     case ResourceType::SKYBOX:
         std::erase_if(this->_resourceManager->getSkyboxes(), [&resource](const auto &pair) { return *pair.second == resource; });
         break;
-    case ResourceType::SHADER:
-        std::erase_if(this->_resourceManager->getShaders(), [&resource](const auto &pair) { return *pair.second == resource; });
-        break;
+    // case ResourceType::SHADER:
+        // std::erase_if(this->_resourceManager->getShaders(), [&resource](const auto &pair) { return *pair.second == resource; });
+        // break;
     case ResourceType::SCRIPT:
         if (this->_graphic->isRunning()) {
             this->_scheduledDelete.push_back(resource);

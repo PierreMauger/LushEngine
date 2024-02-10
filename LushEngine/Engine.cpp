@@ -17,20 +17,20 @@ Engine::Engine(bool isEditor) : _isEditor(isEditor)
     this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());
 
     // init ecs
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<PhysicSystem>(this->_graphic, this->_resourceManager));
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<ScriptSystem>(this->_graphic, this->_resourceManager));
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<CameraSystem>(this->_graphic));
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<RenderSystem>(this->_graphic, this->_resourceManager));
+    this->_ecs.getSystemManager().bindSystem<PhysicSystem>(this->_graphic, this->_resourceManager);
+    this->_ecs.getSystemManager().bindSystem<ScriptSystem>(this->_graphic, this->_resourceManager);
+    this->_ecs.getSystemManager().bindSystem<CameraSystem>(this->_graphic, this->_resourceManager);
+    this->_ecs.getSystemManager().bindSystem<RenderSystem>(this->_graphic, this->_resourceManager);
 #ifdef EDITOR_MODE
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<SceneSystem>(this->_graphic, this->_resourceManager));
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<PickingSystem>(this->_graphic, this->_resourceManager));
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<GUISystem>(this->_graphic, this->_resourceManager));
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<FileWatcherSystem>(this->_graphic, this->_resourceManager));
+    this->_ecs.getSystemManager().bindSystem<SceneSystem>(this->_graphic, this->_resourceManager);
+    this->_ecs.getSystemManager().bindSystem<PickingSystem>(this->_graphic, this->_resourceManager);
+    this->_ecs.getSystemManager().bindSystem<GUISystem>(this->_graphic, this->_resourceManager);
+    this->_ecs.getSystemManager().bindSystem<FileWatcherSystem>(this->_graphic, this->_resourceManager);
 
     this->_ecs.getEntityManager() = this->_resourceManager->getActiveScene().getEntityManager();
     // this->_ecs.getEntityManager() = std::make_shared<EntityManager>(this->_resourceManager->getActiveScene().getEntityManager());
 #else
-    this->_ecs.getSystemManager().bindSystem(std::make_unique<GameSystem>(this->_graphic, this->_resourceManager));
+    this->_ecs.getSystemManager().bindSystem<GameSystem>(this->_graphic, this->_resourceManager);
 
     this->_ecs.getEntityManager()->clone(*this->_resourceManager->getActiveScene().getEntityManager());
     this->_resourceManager->initScriptInstances(this->_ecs.getEntityManager());

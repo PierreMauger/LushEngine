@@ -3,7 +3,7 @@ using System;
 public class TestScript : CustomComponent
 {
     private Transform transform;
-    public float time = 5.0f;
+    public float time = 0.0f;
 
     public void onInit()
     {
@@ -15,7 +15,7 @@ public class TestScript : CustomComponent
         time += deltaTime;
 
         Vector3 tmpRot = transform.rotation;
-        tmpRot.y = time % 360.0f;
+        tmpRot.x = time * -60.0f;
         transform.rotation = tmpRot;
     }
 }

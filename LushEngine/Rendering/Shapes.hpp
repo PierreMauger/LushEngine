@@ -14,6 +14,7 @@ namespace Lush
     {
         public:
             static void setupFrameBuffer(FrameBuffer &frameBuffer, glm::vec2 size);
+            static void setupDepthBuffer(FrameBuffer &frameBuffer, glm::vec2 size);
             static void deleteFrameBuffer(FrameBuffer &frameBuffer);
             static void setupBillboard(BufferObject &bufferObject);
             static void setupPlane(BufferObject &bufferObject);

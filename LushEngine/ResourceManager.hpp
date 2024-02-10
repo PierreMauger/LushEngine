@@ -35,7 +35,7 @@ namespace Lush
             std::unordered_map<std::string, File> _files;
             std::vector<std::string> _directories;
 
-            std::unordered_map<std::string, std::unique_ptr<Shader>> _shaders;
+            std::unordered_map<std::string, std::shared_ptr<Shader>> _shaders;
             std::unordered_map<std::string, std::unique_ptr<Texture>> _textures;
             std::unordered_map<std::string, std::unique_ptr<RenderModel>> _models;
             std::unordered_map<std::string, std::unique_ptr<Skybox>> _skyboxes;
@@ -91,7 +91,7 @@ namespace Lush
 
             std::unordered_map<std::string, File> &getFiles();
 
-            std::unordered_map<std::string, std::unique_ptr<Shader>> &getShaders();
+            std::unordered_map<std::string, std::shared_ptr<Shader>> &getShaders();
             std::unordered_map<std::string, std::unique_ptr<Texture>> &getTextures();
             std::unordered_map<std::string, std::unique_ptr<RenderModel>> &getModels();
             std::unordered_map<std::string, std::unique_ptr<Skybox>> &getSkyboxes();

@@ -2,12 +2,46 @@
 
 using namespace Lush;
 
-CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic) : ASystem(60.0f), _graphic(graphic)
+CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
+    : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
+    Shapes::setupDepthBuffer(this->_lightBuffer, {1280, 720});
+    this->_graphic->getFrameBuffers()["light"] = this->_lightBuffer;
 }
 
 void CameraSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
+    Entity ent = entityManager->getEntity(1);
+    if (ent.hasComponent<Transform>() && ent.hasComponent<Light>()) {
+        Transform transform = ent.getComponent<Transform>();
+        Camera fakeCamera;
+        fakeCamera.type = CameraType::ORTHOGRAPHIC;
+        fakeCamera.far = 200.0f;
+        glm::quat q = glm::quat(glm::radians(transform.rotation));
+        fakeCamera.forward = glm::mat3(glm::toMat4(q)) * glm::vec3(0.0f, 0.0f, -1.0f);
+
+        this->_graphic->getRenderView().update(transform, fakeCamera);
+
+        this->_graphic->getRenderView().use("Light");
+        this->_graphic->getRenderView().setLightMatrix();
+        this->_graphic->getRenderView().setView();
+        glBindFramebuffer(GL_FRAMEBUFFER, this->_lightBuffer.depthbuffer);
+        glClear(GL_DEPTH_BUFFER_BIT);
+
+        for (auto &[id, entity] : entityManager->getEntities()) {
+            if (!entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
+                continue;
+            Transform transform = entity.getComponent<Transform>();
+            Model model = entity.getComponent<Model>();
+
+            this->_graphic->getRenderView().setModel(transform);
+
+            if (this->_resourceManager->getModels().contains(model.name))
+                this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader());
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
     for (auto &[id, entity] : entityManager->getEntities()) {
         if (entity.hasComponent<Transform>() && entity.hasComponent<Camera>())
             this->_graphic->getRenderView().update(entity.getComponent<Transform>(), entity.getComponent<Camera>());

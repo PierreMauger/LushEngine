@@ -56,10 +56,10 @@ namespace boost::serialization
 
     template <typename T> void serialize(boost::archive::binary_iarchive &ar, std::vector<T> &vec, [[maybe_unused]] const unsigned int version)
     {
-        size_t size;
+        std::size_t size;
         ar &size;
 
-        for (size_t i = 0; i < size; i++) {
+        for (std::size_t i = 0; i < size; i++) {
             T elem{};
             ar &elem;
             vec.push_back(elem);
@@ -87,10 +87,10 @@ namespace boost::serialization
 
     template <typename T> void serialize(boost::archive::binary_iarchive &ar, std::unordered_map<std::string, T> &map, [[maybe_unused]] const unsigned int version)
     {
-        size_t size;
+        std::size_t size;
         ar &size;
 
-        for (size_t i = 0; i < size; i++) {
+        for (std::size_t i = 0; i < size; i++) {
             std::string name;
             T elem{};
             ar &name;
@@ -101,6 +101,22 @@ namespace boost::serialization
 
     void serialize(boost::archive::binary_oarchive &ar, std::unordered_map<std::type_index, Lush::Component *> &map, [[maybe_unused]] const unsigned int version);
     void serialize(boost::archive::binary_iarchive &ar, std::unordered_map<std::type_index, Lush::Component *> &map, [[maybe_unused]] const unsigned int version);
+
+    template <typename T> void deserializeIf(std::string &type, std::unordered_map<std::type_index, Lush::Component *> &componentMap, boost::archive::binary_iarchive &ar)
+    {
+        if (type == typeid(T).name()) {
+            T elem{};
+            ar &elem;
+            componentMap[typeid(T)] = new T(elem);
+        }
+    }
+
+    template <typename T> void serializeIf(std::string &type, std::unordered_map<std::type_index, Lush::Component *> &componentMap, boost::archive::binary_oarchive &ar)
+    {
+        if (type == typeid(T).name()) {
+            ar &*static_cast<T *>(componentMap[typeid(T)]);
+        }
+    }
 }
 
 #endif // SERIALIZATION_HPP

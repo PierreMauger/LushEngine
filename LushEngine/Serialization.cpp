@@ -4,86 +4,44 @@ using namespace Lush;
 
 namespace boost::serialization
 {
-    void serialize(boost::archive::binary_oarchive &ar, std::unordered_map<std::type_index, Component *> &map, [[maybe_unused]] const unsigned int version)
+    void serialize(boost::archive::binary_oarchive &ar, std::unordered_map<std::type_index, Component *> &componentMap, [[maybe_unused]] const unsigned int version)
     {
-        ar &map.size();
-        for (auto &[type, value] : map) {
-            std::string type_name = type.name();
-            ar &type_name;
+        ar &componentMap.size();
+        for (auto &[type, value] : componentMap) {
+            std::string typeName = type.name();
+            ar &typeName;
 
-            if (type == typeid(Transform)) {
-                ar &*static_cast<Transform *>(value);
-            } else if (type == typeid(Model)) {
-                ar &*static_cast<Model *>(value);
-            } else if (type == typeid(Camera)) {
-                ar &*static_cast<Camera *>(value);
-            } else if (type == typeid(Light)) {
-                ar &*static_cast<Light *>(value);
-            } else if (type == typeid(Cubemap)) {
-                ar &*static_cast<Cubemap *>(value);
-            } else if (type == typeid(Billboard)) {
-                ar &*static_cast<Billboard *>(value);
-            } else if (type == typeid(Map)) {
-                ar &*static_cast<Map *>(value);
-            } else if (type == typeid(RigidBody)) {
-                ar &*static_cast<RigidBody *>(value);
-            } else if (type == typeid(Collider)) {
-                ar &*static_cast<Collider *>(value);
-            } else if (type == typeid(CharacterController)) {
-                ar &*static_cast<CharacterController *>(value);
-            }
+            serializeIf<Transform>(typeName, componentMap, ar);
+            serializeIf<Model>(typeName, componentMap, ar);
+            serializeIf<Camera>(typeName, componentMap, ar);
+            serializeIf<Light>(typeName, componentMap, ar);
+            serializeIf<Cubemap>(typeName, componentMap, ar);
+            serializeIf<Billboard>(typeName, componentMap, ar);
+            serializeIf<Map>(typeName, componentMap, ar);
+            serializeIf<RigidBody>(typeName, componentMap, ar);
+            serializeIf<Collider>(typeName, componentMap, ar);
+            serializeIf<CharacterController>(typeName, componentMap, ar);
         }
     }
 
-    void serialize(boost::archive::binary_iarchive &ar, std::unordered_map<std::type_index, Component *> &map, [[maybe_unused]] const unsigned int version)
+    void serialize(boost::archive::binary_iarchive &ar, std::unordered_map<std::type_index, Component *> &componentMap, [[maybe_unused]] const unsigned int version)
     {
-        size_t size;
+        std::size_t size;
         ar &size;
 
-        for (size_t i = 0; i < size; i++) {
+        for (std::size_t i = 0; i < size; i++) {
             std::string type;
             ar &type;
-            if (type == typeid(Transform).name()) {
-                Transform elem{};
-                ar &elem;
-                map[typeid(Transform)] = new Transform(elem);
-            } else if (type == typeid(Model).name()) {
-                Model elem{};
-                ar &elem;
-                map[typeid(Model)] = new Model(elem);
-            } else if (type == typeid(Camera).name()) {
-                Camera elem{};
-                ar &elem;
-                map[typeid(Camera)] = new Camera(elem);
-            } else if (type == typeid(Light).name()) {
-                Light elem{};
-                ar &elem;
-                map[typeid(Light)] = new Light(elem);
-            } else if (type == typeid(Cubemap).name()) {
-                Cubemap elem{};
-                ar &elem;
-                map[typeid(Cubemap)] = new Cubemap(elem);
-            } else if (type == typeid(Billboard).name()) {
-                Billboard elem{};
-                ar &elem;
-                map[typeid(Billboard)] = new Billboard(elem);
-            } else if (type == typeid(Map).name()) {
-                Map elem{};
-                ar &elem;
-                map[typeid(Map)] = new Map(elem);
-            } else if (type == typeid(RigidBody).name()) {
-                RigidBody elem{};
-                ar &elem;
-                map[typeid(RigidBody)] = new RigidBody(elem);
-            } else if (type == typeid(Collider).name()) {
-                Collider elem{};
-                ar &elem;
-                map[typeid(Collider)] = new Collider(elem);
-            } else if (type == typeid(CharacterController).name()) {
-                CharacterController elem{};
-                ar &elem;
-                map[typeid(CharacterController)] = new CharacterController(elem);
-            }
+            deserializeIf<Transform>(type, componentMap, ar);
+            deserializeIf<Model>(type, componentMap, ar);
+            deserializeIf<Camera>(type, componentMap, ar);
+            deserializeIf<Light>(type, componentMap, ar);
+            deserializeIf<Cubemap>(type, componentMap, ar);
+            deserializeIf<Billboard>(type, componentMap, ar);
+            deserializeIf<Map>(type, componentMap, ar);
+            deserializeIf<RigidBody>(type, componentMap, ar);
+            deserializeIf<Collider>(type, componentMap, ar);
+            deserializeIf<CharacterController>(type, componentMap, ar);
         }
     }
 }

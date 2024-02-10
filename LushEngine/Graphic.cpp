@@ -86,6 +86,8 @@ void Graphic::handleResizeFramebuffer(int width, int height)
     glViewport(0, 0, width, height);
 
     for (auto [name, fb] : this->_frameBuffers) {
+        if (!fb.resizable)
+            continue;;
         glBindTexture(GL_TEXTURE_2D, fb.texture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
         glBindTexture(GL_TEXTURE_2D, 0);

@@ -2,6 +2,7 @@
 
 using namespace Lush;
 
+static const char *cameraTypeNames[CameraType::CAMERA_TYPE_COUNT] = {"Perspective", "Orthographic"};
 static const char *lightTypeNames[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
 static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"box", "Sphere", "Capsule", "Mesh"};
 static const std::unordered_map<std::string, std::function<void(rapidxml::xml_node<> *, Entity &)>> componentLoaders = {
@@ -92,6 +93,14 @@ void Scene::loadModel(rapidxml::xml_node<> *node, Entity &entity)
 void Scene::loadCamera(rapidxml::xml_node<> *node, Entity &entity)
 {
     Camera camera;
+    if (node->first_attribute("type")) {
+        for (int i = 0; i < CameraType::CAMERA_TYPE_COUNT; i++) {
+            if (strcmp(cameraTypeNames[i], node->first_attribute("type")->value()) == 0) {
+                camera.type = (CameraType)i;
+                break;
+            }
+        }
+    }
     if (node->first_attribute("forward"))
         std::sscanf(node->first_attribute("forward")->value(), "%f %f %f", &camera.forward.x, &camera.forward.y, &camera.forward.z);
     if (node->first_attribute("fov"))

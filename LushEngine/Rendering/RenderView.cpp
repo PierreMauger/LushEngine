@@ -2,6 +2,8 @@
 
 using namespace Lush;
 
+static glm::mat4 lightSpaceMatrix;
+
 RenderView::RenderView(float aspectRatio)
 {
     this->_view = glm::mat4(1.0f);
@@ -9,8 +11,8 @@ RenderView::RenderView(float aspectRatio)
     this->_position = glm::vec3(0.0f, 0.0f, 10.0f);
     this->_front = glm::vec3(0.0f, 0.0f, -1.0f);
     this->_up = glm::vec3(0.0f, 1.0f, 0.0f);
-    this->_fov = 45.0f;
     this->_aspectRatio = aspectRatio;
+    this->_fov = 45.0f;
     this->_near = 0.1f;
     this->_far = 100.0f;
     this->_sensitivity = 0.1f;
@@ -24,9 +26,9 @@ void RenderView::setAspectRatio(float aspectRatio)
     this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 }
 
-void RenderView::setShaders(std::unordered_map<std::string, std::unique_ptr<Shader>> &shaders)
+void RenderView::setShaders(std::unordered_map<std::string, std::shared_ptr<Shader>> &shaders)
 {
-    this->_shaders = std::move(shaders);
+    this->_shaders = shaders;
 }
 
 Shader &RenderView::getShader()
@@ -51,6 +53,16 @@ glm::mat4 RenderView::getProjection()
     return this->_projection;
 }
 
+void RenderView::setLightMatrix()
+{
+    lightSpaceMatrix = this->_projection * this->_view;
+}
+
+glm::mat4 RenderView::getLightMatrix()
+{
+    return lightSpaceMatrix;
+}
+
 void RenderView::use(std::string shaderName)
 {
     if (!this->_shaders.contains(shaderName))
@@ -69,9 +81,14 @@ void RenderView::update(Transform transform, Camera camera)
     this->_fov = camera.fov;
     this->_near = camera.near;
     this->_far = camera.far;
+    this->_type = camera.type;
+
+    if (this->_type == CameraType::PERSPECTIVE)
+        this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
+    else if (this->_type == CameraType::ORTHOGRAPHIC)
+        this->_projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, this->_near, this->_far);
 
     this->_view = glm::lookAt(this->_position, this->_position + this->_front, this->_up);
-    this->_projection = glm::perspective(glm::radians(this->_fov), this->_aspectRatio, this->_near, this->_far);
 }
 
 void RenderView::rotate(Transform &transform, glm::vec2 offset) const
@@ -89,6 +106,7 @@ void RenderView::setView()
     this->_shaders[this->_actShader]->setVec3("viewPos", this->_position);
     this->_shaders[this->_actShader]->setMat4("view", this->_view);
     this->_shaders[this->_actShader]->setMat4("projection", this->_projection);
+    this->_shaders[this->_actShader]->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 }
 
 void RenderView::setSkyboxView()

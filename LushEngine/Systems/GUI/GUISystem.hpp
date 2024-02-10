@@ -28,7 +28,7 @@ namespace Lush
             std::string execName;
             glm::vec3 color = glm::vec3(0.26f, 0.59f, 0.98f);
             std::string iconName = "None";
-            std::vector<std::string> hiddenScenes;
+            std::vector<std::string> scenes;
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
@@ -37,7 +37,7 @@ namespace Lush
                 ar & execName;
                 ar & color;
                 ar & iconName;
-                ar & hiddenScenes;
+                ar & scenes;
             }
     };
 
@@ -90,7 +90,7 @@ namespace Lush
             bool drawGuizmo(std::shared_ptr<EntityManager> &entityManager);
             void drawFileExplorer();
             void drawProfiler();
-            void drawProjectManager();
+            void drawProjectManager(std::shared_ptr<EntityManager> &entityManager);
             std::size_t getPhysicInstanceIndex(std::size_t entityId);
             bool drawTextureSelect(const std::string &fieldName, std::string &texture);
 

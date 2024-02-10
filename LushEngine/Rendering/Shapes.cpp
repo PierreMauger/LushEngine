@@ -19,6 +19,25 @@ void Shapes::setupFrameBuffer(FrameBuffer &frameBuffer, glm::vec2 size)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void Shapes::setupDepthBuffer(FrameBuffer &frameBuffer, glm::vec2 size)
+{
+    frameBuffer.resizable = false;
+    glGenFramebuffers(1, &frameBuffer.depthbuffer);
+    glGenTextures(1, &frameBuffer.texture);
+    glBindTexture(GL_TEXTURE_2D, frameBuffer.texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.depthbuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, frameBuffer.texture, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Shapes::deleteFrameBuffer(FrameBuffer &frameBuffer)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.framebuffer);

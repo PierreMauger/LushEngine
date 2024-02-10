@@ -42,12 +42,15 @@ namespace Lush
             }
     };
 
-    // enum CameraType {
-    // PERSPECTIVE,
-    // ORTHOGRAPHIC,
-    // };
+    enum CameraType {
+        PERSPECTIVE,
+        ORTHOGRAPHIC,
+
+        CAMERA_TYPE_COUNT
+    };
 
     struct Camera : public Component {
+            CameraType type = CameraType::PERSPECTIVE;
             glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
             float fov = 45.0f;
             float near = 0.1f;
@@ -60,6 +63,7 @@ namespace Lush
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
+                ar &type;
                 ar &forward;
                 ar &fov;
                 ar &near;

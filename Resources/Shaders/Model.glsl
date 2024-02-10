@@ -9,6 +9,7 @@ layout (location = 6) in vec4 weights;
 out vec3 Normal;
 out vec3 FragPos;
 out vec2 TexCoords;
+out vec4 FragPosLightSpace;
 
 #define MAX_BONES 100
 #define MAX_BONE_INFLUENCE 4
@@ -16,6 +17,7 @@ out vec2 TexCoords;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 lightSpaceMatrix;
 
 void main()
 {
@@ -24,6 +26,7 @@ void main()
     Normal = mat3(transpose(inverse(model))) * aNormal;
     FragPos = vec3(model * totalPosition);
     TexCoords = aTexCoords;
+    FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
 
     gl_Position = projection * view * vec4(FragPos, 1.0);
 }
@@ -80,6 +83,8 @@ struct PointLight {
 in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoords;
+in vec4 FragPosLightSpace;
+uniform sampler2D shadowMap;
 
 uniform vec3 viewPos;
 uniform Material material;
@@ -127,6 +132,19 @@ vec3 calcPointLight(Base object, PointLight light, vec3 normal, vec3 fragPos, ve
     return (ambient + diffuse + specular) * object.diffuse * attenuation;
 }
 
+float calcShadow(vec4 fragPosLightSpace)
+{
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5f + 0.5f;
+    // if outside of shadow map, it is in shadow
+    if (projCoords.x < 0.0f || projCoords.y < 0.0f || projCoords.x > 1.0f || projCoords.y > 1.0f)
+        return 0.0f;
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+    float shadow = currentDepth - 0.005f > closestDepth ? 0.5f : 0.0f;
+    return shadow;
+}
+
 void main()
 {
     Base object;
@@ -151,6 +169,9 @@ void main()
         if (texture(tex.diffuse, TexCoords).a <= 0.2f)
             discard;
     }
+
+    float shadow = calcShadow(FragPosLightSpace);
+    result *= 1.0f - shadow;
 
     FragColor = vec4(result + object.emission, 1.0f);
 }

@@ -18,12 +18,13 @@ namespace Lush
             glm::vec3 _position;
             glm::vec3 _front;
             glm::vec3 _up;
+            CameraType _type;
             float _aspectRatio;
             float _fov;
             float _near;
             float _far;
             float _sensitivity;
-            std::unordered_map<std::string, std::unique_ptr<Shader>> _shaders;
+            std::unordered_map<std::string, std::shared_ptr<Shader>> _shaders;
             std::string _actShader;
 
         public:
@@ -31,12 +32,15 @@ namespace Lush
             ~RenderView() = default;
 
             void setAspectRatio(float aspectRatio);
-            void setShaders(std::unordered_map<std::string, std::unique_ptr<Shader>> &shaders);
+            void setShaders(std::unordered_map<std::string, std::shared_ptr<Shader>> &shaders);
             Shader &getShader();
             Shader &getShader(std::string shaderName);
 
             glm::mat4 getView();
             glm::mat4 getProjection();
+
+            void setLightMatrix();
+            glm::mat4 getLightMatrix();
 
             void use(std::string shaderName);
             void update(Transform transform, Camera camera);

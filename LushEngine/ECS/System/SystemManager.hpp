@@ -14,7 +14,11 @@ namespace Lush
             SystemManager() = default;
             ~SystemManager();
 
-            void bindSystem(std::unique_ptr<ASystem> system);
+            template <typename T, typename... Args> void bindSystem(Args &&...args)
+            {
+                this->_systems.push_back(std::make_unique<T>(std::forward<Args>(args)...));
+            }
+
             void updateSystems(std::shared_ptr<EntityManager> &entityManager, float deltaTime);
     };
 }
