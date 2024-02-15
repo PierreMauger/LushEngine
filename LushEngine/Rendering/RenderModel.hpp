@@ -31,6 +31,8 @@ namespace Lush
     {
         private:
             std::vector<Mesh> _meshes;
+            int _materialNb = 0;
+            int _textureNb = 0;
             std::unordered_map<std::string, BoneInfo> _boneInfoMap;
             int _boneCounter = 0;
 
@@ -51,8 +53,10 @@ namespace Lush
 
             void load(const File &file, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
             void reload(const File &file, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
-            void draw(Shader &shader);
+            void draw(Shader &shader, Model &model);
 
+            int getMaterialNb() const;
+            int getTextureNb() const;
             std::vector<Mesh> &getMeshes();
             std::vector<std::string> getTextureNames();
 

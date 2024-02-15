@@ -121,6 +121,7 @@ Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Tex> tex;
+    Material material{};
 
     for (unsigned int i = 0; i < mesh.mNumVertices; i++) {
         Vertex vertex{};
@@ -145,8 +146,7 @@ Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered
     aiColor3D color(0.0f, 0.0f, 0.0f);
     float shininess = 0.0f;
 
-    Material material{};
-
+    material.name = materialLoaded->GetName().C_Str();
     materialLoaded->Get(AI_MATKEY_COLOR_DIFFUSE, color);
     material.diffuse = glm::vec3(color.r, color.g, color.b);
     materialLoaded->Get(AI_MATKEY_COLOR_AMBIENT, color);
@@ -171,10 +171,12 @@ Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered
     std::vector<Tex> heightMaps = RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "tex.height", textures);
     tex.insert(tex.end(), heightMaps.begin(), heightMaps.end());
 
+    tex.size() > 0 ? this->_textureNb += tex.size() : this->_materialNb++;
     return {vertices, indices, tex, material};
 }
 
-std::vector<Tex> RenderModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string &typeName, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
+std::vector<Tex> RenderModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string &typeName,
+                                                   std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
 {
     std::vector<Tex> tex;
 
@@ -188,10 +190,20 @@ std::vector<Tex> RenderModel::loadMaterialTextures(aiMaterial *mat, aiTextureTyp
     return tex;
 }
 
-void RenderModel::draw(Shader &shader)
+void RenderModel::draw(Shader &shader, Model &model)
 {
     for (auto &mesh : this->_meshes)
-        mesh.draw(shader);
+        mesh.draw(shader, model);
+}
+
+int RenderModel::getMaterialNb() const
+{
+    return this->_materialNb;
+}
+
+int RenderModel::getTextureNb() const
+{
+    return this->_textureNb;
 }
 
 std::vector<Mesh> &RenderModel::getMeshes()

@@ -23,6 +23,7 @@ namespace Lush
             BufferObject _billboard{};
             BufferObject _grid{};
             BufferObject _cameraFrustum{};
+            BufferObject _sphere{};
 
             GLuint _perlinTexture = 0;
 

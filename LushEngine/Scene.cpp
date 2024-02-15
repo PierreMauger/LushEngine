@@ -86,7 +86,22 @@ void Scene::loadTransform(rapidxml::xml_node<> *node, Entity &entity)
 void Scene::loadModel(rapidxml::xml_node<> *node, Entity &entity)
 {
     Model temp;
-    temp.name = node->first_attribute("name")->value();
+    if (node->first_attribute("name"))
+        temp.name = node->first_attribute("name")->value();
+    for (rapidxml::xml_node<> *materialNode = node->first_node("Material"); materialNode; materialNode = materialNode->next_sibling("Material")) {
+        Material material;
+        if (materialNode->first_attribute("name"))
+            material.name = materialNode->first_attribute("name")->value();
+        if (materialNode->first_attribute("diffuse"))
+            std::sscanf(materialNode->first_attribute("diffuse")->value(), "%f %f %f", &material.diffuse.x, &material.diffuse.y, &material.diffuse.z);
+        if (materialNode->first_attribute("ambient"))
+            std::sscanf(materialNode->first_attribute("ambient")->value(), "%f %f %f", &material.ambient.x, &material.ambient.y, &material.ambient.z);
+        if (materialNode->first_attribute("specular"))
+            std::sscanf(materialNode->first_attribute("specular")->value(), "%f %f %f", &material.specular.x, &material.specular.y, &material.specular.z);
+        if (materialNode->first_attribute("emission"))
+            std::sscanf(materialNode->first_attribute("emission")->value(), "%f %f %f", &material.emission.x, &material.emission.y, &material.emission.z);
+        temp.materials.push_back(material);
+    }
     entity.addComponent(temp);
 }
 
@@ -94,12 +109,9 @@ void Scene::loadCamera(rapidxml::xml_node<> *node, Entity &entity)
 {
     Camera camera;
     if (node->first_attribute("type")) {
-        for (int i = 0; i < CameraType::CAMERA_TYPE_COUNT; i++) {
-            if (strcmp(cameraTypeNames[i], node->first_attribute("type")->value()) == 0) {
-                camera.type = (CameraType)i;
-                break;
-            }
-        }
+        auto it = std::find_if(std::begin(cameraTypeNames), std::end(cameraTypeNames), [&node](const std::string &name) { return name == node->first_attribute("type")->value(); });
+        if (it != std::end(cameraTypeNames))
+            camera.type = (CameraType)(it - std::begin(cameraTypeNames));
     }
     if (node->first_attribute("forward"))
         std::sscanf(node->first_attribute("forward")->value(), "%f %f %f", &camera.forward.x, &camera.forward.y, &camera.forward.z);

@@ -97,6 +97,40 @@ void Shapes::setupCube(BufferObject &bufferObject)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
 }
 
+void createCircle(std::vector<GLfloat> &circleVertices, int segments, char plane)
+{
+    for (int i = 0; i <= segments; ++i) {
+        float angle = 2.0f * M_PI * float(i) / float(segments);
+
+        float x = cosf(angle);
+        float y = sinf(angle);
+
+        std::array<float, 3> vertex = {x, y, 0.0f};
+        vertex[plane] = 0.0f;
+        vertex[(plane + 1) % 3] = x;
+        vertex[(plane + 2) % 3] = y;
+
+        circleVertices.insert(circleVertices.end(), vertex.begin(), vertex.end());
+    }
+}
+
+void Shapes::setupSphere(BufferObject &bufferObject, int segments)
+{
+    std::vector<float> sphereVertices;
+
+    createCircle(sphereVertices, segments, 0);
+    createCircle(sphereVertices, segments, 1);
+    createCircle(sphereVertices, segments, 2);
+
+    glGenVertexArrays(1, &bufferObject.vao);
+    glGenBuffers(1, &bufferObject.vbo);
+    glBindVertexArray(bufferObject.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferObject.vbo);
+    glBufferData(GL_ARRAY_BUFFER, sphereVertices.size() * sizeof(float), &sphereVertices[0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+}
+
 void Shapes::deleteBufferObject(BufferObject &bufferObject)
 {
     glBindVertexArray(bufferObject.vao);

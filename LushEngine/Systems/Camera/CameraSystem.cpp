@@ -16,7 +16,7 @@ void CameraSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
         Transform transform = ent.getComponent<Transform>();
         Camera fakeCamera;
         fakeCamera.type = CameraType::ORTHOGRAPHIC;
-        fakeCamera.far = 200.0f;
+        fakeCamera.far = 20.0f;
         glm::quat q = glm::quat(glm::radians(transform.rotation));
         fakeCamera.forward = glm::mat3(glm::toMat4(q)) * glm::vec3(0.0f, 0.0f, -1.0f);
 
@@ -27,6 +27,7 @@ void CameraSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
         this->_graphic->getRenderView().setView();
         glBindFramebuffer(GL_FRAMEBUFFER, this->_lightBuffer.depthbuffer);
         glClear(GL_DEPTH_BUFFER_BIT);
+        glCullFace(GL_FRONT);
 
         for (auto &[id, entity] : entityManager->getEntities()) {
             if (!entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
@@ -37,8 +38,9 @@ void CameraSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
             this->_graphic->getRenderView().setModel(transform);
 
             if (this->_resourceManager->getModels().contains(model.name))
-                this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader());
+                this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model);
         }
+        glCullFace(GL_BACK);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 

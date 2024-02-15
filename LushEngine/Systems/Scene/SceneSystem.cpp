@@ -18,6 +18,7 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Resou
     Shapes::setupBillboard(this->_billboard);
     Shapes::setupPlane(this->_grid);
     Shapes::setupCube(this->_cameraFrustum);
+    Shapes::setupSphere(this->_sphere, 32);
 
     this->generatePerlinTexture();
 }
@@ -119,7 +120,7 @@ void SceneSystem::drawModels(std::shared_ptr<EntityManager> &entityManager)
 
         this->_graphic->getRenderView().setModel(transform);
         if (this->_resourceManager->getModels().contains(model.name))
-            this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader());
+            this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model);
     }
 }
 
@@ -253,30 +254,48 @@ void SceneSystem::drawLightDirection(std::shared_ptr<EntityManager> &entityManag
     if (!entityManager->getEntities().contains(this->_graphic->getSelectedEntity()))
         return;
     Entity &entity = entityManager->getEntity(this->_graphic->getSelectedEntity());
-    if (!entity.hasComponent<Transform>() || !entity.hasComponent<Light>() ||
-        (entity.getComponent<Light>().type != LightType::DIRECTIONAL && entity.getComponent<Light>().type != LightType::SPOT))
+    if (!entity.hasComponent<Transform>() || !entity.hasComponent<Light>())
         return;
 
+    Transform transform = entity.getComponent<Transform>();
+    Light light = entity.getComponent<Light>();
     this->_graphic->getRenderView().use("CameraFrustum");
     this->_graphic->getRenderView().setView();
 
-    Transform transform = entity.getComponent<Transform>();
-    glm::vec3 direction = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::quat q = glm::quat(glm::radians(transform.rotation));
-    direction = glm::mat3(glm::toMat4(q)) * direction;
+    switch (light.type) {
+    case LightType::DIRECTIONAL: {
+        glm::mat4 lightSpaceMatrix = glm::inverse(this->_graphic->getRenderView().getLightMatrix());
+        this->_graphic->getRenderView().getShader().setMat4("frustum", lightSpaceMatrix);
 
-    glm::mat4 view = glm::lookAt(transform.position, transform.position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 frustum = glm::inverse(glm::perspective(glm::radians(15.0f), 1.0f, 0.1f, 5.0f) * view);
-    this->_graphic->getRenderView().getShader().setMat4("frustum", frustum);
+        glBindVertexArray(this->_cameraFrustum.vao);
+        glDrawArrays(GL_LINES, 0, 24);
+        glBindVertexArray(0);
+        break;
+    }
+    case LightType::POINT: {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, transform.position);
+        model = glm::scale(model, glm::vec3(light.intensity));
+        this->_graphic->getRenderView().getShader().setMat4("frustum", model);
+        glBindVertexArray(this->_sphere.vao);
+        glDrawArrays(GL_LINE_LOOP, 0, 32 + 1);
+        glDrawArrays(GL_LINE_LOOP, 32 + 1, 32 + 1);
+        glDrawArrays(GL_LINE_LOOP, (32 + 1) * 2, 32 + 1);
+        glBindVertexArray(0);
+        break;
+    }
+    case LightType::SPOT: {
+        glm::quat q = glm::quat(glm::radians(transform.rotation));
+        glm::vec3 direction = glm::mat3(glm::toMat4(q)) * glm::vec3(0.0f, 0.0f, -1.0f);
 
-    glBindVertexArray(this->_cameraFrustum.vao);
-    glDrawArrays(GL_LINES, 0, 24);
-    glBindVertexArray(0);
+        glm::mat4 view = glm::lookAt(transform.position, transform.position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 frustum = glm::inverse(glm::perspective(glm::radians(15.0f), 1.0f, 0.1f, 5.0f) * view);
+        this->_graphic->getRenderView().getShader().setMat4("frustum", frustum);
 
-    glm::mat4 lightSpaceMatrix = glm::inverse(this->_graphic->getRenderView().getLightMatrix());
-    this->_graphic->getRenderView().getShader().setMat4("frustum", lightSpaceMatrix);
-
-    glBindVertexArray(this->_cameraFrustum.vao);
-    glDrawArrays(GL_LINES, 0, 24);
-    glBindVertexArray(0);
+        glBindVertexArray(this->_cameraFrustum.vao);
+        glDrawArrays(GL_LINES, 0, 24);
+        glBindVertexArray(0);
+        break;
+    }
+    }
 }

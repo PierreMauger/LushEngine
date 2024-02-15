@@ -28,8 +28,29 @@ namespace Lush
             }
     };
 
+    struct Material {
+            std::string name = "Material";
+            glm::vec3 diffuse = glm::vec3(1.0f);
+            glm::vec3 ambient = glm::vec3(0.0f);
+            glm::vec3 specular = glm::vec3(0.0f);
+            glm::vec3 emission = glm::vec3(0.0f);
+            float shininess = 32.0f;
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &name;
+                ar &diffuse;
+                ar &ambient;
+                ar &specular;
+                ar &emission;
+                ar &shininess;
+            }
+    };
+
     struct Model : public Component {
             std::string name = "Fox";
+            std::vector<Material> materials;
+            std::vector<std::string> textures;
 
             Model *clone() const override
             {
@@ -39,6 +60,8 @@ namespace Lush
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
                 ar &name;
+                ar &materials;
+                ar &textures;
             }
     };
 

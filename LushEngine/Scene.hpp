@@ -13,6 +13,7 @@
 #include "RapidXML/rapidxml.hpp"
 #include "RapidXML/rapidxml_print.hpp"
 #include "Script/ScriptClass.hpp"
+#include "Rendering/Mesh.hpp"
 
 namespace Lush
 {
@@ -41,7 +42,7 @@ namespace Lush
             static void loadRigidBody(rapidxml::xml_node<> *node, Entity &entity);
             static void loadCollider(rapidxml::xml_node<> *node, Entity &entity);
             static void loadCharacterController(rapidxml::xml_node<> *node, Entity &entity);
-            void loadScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &script);
+            static void loadScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &script);
 
             void serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version)
             {

@@ -379,6 +379,15 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                 }
                 ImGui::EndCombo();
             }
+            ImGui::Text("MaterialNb: %d", this->_resourceManager->getModels()[selectedItem]->getMaterialNb());
+            int i = 0;
+            for (auto &material : model.materials) {
+                ImGui::PushID(i);
+                ImGui::DragFloat3("Diffuse##Material", (float *)&material.diffuse, 0.01f, 0.0f, 1.0f);
+                ImGui::PopID();
+                i++;
+            }
+            ImGui::Text("TextureNb: %d", this->_resourceManager->getModels()[selectedItem]->getTextureNb());
             if (ImGui::Button("Remove##Model"))
                 entity.removeComponent<Model>();
             ImGui::Separator();
@@ -403,7 +412,7 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
             Light &light = entity.getComponent<Light>();
 
             ImGui::SliderInt("Type##Light", (int *)&light.type, 0, LightType::LIGHT_TYPE_COUNT - 1, lightTypeNames[light.type]);
-            ImGui::SliderFloat("Intensity##Light", &light.intensity, 0.0f, 1.0f);
+            ImGui::SliderFloat("Intensity##Light", &light.intensity, 0.0f, 16.0f);
             ImGui::ColorEdit3("Color##Light", (float *)&light.color);
             ImGui::SliderFloat("Cut Off##Light", &light.cutOff, 0.0f, 90.0f);
             if (ImGui::Button("Remove##Light"))

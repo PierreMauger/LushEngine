@@ -47,7 +47,7 @@ void RenderSystem::drawModels(std::shared_ptr<EntityManager> &entityManager)
 
         this->_graphic->getRenderView().setModel(transform);
         if (this->_resourceManager->getModels().contains(model.name))
-            this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader());
+            this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model);
     }
 }
 

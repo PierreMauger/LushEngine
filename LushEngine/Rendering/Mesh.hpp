@@ -37,23 +37,6 @@ namespace Lush
             }
     };
 
-    struct Material {
-            glm::vec3 diffuse;
-            glm::vec3 specular;
-            glm::vec3 ambient;
-            glm::vec3 emission;
-            float shininess;
-
-            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
-            {
-                ar &diffuse;
-                ar &specular;
-                ar &ambient;
-                ar &emission;
-                ar &shininess;
-            }
-    };
-
     struct Tex {
             unsigned int id;
             std::string name;
@@ -91,8 +74,8 @@ namespace Lush
         private:
             std::vector<Vertex> _vertices;
             std::vector<unsigned int> _indices;
-            std::vector<Tex> _textures;
-            Material _material{};
+            std::vector<Tex> _defaultTextures;
+            Material _defaultMaterial{};
             BufferObject _bufferObject{};
 
             void setupMesh();
@@ -103,15 +86,15 @@ namespace Lush
             ~Mesh() = default;
 
             void rebindTextureIds(std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
-            void draw(Shader &shader);
+            void draw(Shader &shader, Model &model);
             std::vector<std::string> getTextureNames();
 
             void serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version)
             {
                 ar &_vertices;
                 ar &_indices;
-                ar &_textures;
-                ar &_material;
+                ar &_defaultTextures;
+                ar &_defaultMaterial;
                 ar &_bufferObject;
                 this->setupMesh();
             }
@@ -120,8 +103,8 @@ namespace Lush
             {
                 ar &_vertices;
                 ar &_indices;
-                ar &_textures;
-                ar &_material;
+                ar &_defaultTextures;
+                ar &_defaultMaterial;
                 ar &_bufferObject;
             }
     };
