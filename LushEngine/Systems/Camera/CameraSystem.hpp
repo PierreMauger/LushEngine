@@ -16,7 +16,7 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
             std::shared_ptr<ResourceManager> _resourceManager;
 
-            FrameBuffer _lightBuffer{};
+            FrameBuffer _shadowBuffer{};
 
             std::vector<std::pair<Transform, Light>> _dirLights;
             std::vector<std::pair<Transform, Light>> _pointLights;

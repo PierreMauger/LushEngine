@@ -33,7 +33,7 @@
       <Components>
         <Transform position="0 0.5 -5" />
         <Model name="Maxwell" />
-        <TestScript />
+        <!-- <TestScript /> -->
       </Components>
     </Entity>
     <Entity name="First fox">
@@ -42,8 +42,9 @@
         <Model name="Fox">
           <Material name="orangeFur" diffuse="0.8 0.1 0.04" />
           <Material diffuse="0.8 0.8 0.8" />
-          <Material diffuse="0.2 0.2 0.2" />
+          <!-- <Material diffuse="0.2 0.2 0.2" /> -->
         </Model>
+        <TestScript />
       </Components>
     </Entity>
     <Entity name="Second fox">

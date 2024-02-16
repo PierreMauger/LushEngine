@@ -5,14 +5,15 @@ using namespace Lush;
 CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
     : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
-    Shapes::setupDepthBuffer(this->_lightBuffer, {1280, 720});
-    this->_graphic->getFrameBuffers()["light"] = this->_lightBuffer;
+    Shapes::setupDepthBuffer(this->_shadowBuffer, {2048, 2048});
+    this->_graphic->getFrameBuffers()["shadow"] = this->_shadowBuffer;
 }
 
 void CameraSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
     Entity ent = entityManager->getEntity(1);
     if (ent.hasComponent<Transform>() && ent.hasComponent<Light>()) {
+        glViewport(0, 0, 2048, 2048);
         Transform transform = ent.getComponent<Transform>();
         Camera fakeCamera;
         fakeCamera.type = CameraType::ORTHOGRAPHIC;
@@ -22,10 +23,10 @@ void CameraSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
 
         this->_graphic->getRenderView().update(transform, fakeCamera);
 
-        this->_graphic->getRenderView().use("Light");
+        this->_graphic->getRenderView().use("Shadow");
         this->_graphic->getRenderView().setLightMatrix();
         this->_graphic->getRenderView().setView();
-        glBindFramebuffer(GL_FRAMEBUFFER, this->_lightBuffer.depthbuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, this->_shadowBuffer.depthbuffer);
         glClear(GL_DEPTH_BUFFER_BIT);
         glCullFace(GL_FRONT);
 
@@ -42,6 +43,7 @@ void CameraSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
         }
         glCullFace(GL_BACK);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, this->_graphic->getWindowSize().x, this->_graphic->getWindowSize().y);
     }
 
     for (auto &[id, entity] : entityManager->getEntities()) {

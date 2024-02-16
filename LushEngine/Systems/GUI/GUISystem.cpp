@@ -102,9 +102,10 @@ void GUISystem::update(std::shared_ptr<EntityManager> &entityManager, float delt
     if (this->_showProjectManager)
         this->drawProjectManager(entityManager);
 
-    if (ImGui::Begin("Debug light")) {
-        GLuint texture = this->_graphic->getFrameBuffers()["light"].texture;
-        ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
+    if (ImGui::Begin("Debug shadows")) {
+        GLuint texture = this->_graphic->getFrameBuffers()["shadow"].texture;
+        float smallest = std::min(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+        ImGui::Image((void *)(intptr_t)texture, ImVec2(smallest, smallest), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::End();
     }
 
