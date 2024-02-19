@@ -41,10 +41,10 @@
         <Transform position="2 0 -3" rotation="0 -90 0" />
         <Model name="Fox">
           <Material name="orangeFur" diffuse="0.8 0.1 0.04" />
-          <Material diffuse="0.8 0.8 0.8" />
-          <!-- <Material diffuse="0.2 0.2 0.2" /> -->
+          <Material name="whiteFur" diffuse="0.8 0.8 0.8" />
+          <Material name="blackFur" diffuse="0.2 0.2 0.2" />
         </Model>
-        <TestScript />
+        <RainbowMat materialName="orangeFur" />
       </Components>
     </Entity>
     <Entity name="Second fox">

@@ -2,7 +2,6 @@
 
 using namespace Lush;
 
-static glm::mat4 lightSpaceMatrix;
 
 RenderView::RenderView(float aspectRatio)
 {
@@ -55,12 +54,12 @@ glm::mat4 RenderView::getProjection()
 
 void RenderView::setLightMatrix()
 {
-    lightSpaceMatrix = this->_projection * this->_view;
+    this->_lightSpaceMatrix = this->_projection * this->_view;
 }
 
 glm::mat4 RenderView::getLightMatrix()
 {
-    return lightSpaceMatrix;
+    return this->_lightSpaceMatrix;
 }
 
 void RenderView::use(std::string shaderName)
@@ -106,7 +105,7 @@ void RenderView::setView()
     this->_shaders[this->_actShader]->setVec3("viewPos", this->_position);
     this->_shaders[this->_actShader]->setMat4("view", this->_view);
     this->_shaders[this->_actShader]->setMat4("projection", this->_projection);
-    this->_shaders[this->_actShader]->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+    this->_shaders[this->_actShader]->setMat4("lightSpaceMatrix", this->_lightSpaceMatrix);
 }
 
 void RenderView::setSkyboxView()

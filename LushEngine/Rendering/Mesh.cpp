@@ -85,10 +85,6 @@ void Mesh::draw(Shader &shader, Model &model)
         glBindTexture(GL_TEXTURE_2D, this->_defaultTextures[i].id);
     }
 
-    glActiveTexture(GL_TEXTURE0 + this->_defaultTextures.size() + 1);
-    shader.setInt("shadowMap", (int)this->_defaultTextures.size() + 1);
-    glBindTexture(GL_TEXTURE_2D, 28);
-
     glBindVertexArray(this->_bufferObject.vao);
     glDrawElements(GL_TRIANGLES, (int)this->_indices.size(), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);

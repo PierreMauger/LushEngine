@@ -18,11 +18,11 @@ public class Maxwell : CustomComponent
         time += deltaTime;
 
         Vector3 tmpPos = transform.position;
-        tmpPos.x = startPos.x + (float)MathF.Sin(time / 4) * 4;
+        tmpPos.x = startPos.x + MathF.Sin(time / 4) * 4;
         transform.position = tmpPos;
 
         // Vector3 tmpRot = transform.rotation;
-        // tmpRot.x = (float)MathF.Sin(time * 4f) * 15f;
+        // tmpRot.x = MathF.Sin(time * 4f) * 15f;
         // transform.rotation = tmpRot;
     }
 }

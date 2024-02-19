@@ -13,6 +13,7 @@ namespace Lush
     class RenderView
     {
         private:
+            glm::mat4 _lightSpaceMatrix;
             glm::mat4 _view;
             glm::mat4 _projection;
             glm::vec3 _position;

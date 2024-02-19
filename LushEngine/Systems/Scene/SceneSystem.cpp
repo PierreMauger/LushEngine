@@ -112,6 +112,10 @@ void SceneSystem::drawModels(std::shared_ptr<EntityManager> &entityManager)
 {
     this->_graphic->getRenderView().use("Model");
     this->_graphic->getRenderView().setView();
+    glActiveTexture(GL_TEXTURE9);
+    this->_graphic->getRenderView().getShader().setInt("shadowMap", 9);
+    glBindTexture(GL_TEXTURE_2D, this->_graphic->getFrameBuffers()["shadow"].texture);
+
     for (auto &[id, entity] : entityManager->getEntities()) {
         if (!entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
             continue;
