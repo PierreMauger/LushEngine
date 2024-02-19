@@ -40,7 +40,7 @@ namespace Lush
             glm::mat4 getView();
             glm::mat4 getProjection();
 
-            void setLightMatrix();
+            void setLightMatrix(Transform transform, Light light);
             glm::mat4 getLightMatrix();
 
             void use(std::string shaderName);

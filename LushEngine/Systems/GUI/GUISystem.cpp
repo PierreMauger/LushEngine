@@ -413,6 +413,8 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
             Light &light = entity.getComponent<Light>();
 
             ImGui::SliderInt("Type##Light", (int *)&light.type, 0, LightType::LIGHT_TYPE_COUNT - 1, lightTypeNames[light.type]);
+            if (light.type == LightType::DIRECTIONAL)
+                ImGui::DragFloat3("ShadowSize##Light", (float *)&light.shadowSize, 0.1f, 0.0f, +FLT_MAX);
             ImGui::SliderFloat("Intensity##Light", &light.intensity, 0.0f, 16.0f);
             ImGui::ColorEdit3("Color##Light", (float *)&light.color);
             ImGui::SliderFloat("Cut Off##Light", &light.cutOff, 0.0f, 90.0f);

@@ -15,16 +15,10 @@ void CameraSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
     if (ent.hasComponent<Transform>() && ent.hasComponent<Light>()) {
         glViewport(0, 0, 2048, 2048);
         Transform transform = ent.getComponent<Transform>();
-        Camera fakeCamera;
-        fakeCamera.type = CameraType::ORTHOGRAPHIC;
-        fakeCamera.far = 20.0f;
-        glm::quat q = glm::quat(glm::radians(transform.rotation));
-        fakeCamera.forward = glm::mat3(glm::toMat4(q)) * glm::vec3(0.0f, 0.0f, -1.0f);
-
-        this->_graphic->getRenderView().update(transform, fakeCamera);
+        Light light = ent.getComponent<Light>();
 
         this->_graphic->getRenderView().use("Shadow");
-        this->_graphic->getRenderView().setLightMatrix();
+        this->_graphic->getRenderView().setLightMatrix(transform, light);
         this->_graphic->getRenderView().setView();
         glBindFramebuffer(GL_FRAMEBUFFER, this->_shadowBuffer.depthbuffer);
         glClear(GL_DEPTH_BUFFER_BIT);

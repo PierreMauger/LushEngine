@@ -105,8 +105,12 @@ namespace Lush
 
     struct Light : public Component {
             LightType type = LightType::DIRECTIONAL;
+            // directional light
+            glm::vec3 shadowSize = glm::vec3(20.0f);
+            // point light
             float intensity = 1.0f;
             glm::vec3 color = glm::vec3(1.0f);
+            // spot light
             float cutOff = 0.0f;
 
             Light *clone() const override
@@ -117,6 +121,7 @@ namespace Lush
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
                 ar &type;
+                ar &shadowSize;
                 ar &intensity;
                 ar &color;
                 ar &cutOff;

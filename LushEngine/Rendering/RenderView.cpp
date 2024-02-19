@@ -2,7 +2,6 @@
 
 using namespace Lush;
 
-
 RenderView::RenderView(float aspectRatio)
 {
     this->_view = glm::mat4(1.0f);
@@ -52,8 +51,15 @@ glm::mat4 RenderView::getProjection()
     return this->_projection;
 }
 
-void RenderView::setLightMatrix()
+void RenderView::setLightMatrix(Transform transform, Light light)
 {
+    glm::quat q = glm::quat(glm::radians(transform.rotation));
+    glm::vec3 front = glm::mat3(glm::toMat4(q)) * glm::vec3(0.0f, 0.0f, -1.0f);
+
+    this->_position = transform.position;
+    this->_view = glm::lookAt(this->_position, this->_position + front, glm::vec3(0.0f, 1.0f, 0.0f));
+    this->_projection = glm::ortho(light.shadowSize.x / 2, -light.shadowSize.x / 2, light.shadowSize.y / 2, -light.shadowSize.y / 2, 0.1f, light.shadowSize.z);
+
     this->_lightSpaceMatrix = this->_projection * this->_view;
 }
 
