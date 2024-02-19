@@ -1066,8 +1066,8 @@ void GUISystem::drawProjectManager(std::shared_ptr<EntityManager> &entityManager
 
     bool disableAll = !this->_currentProject.empty();
     for (auto it = this->_projectSettings.begin(); it != this->_projectSettings.end();) {
-        auto &projectName = it->first;
-        auto &project = it->second;
+        std::string projectName = it->first;
+        ProjectSettings &project = it->second;
 
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(project.color.x, project.color.y, project.color.z, 1.0f));
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);

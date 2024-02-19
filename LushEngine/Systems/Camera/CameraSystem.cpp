@@ -44,8 +44,8 @@ void CameraSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
         if (entity.hasComponent<Transform>() && entity.hasComponent<Camera>())
             this->_graphic->getRenderView().update(entity.getComponent<Transform>(), entity.getComponent<Camera>());
         if (entity.hasComponent<Transform>() && entity.hasComponent<Light>()) {
-            auto &transform = entity.getComponent<Transform>();
-            auto &light = entity.getComponent<Light>();
+            Transform transform = entity.getComponent<Transform>();
+            Light light = entity.getComponent<Light>();
 
             if (light.type == LightType::DIRECTIONAL)
                 this->_dirLights.emplace_back(transform, light);

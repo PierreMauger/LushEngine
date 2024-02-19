@@ -41,7 +41,7 @@ bool ScriptComponent::hasField(const std::string &name)
 
 void ScriptComponent::serialize(boost::archive::binary_oarchive &ar, [[maybe_unused]] const unsigned int version)
 {
-    auto size = this->_fields.size();
+    std::size_t size = this->_fields.size();
     ar &size;
 
     for (auto &[name, value] : this->_fields) {
@@ -58,7 +58,7 @@ void ScriptComponent::serialize(boost::archive::binary_oarchive &ar, [[maybe_unu
 
 void ScriptComponent::serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version)
 {
-    auto size = this->_fields.size();
+    std::size_t size = this->_fields.size();
     ar &size;
 
     for (std::size_t i = 0; i < size; i++) {

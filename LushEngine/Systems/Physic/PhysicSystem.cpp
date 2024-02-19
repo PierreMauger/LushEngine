@@ -24,12 +24,12 @@ void PhysicSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
         return;
 
     for (auto &instance : this->_resourceManager->getPhysicInstances()) {
-        auto &transform = entityManager->getEntity(instance->getId()).getComponent<Transform>();
+        Transform &transform = entityManager->getEntity(instance->getId()).getComponent<Transform>();
         instance->preUpdate(transform);
     }
     this->_dynamicsWorld->stepSimulation(deltaTime);
     for (auto &instance : this->_resourceManager->getPhysicInstances()) {
-        auto &transform = entityManager->getEntity(instance->getId()).getComponent<Transform>();
+        Transform &transform = entityManager->getEntity(instance->getId()).getComponent<Transform>();
         instance->postUpdate(transform);
         this->_dynamicsWorld->contactTest(instance->getCollisionObject(), this->_callback);
     }
