@@ -130,9 +130,7 @@ void RenderView::setDirLights(std::vector<std::pair<Transform, Light>> dirLights
         direction = glm::mat3(glm::toMat4(q)) * direction;
 
         this->_shaders[this->_actShader]->setVec3("dirLights[" + std::to_string(i) + "].direction", direction);
-        this->_shaders[this->_actShader]->setVec3("dirLights[" + std::to_string(i) + "].ambient", dirLights[i].second.color);
-        this->_shaders[this->_actShader]->setVec3("dirLights[" + std::to_string(i) + "].diffuse", dirLights[i].second.color);
-        this->_shaders[this->_actShader]->setVec3("dirLights[" + std::to_string(i) + "].specular", dirLights[i].second.color);
+        this->_shaders[this->_actShader]->setVec3("dirLights[" + std::to_string(i) + "].color", dirLights[i].second.color);
     }
 }
 
@@ -141,9 +139,8 @@ void RenderView::setPointLights(std::vector<std::pair<Transform, Light>> pointLi
     this->_shaders[this->_actShader]->setInt("pointLightCount", (int)pointLights.size());
     for (std::size_t i = 0; i < pointLights.size() && i < 4; i++) {
         this->_shaders[this->_actShader]->setVec3("pointLights[" + std::to_string(i) + "].position", pointLights[i].first.position);
-        this->_shaders[this->_actShader]->setVec3("pointLights[" + std::to_string(i) + "].ambient", pointLights[i].second.color);
-        this->_shaders[this->_actShader]->setVec3("pointLights[" + std::to_string(i) + "].diffuse", pointLights[i].second.color);
-        this->_shaders[this->_actShader]->setVec3("pointLights[" + std::to_string(i) + "].specular", pointLights[i].second.color);
+        this->_shaders[this->_actShader]->setVec3("pointLights[" + std::to_string(i) + "].color", pointLights[i].second.color);
+        this->_shaders[this->_actShader]->setFloat("pointLights[" + std::to_string(i) + "].intensity", pointLights[i].second.intensity);
         this->_shaders[this->_actShader]->setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
         this->_shaders[this->_actShader]->setFloat("pointLights[" + std::to_string(i) + "].linear", 0.09f);
         this->_shaders[this->_actShader]->setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.032f);

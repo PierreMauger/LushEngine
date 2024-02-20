@@ -24,21 +24,17 @@ void main()
 
 struct DirLight {
     vec3 direction;
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    vec3 color;
 };
 
 struct PointLight {
     vec3 position;
+    vec3 color;
+    float intensity;
 
     float constant;
     float linear;
     float quadratic;
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
 };
 
 #define NB_DIR_LIGHTS 2
@@ -71,8 +67,8 @@ vec3 calcDirLight(vec3 color, DirLight light, vec3 normal, vec3 viewDir)
     lightDir = vec3(lightDir.z, lightDir.y, lightDir.x);
     float diff = max(dot(normal, lightDir), 0.0f);
 
-    vec3 ambient = light.ambient * 0.5f;
-    vec3 diffuse = light.diffuse * diff;
+    vec3 ambient = light.color * 0.5f;
+    vec3 diffuse = light.color * diff;
     return (ambient + diffuse) * color;
 }
 

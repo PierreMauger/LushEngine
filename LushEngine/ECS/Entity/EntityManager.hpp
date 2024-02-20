@@ -26,6 +26,7 @@ namespace Lush
             bool hasEntity(std::size_t index);
 
             std::size_t getEntityIndex(const std::string &name);
+            Entity &getEntity(const std::string &name);
             Entity &getEntity(std::size_t index);
 
             std::map<std::size_t, Entity> &getEntities();

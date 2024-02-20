@@ -128,12 +128,9 @@ void Scene::loadLight(rapidxml::xml_node<> *node, Entity &entity)
 {
     Light light;
     if (node->first_attribute("type")) {
-        for (int i = 0; i < LightType::LIGHT_TYPE_COUNT; i++) {
-            if (strcmp(lightTypeNames[i], node->first_attribute("type")->value()) == 0) {
-                light.type = (LightType)i;
-                break;
-            }
-        }
+        auto it = std::find_if(std::begin(lightTypeNames), std::end(lightTypeNames), [&node](const std::string &name) { return name == node->first_attribute("type")->value(); });
+        if (it != std::end(lightTypeNames))
+            light.type = (LightType)(it - std::begin(lightTypeNames));
     }
     if (node->first_attribute("color"))
         std::sscanf(node->first_attribute("color")->value(), "%f %f %f", &light.color.x, &light.color.y, &light.color.z);
@@ -189,12 +186,9 @@ void Scene::loadCollider(rapidxml::xml_node<> *node, Entity &entity)
 {
     Collider collider;
     if (node->first_attribute("type")) {
-        for (int i = 0; i < ColliderType::COLLIDER_TYPE_COUNT; i++) {
-            if (strcmp(colliderTypeNames[i], node->first_attribute("type")->value()) == 0) {
-                collider.type = (ColliderType)i;
-                break;
-            }
-        }
+        auto it = std::find_if(std::begin(colliderTypeNames), std::end(colliderTypeNames), [&node](const std::string &name) { return name == node->first_attribute("type")->value(); });
+        if (it != std::end(colliderTypeNames))
+            collider.type = (ColliderType)(it - std::begin(colliderTypeNames));
     }
     if (node->first_attribute("center"))
         std::sscanf(node->first_attribute("center")->value(), "%f %f %f", &collider.center.x, &collider.center.y, &collider.center.z);

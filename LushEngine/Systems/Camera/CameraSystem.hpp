@@ -23,6 +23,8 @@ namespace Lush
             std::vector<std::pair<Transform, Light>> _spotLights;
             // std::vector<std::pair<Transform, Light>> _areaLights;
 
+            void drawShadowMap(std::shared_ptr<EntityManager> &entityManager, Entity lightEntity);
+
         public:
             explicit CameraSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
             ~CameraSystem() override = default;

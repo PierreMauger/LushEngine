@@ -54,6 +54,15 @@ std::size_t EntityManager::getEntityIndex(const std::string &name)
     throw std::runtime_error("getEntityIndex: Entity not found " + name);
 }
 
+Entity &EntityManager::getEntity(const std::string &name)
+{
+    auto it = std::ranges::find_if(this->_entities, [&name](const auto &pair) { return pair.second.getName() == name; });
+
+    if (it != this->_entities.end())
+        return it->second;
+    throw std::runtime_error("getEntity: Entity not found " + name);
+}
+
 Entity &EntityManager::getEntity(std::size_t index)
 {
     if (!this->_entities.contains(index))

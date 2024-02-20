@@ -60,21 +60,17 @@ struct Base {
 
 struct DirLight {
     vec3 direction;
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    vec3 color;
 };
 
 struct PointLight {
     vec3 position;
+    vec3 color;
+    float intensity;
 
     float constant;
     float linear;
     float quadratic;
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
 };
 
 #define NB_DIR_LIGHTS 2
@@ -108,9 +104,9 @@ vec3 calcDirLight(Base object, DirLight light, vec3 normal, vec3 viewDir)
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), object.shininess);
     // combine results
 
-    vec3 ambient = light.ambient * 0.5f;
-    vec3 diffuse = light.diffuse * diff;
-    vec3 specular = light.specular * spec * object.specular;
+    vec3 ambient = light.color * 0.5f;
+    vec3 diffuse = light.color * diff;
+    vec3 specular = light.color * spec * object.specular;
     return (ambient + diffuse + specular) * object.diffuse;
 }
 
@@ -123,15 +119,15 @@ vec3 calcPointLight(Base object, PointLight light, vec3 normal, vec3 fragPos, ve
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), object.shininess);
     // attenuation
-    float distance = length(light.position - fragPos);
+    float distance = length(light.position - fragPos) / light.intensity;
+    // float attenuation = 1.0f / (light.constant + light.linear * sqrt(distance) + light.quadratic * distance);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     // combine results
-    vec3 ambient = light.ambient * 0.2f;
-    vec3 diffuse = light.diffuse * diff;
-    vec3 specular = light.specular * spec * object.specular;
+    vec3 ambient = light.color * 0.2f;
+    vec3 diffuse = light.color * diff;
+    vec3 specular = light.color * spec * object.specular;
     return (ambient + diffuse + specular) * object.diffuse * attenuation;
 }
-
 float calcShadow(vec4 fragPosLightSpace)
 {
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
