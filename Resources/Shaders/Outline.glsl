@@ -34,7 +34,8 @@ void main()
         // if the pixel isn't white, we are on the object silhouette
         if (obj != vec3(0.0f)) {
             vec2 size = 1.0f / textureSize(silhouette, 0);
-
+            bool colored = sin((TexCoords.x + TexCoords.y) * 500.0f) > 0.0f;
+            FragColor = vec4(vec3(1.0f), colored ? 0.75f : 0.0f);
             for (int i = -w; i <= +w; i++)  {
                 for (int j = -w; j <= +w; j++) {
                     if (i == 0 && j == 0)
@@ -43,7 +44,7 @@ void main()
 
                     // if one of the pixel-neighbor isn't the hovered object, we are on the border
                     if (texture(silhouette, TexCoords + offset).rgb != obj) {
-                        FragColor = vec4(vec3(1.0f), 1.0f);
+                        FragColor = vec4(1.0f);
                         return;
                     }
                 }

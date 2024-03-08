@@ -244,7 +244,7 @@ void ResourceManager::initScriptInstances(std::shared_ptr<EntityManager> &entity
         }
     }
     for (auto &instance : this->_scriptInstances)
-        instance.init();
+        instance.onInit();
 }
 
 void ResourceManager::initPhysicInstances(std::shared_ptr<EntityManager> &entityManager)

@@ -8,6 +8,7 @@ ScriptInstance::ScriptInstance(ScriptClass &script, std::size_t id, std::unorder
     this->_ctor = script.getMethod("ctor");
     this->_onInit = script.getMethod("onInit");
     this->_onUpdate = script.getMethod("onUpdate");
+    this->_onDestroy = script.getMethod("onDestroy");
     this->_onCollisionEnter = script.getMethod("onCollisionEnter");
     this->_onCollisionStay = script.getMethod("onCollisionStay");
     this->_onCollisionExit = script.getMethod("onCollisionExit");
@@ -77,7 +78,7 @@ void ScriptInstance::setFieldValueInternal(const std::string &name, void *value)
     mono_field_set_value(this->_instance, field.field, value);
 }
 
-void ScriptInstance::init()
+void ScriptInstance::onInit()
 {
     for (auto &[name, value] : this->_defaultFields) {
         std::string type = this->_class.getFields()[name].type;
@@ -94,12 +95,20 @@ void ScriptInstance::init()
     }
 }
 
-void ScriptInstance::update(float time)
+void ScriptInstance::onUpdate(float time)
 {
     if (this->_onUpdate) {
         void *args[1];
         args[0] = &time;
         mono_runtime_invoke(this->_onUpdate, this->_instance, args, nullptr);
+    }
+}
+
+void ScriptInstance::onDestroy()
+{
+    if (this->_onDestroy) {
+        void *args[0];
+        mono_runtime_invoke(this->_onDestroy, this->_instance, args, nullptr);
     }
 }
 

@@ -15,6 +15,7 @@ namespace Lush
             MonoMethod *_ctor;
             MonoMethod *_onInit;
             MonoMethod *_onUpdate;
+            MonoMethod *_onDestroy;
             MonoMethod *_onCollisionEnter;
             MonoMethod *_onCollisionStay;
             MonoMethod *_onCollisionExit;
@@ -45,13 +46,12 @@ namespace Lush
                 this->setFieldValueInternal(name, &value);
             }
 
-            void init();
-            void update(float time);
+            void onInit();
+            void onUpdate(float time);
+            void onDestroy();
             void onCollisionEnter(std::size_t id);
             void onCollisionStay(std::size_t id);
             void onCollisionExit(std::size_t id);
-            void destroy();
-            bool isDestroyed();
     };
 }
 

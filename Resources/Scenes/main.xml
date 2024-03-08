@@ -15,7 +15,7 @@
         <Billboard name="DirectionalLight.png" />
       </Components>
     </Entity>
-    <Entity id="2" name="Skybox">
+    <Entity id="9" name="Skybox">
       <Components>
         <Cubemap name="LearnOpenGL" />
       </Components>

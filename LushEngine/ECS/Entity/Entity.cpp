@@ -6,6 +6,11 @@ Entity::Entity()
 {
 }
 
+const UUID &Entity::getUUID() const
+{
+    return this->_uuid;
+}
+
 const std::string &Entity::getName() const
 {
     return this->_name;

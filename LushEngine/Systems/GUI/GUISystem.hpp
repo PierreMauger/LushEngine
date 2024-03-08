@@ -83,7 +83,7 @@ namespace Lush
 
             void drawSceneHierarchy(std::shared_ptr<EntityManager> &entityManager);
             void drawProperties(std::shared_ptr<EntityManager> &entityManager);
-            void drawTools();
+            // void drawTools();
             void drawConsole();
             void drawGame();
             void drawScene(std::shared_ptr<EntityManager> &entityManager);

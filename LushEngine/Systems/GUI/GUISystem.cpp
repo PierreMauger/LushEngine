@@ -87,8 +87,6 @@ void GUISystem::update(std::shared_ptr<EntityManager> &entityManager, float delt
         this->drawSceneHierarchy(entityManager);
     if (this->_showProperties)
         this->drawProperties(entityManager);
-    if (this->_showTools)
-        this->drawTools();
     if (this->_showConsole)
         this->drawConsole();
     if (this->_showGame)
@@ -281,60 +279,58 @@ void GUISystem::drawSceneHierarchy(std::shared_ptr<EntityManager> &entityManager
         ImGui::End();
         return;
     }
-    if (ImGui::BeginTable("Entities", 3, ImGuiTableFlags_Resizable)) {
-        ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 30.0f);
-        ImGui::TableSetupColumn("Name");
-        ImGui::TableSetupColumn("##Actions", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 20.0f);
-        ImGui::TableHeadersRow();
+    for (auto it = entityManager->getEntities().begin(); it != entityManager->getEntities().end(); ++it) {
+        auto &[id, entity] = *it;
+        ImGui::PushID(entity.getUUID().toString().c_str());
+        ImGui::Selectable("##", id == this->_graphic->getSelectedEntity(), ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2(0, 20));
 
-        for (auto &[id, entity] : entityManager->getEntities()) {
-            ImGui::TableNextRow();
-
-            ImGui::TableNextColumn();
-            ImGui::PushID(id);
-            ImGui::Selectable("##Select", id == this->_graphic->getSelectedEntity(), ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2(0, 20));
-            if (ImGui::IsItemClicked())
-                this->_graphic->setSelectedEntity(id);
-            ImGui::SameLine();
-            ImGui::Text("%lu", id);
-            ImGui::TableNextColumn();
-            char buf[256];
-            snprintf(buf, 256, "%s", entity.getName().c_str());
-            if (ImGui::InputText("##Name", buf, 256, ImGuiInputTextFlags_EnterReturnsTrue)) {
-                entity.setName(buf);
-                std::cout << "[Toast Info]Entity renamed to " << entity.getName() << std::endl;
+        if (ImGui::IsItemClicked())
+            this->_graphic->setSelectedEntity(id);
+        if (ImGui::IsItemActive() && !ImGui::IsItemHovered()) {
+            int swap = ImGui::GetMouseDragDelta(0).y < 0.f ? -1 : 1;
+            auto nextIt = std::next(it, swap);
+            if (nextIt != entityManager->getEntities().end()) {
+                auto &[nextId, nextEntity] = *nextIt;
+                std::swap(entityManager->getEntities()[id], entityManager->getEntities()[nextId]);
+                this->_graphic->setSelectedEntity(nextId);
+                ImGui::ResetMouseDragDelta();
             }
-            ImGui::TableNextColumn();
-
-            if (ImGui::Button(ICON_FA_TRASH "##Delete")) {
-                if (this->_graphic->isRunning()) {
-                    for (auto &[scriptName, index] : entity.getScriptIndexes()) {
-                        // this->_resourceManager->getScriptInstances()[index].onDestroy();
-                        this->_resourceManager->getScriptInstances().erase(this->_resourceManager->getScriptInstances().begin() + index);
-                    }
-                    auto physicIt = std::find_if(this->_resourceManager->getPhysicInstances().begin(), this->_resourceManager->getPhysicInstances().end(),
-                                                 [id](const auto &instance) { return instance->getId() == id; });
-                    if (physicIt != this->_resourceManager->getPhysicInstances().end()) {
-                        (*physicIt)->removeFromWorld(this->_resourceManager->getDynamicsWorld());
-                        this->_resourceManager->getPhysicInstances().erase(physicIt);
-                    }
+        }
+        ImGui::SameLine(0, 0);
+        char buf[256];
+        snprintf(buf, 256, "%s", entity.getName().c_str());
+        if (ImGui::InputText(" ##Name", buf, 256, ImGuiInputTextFlags_EnterReturnsTrue)) {
+            entity.setName(buf);
+            std::cout << "[Toast Info]Entity renamed to " << entity.getName() << std::endl;
+        }
+        ImGui::SameLine(0, 0);
+        if (ImGui::Button(ICON_FA_TRASH "##Delete")) {
+            if (this->_graphic->isRunning()) {
+                for (auto &[scriptName, index] : entity.getScriptIndexes()) {
+                    this->_resourceManager->getScriptInstances()[index].onDestroy();
+                    this->_resourceManager->getScriptInstances().erase(this->_resourceManager->getScriptInstances().begin() + index);
                 }
-                entityManager->removeEntity(id);
-                ImGui::PopID();
-                break;
+                auto physicIt = std::find_if(this->_resourceManager->getPhysicInstances().begin(), this->_resourceManager->getPhysicInstances().end(),
+                                             [id](const auto &instance) { return instance->getId() == id; });
+                if (physicIt != this->_resourceManager->getPhysicInstances().end()) {
+                    (*physicIt)->removeFromWorld(this->_resourceManager->getDynamicsWorld());
+                    this->_resourceManager->getPhysicInstances().erase(physicIt);
+                }
             }
+            entityManager->removeEntity(id);
             ImGui::PopID();
+            break;
         }
-        ImGui::EndTable();
+        ImGui::PopID();
+    }
 
-        const float footerSize = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-        ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerSize), false, ImGuiWindowFlags_HorizontalScrollbar);
-        ImGui::EndChild();
-        ImGui::Separator();
-        if (ImGui::Button("Add New Entity")) {
-            Entity entity;
-            entityManager->addEntity(entity);
-        }
+    const float footerSize = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerSize), false, ImGuiWindowFlags_HorizontalScrollbar);
+    ImGui::EndChild();
+    ImGui::Separator();
+    if (ImGui::Button("Add New Entity")) {
+        Entity entity;
+        entityManager->addEntity(entity);
     }
     ImGui::End();
 }
@@ -687,34 +683,6 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
     ImGui::End();
 }
 
-void GUISystem::drawTools()
-{
-    if (!ImGui::Begin(ICON_FA_TOOLS " Tools", &this->_showTools)) {
-        ImGui::End();
-        return;
-    }
-    if (ImGui::RadioButton("Translate", this->_currentOperation == ImGuizmo::TRANSLATE))
-        this->_currentOperation = ImGuizmo::TRANSLATE;
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Rotate", this->_currentOperation == ImGuizmo::ROTATE))
-        this->_currentOperation = ImGuizmo::ROTATE;
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Scale", this->_currentOperation == ImGuizmo::SCALE))
-        this->_currentOperation = ImGuizmo::SCALE;
-    ImGui::SameLine();
-    if (this->_currentOperation != ImGuizmo::SCALE) {
-        ImGui::Text("|");
-        ImGui::SameLine();
-        if (ImGui::RadioButton("Local", this->_currentMode == ImGuizmo::LOCAL))
-            this->_currentMode = ImGuizmo::LOCAL;
-        ImGui::SameLine();
-        if (ImGui::RadioButton("Global", this->_currentMode == ImGuizmo::WORLD))
-            this->_currentMode = ImGuizmo::WORLD;
-    } else
-        this->_currentMode = ImGuizmo::LOCAL;
-    ImGui::End();
-}
-
 void GUISystem::drawConsole()
 {
     if (!ImGui::Begin(ICON_FA_TERMINAL " Console", &this->_showConsole)) {
@@ -792,9 +760,42 @@ void GUISystem::drawScene(std::shared_ptr<EntityManager> &entityManager)
     ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
 
     bool guizmoDrawn = false;
-    if (this->_showTools && entityManager->hasEntity(this->_graphic->getSelectedEntity()))
-        guizmoDrawn = this->drawGuizmo(entityManager);
+    if (this->_showTools) {
+        ImGui::SetCursorScreenPos(ImVec2(this->_graphic->getSceneViewPort().x + 10, this->_graphic->getSceneViewPort().y + 10));
+        if (ImGui::RadioButton("Translate", this->_currentOperation == ImGuizmo::TRANSLATE))
+            this->_currentOperation = ImGuizmo::TRANSLATE;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Rotate", this->_currentOperation == ImGuizmo::ROTATE))
+            this->_currentOperation = ImGuizmo::ROTATE;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Scale", this->_currentOperation == ImGuizmo::SCALE))
+            this->_currentOperation = ImGuizmo::SCALE;
+        if (this->_currentOperation != ImGuizmo::SCALE) {
+            ImGui::SameLine();
+            ImGui::Text("|");
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Local", this->_currentMode == ImGuizmo::LOCAL))
+                this->_currentMode = ImGuizmo::LOCAL;
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Global", this->_currentMode == ImGuizmo::WORLD))
+                this->_currentMode = ImGuizmo::WORLD;
+        } else
+            this->_currentMode = ImGuizmo::LOCAL;
 
+        if (entityManager->hasEntity(this->_graphic->getSelectedEntity()))
+            guizmoDrawn = this->drawGuizmo(entityManager);
+
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_T)))
+            this->_currentOperation = ImGuizmo::TRANSLATE;
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_R)))
+            this->_currentOperation = ImGuizmo::ROTATE;
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_S)))
+            this->_currentOperation = ImGuizmo::SCALE;
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_L)))
+            this->_currentMode = ImGuizmo::LOCAL;
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_G)))
+            this->_currentMode = ImGuizmo::WORLD;
+    }
     this->_graphic->setSceneHovered(ImGui::IsWindowHovered() && !(ImGuizmo::IsOver() && guizmoDrawn));
 
     if (ImGui::BeginDragDropTarget()) {

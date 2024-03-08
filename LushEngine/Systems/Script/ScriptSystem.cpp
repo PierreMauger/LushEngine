@@ -13,7 +13,7 @@ void ScriptSystem::update([[maybe_unused]] std::shared_ptr<EntityManager> &entit
     if (this->_graphic->isPaused() || !this->_graphic->isRunning())
         return;
     for (auto &instance : this->_resourceManager->getScriptInstances()) {
-        instance.update(this->getDeltaTime());
+        instance.onUpdate(this->getDeltaTime());
         if (this->_resourceManager->isSceneChanged()) {
             this->_resourceManager->setSceneChanged(false);
             return;
