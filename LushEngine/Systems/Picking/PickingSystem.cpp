@@ -5,8 +5,7 @@ using namespace Lush;
 PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
     : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
-    Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
-    this->_graphic->getFrameBuffers()["picking"] = this->_buffer;
+    Shapes::setupFrameBuffer(this->_graphic->getFrameBuffers()["picking"], this->_graphic->getWindowSize());
 
     Shapes::setupBillboard(this->_billboard);
     Shapes::setupPlane(this->_plane);
@@ -14,7 +13,6 @@ PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<R
 
 PickingSystem::~PickingSystem()
 {
-    Shapes::deleteFrameBuffer(this->_buffer);
     Shapes::deleteBufferObject(this->_billboard);
     Shapes::deleteBufferObject(this->_plane);
 }
@@ -23,7 +21,7 @@ void PickingSystem::update(std::shared_ptr<EntityManager> &entityManager, float 
 {
     glm::vec4 viewport = this->_graphic->getSceneViewPort();
     glm::vec2 windowSize = this->_graphic->getWindowSize();
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()["picking"].framebuffer);
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -101,7 +99,7 @@ void PickingSystem::drawOutline(std::size_t pixel)
     glEnable(GL_BLEND);
     this->_graphic->getRenderView().use("Outline");
     this->_graphic->getRenderView().getShader().setInt("id", (int)pixel);
-    glBindTexture(GL_TEXTURE_2D, this->_buffer.texture);
+    glBindTexture(GL_TEXTURE_2D, this->_graphic->getFrameBuffers()["picking"].texture);
     glBindVertexArray(this->_plane.vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);

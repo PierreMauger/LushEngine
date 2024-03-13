@@ -16,7 +16,6 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
             std::shared_ptr<ResourceManager> _resourceManager;
 
-            FrameBuffer _buffer{};
             BufferObject _skybox{};
             BufferObject _billboard{};
 

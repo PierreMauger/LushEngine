@@ -20,6 +20,8 @@
 #define BUTTON_COLOR_DISABLED ImVec4(0.26f, 0.59f, 0.98f, 0.10f)
 #define BUTTON_COLOR_RED ImVec4(0.98f, 0.26f, 0.26f, 0.40f)
 
+#define DOCUMENTATION_URL "https://lush-engine.gitbook.io/lush-engine"
+
 namespace Lush
 {
     struct ProjectSettings {
@@ -58,6 +60,7 @@ namespace Lush
             bool _showProjectManager = false;
             bool _showBuildBrowser = false;
             bool _showRootBrowser = false;
+            bool _showAbout = false;
 
             bool _resetLayout = false;
             bool _singleFrame = false;
@@ -87,10 +90,11 @@ namespace Lush
             void drawConsole();
             void drawGame();
             void drawScene(std::shared_ptr<EntityManager> &entityManager);
-            bool drawGuizmo(std::shared_ptr<EntityManager> &entityManager);
+            bool drawGuizmo(Entity &entity);
             void drawFileExplorer();
             void drawProfiler();
             void drawProjectManager(std::shared_ptr<EntityManager> &entityManager);
+            void drawAbout();
             std::size_t getPhysicInstanceIndex(std::size_t entityId);
             bool drawTextureSelect(const std::string &fieldName, std::string &texture);
 

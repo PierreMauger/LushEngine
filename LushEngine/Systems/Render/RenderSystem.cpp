@@ -5,8 +5,7 @@ using namespace Lush;
 RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
     : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
-    Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
-    this->_graphic->getFrameBuffers()["render"] = this->_buffer;
+    Shapes::setupFrameBuffer(this->_graphic->getFrameBuffers()["render"], this->_graphic->getWindowSize());
 
     Shapes::setupSkybox(this->_skybox);
     Shapes::setupBillboard(this->_billboard);
@@ -14,7 +13,6 @@ RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Res
 
 RenderSystem::~RenderSystem()
 {
-    Shapes::deleteFrameBuffer(this->_buffer);
     Shapes::deleteBufferObject(this->_skybox);
     Shapes::deleteBufferObject(this->_billboard);
 }
@@ -22,7 +20,7 @@ RenderSystem::~RenderSystem()
 void RenderSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
     this->_graphic->getRenderView().setAspectRatio(this->_graphic->getGameViewPort().z / this->_graphic->getGameViewPort().w);
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()["render"].framebuffer);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

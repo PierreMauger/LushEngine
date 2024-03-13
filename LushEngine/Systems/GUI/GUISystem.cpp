@@ -99,6 +99,8 @@ void GUISystem::update(std::shared_ptr<EntityManager> &entityManager, float delt
         this->drawProfiler();
     if (this->_showProjectManager)
         this->drawProjectManager(entityManager);
+    if (this->_showAbout)
+        this->drawAbout();
 
     if (ImGui::Begin("Debug shadows")) {
         GLuint texture = this->_graphic->getFrameBuffers()["shadow"].texture;
@@ -124,6 +126,7 @@ void GUISystem::update(std::shared_ptr<EntityManager> &entityManager, float delt
         this->_showFileExplorer = true;
         this->_showProfiler = true;
         this->_showProjectManager = false;
+        this->_showAbout = false;
     }
 }
 
@@ -213,6 +216,15 @@ void GUISystem::drawMenuBar()
         if (ImGui::BeginMenu("View")) {
             if (ImGui::MenuItem(ICON_FA_BORDER_ALL " Wireframe"))
                 this->_graphic->setWireframe(!this->_graphic->isWireframe());
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Help")) {
+            if (ImGui::MenuItem("About"))
+                this->_showAbout = true;
+            if (ImGui::MenuItem("Open Documentation")) {
+                std::cout << "[Toast Info]Opening documentation in browser" << std::endl;
+                std::system("xdg-open " DOCUMENTATION_URL);
+            }
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
@@ -829,9 +841,10 @@ void GUISystem::drawScene(std::shared_ptr<EntityManager> &entityManager)
                 this->_currentMode = ImGuizmo::WORLD;
         } else
             this->_currentMode = ImGuizmo::LOCAL;
-
+        ImGuizmo::BeginFrame();
+        ImGuizmo::SetDrawlist();
         if (entityManager->hasEntity(this->_graphic->getSelectedEntity()))
-            guizmoDrawn = this->drawGuizmo(entityManager);
+            guizmoDrawn = this->drawGuizmo(entityManager->getEntity(this->_graphic->getSelectedEntity()));
 
         if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_T)))
             this->_currentOperation = ImGuizmo::TRANSLATE;
@@ -843,6 +856,11 @@ void GUISystem::drawScene(std::shared_ptr<EntityManager> &entityManager)
             this->_currentMode = ImGuizmo::LOCAL;
         if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_G)))
             this->_currentMode = ImGuizmo::WORLD;
+
+        glm::mat4 view = this->_graphic->getRenderView().getView();
+        glm::vec4 viewport = this->_graphic->getSceneViewPort();
+        ImGuizmo::ViewManipulate(glm::value_ptr(view), 10.0f, ImVec2(viewport.x + viewport.z - 128, viewport.y), ImVec2(128, 128), 0x10101010);
+        // ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(view), glm::value_ptr(transform.position), glm::value_ptr(transform.rotation), glm::value_ptr(transform.scale));
     }
     this->_graphic->setSceneHovered(ImGui::IsWindowHovered() && !(ImGuizmo::IsOver() && guizmoDrawn));
 
@@ -863,14 +881,11 @@ void GUISystem::drawScene(std::shared_ptr<EntityManager> &entityManager)
     ImGui::End();
 }
 
-bool GUISystem::drawGuizmo(std::shared_ptr<EntityManager> &entityManager)
+bool GUISystem::drawGuizmo(Entity &entity)
 {
-    ImGuizmo::BeginFrame();
-
-    Entity &selectedEntity = entityManager->getEntity(this->_graphic->getSelectedEntity());
-    if (!selectedEntity.hasComponent<Transform>())
+    if (!entity.hasComponent<Transform>())
         return false;
-    Transform &transform = selectedEntity.getComponent<Transform>();
+    Transform &transform = entity.getComponent<Transform>();
 
     glm::vec4 viewport = this->_graphic->getSceneViewPort();
     glm::mat4 view = this->_graphic->getRenderView().getView();
@@ -880,7 +895,6 @@ bool GUISystem::drawGuizmo(std::shared_ptr<EntityManager> &entityManager)
     float snapValue = this->_currentOperation == ImGuizmo::ROTATE ? 45.0f : 0.5f;
     float snap[3] = {snapValue, snapValue, snapValue};
 
-    ImGuizmo::SetDrawlist();
     ImGuizmo::SetRect(viewport.x, viewport.y, viewport.z, viewport.w);
     ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(transform.position), glm::value_ptr(transform.rotation), glm::value_ptr(transform.scale), glm::value_ptr(model));
     ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), this->_currentOperation, this->_currentMode, glm::value_ptr(model), nullptr,
@@ -955,12 +969,19 @@ void GUISystem::drawProfiler()
     ImGui::End();
 }
 
+void GUISystem::drawAbout()
+{
+    if (!ImGui::Begin(ICON_FA_INFO_CIRCLE " About", &this->_showAbout, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse)) {
+        ImGui::End();
+        return;
+    }
+    ImGui::Text("LushEngine");
+    ImGui::End();
+}
+
 bool GUISystem::openFolderBrowser(std::string title, std::string &path, bool &modal)
 {
-    ImGuiWindowClass windowClass;
-    windowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingOverOther | ImGuiDockNodeFlags_NoDockingSplitOther;
-    ImGui::SetNextWindowClass(&windowClass);
-    if (!ImGui::Begin(title.c_str(), &this->_showRootBrowser)) {
+    if (!ImGui::Begin(title.c_str(), &this->_showRootBrowser, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking)) {
         ImGui::End();
         return false;
     }

@@ -11,8 +11,7 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Resou
     this->_camera.forward.z = std::sin(glm::radians(this->_cameraTransform.rotation.x)) * std::cos(glm::radians(this->_cameraTransform.rotation.y));
     this->_camera.far = 1000.0f;
 
-    Shapes::setupFrameBuffer(this->_buffer, this->_graphic->getWindowSize());
-    this->_graphic->getFrameBuffers()["scene"] = this->_buffer;
+    Shapes::setupFrameBuffer(this->_graphic->getFrameBuffers()["scene"], this->_graphic->getWindowSize());
 
     Shapes::setupSkybox(this->_skybox);
     Shapes::setupBillboard(this->_billboard);
@@ -25,17 +24,18 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Resou
 
 SceneSystem::~SceneSystem()
 {
-    Shapes::deleteFrameBuffer(this->_buffer);
     Shapes::deleteBufferObject(this->_skybox);
     Shapes::deleteBufferObject(this->_billboard);
     Shapes::deleteBufferObject(this->_grid);
+    Shapes::deleteBufferObject(this->_cameraFrustum);
+    Shapes::deleteBufferObject(this->_sphere);
 }
 
 void SceneSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
     this->_graphic->getRenderView().setAspectRatio(this->_graphic->getSceneViewPort().z / this->_graphic->getSceneViewPort().w);
     this->_graphic->getRenderView().update(this->_cameraTransform, this->_camera);
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_buffer.framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()["scene"].framebuffer);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

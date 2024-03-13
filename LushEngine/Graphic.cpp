@@ -28,6 +28,8 @@ Graphic::Graphic(int sizeX, int sizeY, const std::string &title) : _renderView((
 
 Graphic::~Graphic()
 {
+    for (auto &[name, buffer] : this->_frameBuffers)
+        Shapes::deleteFrameBuffer(buffer);
     for (auto &cursor : this->_cursors)
         glfwDestroyCursor(cursor);
     glfwDestroyWindow(this->_window);
@@ -87,7 +89,7 @@ void Graphic::handleResizeFramebuffer(int width, int height)
 
     for (auto [name, fb] : this->_frameBuffers) {
         if (!fb.resizable)
-            continue;;
+            continue;
         glBindTexture(GL_TEXTURE_2D, fb.texture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
         glBindTexture(GL_TEXTURE_2D, 0);

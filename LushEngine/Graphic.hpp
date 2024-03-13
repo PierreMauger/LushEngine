@@ -7,11 +7,12 @@
 #include "File/File.hpp"
 #include "File/Resource.hpp"
 #include "Includes.hpp"
-#include "Rendering/Skybox.hpp"
 #include "Rendering/MapMesh.hpp"
 #include "Rendering/RenderModel.hpp"
 #include "Rendering/RenderView.hpp"
 #include "Rendering/Shader.hpp"
+#include "Rendering/Shapes.hpp"
+#include "Rendering/Skybox.hpp"
 #include "Rendering/Texture.hpp"
 #include "Scene.hpp"
 
@@ -86,7 +87,7 @@ namespace Lush
             glm::vec4 getGameViewPort() const;
             void setSceneViewPort(glm::vec4 viewPort);
             glm::vec4 getSceneViewPort() const;
-//            void setWindowSize(glm::vec2 windowSize);
+            //            void setWindowSize(glm::vec2 windowSize);
             glm::vec2 getWindowSize() const;
 
             void setLogo(Texture &logo);
