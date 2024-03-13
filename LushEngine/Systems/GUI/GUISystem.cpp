@@ -279,23 +279,51 @@ void GUISystem::drawSceneHierarchy(std::shared_ptr<EntityManager> &entityManager
         ImGui::End();
         return;
     }
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 4);
+    ImGui::Dummy(ImVec2(ImGui::GetWindowWidth() / 2, 4));
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 4);
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("ENTITY")) {
+            int draggedEntityId = *(const int *)payload->Data;
+            auto draggedEntityIt = entityManager->getEntities().find(draggedEntityId);
+            if (draggedEntityIt != entityManager->getEntities().end()) {
+                for (auto swapIt = draggedEntityIt; swapIt != entityManager->getEntities().begin(); --swapIt)
+                    std::swap(swapIt->second, std::prev(swapIt)->second);
+                this->_graphic->setSelectedEntity(entityManager->getEntities().begin()->first);
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
     for (auto it = entityManager->getEntities().begin(); it != entityManager->getEntities().end(); ++it) {
         auto &[id, entity] = *it;
         ImGui::PushID(entity.getUUID().toString().c_str());
         ImGui::Selectable("##", id == this->_graphic->getSelectedEntity(), ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2(0, 20));
+        // ImGui::SameLine(0, 0);
+        // bool isNodeOpen = ImGui::TreeNodeEx("##Dropdown", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick);
+
+        if (ImGui::BeginDragDropSource()) {
+            ImGui::SetDragDropPayload("ENTITY", &id, sizeof(int));
+            ImGui::Text("%s", entity.getName().c_str());
+            ImGui::EndDragDropSource();
+        }
+
+        if (ImGui::BeginDragDropTarget()) {
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("ENTITY")) {
+                int draggedEntityId = *(const int *)payload->Data;
+                auto draggedEntityIt = entityManager->getEntities().find(draggedEntityId);
+                if (draggedEntityIt != entityManager->getEntities().end()) {
+                    std::swap(entityManager->getEntities()[id], draggedEntityIt->second);
+                    this->_graphic->setSelectedEntity(id);
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+        // if (isNodeOpen) {
+        // ImGui::TreePop();
+        // }
 
         if (ImGui::IsItemClicked())
             this->_graphic->setSelectedEntity(id);
-        if (ImGui::IsItemActive() && !ImGui::IsItemHovered()) {
-            int swap = ImGui::GetMouseDragDelta(0).y < 0.f ? -1 : 1;
-            auto nextIt = std::next(it, swap);
-            if (nextIt != entityManager->getEntities().end()) {
-                auto &[nextId, nextEntity] = *nextIt;
-                std::swap(entityManager->getEntities()[id], entityManager->getEntities()[nextId]);
-                this->_graphic->setSelectedEntity(nextId);
-                ImGui::ResetMouseDragDelta();
-            }
-        }
         ImGui::SameLine(0, 0);
         char buf[256];
         snprintf(buf, 256, "%s", entity.getName().c_str());
@@ -304,6 +332,7 @@ void GUISystem::drawSceneHierarchy(std::shared_ptr<EntityManager> &entityManager
             std::cout << "[Toast Info]Entity renamed to " << entity.getName() << std::endl;
         }
         ImGui::SameLine(0, 0);
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 28);
         if (ImGui::Button(ICON_FA_TRASH "##Delete")) {
             if (this->_graphic->isRunning()) {
                 for (auto &[scriptName, index] : entity.getScriptIndexes()) {
@@ -320,6 +349,25 @@ void GUISystem::drawSceneHierarchy(std::shared_ptr<EntityManager> &entityManager
             entityManager->removeEntity(id);
             ImGui::PopID();
             break;
+        }
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 4);
+        ImGui::Dummy(ImVec2(ImGui::GetWindowWidth() / 2, 4));
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 4);
+        if (ImGui::BeginDragDropTarget()) {
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("ENTITY")) {
+                int draggedEntityId = *(const int *)payload->Data;
+                auto draggedEntityIt = entityManager->getEntities().find(draggedEntityId);
+                if (draggedEntityIt != entityManager->getEntities().end() && draggedEntityId != id) {
+                    int direction = draggedEntityId < id ? 1 : -1;
+                    auto end = it;
+                    if (direction == -1)
+                        end = std::next(end);
+                    for (auto swapIt = draggedEntityIt; swapIt != end; swapIt = std::next(swapIt, direction))
+                        std::swap(swapIt->second, std::next(swapIt, direction)->second);
+                    this->_graphic->setSelectedEntity(end->first);
+                }
+            }
+            ImGui::EndDragDropTarget();
         }
         ImGui::PopID();
     }
