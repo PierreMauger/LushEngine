@@ -1,5 +1,5 @@
-#ifndef GAME_SYSTEM_HPP
-#define GAME_SYSTEM_HPP
+#ifndef POST_PROCESSING_SYSTEM_HPP
+#define POST_PROCESSING_SYSTEM_HPP
 
 #include "ECS/Component/Component.hpp"
 #include "ECS/System/ASystem.hpp"
@@ -10,7 +10,7 @@
 
 namespace Lush
 {
-    class GameSystem : public ASystem
+    class PostProcessingSystem : public ASystem
     {
         private:
             std::shared_ptr<Graphic> _graphic;
@@ -19,11 +19,11 @@ namespace Lush
             BufferObject _screen{};
 
         public:
-            GameSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
-            ~GameSystem() override = default;
+            PostProcessingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);
+            ~PostProcessingSystem() override = default;
 
             void update(std::shared_ptr<EntityManager> &entityManager, float deltaTime) override;
     };
 }
 
-#endif // GAME_SYSTEM_HPP
+#endif // POST_PROCESSING_SYSTEM_HPP

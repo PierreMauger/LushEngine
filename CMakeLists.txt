@@ -87,7 +87,7 @@ set(EDITOR_SOURCE_FILES
 
 # Source files specific to lushGame
 set(GAME_SOURCE_FILES
-    ${PROJECT_NAME}/Systems/Game/GameSystem.cpp
+    ${PROJECT_NAME}/Systems/PostProcessing/PostProcessingSystem.cpp
 )
 
 # Common libraries

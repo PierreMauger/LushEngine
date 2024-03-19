@@ -33,6 +33,7 @@ namespace Lush
             bool _drawWireframe = false;
             bool _running = false;
             bool _paused = false;
+            bool _postProcessing = true;
 
             std::size_t _hoveredEntity = 0;
             std::size_t _selectedEntity = -1;
@@ -68,6 +69,8 @@ namespace Lush
             bool isRunning() const;
             void setPaused(bool paused);
             bool isPaused() const;
+            void setPostProcessing(bool PostProcessing);
+            bool isPostProcessing() const;
 
             void setHoveredEntity(std::size_t hoveredEntity);
             void setSelectedEntity(std::size_t selectedEntity);
@@ -87,7 +90,7 @@ namespace Lush
             glm::vec4 getGameViewPort() const;
             void setSceneViewPort(glm::vec4 viewPort);
             glm::vec4 getSceneViewPort() const;
-            //            void setWindowSize(glm::vec2 windowSize);
+            // void setWindowSize(glm::vec2 windowSize);
             glm::vec2 getWindowSize() const;
 
             void setLogo(Texture &logo);

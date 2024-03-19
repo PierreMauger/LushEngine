@@ -12,6 +12,7 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Resou
     this->_camera.far = 1000.0f;
 
     Shapes::setupFrameBuffer(this->_graphic->getFrameBuffers()["scene"], this->_graphic->getWindowSize());
+    Shapes::setupFrameBuffer(this->_graphic->getFrameBuffers()["final"], this->_graphic->getWindowSize());
 
     Shapes::setupSkybox(this->_skybox);
     Shapes::setupBillboard(this->_billboard);
@@ -33,14 +34,14 @@ SceneSystem::~SceneSystem()
 
 void SceneSystem::update(std::shared_ptr<EntityManager> &entityManager, float deltaTime)
 {
+    this->handleMouse();
+
     this->_graphic->getRenderView().setAspectRatio(this->_graphic->getSceneViewPort().z / this->_graphic->getSceneViewPort().w);
     this->_graphic->getRenderView().update(this->_cameraTransform, this->_camera);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()["scene"].framebuffer);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    this->handleMouse();
 
     this->drawSkybox(entityManager);
     this->drawMap(entityManager);
@@ -51,6 +52,21 @@ void SceneSystem::update(std::shared_ptr<EntityManager> &entityManager, float de
     this->drawGrid();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    if (this->_graphic->isPostProcessing()) {
+        glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()["final"].framebuffer);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        this->_graphic->getRenderView().use("PostProcessing");
+        glBindVertexArray(this->_grid.vao);
+        glBindTexture(GL_TEXTURE_2D, this->_graphic->getFrameBuffers()["render"].texture);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 }
 
 void SceneSystem::generatePerlinTexture()

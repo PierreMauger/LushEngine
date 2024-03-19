@@ -28,9 +28,8 @@ Engine::Engine(bool isEditor) : _isEditor(isEditor)
     this->_ecs.getSystemManager().bindSystem<FileWatcherSystem>(this->_graphic, this->_resourceManager);
 
     this->_ecs.getEntityManager() = this->_resourceManager->getActiveScene().getEntityManager();
-    // this->_ecs.getEntityManager() = std::make_shared<EntityManager>(this->_resourceManager->getActiveScene().getEntityManager());
 #else
-    this->_ecs.getSystemManager().bindSystem<GameSystem>(this->_graphic, this->_resourceManager);
+    this->_ecs.getSystemManager().bindSystem<PostProcessingSystem>(this->_graphic, this->_resourceManager);
 
     this->_ecs.getEntityManager()->clone(*this->_resourceManager->getActiveScene().getEntityManager());
     this->_resourceManager->initScriptInstances(this->_ecs.getEntityManager());

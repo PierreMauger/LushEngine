@@ -164,6 +164,16 @@ bool Graphic::isPaused() const
     return this->_paused;
 }
 
+void Graphic::setPostProcessing(bool postProcessing)
+{
+    this->_postProcessing = postProcessing;
+}
+
+bool Graphic::isPostProcessing() const
+{
+    return this->_postProcessing;
+}
+
 void Graphic::setHoveredEntity(std::size_t hoveredEntity)
 {
     this->_hoveredEntity = hoveredEntity;

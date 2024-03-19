@@ -12,7 +12,7 @@
 #include "Systems/Camera/CameraSystem.hpp"
 #include "Systems/FileWatcher/FileWatcherSystem.hpp"
 #include "Systems/GUI/GUISystem.hpp"
-#include "Systems/Game/GameSystem.hpp"
+#include "Systems/PostProcessing/PostProcessingSystem.hpp"
 #include "Systems/Physic/PhysicSystem.hpp"
 #include "Systems/Picking/PickingSystem.hpp"
 #include "Systems/Render/RenderSystem.hpp"

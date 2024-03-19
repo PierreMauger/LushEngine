@@ -33,6 +33,7 @@ GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceM
     this->_fileExplorerPath = std::filesystem::current_path().string();
 
     this->loadProjectSettings();
+    Shapes::setupPlane(this->_screen);
 }
 
 GUISystem::~GUISystem()
@@ -214,8 +215,10 @@ void GUISystem::drawMenuBar()
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("View")) {
-            if (ImGui::MenuItem(ICON_FA_BORDER_ALL " Wireframe"))
+            if (ImGui::MenuItem(ICON_FA_BORDER_ALL " Wireframe", nullptr, this->_graphic->isWireframe()))
                 this->_graphic->setWireframe(!this->_graphic->isWireframe());
+            if (ImGui::MenuItem(ICON_FA_EYE " Post Processing", nullptr, this->_graphic->isPostProcessing()))
+                this->_graphic->setPostProcessing(!this->_graphic->isPostProcessing());
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Help")) {
@@ -796,7 +799,7 @@ void GUISystem::drawGame()
     const float headerSize = ImGui::GetStyle().WindowPadding.y * 2.0f;
     this->_graphic->setGameViewPort({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + headerSize, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y});
 
-    GLuint texture = this->_graphic->getFrameBuffers()["render"].texture;
+    GLuint texture = this->_graphic->getFrameBuffers()[this->_graphic->isPostProcessing() ? "final" : "render"].texture;
     ImGui::Image((void *)(intptr_t)texture, ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y), ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
 }
@@ -859,8 +862,13 @@ void GUISystem::drawScene(std::shared_ptr<EntityManager> &entityManager)
 
         glm::mat4 view = this->_graphic->getRenderView().getView();
         glm::vec4 viewport = this->_graphic->getSceneViewPort();
-        ImGuizmo::ViewManipulate(glm::value_ptr(view), 10.0f, ImVec2(viewport.x + viewport.z - 128, viewport.y), ImVec2(128, 128), 0x10101010);
-        // ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(view), glm::value_ptr(transform.position), glm::value_ptr(transform.rotation), glm::value_ptr(transform.scale));
+        ImVec2 cubePos(viewport.x + viewport.z - 128, viewport.y);
+        ImGuizmo::ViewManipulate(glm::value_ptr(view), 0.0f, cubePos, ImVec2(128, 128), 0x10101010);
+        if (ImGui::IsMouseHoveringRect(cubePos, ImVec2(cubePos.x + 128, cubePos.y + 128))) {
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+                // TODO move camera
+            }
+        }
     }
     this->_graphic->setSceneHovered(ImGui::IsWindowHovered() && !(ImGuizmo::IsOver() && guizmoDrawn));
 

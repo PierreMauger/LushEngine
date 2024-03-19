@@ -75,6 +75,8 @@ namespace Lush
             std::string _currentProject;
             std::string _editingProject;
 
+            BufferObject _screen{};
+
             void loadProjectSettings();
             void saveProjectSettings();
 
