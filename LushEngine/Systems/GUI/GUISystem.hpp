@@ -86,6 +86,7 @@ namespace Lush
             void drawMenuBar();
             void drawActionBar(std::shared_ptr<EntityManager> &entityManager);
 
+            void drawEntityInSceneHierarchy(std::shared_ptr<EntityManager> &entityManager, std::size_t id, Entity &entity);
             void drawSceneHierarchy(std::shared_ptr<EntityManager> &entityManager);
             void drawProperties(std::shared_ptr<EntityManager> &entityManager);
             // void drawTools();

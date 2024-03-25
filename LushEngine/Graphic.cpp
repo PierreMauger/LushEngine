@@ -14,6 +14,12 @@ Graphic::Graphic(int sizeX, int sizeY, const std::string &title) : _renderView((
     graphic = this;
     this->setGLFWContext(sizeX, sizeY, title);
 
+    this->_sceneCamera.first.position = glm::vec3(10.0f, 5.0f, 15.0f);
+    this->_sceneCamera.first.rotation = glm::vec3(-130.0f, -15.0f, 0.0f);
+    this->_sceneCamera.second.forward = glm::vec3(std::cos(glm::radians(-130.0f)) * std::cos(glm::radians(-15.0f)), std::sin(glm::radians(-15.0f)),
+                                                  std::sin(glm::radians(-130.0f)) * std::cos(glm::radians(-15.0f)));
+    this->_sceneCamera.second.far = 1000.0f;
+
     this->_mousePosition = glm::vec2(sizeX / 2, sizeY / 2);
     this->_gameViewPort = glm::vec4(0.0f, 0.0f, sizeX, sizeY);
     this->_sceneViewPort = glm::vec4(0.0f, 0.0f, sizeX, sizeY);
@@ -72,6 +78,9 @@ void Graphic::setCallBacks()
 
     auto mousePressCallback = [](GLFWwindow *w, int button, int action, int mods) { static_cast<Graphic *>(glfwGetWindowUserPointer(w))->handleMousePress(button, action, mods); };
     glfwSetMouseButtonCallback(this->_window, mousePressCallback);
+
+    auto mouseScrollCallback = [](GLFWwindow *w, double xoffset, double yoffset) { static_cast<Graphic *>(glfwGetWindowUserPointer(w))->handleMouseScroll(xoffset, yoffset); };
+    glfwSetScrollCallback(this->_window, mouseScrollCallback);
 }
 
 void Graphic::handleKeyboardPress(int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
@@ -102,16 +111,19 @@ void Graphic::handleResizeFramebuffer(int width, int height)
 
 void Graphic::handleMousePress(int button, int action, [[maybe_unused]] int mods)
 {
-    if (this->_sceneHovered && action == GLFW_PRESS) {
+    if (this->_sceneHovered && action == GLFW_PRESS)
         this->_mouseButton = button;
-        glfwSetCursor(this->_window, this->_cursors[button]);
-    }
     if (action == GLFW_RELEASE) {
         if (this->_sceneHovered && button == GLFW_MOUSE_BUTTON_LEFT)
             this->_selectedEntity = this->_hoveredEntity;
         this->_mouseButton = -1;
         glfwSetCursor(this->_window, nullptr);
     }
+}
+
+void Graphic::handleMouseScroll(double xoffset, double yoffset)
+{
+    this->_mouseScroll = yoffset;
 }
 
 GLFWwindow *Graphic::getWindow()
@@ -144,6 +156,16 @@ bool Graphic::isWireframe() const
     return this->_drawWireframe;
 }
 
+void Graphic::setPostProcessing(bool postProcessing)
+{
+    this->_postProcessing = postProcessing;
+}
+
+bool Graphic::isPostProcessing() const
+{
+    return this->_postProcessing;
+}
+
 void Graphic::setRunning(bool running)
 {
     this->_running = running;
@@ -164,16 +186,6 @@ bool Graphic::isPaused() const
     return this->_paused;
 }
 
-void Graphic::setPostProcessing(bool postProcessing)
-{
-    this->_postProcessing = postProcessing;
-}
-
-bool Graphic::isPostProcessing() const
-{
-    return this->_postProcessing;
-}
-
 void Graphic::setHoveredEntity(std::size_t hoveredEntity)
 {
     this->_hoveredEntity = hoveredEntity;
@@ -187,6 +199,24 @@ void Graphic::setSelectedEntity(std::size_t selectedEntity)
 std::size_t Graphic::getSelectedEntity() const
 {
     return this->_selectedEntity;
+}
+
+std::pair<Transform, Camera> &Graphic::getSceneCamera()
+{
+    return this->_sceneCamera;
+}
+
+void Graphic::setSceneCamera(std::pair<Transform, Camera> &sceneCamera)
+{
+    this->_sceneCamera = sceneCamera;
+}
+
+void Graphic::setMouseCursor(int cursor)
+{
+    if (cursor < 0 || cursor > 2)
+        glfwSetCursor(this->_window, nullptr);
+    else
+        glfwSetCursor(this->_window, this->_cursors[cursor]);
 }
 
 bool Graphic::isMouseHidden() const
@@ -216,6 +246,16 @@ bool Graphic::isSceneHovered() const
 int Graphic::getMouseButton() const
 {
     return this->_mouseButton;
+}
+
+void Graphic::resetMouseScroll()
+{
+    this->_mouseScroll = 0;
+}
+
+int Graphic::getMouseScroll() const
+{
+    return this->_mouseScroll;
 }
 
 void Graphic::setMousePosition(glm::vec2 mousePosition)

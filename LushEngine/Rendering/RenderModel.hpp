@@ -31,33 +31,33 @@ namespace Lush
     {
         private:
             std::vector<Mesh> _meshes;
-            int _materialNb = 0;
-            int _textureNb = 0;
+            std::unordered_map<std::string, Material> _defaultMaterials;
+            std::vector<Tex> _defaultTextures;
             std::unordered_map<std::string, BoneInfo> _boneInfoMap;
             int _boneCounter = 0;
 
             // std::unordered_map<std::string, BoneInfo> &getBoneInfoMap();
             // int &getBoneCount();
-            void processNode(aiNode &node, const aiScene &scene, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
-            Mesh processMesh(aiMesh &mesh, const aiScene &scene, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
-            static std::vector<Tex> loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string &typeName, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
+            void processNode(aiNode &node, const aiScene &scene);
+            Mesh processMesh(aiMesh &mesh, const aiScene &scene);
+            static std::vector<Tex> getTexturesFromMaterial(aiMaterial *mat, aiTextureType type, const std::string &typeName);
 
             static void setVertexBoneDataToDefault(Vertex &vertex);
             static void setVertexBoneData(Vertex &vertex, int boneID, float weight);
             void extractBoneWeightForVertices(std::vector<Vertex> &vertices, aiMesh &mesh);
 
         public:
-            RenderModel(File &file, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
+            RenderModel(File &file);
             RenderModel() = default;
             ~RenderModel() = default;
 
-            void load(const File &file, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
-            void reload(const File &file, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
-            void draw(Shader &shader, Model &model);
+            void load(const File &file);
+            void reload(const File &file);
+            void draw(Shader &shader, Model &model, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
 
             int getMaterialNb() const;
             int getTextureNb() const;
-            std::vector<Mesh> &getMeshes();
+            std::unordered_map<std::string, Material> &getMaterials();
             std::vector<std::string> getTextureNames();
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)

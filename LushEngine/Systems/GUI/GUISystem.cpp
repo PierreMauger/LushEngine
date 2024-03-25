@@ -105,8 +105,8 @@ void GUISystem::update(std::shared_ptr<EntityManager> &entityManager, float delt
 
     if (ImGui::Begin("Debug shadows")) {
         GLuint texture = this->_graphic->getFrameBuffers()["shadow"].texture;
-        float smallest = std::min(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-        ImGui::Image((void *)(intptr_t)texture, ImVec2(smallest, smallest), ImVec2(0, 1), ImVec2(1, 0));
+        float smallest = std::min(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y);
+        ImGui::Image((void *)(intptr_t)texture, ImVec2(smallest, smallest), ImVec2(1, 0), ImVec2(0, 1));
         ImGui::End();
     }
 
@@ -439,15 +439,28 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                 }
                 ImGui::EndCombo();
             }
-            ImGui::Text("MaterialNb: %d", this->_resourceManager->getModels()[selectedItem]->getMaterialNb());
+            ImGui::Text("Materials (%d)", this->_resourceManager->getModels()[selectedItem]->getMaterialNb());
             int i = 0;
-            for (auto &material : model.materials) {
+            for (auto &[name, material] : model.materials) {
                 ImGui::PushID(i);
-                ImGui::DragFloat3("Diffuse##Material", (float *)&material.diffuse, 0.01f, 0.0f, 1.0f);
+                ImGui::DragFloat3((name + "##Material").c_str(), (float *)&material.diffuse, 0.01f, 0.0f, 1.0f);
                 ImGui::PopID();
                 i++;
             }
-            ImGui::Text("TextureNb: %d", this->_resourceManager->getModels()[selectedItem]->getTextureNb());
+            if (this->_resourceManager->getModels()[selectedItem]->getMaterialNb() > model.materials.size()) {
+                std::unordered_map<std::string, Material> &defaultMaterials = this->_resourceManager->getModels()[selectedItem]->getMaterials();
+
+                if (ImGui::BeginCombo("Select Material##Model", "Select Material")) {
+                    for (auto &[name, defaultMaterial] : defaultMaterials) {
+                        if (model.materials.find(name) != model.materials.end())
+                            continue;
+                        if (ImGui::Selectable(name.c_str()))
+                            model.materials[name] = defaultMaterial;
+                    }
+                    ImGui::EndCombo();
+                }
+            }
+            ImGui::Text("Textures (%d)", this->_resourceManager->getModels()[selectedItem]->getTextureNb());
             if (ImGui::Button("Remove##Model"))
                 entity.removeComponent<Model>();
             ImGui::Separator();
@@ -627,12 +640,14 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                                 this->_resourceManager->getScriptInstances()[instanceIndex].setFieldValue(fieldName, value);
                         } else if (field.type == "String") {
                             // std::string value = this->_resourceManager->getScriptInstances()[instanceIndex].getFieldValue<std::string>(fieldName);
-                            std::string value = "Not supported yet";
+                            std::string value = entity.getScriptComponent(scriptName).getField<std::string>(fieldName);
                             static char buffer[256];
                             strcpy(buffer, value.c_str());
                             ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
-                            if (ImGui::InputText(fieldName.c_str(), buffer, sizeof(buffer), ImGuiInputTextFlags_ReadOnly))
-                                this->_resourceManager->getScriptInstances()[instanceIndex].setFieldValue(fieldName, std::string(buffer));
+                            if (ImGui::InputText(fieldName.c_str(), buffer, sizeof(buffer), ImGuiInputTextFlags_ReadOnly)) {
+                                // TODO fix access field value
+                                // this->_resourceManager->getScriptInstances()[instanceIndex].setFieldValue(fieldName, std::string(buffer));
+                            }
                             ImGui::PopStyleColor();
                         }
                     } else {
@@ -860,15 +875,11 @@ void GUISystem::drawScene(std::shared_ptr<EntityManager> &entityManager)
         if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_G)))
             this->_currentMode = ImGuizmo::WORLD;
 
-        glm::mat4 view = this->_graphic->getRenderView().getView();
         glm::vec4 viewport = this->_graphic->getSceneViewPort();
         ImVec2 cubePos(viewport.x + viewport.z - 128, viewport.y);
-        ImGuizmo::ViewManipulate(glm::value_ptr(view), 0.0f, cubePos, ImVec2(128, 128), 0x10101010);
-        if (ImGui::IsMouseHoveringRect(cubePos, ImVec2(cubePos.x + 128, cubePos.y + 128))) {
-            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-                // TODO move camera
-            }
-        }
+        glm::mat4 view = this->_graphic->getRenderView().getView();
+        ImGuizmo::ViewManipulate((float *)&view, 0.0f, cubePos, ImVec2(128, 128), 0x10101010);
+        // TODO move camera
     }
     this->_graphic->setSceneHovered(ImGui::IsWindowHovered() && !(ImGuizmo::IsOver() && guizmoDrawn));
 
@@ -904,10 +915,9 @@ bool GUISystem::drawGuizmo(Entity &entity)
     float snap[3] = {snapValue, snapValue, snapValue};
 
     ImGuizmo::SetRect(viewport.x, viewport.y, viewport.z, viewport.w);
-    ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(transform.position), glm::value_ptr(transform.rotation), glm::value_ptr(transform.scale), glm::value_ptr(model));
-    ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), this->_currentOperation, this->_currentMode, glm::value_ptr(model), nullptr,
-                         ImGui::GetIO().KeyCtrl ? snap : nullptr);
-    ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(transform.position), glm::value_ptr(transform.rotation), glm::value_ptr(transform.scale));
+    ImGuizmo::RecomposeMatrixFromComponents((float *)&transform.position, (float *)&transform.rotation, (float *)&transform.scale, (float *)&model);
+    ImGuizmo::Manipulate((float *)&view, (float *)&projection, this->_currentOperation, this->_currentMode, (float *)&model, nullptr, ImGui::GetIO().KeyCtrl ? snap : nullptr);
+    ImGuizmo::DecomposeMatrixToComponents((float *)&model, (float *)&transform.position, (float *)&transform.rotation, (float *)&transform.scale);
     return ImGuizmo::IsUsing();
 }
 
@@ -918,8 +928,9 @@ void GUISystem::drawFileExplorer()
         return;
     }
     if (this->_currentProject.empty()) {
-        ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize("No scene loaded").x) / 2);
-        ImGui::SetCursorPosY((ImGui::GetWindowHeight() - ImGui::CalcTextSize("No scene loaded").y) / 2);
+        ImVec2 textSize = ImGui::CalcTextSize("No scene loaded");
+        ImGui::SetCursorPosX((ImGui::GetWindowWidth() - textSize.x) / 2);
+        ImGui::SetCursorPosY((ImGui::GetWindowHeight() - textSize.y) / 2);
         ImGui::Text("No project loaded");
         ImGui::End();
         return;

@@ -34,7 +34,7 @@ void FileWatcherSystem::update(std::shared_ptr<EntityManager> &entityManager, fl
                                                   [this](const std::string &path) {
                                                       std::cout << "[Toast Info]Adding Model " << path << std::endl;
                                                       this->_resourceManager->getModels()[this->_resourceManager->getFiles()[path].getName()] =
-                                                          std::make_unique<RenderModel>(this->_resourceManager->getFiles()[path], this->_resourceManager->getTextures());
+                                                          std::make_unique<RenderModel>(this->_resourceManager->getFiles()[path]);
                                                   },
                                                   {".dae"});
     this->_resourceManager->loadDirectoryNewFiles("Resources/Skyboxes",
@@ -143,8 +143,8 @@ void FileWatcherSystem::deleteResource(Resource &resource)
         std::erase_if(this->_resourceManager->getSkyboxes(), [&resource](const auto &pair) { return *pair.second == resource; });
         break;
     // case ResourceType::SHADER:
-        // std::erase_if(this->_resourceManager->getShaders(), [&resource](const auto &pair) { return *pair.second == resource; });
-        // break;
+    // std::erase_if(this->_resourceManager->getShaders(), [&resource](const auto &pair) { return *pair.second == resource; });
+    // break;
     case ResourceType::SCRIPT:
         if (this->_graphic->isRunning()) {
             this->_scheduledDelete.push_back(resource);
@@ -172,7 +172,7 @@ void FileWatcherSystem::reloadModel(Resource &resource)
     if (it == this->_resourceManager->getModels().end())
         return;
 
-    it->second->reload(resource.getFiles()[0], this->_resourceManager->getTextures());
+    it->second->reload(resource.getFiles()[0]);
     std::cout << "[Toast Success]Reloaded model " << it->first << std::endl;
 }
 

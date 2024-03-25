@@ -37,8 +37,9 @@ namespace Lush
             }
     };
 
+
+
     struct Tex {
-            unsigned int id;
             std::string name;
             std::string type;
 
@@ -74,28 +75,25 @@ namespace Lush
         private:
             std::vector<Vertex> _vertices;
             std::vector<unsigned int> _indices;
-            std::vector<Tex> _defaultTextures;
-            Material _defaultMaterial{};
+            std::vector<Tex> _textures;
+            std::string _material;
             BufferObject _bufferObject{};
 
             void setupMesh();
 
         public:
-            Mesh(std::vector<Vertex> &vertices, std::vector<unsigned int> &indices, std::vector<Tex> &textures, Material material);
+            Mesh(std::vector<Vertex> &vertices, std::vector<unsigned int> &indices, std::vector<Tex> &textures, std::string material);
             Mesh() = default;
             ~Mesh() = default;
 
-            void rebindTextureIds(std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
-            void draw(Shader &shader, Model &model);
-            std::vector<std::string> getTextureNames();
+            void draw(Shader &shader, Model &model, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
 
             void serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version)
             {
                 ar &_vertices;
                 ar &_indices;
-                ar &_defaultTextures;
-                ar &_defaultMaterial;
-                ar &_bufferObject;
+                ar &_textures;
+                ar &_material;
                 this->setupMesh();
             }
 
@@ -103,9 +101,8 @@ namespace Lush
             {
                 ar &_vertices;
                 ar &_indices;
-                ar &_defaultTextures;
-                ar &_defaultMaterial;
-                ar &_bufferObject;
+                ar &_textures;
+                ar &_material;
             }
     };
 }

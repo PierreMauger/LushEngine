@@ -31,16 +31,19 @@ namespace Lush
             glm::vec2 _windowSize{};
 
             bool _drawWireframe = false;
+            bool _postProcessing = true;
             bool _running = false;
             bool _paused = false;
-            bool _postProcessing = true;
 
             std::size_t _hoveredEntity = 0;
             std::size_t _selectedEntity = -1;
 
+            std::pair<Transform, Camera> _sceneCamera;
+
             bool _mouseHidden = false;
             bool _sceneHovered = false;
             int _mouseButton = -1;
+            int _mouseScroll = 0;
             glm::vec2 _mousePosition{};
             glm::vec2 _mouseLastPosition{};
             glm::vec2 _mouseOffset{};
@@ -52,6 +55,7 @@ namespace Lush
             void handleKeyboardPress(int key, int scancode, int action, int mods);
             void handleResizeFramebuffer(int width, int height);
             void handleMousePress(int button, int action, int mods);
+            void handleMouseScroll(double xoffset, double yoffset);
 
         public:
             Graphic(int sizeX, int sizeY, const std::string &title);
@@ -64,23 +68,28 @@ namespace Lush
 
             void setWireframe(bool drawWireframe);
             bool isWireframe() const;
-
+            void setPostProcessing(bool postProcessing);
+            bool isPostProcessing() const;
             void setRunning(bool running);
             bool isRunning() const;
             void setPaused(bool paused);
             bool isPaused() const;
-            void setPostProcessing(bool PostProcessing);
-            bool isPostProcessing() const;
 
             void setHoveredEntity(std::size_t hoveredEntity);
             void setSelectedEntity(std::size_t selectedEntity);
             std::size_t getSelectedEntity() const;
 
+            std::pair<Transform, Camera> &getSceneCamera();
+            void setSceneCamera(std::pair<Transform, Camera> &sceneCamera);
+
+            void setMouseCursor(int cursor);
             bool isMouseHidden() const;
             void setMouseHidden(bool mouseHidden);
             void setSceneHovered(bool sceneHovered);
             bool isSceneHovered() const;
             int getMouseButton() const;
+            void resetMouseScroll();
+            int getMouseScroll() const;
             void setMousePosition(glm::vec2 mousePosition);
             glm::vec2 getMousePosition() const;
             void setMouseOffset(glm::vec2 mousePosition);

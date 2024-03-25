@@ -184,8 +184,6 @@ void ResourceManager::deserializeAssetPack(std::string path)
         ia >> name;
         this->_models[name] = std::make_unique<RenderModel>();
         ia >> *this->_models[name];
-        for (auto &mesh : this->_models[name]->getMeshes())
-            mesh.rebindTextureIds(this->_textures);
     }
 
     ia >> size;
@@ -317,8 +315,7 @@ void ResourceManager::loadTextures(const std::string &dir)
 
 void ResourceManager::loadModels(const std::string &dir)
 {
-    this->loadDirectoryFiles(
-        dir, [this](const std::string &path) { this->_models[this->_files[path].getName()] = std::make_unique<RenderModel>(this->_files[path], this->_textures); }, {".dae"});
+    this->loadDirectoryFiles(dir, [this](const std::string &path) { this->_models[this->_files[path].getName()] = std::make_unique<RenderModel>(this->_files[path]); }, {".dae"});
 }
 
 void ResourceManager::loadSkyboxes(const std::string &dir)

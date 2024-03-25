@@ -26,9 +26,6 @@ namespace Lush
 
             GLuint _perlinTexture = 0;
 
-            Transform _cameraTransform;
-            Camera _camera;
-
             void handleMouse();
             void generatePerlinTexture();
             void drawModels(std::shared_ptr<EntityManager> &entityManager);

@@ -90,8 +90,11 @@ void Scene::loadModel(rapidxml::xml_node<> *node, Entity &entity)
         temp.name = node->first_attribute("name")->value();
     for (rapidxml::xml_node<> *materialNode = node->first_node("Material"); materialNode; materialNode = materialNode->next_sibling("Material")) {
         Material material;
+        std::string name;
         if (materialNode->first_attribute("name"))
-            material.name = materialNode->first_attribute("name")->value();
+            name = materialNode->first_attribute("name")->value();
+        else
+            name = "default";
         if (materialNode->first_attribute("diffuse"))
             std::sscanf(materialNode->first_attribute("diffuse")->value(), "%f %f %f", &material.diffuse.x, &material.diffuse.y, &material.diffuse.z);
         if (materialNode->first_attribute("ambient"))
@@ -100,7 +103,7 @@ void Scene::loadModel(rapidxml::xml_node<> *node, Entity &entity)
             std::sscanf(materialNode->first_attribute("specular")->value(), "%f %f %f", &material.specular.x, &material.specular.y, &material.specular.z);
         if (materialNode->first_attribute("emission"))
             std::sscanf(materialNode->first_attribute("emission")->value(), "%f %f %f", &material.emission.x, &material.emission.y, &material.emission.z);
-        temp.materials.push_back(material);
+        temp.materials[name] = material;
     }
     entity.addComponent(temp);
 }
@@ -186,7 +189,8 @@ void Scene::loadCollider(rapidxml::xml_node<> *node, Entity &entity)
 {
     Collider collider;
     if (node->first_attribute("type")) {
-        auto it = std::find_if(std::begin(colliderTypeNames), std::end(colliderTypeNames), [&node](const std::string &name) { return name == node->first_attribute("type")->value(); });
+        auto it =
+            std::find_if(std::begin(colliderTypeNames), std::end(colliderTypeNames), [&node](const std::string &name) { return name == node->first_attribute("type")->value(); });
         if (it != std::end(colliderTypeNames))
             collider.type = (ColliderType)(it - std::begin(colliderTypeNames));
     }

@@ -192,10 +192,8 @@ bool ScriptGlue::Model_GetMaterialColor(std::size_t id, MonoString *materialName
     char *utf8 = mono_string_to_utf8(materialName);
 
     if (entity.hasComponent<Model>()) {
-        auto it = std::find_if(entity.getComponent<Model>().materials.begin(), entity.getComponent<Model>().materials.end(),
-                               [utf8](const Material &material) { return material.name == utf8; });
-        if (it != entity.getComponent<Model>().materials.end()) {
-            *color = it->diffuse;
+        if (entity.getComponent<Model>().materials.contains(utf8)) {
+            *color = entity.getComponent<Model>().materials[utf8].diffuse;
             mono_free(utf8);
             return true;
         }
@@ -213,13 +211,8 @@ void ScriptGlue::Model_SetMaterialColor(std::size_t id, MonoString *materialName
     char *utf8 = mono_string_to_utf8(materialName);
 
     if (entity.hasComponent<Model>()) {
-        for (auto &material : entity.getComponent<Model>().materials) {
-            if (material.name == utf8) {
-                material.diffuse = *color;
-                mono_free(utf8);
-                return;
-            }
-        }
+        if (entity.getComponent<Model>().materials.contains(utf8))
+            entity.getComponent<Model>().materials[utf8].diffuse = *color;
     } else
         std::cout << "[Toast Error]Entity " << id << " has no Model component" << std::endl;
     mono_free(utf8);
@@ -473,7 +466,7 @@ bool ScriptGlue::Collider_GetTag(std::size_t id, MonoString **tag)
         *tag = mono_string_new(mono_domain_get(), entity.getComponent<Collider>().tag.c_str());
         return true;
     }
-        std::cout << "[Toast Error]Entity " << id << " has no Billboard component" << std::endl;
+    std::cout << "[Toast Error]Entity " << id << " has no Billboard component" << std::endl;
     return false;
 }
 

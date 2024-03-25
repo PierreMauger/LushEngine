@@ -2,12 +2,12 @@
 
 using namespace Lush;
 
-Mesh::Mesh(std::vector<Vertex> &vertices, std::vector<unsigned int> &indices, std::vector<Tex> &textures, Material material)
+Mesh::Mesh(std::vector<Vertex> &vertices, std::vector<unsigned int> &indices, std::vector<Tex> &textures, std::string material)
 {
     this->_vertices = vertices;
     this->_indices = indices;
-    this->_defaultTextures = textures;
-    this->_defaultMaterial = material;
+    this->_textures = textures;
+    this->_material = material;
     this->setupMesh();
 }
 
@@ -41,31 +41,13 @@ void Mesh::setupMesh()
     glBindVertexArray(0);
 }
 
-void Mesh::rebindTextureIds(std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
+void Mesh::draw(Shader &shader, Model &model, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
 {
-    for (auto &texture : this->_defaultTextures) {
-        if (textures.contains(texture.name))
-            texture.id = textures[texture.name]->getId();
-    }
-}
+    Material material;
+    if (model.materials.contains(this->_material))
+        material = model.materials[this->_material];
 
-std::vector<std::string> Mesh::getTextureNames()
-{
-    std::vector<std::string> names;
-
-    for (auto &texture : this->_defaultTextures)
-        names.push_back(texture.name);
-    return names;
-}
-
-void Mesh::draw(Shader &shader, Model &model)
-{
-    Material material = this->_defaultMaterial;
-    auto it = std::find_if(model.materials.begin(), model.materials.end(), [&](const Material &m) { return m.name == this->_defaultMaterial.name; });
-    if (it != model.materials.end())
-        material = *it;
-
-    shader.setBool("hasTexture", !this->_defaultTextures.empty());
+    shader.setBool("hasTexture", !this->_textures.empty());
     shader.setVec3("material.ambient", material.ambient);
     shader.setVec3("material.diffuse", material.diffuse);
     shader.setVec3("material.specular", material.specular);
@@ -73,22 +55,22 @@ void Mesh::draw(Shader &shader, Model &model)
     shader.setFloat("material.shininess", material.shininess);
 
     shader.setFloat("tex.shininess", 32.0f);
-    glActiveTexture(GL_TEXTURE0 + this->_defaultTextures.size());
-    shader.setInt("tex.diffuse", (int)this->_defaultTextures.size());
-    shader.setInt("tex.emission", (int)this->_defaultTextures.size());
-    shader.setInt("tex.specular", (int)this->_defaultTextures.size());
+    glActiveTexture(GL_TEXTURE0 + this->_textures.size());
+    shader.setInt("tex.diffuse", (int)this->_textures.size());
+    shader.setInt("tex.emission", (int)this->_textures.size());
+    shader.setInt("tex.specular", (int)this->_textures.size());
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    for (unsigned int i = 0; i < this->_defaultTextures.size(); i++) {
+    for (unsigned int i = 0; i < this->_textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
-        shader.setInt(this->_defaultTextures[i].type, (int)i);
-        glBindTexture(GL_TEXTURE_2D, this->_defaultTextures[i].id);
+        shader.setInt(this->_textures[i].type, (int)i);
+        glBindTexture(GL_TEXTURE_2D, textures[this->_textures[i].name]->getId());
     }
 
     glBindVertexArray(this->_bufferObject.vao);
     glDrawElements(GL_TRIANGLES, (int)this->_indices.size(), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
-    if (!this->_defaultTextures.empty())
+    if (!model.textures.empty())
         glBindTexture(GL_TEXTURE_2D, 0);
 }

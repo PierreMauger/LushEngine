@@ -26,9 +26,9 @@ static glm::mat4 ConvertMatrixToGLMFormat(const aiMatrix4x4 &from)
     return to;
 }
 
-RenderModel::RenderModel(File &file, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures) : Resource(ResourceType::MODEL, file)
+RenderModel::RenderModel(File &file) : Resource(ResourceType::MODEL, file)
 {
-    this->load(file, textures);
+    this->load(file);
 }
 
 // std::unordered_map<std::string, BoneInfo> &RenderModel::getBoneInfoMap()
@@ -41,7 +41,7 @@ RenderModel::RenderModel(File &file, std::unordered_map<std::string, std::unique
 //     return this->_boneCounter;
 // }
 
-void RenderModel::load(const File &file, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
+void RenderModel::load(const File &file)
 {
     std::string content = file.load();
     Assimp::Importer importer;
@@ -50,21 +50,21 @@ void RenderModel::load(const File &file, std::unordered_map<std::string, std::un
 
     if (!scene)
         throw std::runtime_error(std::string("RenderModel loading: ") + importer.GetErrorString());
-    this->processNode(*scene->mRootNode, *scene, textures);
+    this->processNode(*scene->mRootNode, *scene);
 }
 
-void RenderModel::reload(const File &file, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
+void RenderModel::reload(const File &file)
 {
     this->_meshes.clear();
-    this->load(file, textures);
+    this->load(file);
 }
 
-void RenderModel::processNode(aiNode &node, const aiScene &scene, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
+void RenderModel::processNode(aiNode &node, const aiScene &scene)
 {
     for (unsigned int i = 0; i < node.mNumMeshes; i++)
-        this->_meshes.push_back(this->processMesh(*scene.mMeshes[node.mMeshes[i]], scene, textures));
+        this->_meshes.push_back(this->processMesh(*scene.mMeshes[node.mMeshes[i]], scene));
     for (unsigned int i = 0; i < node.mNumChildren; i++)
-        this->processNode(*node.mChildren[i], scene, textures);
+        this->processNode(*node.mChildren[i], scene);
 }
 
 void RenderModel::setVertexBoneDataToDefault(Vertex &vertex)
@@ -116,12 +116,10 @@ void RenderModel::extractBoneWeightForVertices(std::vector<Vertex> &vertices, ai
     }
 }
 
-Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
+Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene)
 {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
-    std::vector<Tex> tex;
-    Material material{};
 
     for (unsigned int i = 0; i < mesh.mNumVertices; i++) {
         Vertex vertex{};
@@ -146,7 +144,10 @@ Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered
     aiColor3D color(0.0f, 0.0f, 0.0f);
     float shininess = 0.0f;
 
-    material.name = materialLoaded->GetName().C_Str();
+    // TODO check materialLoaded->GetTextureCount(aiTextureType_NONE)
+
+    Material material{};
+    std::string materialName = materialLoaded->GetName().C_Str();
     materialLoaded->Get(AI_MATKEY_COLOR_DIFFUSE, color);
     material.diffuse = glm::vec3(color.r, color.g, color.b);
     materialLoaded->Get(AI_MATKEY_COLOR_AMBIENT, color);
@@ -160,64 +161,67 @@ Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene, std::unordered
 
     this->extractBoneWeightForVertices(vertices, mesh);
 
-    std::vector<Tex> diffuseMaps = RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_DIFFUSE, "tex.diffuse", textures);
+    std::vector<Tex> tex;
+    std::vector<Tex> diffuseMaps = RenderModel::getTexturesFromMaterial(materialLoaded, aiTextureType_DIFFUSE, "tex.diffuse");
     tex.insert(tex.end(), diffuseMaps.begin(), diffuseMaps.end());
-    std::vector<Tex> specularMaps = RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_SPECULAR, "tex.specular", textures);
+    std::vector<Tex> specularMaps = RenderModel::getTexturesFromMaterial(materialLoaded, aiTextureType_SPECULAR, "tex.specular");
     tex.insert(tex.end(), specularMaps.begin(), specularMaps.end());
-    std::vector<Tex> emissiveMaps = RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_EMISSIVE, "tex.emission", textures);
+    std::vector<Tex> emissiveMaps = RenderModel::getTexturesFromMaterial(materialLoaded, aiTextureType_EMISSIVE, "tex.emission");
     tex.insert(tex.end(), emissiveMaps.begin(), emissiveMaps.end());
-    std::vector<Tex> normalMaps = RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_NORMALS, "tex.normal", textures);
+    std::vector<Tex> normalMaps = RenderModel::getTexturesFromMaterial(materialLoaded, aiTextureType_NORMALS, "tex.normal");
     tex.insert(tex.end(), normalMaps.begin(), normalMaps.end());
-    std::vector<Tex> heightMaps = RenderModel::loadMaterialTextures(materialLoaded, aiTextureType_HEIGHT, "tex.height", textures);
+    std::vector<Tex> heightMaps = RenderModel::getTexturesFromMaterial(materialLoaded, aiTextureType_HEIGHT, "tex.height");
     tex.insert(tex.end(), heightMaps.begin(), heightMaps.end());
 
-    tex.size() > 0 ? this->_textureNb += tex.size() : this->_materialNb++;
-    return {vertices, indices, tex, material};
+    if (tex.empty())
+        this->_defaultMaterials[materialName] = material;
+    else
+        this->_defaultTextures.insert(this->_defaultTextures.end(), tex.begin(), tex.end());
+    return {vertices, indices, tex, materialName};
 }
 
-std::vector<Tex> RenderModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string &typeName,
-                                                   std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
+std::vector<Tex> RenderModel::getTexturesFromMaterial(aiMaterial *mat, aiTextureType type, const std::string &typeName)
 {
     std::vector<Tex> tex;
 
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
         aiString str;
         mat->GetTexture(type, i, &str);
-        if (!textures.contains(str.C_Str()))
-            throw std::runtime_error("Couldn't find texture: " + std::string(str.C_Str()));
-        tex.push_back({textures[str.C_Str()]->getId(), str.C_Str(), typeName});
+        tex.push_back({str.C_Str(), typeName});
     }
     return tex;
 }
 
-void RenderModel::draw(Shader &shader, Model &model)
+void RenderModel::draw(Shader &shader, Model &model, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures)
 {
+    for (auto &[name, material] : this->_defaultMaterials)
+        if (!model.materials.contains(name))
+            model.materials[name] = material;
+    // TODO handle custom textures
     for (auto &mesh : this->_meshes)
-        mesh.draw(shader, model);
+        mesh.draw(shader, model, textures);
 }
 
 int RenderModel::getMaterialNb() const
 {
-    return this->_materialNb;
+    return this->_defaultMaterials.size();
 }
 
 int RenderModel::getTextureNb() const
 {
-    return this->_textureNb;
+    return this->_defaultTextures.size();
 }
 
-std::vector<Mesh> &RenderModel::getMeshes()
+std::unordered_map<std::string, Material> &RenderModel::getMaterials()
 {
-    return this->_meshes;
+    return this->_defaultMaterials;
 }
 
 std::vector<std::string> RenderModel::getTextureNames()
 {
     std::vector<std::string> names;
 
-    for (auto &mesh : this->_meshes) {
-        auto meshNames = mesh.getTextureNames();
-        names.insert(names.end(), meshNames.begin(), meshNames.end());
-    }
+    for (auto &texture : this->_defaultTextures)
+        names.push_back(texture.name);
     return names;
 }

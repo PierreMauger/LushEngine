@@ -4,13 +4,6 @@ using namespace Lush;
 
 SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
 {
-    this->_cameraTransform.position = glm::vec3(10.0f, 5.0f, 15.0f);
-    this->_cameraTransform.rotation = glm::vec3(-130.0f, -15.0f, 0.0f);
-    this->_camera.forward.x = std::cos(glm::radians(this->_cameraTransform.rotation.x)) * std::cos(glm::radians(this->_cameraTransform.rotation.y));
-    this->_camera.forward.y = std::sin(glm::radians(this->_cameraTransform.rotation.y));
-    this->_camera.forward.z = std::sin(glm::radians(this->_cameraTransform.rotation.x)) * std::cos(glm::radians(this->_cameraTransform.rotation.y));
-    this->_camera.far = 1000.0f;
-
     Shapes::setupFrameBuffer(this->_graphic->getFrameBuffers()["scene"], this->_graphic->getWindowSize());
     Shapes::setupFrameBuffer(this->_graphic->getFrameBuffers()["final"], this->_graphic->getWindowSize());
 
@@ -36,8 +29,10 @@ void SceneSystem::update(std::shared_ptr<EntityManager> &entityManager, float de
 {
     this->handleMouse();
 
+    auto &[transform, camera] = this->_graphic->getSceneCamera();
+
     this->_graphic->getRenderView().setAspectRatio(this->_graphic->getSceneViewPort().z / this->_graphic->getSceneViewPort().w);
-    this->_graphic->getRenderView().update(this->_cameraTransform, this->_camera);
+    this->_graphic->getRenderView().update(transform, camera);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()["scene"].framebuffer);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -105,22 +100,29 @@ void SceneSystem::generatePerlinTexture()
 
 void SceneSystem::handleMouse()
 {
+    auto &[transform, camera] = this->_graphic->getSceneCamera();
+
     if (this->_graphic->isSceneHovered()) {
-        if (this->_graphic->getMouseButton() == 0)
-            this->_graphic->getRenderView().rotate(this->_cameraTransform, this->_graphic->getMouseOffset());
-        if (this->_graphic->getMouseButton() == 1)
-            this->_cameraTransform.position += this->_camera.forward * this->_graphic->getMouseOffset().y * 0.05f;
+        if (this->_graphic->getMouseButton() == 1) {
+            this->_graphic->getRenderView().rotate(transform, this->_graphic->getMouseOffset());
+            this->_graphic->setMouseCursor(0);
+        }
         if (this->_graphic->getMouseButton() == 2) {
-            glm::vec3 cameraRight = glm::normalize(glm::cross(this->_camera.forward, glm::vec3(0.0f, 1.0f, 0.0f)));
-            glm::vec3 cameraUp = glm::normalize(glm::cross(cameraRight, this->_camera.forward));
-            this->_cameraTransform.position -= cameraRight * this->_graphic->getMouseOffset().x * 0.02f;
-            this->_cameraTransform.position -= cameraUp * this->_graphic->getMouseOffset().y * 0.02f;
+            glm::vec3 cameraRight = glm::normalize(glm::cross(camera.forward, glm::vec3(0.0f, 1.0f, 0.0f)));
+            glm::vec3 cameraUp = glm::normalize(glm::cross(cameraRight, camera.forward));
+            transform.position -= cameraRight * this->_graphic->getMouseOffset().x * 0.02f;
+            transform.position -= cameraUp * this->_graphic->getMouseOffset().y * 0.02f;
+            this->_graphic->setMouseCursor(2);
+        }
+        if (this->_graphic->getMouseScroll() != 0) {
+            transform.position += camera.forward * (float)this->_graphic->getMouseScroll();
+            this->_graphic->resetMouseScroll();
         }
         if (this->_graphic->getMouseButton() == 3)
             this->generatePerlinTexture();
-        this->_camera.forward.x = std::cos(glm::radians(this->_cameraTransform.rotation.x)) * std::cos(glm::radians(this->_cameraTransform.rotation.y));
-        this->_camera.forward.y = std::sin(glm::radians(this->_cameraTransform.rotation.y));
-        this->_camera.forward.z = std::sin(glm::radians(this->_cameraTransform.rotation.x)) * std::cos(glm::radians(this->_cameraTransform.rotation.y));
+        camera.forward.x = std::cos(glm::radians(transform.rotation.x)) * std::cos(glm::radians(transform.rotation.y));
+        camera.forward.y = std::sin(glm::radians(transform.rotation.y));
+        camera.forward.z = std::sin(glm::radians(transform.rotation.x)) * std::cos(glm::radians(transform.rotation.y));
     }
 }
 
@@ -140,7 +142,7 @@ void SceneSystem::drawModels(std::shared_ptr<EntityManager> &entityManager)
 
         this->_graphic->getRenderView().setModel(transform);
         if (this->_resourceManager->getModels().contains(model.name))
-            this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model);
+            this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model, this->_resourceManager->getTextures());
     }
 }
 
