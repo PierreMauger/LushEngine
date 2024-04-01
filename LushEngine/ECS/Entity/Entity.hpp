@@ -61,12 +61,12 @@ namespace Lush
             void addScriptIndex(const std::string &className, std::size_t index);
             void clearScriptIndexes();
 
-            // void addChild(std::size_t index);
-            // void removeChild(std::size_t index);
-            // std::vector<std::size_t> &getChildren();
-            // void setParent(std::size_t index);
-            // void removeParent();
-            // std::optional<std::size_t> getParent() const;
+            void addChild(std::size_t index);
+            void removeChild(std::size_t index);
+            std::vector<std::size_t> &getChildren();
+            void setParent(std::size_t index);
+            void removeParent();
+            std::optional<std::size_t> getParent() const;
 
             bool operator==(const Entity &other) const;
             Entity &clone(const Entity &other);

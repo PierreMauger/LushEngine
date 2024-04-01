@@ -59,35 +59,35 @@ void Entity::clearScriptIndexes()
     this->_scriptIndexes.clear();
 }
 
-// void Entity::addChild(std::size_t index)
-// {
-//     this->_children.push_back(index);
-// }
+void Entity::addChild(std::size_t index)
+{
+    this->_children.push_back(index);
+}
 
-// void Entity::removeChild(std::size_t index)
-// {
-//     this->_children.erase(std::remove(this->_children.begin(), this->_children.end(), index), this->_children.end());
-// }
+void Entity::removeChild(std::size_t index)
+{
+    this->_children.erase(std::remove(this->_children.begin(), this->_children.end(), index), this->_children.end());
+}
 
-// std::vector<std::size_t> &Entity::getChildren()
-// {
-//     return this->_children;
-// }
+std::vector<std::size_t> &Entity::getChildren()
+{
+    return this->_children;
+}
 
-// void Entity::setParent(std::size_t index)
-// {
-//     this->_parent = index;
-// }
+void Entity::setParent(std::size_t index)
+{
+    this->_parent = index;
+}
 
-// void Entity::removeParent()
-// {
-//     this->_parent.reset();
-// }
+void Entity::removeParent()
+{
+    this->_parent.reset();
+}
 
-// std::optional<std::size_t> Entity::getParent() const
-// {
-//     return this->_parent;
-// }
+std::optional<std::size_t> Entity::getParent() const
+{
+    return this->_parent;
+}
 
 bool Entity::operator==(const Entity &other) const
 {

@@ -29,15 +29,13 @@ void main()
     FragColor = vec4(0.0f);
 
     if (id != 0 && colorId == id) {
-        int w = WIDTH;
-
         // if the pixel isn't white, we are on the object silhouette
         if (obj != vec3(0.0f)) {
             vec2 size = 1.0f / textureSize(silhouette, 0);
             bool colored = sin((TexCoords.x + TexCoords.y) * 500.0f) > 0.0f;
-            FragColor = vec4(vec3(1.0f), colored ? 0.75f : 0.0f);
-            for (int i = -w; i <= +w; i++)  {
-                for (int j = -w; j <= +w; j++) {
+            FragColor = vec4(vec3(1.0f), colored ? 0.5f : 0.0f);
+            for (int i = -WIDTH; i <= +WIDTH; i++)  {
+                for (int j = -WIDTH; j <= +WIDTH; j++) {
                     if (i == 0 && j == 0)
                         continue;
                     vec2 offset = vec2(i, j) * size;

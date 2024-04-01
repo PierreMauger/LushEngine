@@ -27,7 +27,8 @@ void CameraSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
     }
     if (entityManager->hasEntity("MainCamera")) {
         Entity entity = entityManager->getEntity("MainCamera");
-        this->_graphic->getRenderView().update(entity.getComponent<Transform>(), entity.getComponent<Camera>());
+        if (entity.hasComponent<Transform>() && entity.hasComponent<Camera>())
+            this->_graphic->getRenderView().update(entity.getComponent<Transform>(), entity.getComponent<Camera>());
     } else {
         for (auto &[id, entity] : entityManager->getEntities())
             if (entity.hasComponent<Transform>() && entity.hasComponent<Camera>())

@@ -276,25 +276,133 @@ void GUISystem::drawActionBar(std::shared_ptr<EntityManager> &entityManager)
     }
 }
 
+void GUISystem::deleteEntity(std::shared_ptr<EntityManager> &entityManager, std::size_t id, Entity &entity)
+{
+    if (this->_graphic->isRunning()) {
+        for (auto &[scriptName, index] : entity.getScriptIndexes()) {
+            this->_resourceManager->getScriptInstances()[index].onDestroy();
+            this->_resourceManager->getScriptInstances().erase(this->_resourceManager->getScriptInstances().begin() + index);
+        }
+        auto physicIt = std::find_if(this->_resourceManager->getPhysicInstances().begin(), this->_resourceManager->getPhysicInstances().end(),
+                                     [id](const auto &instance) { return instance->getId() == id; });
+        if (physicIt != this->_resourceManager->getPhysicInstances().end()) {
+            (*physicIt)->removeFromWorld(this->_resourceManager->getDynamicsWorld());
+            this->_resourceManager->getPhysicInstances().erase(physicIt);
+        }
+    }
+    for (auto &childId : entity.getChildren())
+        this->deleteEntity(entityManager, childId, entityManager->getEntity(childId));
+    if (entity.getParent().has_value())
+        entityManager->getEntity(entity.getParent().value()).removeChild(id);
+    entityManager->removeEntity(id);
+}
+
+bool GUISystem::drawEntityInSceneHierarchy(std::shared_ptr<EntityManager> &entityManager, std::size_t id, Entity &entity)
+{
+    ImGui::PushID(entity.getUUID().toString().c_str());
+    ImGui::Selectable("", id == this->_graphic->getSelectedEntity(), ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2(0, 19));
+
+    if (ImGui::BeginDragDropSource()) {
+        ImGui::SetDragDropPayload("ENTITY", &id, sizeof(int));
+        ImGui::Text("%s", entity.getName().c_str());
+        ImGui::EndDragDropSource();
+    }
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("ENTITY")) {
+            int draggedEntityId = *(const int *)payload->Data;
+            if (entityManager->getEntities().contains(draggedEntityId)) {
+                Entity &draggedEntity = entityManager->getEntity(draggedEntityId);
+                // if not dragging parent into child or child into parent
+                if (!(draggedEntity.getParent().has_value() && draggedEntity.getParent().value() == id) &&
+                    !(entity.getParent().has_value() && entity.getParent().value() == draggedEntityId)) {
+                    if (draggedEntity.getParent().has_value())
+                        entityManager->getEntity(draggedEntity.getParent().value()).removeChild(draggedEntityId);
+                    draggedEntity.setParent(id);
+                    entity.addChild(draggedEntityId);
+                }
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+
+    if (ImGui::IsItemClicked())
+        this->_graphic->setSelectedEntity(id);
+
+    ImGui::SameLine(0, 0);
+    char buf[256];
+    snprintf(buf, 256, "%s", entity.getName().c_str());
+    if (ImGui::InputText("##Name", buf, 256, ImGuiInputTextFlags_EnterReturnsTrue)) {
+        entity.setName(buf);
+        std::cout << "[Toast Info]Entity renamed to " << entity.getName() << std::endl;
+    }
+    ImGui::SameLine(0, 0);
+    ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x - 24, 0));
+    ImGui::SameLine(0, 0);
+    if (ImGui::Button(ICON_FA_TRASH "##Delete")) {
+        this->deleteEntity(entityManager, id, entity);
+        ImGui::PopID();
+        return true;
+    }
+
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 4);
+    ImGui::Dummy(ImVec2(ImGui::GetWindowWidth() / 2, 4));
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 4);
+    if (ImGui::BeginDragDropTarget()) {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("ENTITY")) {
+            int draggedEntityId = *(const int *)payload->Data;
+            auto draggedEntityIt = entityManager->getEntities().find(draggedEntityId);
+            if (draggedEntityIt != entityManager->getEntities().end() && draggedEntityId != id) {
+                if (draggedEntityIt->second.getParent().has_value()) {
+                    entityManager->getEntity(draggedEntityIt->second.getParent().value()).removeChild(draggedEntityId);
+                    draggedEntityIt->second.removeParent();
+                }
+
+                int direction = draggedEntityId < id ? 1 : -1;
+                auto end = entityManager->getEntities().find(id);
+                if (direction == -1)
+                    end = std::next(end);
+                for (auto swapIt = draggedEntityIt; swapIt != end; swapIt = std::next(swapIt, direction))
+                    std::swap(swapIt->second, std::next(swapIt, direction)->second);
+                this->_graphic->setSelectedEntity(end->first);
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+
+    ImGui::Indent(20);
+    for (auto &childId : entity.getChildren()) {
+        Entity &child = entityManager->getEntity(childId);
+        if (this->drawEntityInSceneHierarchy(entityManager, childId, child))
+            break;
+    }
+    ImGui::Unindent(20);
+    ImGui::PopID();
+    return false;
+}
+
 void GUISystem::drawSceneHierarchy(std::shared_ptr<EntityManager> &entityManager)
 {
     if (!ImGui::Begin(ICON_FA_LIST " Scene Hierarchy", &this->_showSceneHierarchy)) {
         ImGui::End();
         return;
     }
-    if (ImGui::CollapsingHeader("Scenes")) {
+    if (ImGui::BeginCombo("Scenes", this->_resourceManager->getActiveSceneName().c_str())) {
         for (auto &[name, scene] : this->_resourceManager->getScenes()) {
             if (ImGui::Selectable(name.c_str(), this->_resourceManager->getActiveSceneName() == name)) {
                 this->_resourceManager->setActiveScene(name);
                 entityManager = scene->getEntityManager();
             }
         }
+        ImGui::EndCombo();
     }
     if (this->_resourceManager->getActiveSceneName().empty()) {
         ImGui::End();
         return;
     }
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 4);
+
+    const float footerReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    ImGui::BeginChild("ScrollingRegion", ImVec2(ImGui::GetWindowWidth() - 8, -footerReserve));
+
     ImGui::Dummy(ImVec2(ImGui::GetWindowWidth() / 2, 4));
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 4);
     if (ImGui::BeginDragDropTarget()) {
@@ -309,89 +417,17 @@ void GUISystem::drawSceneHierarchy(std::shared_ptr<EntityManager> &entityManager
         }
         ImGui::EndDragDropTarget();
     }
-    for (auto it = entityManager->getEntities().begin(); it != entityManager->getEntities().end(); ++it) {
-        auto &[id, entity] = *it;
-        ImGui::PushID(entity.getUUID().toString().c_str());
-        ImGui::Selectable("##", id == this->_graphic->getSelectedEntity(), ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2(0, 20));
-        // ImGui::SameLine(0, 0);
-        // bool isNodeOpen = ImGui::TreeNodeEx("##Dropdown", ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick);
-
-        if (ImGui::BeginDragDropSource()) {
-            ImGui::SetDragDropPayload("ENTITY", &id, sizeof(int));
-            ImGui::Text("%s", entity.getName().c_str());
-            ImGui::EndDragDropSource();
-        }
-
-        if (ImGui::BeginDragDropTarget()) {
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("ENTITY")) {
-                int draggedEntityId = *(const int *)payload->Data;
-                auto draggedEntityIt = entityManager->getEntities().find(draggedEntityId);
-                if (draggedEntityIt != entityManager->getEntities().end()) {
-                    std::swap(entityManager->getEntities()[id], draggedEntityIt->second);
-                    this->_graphic->setSelectedEntity(id);
-                }
-            }
-            ImGui::EndDragDropTarget();
-        }
-        // if (isNodeOpen) {
-        // ImGui::TreePop();
-        // }
-
-        if (ImGui::IsItemClicked())
-            this->_graphic->setSelectedEntity(id);
-        ImGui::SameLine(0, 0);
-        char buf[256];
-        snprintf(buf, 256, "%s", entity.getName().c_str());
-        if (ImGui::InputText(" ##Name", buf, 256, ImGuiInputTextFlags_EnterReturnsTrue)) {
-            entity.setName(buf);
-            std::cout << "[Toast Info]Entity renamed to " << entity.getName() << std::endl;
-        }
-        ImGui::SameLine(0, 0);
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 28);
-        if (ImGui::Button(ICON_FA_TRASH "##Delete")) {
-            if (this->_graphic->isRunning()) {
-                for (auto &[scriptName, index] : entity.getScriptIndexes()) {
-                    this->_resourceManager->getScriptInstances()[index].onDestroy();
-                    this->_resourceManager->getScriptInstances().erase(this->_resourceManager->getScriptInstances().begin() + index);
-                }
-                auto physicIt = std::find_if(this->_resourceManager->getPhysicInstances().begin(), this->_resourceManager->getPhysicInstances().end(),
-                                             [id](const auto &instance) { return instance->getId() == id; });
-                if (physicIt != this->_resourceManager->getPhysicInstances().end()) {
-                    (*physicIt)->removeFromWorld(this->_resourceManager->getDynamicsWorld());
-                    this->_resourceManager->getPhysicInstances().erase(physicIt);
-                }
-            }
-            entityManager->removeEntity(id);
-            ImGui::PopID();
+    for (auto &[id, entity] : entityManager->getEntities()) {
+        if (entity.getParent().has_value())
+            continue;
+        if (this->drawEntityInSceneHierarchy(entityManager, id, entity))
             break;
-        }
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 4);
-        ImGui::Dummy(ImVec2(ImGui::GetWindowWidth() / 2, 4));
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 4);
-        if (ImGui::BeginDragDropTarget()) {
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("ENTITY")) {
-                int draggedEntityId = *(const int *)payload->Data;
-                auto draggedEntityIt = entityManager->getEntities().find(draggedEntityId);
-                if (draggedEntityIt != entityManager->getEntities().end() && draggedEntityId != id) {
-                    int direction = draggedEntityId < id ? 1 : -1;
-                    auto end = it;
-                    if (direction == -1)
-                        end = std::next(end);
-                    for (auto swapIt = draggedEntityIt; swapIt != end; swapIt = std::next(swapIt, direction))
-                        std::swap(swapIt->second, std::next(swapIt, direction)->second);
-                    this->_graphic->setSelectedEntity(end->first);
-                }
-            }
-            ImGui::EndDragDropTarget();
-        }
-        ImGui::PopID();
     }
 
-    const float footerSize = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerSize), false, ImGuiWindowFlags_HorizontalScrollbar);
     ImGui::EndChild();
+
     ImGui::Separator();
-    if (ImGui::Button("Add New Entity")) {
+    if (ImGui::Button(ICON_FA_PLUS " Add Entity")) {
         Entity entity;
         entityManager->addEntity(entity);
     }
@@ -410,22 +446,26 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
         ImGui::End();
         return;
     }
+    const float footerReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerReserve));
     ImGui::Text("ID: %lu", this->_graphic->getSelectedEntity());
     Entity &entity = entityManager->getEntity(this->_graphic->getSelectedEntity());
     if (entity.hasComponent<Transform>()) {
-        if (ImGui::CollapsingHeader(ICON_FA_INFO_CIRCLE " Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+        bool open = true;
+        if (ImGui::CollapsingHeader(ICON_FA_INFO_CIRCLE " Transform", &open, ImGuiTreeNodeFlags_DefaultOpen)) {
             Transform &transform = entity.getComponent<Transform>();
 
             ImGui::DragFloat3("Position##Transform", (float *)&transform.position, 0.1f, -FLT_MAX, +FLT_MAX);
             ImGui::DragFloat3("Rotation##Transform", (float *)&transform.rotation, 1.0f, -FLT_MAX, +FLT_MAX);
             ImGui::DragFloat3("Scale##Transform", (float *)&transform.scale, 0.01f, 0.0f, +FLT_MAX);
-            if (ImGui::Button("Remove##Transform"))
-                entity.removeComponent<Transform>();
             ImGui::Separator();
         }
+        if (!open)
+            entity.removeComponent<Transform>();
     }
     if (entity.hasComponent<Model>()) {
-        if (ImGui::CollapsingHeader(ICON_FA_CUBE " Model", ImGuiTreeNodeFlags_DefaultOpen)) {
+        bool open = true;
+        if (ImGui::CollapsingHeader(ICON_FA_CUBE " Model", &open, ImGuiTreeNodeFlags_DefaultOpen)) {
             Model &model = entity.getComponent<Model>();
 
             std::string selectedItem = model.name;
@@ -461,13 +501,14 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                 }
             }
             ImGui::Text("Textures (%d)", this->_resourceManager->getModels()[selectedItem]->getTextureNb());
-            if (ImGui::Button("Remove##Model"))
-                entity.removeComponent<Model>();
             ImGui::Separator();
         }
+        if (!open)
+            entity.removeComponent<Model>();
     }
     if (entity.hasComponent<Camera>()) {
-        if (ImGui::CollapsingHeader(ICON_FA_VIDEO " Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
+        bool open = true;
+        if (ImGui::CollapsingHeader(ICON_FA_VIDEO " Camera", &open, ImGuiTreeNodeFlags_DefaultOpen)) {
             Camera &camera = entity.getComponent<Camera>();
 
             ImGui::SliderInt("Type##Camera", (int *)&camera.type, 0, CameraType::CAMERA_TYPE_COUNT - 1, cameraTypeNames[camera.type]);
@@ -475,13 +516,14 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
             ImGui::SliderFloat("FOV##Camera", &camera.fov, 30.0f, 90.0f);
             ImGui::SliderFloat("Near##Camera", &camera.near, 0.1f, 100.0f);
             ImGui::SliderFloat("Far##Camera", &camera.far, camera.near + 0.1f, 1000.0f);
-            if (ImGui::Button("Remove##Camera"))
-                entity.removeComponent<Camera>();
             ImGui::Separator();
         }
+        if (!open)
+            entity.removeComponent<Camera>();
     }
     if (entity.hasComponent<Light>()) {
-        if (ImGui::CollapsingHeader(ICON_FA_LIGHTBULB " Light", ImGuiTreeNodeFlags_DefaultOpen)) {
+        bool open = true;
+        if (ImGui::CollapsingHeader(ICON_FA_LIGHTBULB " Light", &open, ImGuiTreeNodeFlags_DefaultOpen)) {
             Light &light = entity.getComponent<Light>();
 
             ImGui::SliderInt("Type##Light", (int *)&light.type, 0, LightType::LIGHT_TYPE_COUNT - 1, lightTypeNames[light.type]);
@@ -490,13 +532,14 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
             ImGui::SliderFloat("Intensity##Light", &light.intensity, 0.0f, 16.0f);
             ImGui::ColorEdit3("Color##Light", (float *)&light.color);
             ImGui::SliderFloat("Cut Off##Light", &light.cutOff, 0.0f, 90.0f);
-            if (ImGui::Button("Remove##Light"))
-                entity.removeComponent<Light>();
             ImGui::Separator();
         }
+        if (!open)
+            entity.removeComponent<Light>();
     }
     if (entity.hasComponent<Cubemap>()) {
-        if (ImGui::CollapsingHeader(ICON_FA_MAP " Cubemap", ImGuiTreeNodeFlags_DefaultOpen)) {
+        bool open = true;
+        if (ImGui::CollapsingHeader(ICON_FA_MAP " Cubemap", &open, ImGuiTreeNodeFlags_DefaultOpen)) {
             Cubemap &cubemap = entity.getComponent<Cubemap>();
 
             std::string selectedItem = cubemap.name;
@@ -510,25 +553,26 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                 }
                 ImGui::EndCombo();
             }
-            if (ImGui::Button("Remove##Cubemap"))
-                entity.removeComponent<Cubemap>();
             ImGui::Separator();
         }
+        if (!open)
+            entity.removeComponent<Cubemap>();
     }
     if (entity.hasComponent<Billboard>()) {
-        if (ImGui::CollapsingHeader(ICON_FA_SIGN " Billboard", ImGuiTreeNodeFlags_DefaultOpen)) {
+        bool open = true;
+        if (ImGui::CollapsingHeader(ICON_FA_SIGN " Billboard", &open, ImGuiTreeNodeFlags_DefaultOpen)) {
             Billboard &billboard = entity.getComponent<Billboard>();
 
             this->drawTextureSelect("Texture##Billboard", billboard.name);
-            // if checkbox is checked, lock the billboard on the Y axis
             ImGui::Checkbox("Lock Y Axis##Billboard", &billboard.lockYAxis);
-            if (ImGui::Button("Remove##Billboard"))
-                entity.removeComponent<Billboard>();
             ImGui::Separator();
         }
+        if (!open)
+            entity.removeComponent<Billboard>();
     }
     if (entity.hasComponent<Map>()) {
-        if (ImGui::CollapsingHeader(ICON_FA_MAP " Map", ImGuiTreeNodeFlags_DefaultOpen)) {
+        bool open = true;
+        if (ImGui::CollapsingHeader(ICON_FA_MAP " Map", &open, ImGuiTreeNodeFlags_DefaultOpen)) {
             Map &map = entity.getComponent<Map>();
 
             this->drawTextureSelect("Height Map##Map", map.heightMap);
@@ -536,13 +580,14 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
             this->drawTextureSelect("Diffuse Texture 2##Map", map.diffuseTexture2);
             this->drawTextureSelect("Diffuse Texture 3##Map", map.diffuseTexture3);
 
-            if (ImGui::Button("Remove##Map"))
-                entity.removeComponent<Map>();
             ImGui::Separator();
         }
+        if (!open)
+            entity.removeComponent<Map>();
     }
     if (entity.hasComponent<RigidBody>()) {
-        if (ImGui::CollapsingHeader(ICON_FA_BOX " RigidBody", ImGuiTreeNodeFlags_DefaultOpen)) {
+        bool open = true;
+        if (ImGui::CollapsingHeader(ICON_FA_BOX " RigidBody", &open, ImGuiTreeNodeFlags_DefaultOpen)) {
             RigidBody &rigidBody = entity.getComponent<RigidBody>();
 
             bool isEdited = false;
@@ -560,14 +605,14 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                     // this->_resourceManager->getPhysicInstances()[instance].updateRigidBodyRuntime(rigidBody);
                 }
             }
-
-            if (ImGui::Button("Remove##RigidBody"))
-                entity.removeComponent<RigidBody>();
             ImGui::Separator();
         }
+        if (!open)
+            entity.removeComponent<RigidBody>();
     }
     if (entity.hasComponent<Collider>()) {
-        if (ImGui::CollapsingHeader(ICON_FA_BOXES " Collider", ImGuiTreeNodeFlags_DefaultOpen)) {
+        bool open = true;
+        if (ImGui::CollapsingHeader(ICON_FA_BOXES " Collider", &open, ImGuiTreeNodeFlags_DefaultOpen)) {
             Collider &collider = entity.getComponent<Collider>();
 
             bool isEdited = false;
@@ -591,40 +636,38 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
             default:
                 break;
             }
-            {
-                static char buffer[32];
-                strcpy(buffer, collider.tag.c_str());
-                if (ImGui::InputText("Tag##Collider", buffer, sizeof(buffer))) {
-                    collider.tag = buffer;
-                    isEdited = true;
-                }
+            static char buffer[32];
+            strcpy(buffer, collider.tag.c_str());
+            if (ImGui::InputText("Tag##Collider", buffer, sizeof(buffer))) {
+                collider.tag = buffer;
+                isEdited = true;
             }
             if (isEdited && this->_graphic->isRunning()) {
                 std::size_t instance = this->getPhysicInstanceIndex(this->_graphic->getSelectedEntity());
                 // this->_resourceManager->getPhysicInstances()[instance].updateColliderRuntime(collider);
             }
-
-            if (ImGui::Button("Remove##Collider"))
-                entity.removeComponent<Collider>();
             ImGui::Separator();
         }
+        if (!open)
+            entity.removeComponent<Collider>();
     }
     if (entity.hasComponent<CharacterController>()) {
-        if (ImGui::CollapsingHeader(ICON_FA_RUNNING " CharacterController", ImGuiTreeNodeFlags_DefaultOpen)) {
+        bool open = true;
+        if (ImGui::CollapsingHeader(ICON_FA_RUNNING " CharacterController", &open, ImGuiTreeNodeFlags_DefaultOpen)) {
             CharacterController &characterController = entity.getComponent<CharacterController>();
 
             ImGui::DragFloat3("Center##CharacterController", (float *)&characterController.center, 1.0f, -FLT_MAX, +FLT_MAX);
             ImGui::SliderFloat("SlopeLimit##CharacterController", &characterController.slopeLimit, 0.0f, 90.0f);
-
-            if (ImGui::Button("Remove##CharacterController"))
-                entity.removeComponent<CharacterController>();
             ImGui::Separator();
         }
+        if (!open)
+            entity.removeComponent<CharacterController>();
     }
     std::size_t it = 0;
     for (auto &[scriptName, script] : this->_resourceManager->getScripts()) {
         if (entity.hasScriptComponent(scriptName)) {
-            if (ImGui::CollapsingHeader((ICON_FA_FILE_CODE " " + scriptName).c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+            bool open = true;
+            if (ImGui::CollapsingHeader((ICON_FA_FILE_CODE " " + scriptName).c_str(), &open, ImGuiTreeNodeFlags_DefaultOpen)) {
                 ImGui::PushID(it);
                 for (auto &[fieldName, field] : script.getFields()) {
                     if (this->_graphic->isRunning()) {
@@ -668,76 +711,77 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                     }
                 }
                 ImGui::PopID();
-                if (ImGui::Button(("Remove##" + std::to_string(it)).c_str()))
-                    entity.removeScriptComponent(scriptName);
                 ImGui::Separator();
             }
+            if (!open)
+                entity.removeScriptComponent(scriptName);
             it++;
         }
     }
 
-    const float footerReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerReserve), false, ImGuiWindowFlags_HorizontalScrollbar);
     ImGui::EndChild();
     ImGui::Separator();
-    if (ImGui::CollapsingHeader("Add Component")) {
+    ImGui::SetNextItemWidth(-1);
+    if (ImGui::BeginCombo("##Add", ICON_FA_PLUS " Add Component", ImGuiComboFlags_NoArrowButton)) {
         if (!entity.hasComponent<Transform>()) {
-            ImGui::Text("%s", ICON_FA_ARROWS_ALT);
-            ImGui::SameLine(30, 0);
+            ImGui::Text(ICON_FA_ARROWS_ALT);
+            ImGui::SameLine(20, 0);
             if (ImGui::Selectable("Transform##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(Transform());
         }
         if (!entity.hasComponent<Model>()) {
-            ImGui::Text("%s", ICON_FA_CUBE);
-            ImGui::SameLine(30, 0);
+            ImGui::Text(ICON_FA_CUBE);
+            ImGui::SameLine(20, 0);
             if (ImGui::Selectable("Model##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(Model());
         }
         if (!entity.hasComponent<Camera>()) {
-            ImGui::Text("%s", ICON_FA_CAMERA);
-            ImGui::SameLine(30, 0);
+            ImGui::Text(ICON_FA_CAMERA);
+            ImGui::SameLine(20, 0);
             if (ImGui::Selectable("Camera##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(Camera());
         }
         if (!entity.hasComponent<Light>()) {
-            ImGui::Text("%s", ICON_FA_LIGHTBULB);
-            ImGui::SameLine(30, 0);
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 2);
+            ImGui::Text(ICON_FA_LIGHTBULB);
+            ImGui::SameLine(20, 0);
             if (ImGui::Selectable("Light##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(Light());
         }
         if (!entity.hasComponent<Cubemap>()) {
-            ImGui::Text("%s", ICON_FA_CUBE);
-            ImGui::SameLine(30, 0);
+            ImGui::Text(ICON_FA_CUBE);
+            ImGui::SameLine(20, 0);
             if (ImGui::Selectable("Cubemap##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(Cubemap());
         }
         if (!entity.hasComponent<Billboard>()) {
-            ImGui::Text("%s", ICON_FA_SIGN);
-            ImGui::SameLine(30, 0);
+            ImGui::Text(ICON_FA_SIGN);
+            ImGui::SameLine(20, 0);
             if (ImGui::Selectable("Billboard##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(Billboard());
         }
         if (!entity.hasComponent<Map>()) {
-            ImGui::Text("%s", ICON_FA_MAP);
-            ImGui::SameLine(30, 0);
+            ImGui::Text(ICON_FA_MAP);
+            ImGui::SameLine(20, 0);
             if (ImGui::Selectable("Map##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(Map());
         }
         if (!entity.hasComponent<RigidBody>()) {
-            ImGui::Text("%s", ICON_FA_BOXES);
-            ImGui::SameLine(30, 0);
+            ImGui::Text(ICON_FA_BOXES);
+            ImGui::SameLine(20, 0);
             if (ImGui::Selectable("RigidBody##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(RigidBody());
         }
         if (!entity.hasComponent<Collider>()) {
-            ImGui::Text("%s", ICON_FA_BOXES);
-            ImGui::SameLine(30, 0);
+            ImGui::Text(ICON_FA_BOXES);
+            ImGui::SameLine(20, 0);
             if (ImGui::Selectable("Collider##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(Collider());
         }
         if (!entity.hasComponent<CharacterController>()) {
-            ImGui::Text("%s", ICON_FA_RUNNING);
-            ImGui::SameLine(30, 0);
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 2);
+            ImGui::Text(ICON_FA_RUNNING);
+            ImGui::SameLine(20, 0);
             if (ImGui::Selectable("CharacterController##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(CharacterController());
         }
@@ -747,8 +791,9 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
             if (entity.hasScriptComponent(scriptName))
                 continue;
             ImGui::PushID((int)it);
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 2);
             ImGui::Text(ICON_FA_FILE_CODE);
-            ImGui::SameLine(30, 0);
+            ImGui::SameLine(20, 0);
             if (ImGui::Selectable((scriptName + "##selectable").c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
                 ScriptComponent scriptComponent(script);
                 entity.addScriptComponent(scriptName, scriptComponent);
@@ -756,6 +801,7 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
             ImGui::PopID();
             it++;
         }
+        ImGui::EndCombo();
     }
 
     ImGui::End();
@@ -1127,7 +1173,7 @@ void GUISystem::drawProjectManager(std::shared_ptr<EntityManager> &entityManager
             }
         } else {
             ImGui::SameLine();
-            ImGui::Text("%s", ICON_FA_EXCLAMATION_TRIANGLE " Open project to edit scenes");
+            ImGui::Text(ICON_FA_EXCLAMATION_TRIANGLE " Open project to edit scenes");
             for (auto &sceneName : this->_projectSettings[this->_editingProject].scenes) {
                 ImGui::Text("   %s", sceneName.c_str());
                 if (sceneName == "main") {

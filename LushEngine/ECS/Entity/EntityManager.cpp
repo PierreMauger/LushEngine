@@ -4,7 +4,8 @@ using namespace Lush;
 
 void EntityManager::addEntity(Entity &entity)
 {
-    this->_entities[this->_entities.size()] = entity;
+    std::size_t index = this->_entities.empty() ? 0 : this->_entities.rbegin()->first + 1;
+    this->_entities[index] = entity;
 }
 
 void EntityManager::addEntity(Entity &entity, std::size_t index)
