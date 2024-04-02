@@ -343,6 +343,11 @@ bool GUISystem::drawEntityInSceneHierarchy(std::shared_ptr<EntityManager> &entit
         ImGui::PopID();
         return true;
     }
+    ImGui::Indent(20);
+    for (auto &childId : entity.getChildren())
+        if (this->drawEntityInSceneHierarchy(entityManager, childId, entityManager->getEntity(childId)))
+            break;
+    ImGui::Unindent(20);
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 4);
     ImGui::Dummy(ImVec2(ImGui::GetWindowWidth() / 2, 4));
@@ -368,13 +373,6 @@ bool GUISystem::drawEntityInSceneHierarchy(std::shared_ptr<EntityManager> &entit
         }
         ImGui::EndDragDropTarget();
     }
-
-    ImGui::Indent(20);
-    for (auto &childId : entity.getChildren()) {
-        if (this->drawEntityInSceneHierarchy(entityManager, childId, entityManager->getEntity(childId)))
-            break;
-    }
-    ImGui::Unindent(20);
     ImGui::PopID();
     return false;
 }

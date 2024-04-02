@@ -26,8 +26,23 @@ void PickingSystem::update(std::shared_ptr<EntityManager> &entityManager, float 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    this->drawModels(entityManager);
-    this->drawBillboards(entityManager);
+    this->_graphic->getRenderView().use("PickingModel");
+    this->_graphic->getRenderView().setView();
+    for (auto &[id, entity] : entityManager->getEntities()) {
+        if (entity.getParent().has_value())
+            continue;
+        if (entity.hasComponent<Transform>() && entity.hasComponent<Model>())
+            this->drawModels(entity, id, entityManager);
+    }
+
+    this->_graphic->getRenderView().use("PickingBillboard");
+    this->_graphic->getRenderView().setView();
+    for (auto &[id, entity] : entityManager->getEntities()) {
+        if (entity.getParent().has_value())
+            continue;
+        if (entity.hasComponent<Transform>() && entity.hasComponent<Billboard>())
+            this->drawBillboards(entity, id, entityManager);
+    }
 
     // convert from viewport coord to screen coord (picking buffer is drawn on whole screen and resized later to viewport)
     glm::vec2 mousePosition = this->_graphic->getMousePosition();
@@ -45,57 +60,50 @@ void PickingSystem::update(std::shared_ptr<EntityManager> &entityManager, float 
     this->drawOutline(pixel);
 }
 
-void PickingSystem::drawModels(std::shared_ptr<EntityManager> &entityManager)
+void PickingSystem::drawModels(Entity &entity, std::size_t id, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
 {
-    this->_graphic->getRenderView().use("PickingModel");
-    this->_graphic->getRenderView().setView();
-    for (auto &[id, entity] : entityManager->getEntities()) {
-        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
+    Model model = entity.getComponent<Model>();
+    Transform transform = entity.getComponent<Transform>();
+    transform.position += parentTransform.position;
+    glm::vec4 color((((id + 1) & 0x000000FF) >> 0) / 255.0f, (((id + 1) & 0x0000FF00) >> 8) / 255.0f, (((id + 1) & 0x00FF0000) >> 16) / 255.0f, 1.0f);
+
+    this->_graphic->getRenderView().getShader().setVec4("id", color);
+    this->_graphic->getRenderView().setModel(transform);
+    if (this->_resourceManager->getModels().contains(model.name))
+        this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model, this->_resourceManager->getTextures());
+
+    for (auto &childId : entity.getChildren()) {
+        if (!entityManager->getEntities().contains(childId))
             continue;
-        Transform transform = entity.getComponent<Transform>();
-        Model model = entity.getComponent<Model>();
-
-        glm::vec4 color;
-        color.r = (((id + 1) & 0x000000FF) >> 0) / 255.0f;
-        color.g = (((id + 1) & 0x0000FF00) >> 8) / 255.0f;
-        color.b = (((id + 1) & 0x00FF0000) >> 16) / 255.0f;
-        color.a = 1.0f;
-
-        this->_graphic->getRenderView().getShader().setVec4("id", color);
-        this->_graphic->getRenderView().setModel(transform);
-        if (this->_resourceManager->getModels().contains(model.name))
-            this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model, this->_resourceManager->getTextures());
+        Entity &child = entityManager->getEntities()[childId];
+        if (child.hasComponent<Transform>() && child.hasComponent<Model>())
+            this->drawModels(child, childId, entityManager, transform);
     }
 }
 
-void PickingSystem::drawBillboards(std::shared_ptr<EntityManager> &entityManager)
+void PickingSystem::drawBillboards(Entity &entity, std::size_t id, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
 {
-    this->_graphic->getRenderView().use("PickingBillboard");
-    this->_graphic->getRenderView().setView();
-    for (auto &[id, entity] : entityManager->getEntities()) {
-        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Billboard>())
+    Billboard billboard = entity.getComponent<Billboard>();
+    Transform transform = entity.getComponent<Transform>();
+    transform.position += parentTransform.position;
+    glm::vec4 color((((id + 1) & 0x000000FF) >> 0) / 255.0f, (((id + 1) & 0x0000FF00) >> 8) / 255.0f, (((id + 1) & 0x00FF0000) >> 16) / 255.0f, 1.0f);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures().contains(billboard.name) ? this->_resourceManager->getTextures()[billboard.name]->getId() : 0);
+    this->_graphic->getRenderView().getShader().setInt("tex", 0);
+    this->_graphic->getRenderView().getShader().setVec4("id", color);
+    this->_graphic->getRenderView().getShader().setBool("lockYAxis", billboard.lockYAxis);
+    this->_graphic->getRenderView().setBillboard(transform);
+    glBindVertexArray(this->_billboard.vao);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+
+    for (auto &childId : entity.getChildren()) {
+        if (!entityManager->getEntities().contains(childId))
             continue;
-        Transform transform = entity.getComponent<Transform>();
-        Billboard billboard = entity.getComponent<Billboard>();
-
-        glm::vec4 color;
-        color.r = (((id + 1) & 0x000000FF) >> 0) / 255.0f;
-        color.g = (((id + 1) & 0x0000FF00) >> 8) / 255.0f;
-        color.b = (((id + 1) & 0x00FF0000) >> 16) / 255.0f;
-        color.a = 1.0f;
-
-        glActiveTexture(GL_TEXTURE0);
-        if (this->_resourceManager->getTextures().contains(billboard.name))
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[billboard.name]->getId());
-        else
-            glBindTexture(GL_TEXTURE_2D, 0);
-        this->_graphic->getRenderView().getShader().setInt("tex", 0);
-        this->_graphic->getRenderView().getShader().setVec4("id", color);
-        this->_graphic->getRenderView().getShader().setBool("lockYAxis", billboard.lockYAxis);
-        this->_graphic->getRenderView().setBillboard(transform);
-        glBindVertexArray(this->_billboard.vao);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(0);
+        Entity &child = entityManager->getEntities()[childId];
+        if (child.hasComponent<Transform>() && child.hasComponent<Model>())
+            this->drawModels(child, childId, entityManager, transform);
     }
 }
 

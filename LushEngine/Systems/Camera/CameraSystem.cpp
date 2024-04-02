@@ -61,17 +61,31 @@ void CameraSystem::drawShadowMap(std::shared_ptr<EntityManager> &entityManager, 
     glCullFace(GL_FRONT);
 
     for (auto &[id, entity] : entityManager->getEntities()) {
-        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
+        if (entity.getParent().has_value() || !entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
             continue;
-        Transform transform = entity.getComponent<Transform>();
-        Model model = entity.getComponent<Model>();
-
-        this->_graphic->getRenderView().setModel(transform);
-
-        if (this->_resourceManager->getModels().contains(model.name))
-            this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model, this->_resourceManager->getTextures());
+        this->drawModels(entity, entityManager);
     }
+
     glCullFace(GL_BACK);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, this->_graphic->getWindowSize().x, this->_graphic->getWindowSize().y);
+}
+
+void CameraSystem::drawModels(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
+{
+    Model model = entity.getComponent<Model>();
+    Transform transform = entity.getComponent<Transform>();
+    transform.position += parentTransform.position;
+
+    this->_graphic->getRenderView().setModel(transform);
+    if (this->_resourceManager->getModels().contains(model.name))
+        this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model, this->_resourceManager->getTextures());
+
+    for (auto &childId : entity.getChildren()) {
+        if (!entityManager->getEntities().contains(childId))
+            continue;
+        Entity &child = entityManager->getEntities()[childId];
+        if (child.hasComponent<Transform>() && child.hasComponent<Model>())
+            this->drawModels(child, entityManager, transform);
+    }
 }

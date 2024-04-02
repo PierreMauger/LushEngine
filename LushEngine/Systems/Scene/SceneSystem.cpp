@@ -40,8 +40,26 @@ void SceneSystem::update(std::shared_ptr<EntityManager> &entityManager, float de
 
     this->drawSkybox(entityManager);
     this->drawMap(entityManager);
-    this->drawModels(entityManager);
-    this->drawBillboards(entityManager);
+
+    this->_graphic->getRenderView().use("Model");
+    this->_graphic->getRenderView().setView();
+    glActiveTexture(GL_TEXTURE9);
+    this->_graphic->getRenderView().getShader().setInt("shadowMap", 9);
+    glBindTexture(GL_TEXTURE_2D, this->_graphic->getFrameBuffers()["shadow"].texture);
+    for (auto &[id, entity] : entityManager->getEntities()) {
+        if (entity.getParent().has_value() || !entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
+            continue;
+        this->drawModels(entity, entityManager);
+    }
+
+    this->_graphic->getRenderView().use("Billboard");
+    this->_graphic->getRenderView().setView();
+    for (auto &[id, entity] : entityManager->getEntities()) {
+        if (entity.getParent().has_value() || !entity.hasComponent<Transform>() || !entity.hasComponent<Billboard>())
+            continue;
+        this->drawBillboards(entity, entityManager);
+    }
+
     this->drawCameraFrustum(entityManager);
     this->drawLightDirection(entityManager);
     this->drawGrid();
@@ -126,47 +144,46 @@ void SceneSystem::handleMouse()
     }
 }
 
-void SceneSystem::drawModels(std::shared_ptr<EntityManager> &entityManager)
+void SceneSystem::drawModels(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
 {
-    this->_graphic->getRenderView().use("Model");
-    this->_graphic->getRenderView().setView();
-    glActiveTexture(GL_TEXTURE9);
-    this->_graphic->getRenderView().getShader().setInt("shadowMap", 9);
-    glBindTexture(GL_TEXTURE_2D, this->_graphic->getFrameBuffers()["shadow"].texture);
+    Model model = entity.getComponent<Model>();
+    Transform transform = entity.getComponent<Transform>();
+    transform.position += parentTransform.position;
 
-    for (auto &[id, entity] : entityManager->getEntities()) {
-        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
+    this->_graphic->getRenderView().setModel(transform);
+    if (this->_resourceManager->getModels().contains(model.name))
+        this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model, this->_resourceManager->getTextures());
+
+    for (auto &childId : entity.getChildren()) {
+        if (!entityManager->getEntities().contains(childId))
             continue;
-        Transform transform = entity.getComponent<Transform>();
-        Model model = entity.getComponent<Model>();
-
-        this->_graphic->getRenderView().setModel(transform);
-        if (this->_resourceManager->getModels().contains(model.name))
-            this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model, this->_resourceManager->getTextures());
+        Entity &child = entityManager->getEntities()[childId];
+        if (child.hasComponent<Transform>() && child.hasComponent<Model>())
+            this->drawModels(child, entityManager, transform);
     }
 }
 
-void SceneSystem::drawBillboards(std::shared_ptr<EntityManager> &entityManager)
+void SceneSystem::drawBillboards(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
 {
-    this->_graphic->getRenderView().use("Billboard");
-    this->_graphic->getRenderView().setView();
-    for (auto &[id, entity] : entityManager->getEntities()) {
-        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Billboard>())
-            continue;
-        Transform transform = entity.getComponent<Transform>();
-        Billboard billboard = entity.getComponent<Billboard>();
+    Billboard billboard = entity.getComponent<Billboard>();
+    Transform transform = entity.getComponent<Transform>();
+    transform.position += parentTransform.position;
 
-        this->_graphic->getRenderView().setBillboard(transform);
-        glActiveTexture(GL_TEXTURE0);
-        if (this->_resourceManager->getTextures().contains(billboard.name))
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[billboard.name]->getId());
-        else
-            glBindTexture(GL_TEXTURE_2D, 0);
-        this->_graphic->getRenderView().getShader().setInt("tex", 0);
-        this->_graphic->getRenderView().getShader().setBool("lockYAxis", billboard.lockYAxis);
-        glBindVertexArray(this->_billboard.vao);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(0);
+    this->_graphic->getRenderView().setBillboard(transform);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures().contains(billboard.name) ? this->_resourceManager->getTextures()[billboard.name]->getId() : 0);
+    this->_graphic->getRenderView().getShader().setInt("tex", 0);
+    this->_graphic->getRenderView().getShader().setBool("lockYAxis", billboard.lockYAxis);
+    glBindVertexArray(this->_billboard.vao);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+
+    for (auto &childId : entity.getChildren()) {
+        if (!entityManager->getEntities().contains(childId))
+            continue;
+        Entity &child = entityManager->getEntities()[childId];
+        if (child.hasComponent<Transform>() && child.hasComponent<Model>())
+            this->drawModels(child, entityManager, transform);
     }
 }
 
@@ -175,7 +192,7 @@ void SceneSystem::drawMap(std::shared_ptr<EntityManager> &entityManager)
     this->_graphic->getRenderView().use(this->_graphic->isWireframe() ? "MapWireframe" : "Map");
     this->_graphic->getRenderView().setView();
     for (auto &[id, entity] : entityManager->getEntities()) {
-        if (!entity.hasComponent<Transform>() || !entity.hasComponent<Map>())
+        if (entity.getParent().has_value() || !entity.hasComponent<Transform>() || !entity.hasComponent<Map>())
             continue;
         Map map = entity.getComponent<Map>();
 
