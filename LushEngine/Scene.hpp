@@ -32,6 +32,7 @@ namespace Lush
             void load(const File &file, std::unordered_map<std::string, ScriptClass> &scripts);
             void reload(const File &file, std::unordered_map<std::string, ScriptClass> &scripts);
 
+            void loadEntity(rapidxml::xml_node<> *node, std::unordered_map<std::string, ScriptClass> &scripts, std::size_t parentId = -1);
             static void loadTransform(rapidxml::xml_node<> *node, Entity &entity);
             static void loadModel(rapidxml::xml_node<> *node, Entity &entity);
             static void loadCamera(rapidxml::xml_node<> *node, Entity &entity);

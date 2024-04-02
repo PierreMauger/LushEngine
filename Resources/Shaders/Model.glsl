@@ -170,7 +170,7 @@ void main()
 
     if (hasTexture) {
         result *= texture(tex.diffuse, TexCoords).a;
-        if (texture(tex.diffuse, TexCoords).a <= 0.2f)
+        if (texture(tex.diffuse, TexCoords).a == 0.0f)
             discard;
     }
 

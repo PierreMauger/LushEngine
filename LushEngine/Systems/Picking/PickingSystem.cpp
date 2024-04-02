@@ -84,6 +84,12 @@ void PickingSystem::drawBillboards(std::shared_ptr<EntityManager> &entityManager
         color.b = (((id + 1) & 0x00FF0000) >> 16) / 255.0f;
         color.a = 1.0f;
 
+        glActiveTexture(GL_TEXTURE0);
+        if (this->_resourceManager->getTextures().contains(billboard.name))
+            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[billboard.name]->getId());
+        else
+            glBindTexture(GL_TEXTURE_2D, 0);
+        this->_graphic->getRenderView().getShader().setInt("tex", 0);
         this->_graphic->getRenderView().getShader().setVec4("id", color);
         this->_graphic->getRenderView().getShader().setBool("lockYAxis", billboard.lockYAxis);
         this->_graphic->getRenderView().setBillboard(transform);

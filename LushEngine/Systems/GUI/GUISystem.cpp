@@ -371,8 +371,7 @@ bool GUISystem::drawEntityInSceneHierarchy(std::shared_ptr<EntityManager> &entit
 
     ImGui::Indent(20);
     for (auto &childId : entity.getChildren()) {
-        Entity &child = entityManager->getEntity(childId);
-        if (this->drawEntityInSceneHierarchy(entityManager, childId, child))
+        if (this->drawEntityInSceneHierarchy(entityManager, childId, entityManager->getEntity(childId)))
             break;
     }
     ImGui::Unindent(20);

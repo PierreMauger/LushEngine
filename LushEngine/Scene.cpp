@@ -33,26 +33,35 @@ void Scene::load(const File &file, std::unordered_map<std::string, ScriptClass> 
 {
     rapidxml::xml_document<> doc;
     std::string xml = file.load();
-    char *xmlCopy = new char[file.load().size() + 1];
-
-    std::strcpy(xmlCopy, xml.c_str());
-    doc.parse<0>(xmlCopy);
+    doc.parse<0>((char *)xml.c_str());
 
     rapidxml::xml_node<> *rootNode = doc.first_node("Scene");
     rapidxml::xml_node<> *entitiesNode = rootNode->first_node("Entities");
     for (rapidxml::xml_node<> *entityNode = entitiesNode->first_node("Entity"); entityNode; entityNode = entityNode->next_sibling("Entity")) {
-        int id = 0;
-        if (entityNode->first_attribute("id"))
-            id = std::atoi(entityNode->first_attribute("id")->value());
-        else if (this->_entityManager->getEntities().size() > 0)
-            id = this->_entityManager->getEntities().rbegin()->first + 1;
+        this->loadEntity(entityNode, scripts);
+    }
+}
 
-        Entity entity;
-        if (entityNode->first_attribute("name"))
-            entity.setName(entityNode->first_attribute("name")->value());
+void Scene::reload(const File &file, std::unordered_map<std::string, ScriptClass> &scripts)
+{
+    this->_entityManager->clear();
+    this->load(file, scripts);
+}
 
-        rapidxml::xml_node<> *componentsNode = entityNode->first_node("Components");
-        for (rapidxml::xml_node<> *componentNode = componentsNode->first_node(); componentNode; componentNode = componentNode->next_sibling()) {
+void Scene::loadEntity(rapidxml::xml_node<> *node, std::unordered_map<std::string, ScriptClass> &scripts, std::size_t parentId)
+{
+    int id = 0;
+    if (node->first_attribute("id"))
+        id = std::atoi(node->first_attribute("id")->value());
+    else if (this->_entityManager->getEntities().size() > 0)
+        id = this->_entityManager->getEntities().rbegin()->first + 1;
+
+    Entity entity;
+    if (node->first_attribute("name"))
+        entity.setName(node->first_attribute("name")->value());
+
+    if (node->first_node("Components")) {
+        for (rapidxml::xml_node<> *componentNode = node->first_node("Components")->first_node(); componentNode; componentNode = componentNode->next_sibling()) {
             if (componentLoaders.contains(componentNode->name()))
                 componentLoaders.at(componentNode->name())(componentNode, entity);
             else if (scripts.contains(componentNode->name()))
@@ -60,15 +69,17 @@ void Scene::load(const File &file, std::unordered_map<std::string, ScriptClass> 
             else
                 std::cout << "Component loader not found for " << componentNode->name() << std::endl;
         }
-        this->_entityManager->addEntity(entity, id);
     }
-    delete[] xmlCopy;
-}
-
-void Scene::reload(const File &file, std::unordered_map<std::string, ScriptClass> &scripts)
-{
-    this->_entityManager->clear();
-    this->load(file, scripts);
+    if (parentId != -1) {
+        entity.setParent(parentId);
+        this->_entityManager->getEntity(parentId).addChild(id);
+    }
+    this->_entityManager->addEntity(entity, id);
+    if (node->first_node("Children")) {
+        for (rapidxml::xml_node<> *childNode = node->first_node("Children")->first_node("Entity"); childNode; childNode = childNode->next_sibling("Entity")) {
+            this->loadEntity(childNode, scripts, id);
+        }
+    }
 }
 
 void Scene::loadTransform(rapidxml::xml_node<> *node, Entity &entity)

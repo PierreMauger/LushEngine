@@ -28,12 +28,14 @@ void main()
 #version 330 core
 out vec4 FragColor;
 
-in vec3 Normal;
-in vec3 FragPos;
+in vec2 TexCoords;
 
 uniform vec4 id;
+uniform sampler2D tex;
 
 void main()
 {
+    if (texture(tex, TexCoords).a == 0.0f)
+        discard;
     FragColor = id;
 }

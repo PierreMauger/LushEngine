@@ -32,12 +32,24 @@ void main()
 #version 330 core
 out vec4 FragColor;
 
+struct Texture {
+    sampler2D diffuse;
+    sampler2D specular;
+    sampler2D emission;
+    float shininess;
+};
+
 in vec3 Normal;
 in vec3 FragPos;
+in vec2 TexCoords;
 
 uniform vec4 id;
+uniform Texture tex;
+uniform bool hasTexture = false;
 
 void main()
 {
+    if (hasTexture && texture(tex.diffuse, TexCoords).a == 0.0f)
+        discard;
     FragColor = id;
 }
