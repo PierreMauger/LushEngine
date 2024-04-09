@@ -14,8 +14,7 @@ TerrainInstance::TerrainInstance(std::size_t id, Transform &transform, Texture &
     btTransform btTransform;
     btTransform.setIdentity();
     btTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
-    glm::quat rotation = glm::quat(glm::radians(transform.rotation));
-    btTransform.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+    btTransform.setRotation(btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w));
     this->_rigidBody->setWorldTransform(btTransform);
 }
 

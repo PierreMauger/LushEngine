@@ -27,8 +27,8 @@ public class Transform : Component
         get => InternalCalls.Transform_GetPosition(entity.id, out Vector3 position) ? position : new Vector3();
         set => InternalCalls.Transform_SetPosition(entity.id, ref value);
     }
-    public Vector3 rotation {
-        get => InternalCalls.Transform_GetRotation(entity.id, out Vector3 rotation) ? rotation : new Vector3();
+    public Quaternion rotation {
+        get => InternalCalls.Transform_GetRotation(entity.id, out Quaternion rotation) ? rotation : new Quaternion();
         set => InternalCalls.Transform_SetRotation(entity.id, ref value);
     }
     public Vector3 scale {

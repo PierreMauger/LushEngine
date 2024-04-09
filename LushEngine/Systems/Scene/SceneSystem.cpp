@@ -123,6 +123,7 @@ void SceneSystem::handleMouse()
     if (this->_graphic->isSceneHovered()) {
         if (this->_graphic->getMouseButton() == 1) {
             this->_graphic->getRenderView().rotate(transform, this->_graphic->getMouseOffset());
+            camera.forward = glm::mat3(glm::toMat4(transform.rotation)) * glm::vec3(0.0f, 0.0f, -1.0f);
             this->_graphic->setMouseCursor(0);
         }
         if (this->_graphic->getMouseButton() == 2) {
@@ -138,9 +139,6 @@ void SceneSystem::handleMouse()
         }
         if (this->_graphic->getMouseButton() == 3)
             this->generatePerlinTexture();
-        camera.forward.x = std::cos(glm::radians(transform.rotation.x)) * std::cos(glm::radians(transform.rotation.y));
-        camera.forward.y = std::sin(glm::radians(transform.rotation.y));
-        camera.forward.z = std::sin(glm::radians(transform.rotation.x)) * std::cos(glm::radians(transform.rotation.y));
     }
 }
 
@@ -148,10 +146,8 @@ void SceneSystem::drawModels(Entity &entity, std::shared_ptr<EntityManager> &ent
 {
     Model model = entity.getComponent<Model>();
     Transform transform = entity.getComponent<Transform>();
-    glm::quat parentQ = glm::quat(glm::radians(parentTransform.rotation));
-    glm::quat q = parentQ * glm::quat(glm::radians(transform.rotation));
-    transform.rotation = glm::degrees(glm::eulerAngles(q));
-    transform.position = parentQ * transform.position + parentTransform.position;
+    transform.rotation = parentTransform.rotation * transform.rotation;
+    transform.position = parentTransform.rotation * transform.position + parentTransform.position;
 
     this->_graphic->getRenderView().setModel(transform);
     if (this->_resourceManager->getModels().contains(model.name))
@@ -170,10 +166,8 @@ void SceneSystem::drawBillboards(Entity &entity, std::shared_ptr<EntityManager> 
 {
     Billboard billboard = entity.getComponent<Billboard>();
     Transform transform = entity.getComponent<Transform>();
-    glm::quat parentQ = glm::quat(glm::radians(parentTransform.rotation));
-    glm::quat q = parentQ * glm::quat(glm::radians(transform.rotation));
-    transform.rotation = glm::degrees(glm::eulerAngles(q));
-    transform.position = parentQ * transform.position + parentTransform.position;
+    transform.rotation = parentTransform.rotation * transform.rotation;
+    transform.position = parentTransform.rotation * transform.position + parentTransform.position;
 
     this->_graphic->getRenderView().setBillboard(transform);
     glActiveTexture(GL_TEXTURE0);
@@ -330,8 +324,7 @@ void SceneSystem::drawLightDirection(std::shared_ptr<EntityManager> &entityManag
         break;
     }
     case LightType::SPOT: {
-        glm::quat q = glm::quat(glm::radians(transform.rotation));
-        glm::vec3 direction = glm::mat3(glm::toMat4(q)) * glm::vec3(0.0f, 0.0f, -1.0f);
+        glm::vec3 direction = glm::mat3(glm::toMat4(transform.rotation)) * glm::vec3(0.0f, 0.0f, -1.0f);
 
         glm::mat4 view = glm::lookAt(transform.position, transform.position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 frustum = glm::inverse(glm::perspective(glm::radians(15.0f), 1.0f, 0.1f, 5.0f) * view);

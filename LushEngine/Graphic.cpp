@@ -15,9 +15,8 @@ Graphic::Graphic(int sizeX, int sizeY, const std::string &title) : _renderView((
     this->setGLFWContext(sizeX, sizeY, title);
 
     this->_sceneCamera.first.position = glm::vec3(10.0f, 5.0f, 15.0f);
-    this->_sceneCamera.first.rotation = glm::vec3(-130.0f, -15.0f, 0.0f);
-    this->_sceneCamera.second.forward = glm::vec3(std::cos(glm::radians(-130.0f)) * std::cos(glm::radians(-15.0f)), std::sin(glm::radians(-15.0f)),
-                                                  std::sin(glm::radians(-130.0f)) * std::cos(glm::radians(-15.0f)));
+    this->_sceneCamera.first.rotation = glm::quat(glm::radians(glm::vec3(15.0f, -30.0f, 180.0f)));
+    this->_sceneCamera.second.forward = glm::mat3(glm::toMat4(this->_sceneCamera.first.rotation)) * glm::vec3(0.0f, 0.0f, -1.0f);
     this->_sceneCamera.second.far = 1000.0f;
 
     this->_mousePosition = glm::vec2(sizeX / 2, sizeY / 2);

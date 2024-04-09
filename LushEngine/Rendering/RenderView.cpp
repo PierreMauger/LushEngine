@@ -53,8 +53,7 @@ glm::mat4 RenderView::getProjection()
 
 void RenderView::setLightMatrix(Transform transform, Light light)
 {
-    glm::quat q = glm::quat(glm::radians(transform.rotation));
-    glm::vec3 front = glm::mat3(glm::toMat4(q)) * glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 front = glm::mat3(glm::toMat4(transform.rotation)) * glm::vec3(0.0f, 0.0f, -1.0f);
 
     this->_position = transform.position;
     this->_view = glm::lookAt(this->_position, this->_position + front, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -98,12 +97,10 @@ void RenderView::update(Transform transform, Camera camera)
 
 void RenderView::rotate(Transform &transform, glm::vec2 offset) const
 {
-    // x is yaw, y is pitch
-    transform.rotation.x += offset.x * this->_sensitivity;
-    transform.rotation.y += offset.y * this->_sensitivity;
+    offset *= -this->_sensitivity;
 
-    transform.rotation.x = fmod(transform.rotation.x, 360.0f);
-    transform.rotation.y = glm::clamp(transform.rotation.y, -89.0f, 89.0f);
+    transform.rotation = glm::angleAxis(glm::radians(offset.x), glm::vec3(0.0f, 1.0f, 0.0f)) * transform.rotation;
+    transform.rotation = transform.rotation * glm::angleAxis(glm::radians(offset.y), glm::vec3(1.0f, 0.0f, 0.0f));
 }
 
 void RenderView::setView()
@@ -126,7 +123,7 @@ void RenderView::setDirLights(std::vector<std::pair<Transform, Light>> dirLights
 
     for (std::size_t i = 0; i < dirLights.size() && i < 2; i++) {
         glm::vec3 direction = glm::vec3(0.0f, 0.0f, -1.0f);
-        glm::quat q = glm::quat(glm::radians(dirLights[i].first.rotation));
+        glm::quat q = dirLights[i].first.rotation;
         direction = glm::mat3(glm::toMat4(q)) * direction;
 
         this->_shaders[this->_actShader]->setVec3("dirLights[" + std::to_string(i) + "].direction", direction);
@@ -151,7 +148,7 @@ void RenderView::setModel(Transform transform)
 {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, transform.position);
-    model *= glm::toMat4(glm::quat(glm::radians(transform.rotation)));
+    model *= glm::toMat4(transform.rotation);
     model = glm::scale(model, transform.scale);
 
     this->_shaders[this->_actShader]->setMat4("model", model);

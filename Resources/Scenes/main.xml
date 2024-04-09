@@ -38,7 +38,7 @@
     </Entity>
     <Entity name="First fox">
       <Components>
-        <Transform position="2 0 -3" rotation="0 -90 0" />
+        <Transform position="2 0 -3" rotation="0 -180 0" />
         <Model name="Fox">
           <Material name="orangeFur" diffuse="0.8 0.1 0.04" />
           <Material name="whiteFur" diffuse="0.8 0.8 0.8" />
@@ -49,13 +49,13 @@
     </Entity>
     <Entity name="Second fox">
       <Components>
-        <Transform position="-2 0 -3" rotation="0 -90 0" />
+        <Transform position="-2 0 -3" rotation="0 180 0" />
         <Model name="Fox" />
       </Components>
       <Children>
         <Entity name="Pirate Hat">
           <Components>
-            <Transform position="0.75 1.35 0.05" rotation="85 75 90" />
+            <Transform position="0.05 1.35 -0.75" rotation="-5 180 -15" />
             <Model name="PirateHat" />
           </Components>
         </Entity>

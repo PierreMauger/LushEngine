@@ -104,7 +104,7 @@ void ScriptGlue::Transform_SetPosition(std::size_t id, glm::vec3 *position)
         std::cout << "[Toast Error]Entity " << id << " has no Transform component" << std::endl;
 }
 
-bool ScriptGlue::Transform_GetRotation(std::size_t id, glm::vec3 *rotation)
+bool ScriptGlue::Transform_GetRotation(std::size_t id, glm::quat *rotation)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
         return false;
@@ -118,7 +118,7 @@ bool ScriptGlue::Transform_GetRotation(std::size_t id, glm::vec3 *rotation)
     return false;
 }
 
-void ScriptGlue::Transform_SetRotation(std::size_t id, glm::vec3 *rotation)
+void ScriptGlue::Transform_SetRotation(std::size_t id, glm::quat *rotation)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;

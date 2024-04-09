@@ -12,6 +12,12 @@
 
 namespace boost::serialization
 {
+    template <class Archive> void serialize(Archive &ar, glm::vec2 &v, [[maybe_unused]] const unsigned int version)
+    {
+        ar &v.x;
+        ar &v.y;
+    }
+
     template <class Archive> void serialize(Archive &ar, glm::vec3 &v, [[maybe_unused]] const unsigned int version)
     {
         ar &v.x;
@@ -19,10 +25,21 @@ namespace boost::serialization
         ar &v.z;
     }
 
-    template <class Archive> void serialize(Archive &ar, glm::vec2 &v, [[maybe_unused]] const unsigned int version)
+
+    template <class Archive> void serialize(Archive &ar, glm::vec4 &v, [[maybe_unused]] const unsigned int version)
     {
         ar &v.x;
         ar &v.y;
+        ar &v.z;
+        ar &v.w;
+    }
+
+    template <class Archive> void serialize(Archive &ar, glm::quat &q, [[maybe_unused]] const unsigned int version)
+    {
+        ar &q.x;
+        ar &q.y;
+        ar &q.z;
+        ar &q.w;
     }
 
     template <class Archive> void serialize(Archive &ar, glm::mat4 &mat, [[maybe_unused]] const unsigned int version)

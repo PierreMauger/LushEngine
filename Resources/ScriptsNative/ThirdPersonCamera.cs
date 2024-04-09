@@ -38,10 +38,6 @@ public class ThirdPersonCamera : CustomComponent
         if (Vector3.dot(forward, up) < 0.9f && Vector3.dot(forward, up) > -0.9f)
             camera.forward = forward;
 
-        // set transform rotation
-        Quaternion rotation = Quaternion.lookAt(camera.forward, up);
-        transform.rotation = Vector3.quaternionToEuler(rotation).radiansToDegrees();
-
         // set camera behind player
         Vector3 tmpPosition = transform.position;
         tmpPosition = Vector3.lerp(tmpPosition, playerTransform.position - camera.forward * distance, 1.0f);

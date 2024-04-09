@@ -48,11 +48,8 @@ public class Controllable : CustomComponent
             transform.position = tmpPos;
 
             // Align character rotation with movement direction
-            Vector3 tmpRot = transform.rotation;
-            tmpRot.y = (tmpRot.y + 360.0f) % 360.0f;
-            float newRotY = -MathF.Atan2(moveDirection.z, moveDirection.x) * 180.0f / MathF.PI;
-            tmpRot.y = LerpBetweenAngle(tmpRot.y, newRotY, deltaTime * 10.0f);
-            transform.rotation = tmpRot;
+            Quaternion targetRotation = Quaternion.lookAt(moveDirection, new Vector3(0.0f, 1.0f, 0.0f));
+            transform.rotation = Quaternion.slerp(transform.rotation, targetRotation, deltaTime * speed);
         }
     }
 }

@@ -44,28 +44,21 @@ btCollisionObject *PhysicInstance::getCollisionObject() const
 
 void PhysicInstance::preUpdate(Transform &transform)
 {
-    bool diffPosition = false;
-    bool diffRotation = false;
+    bool changed = false;
 
     btVector3 position = this->_rigidBody->getCenterOfMassPosition();
-    btScalar roll, pitch, yaw;
-    this->_rigidBody->getOrientation().getEulerZYX(yaw, pitch, roll);
-    roll = btDegrees(roll);
-    pitch = btDegrees(pitch);
-    yaw = btDegrees(yaw);
+    btQuaternion quat = this->_rigidBody->getOrientation();
 
     if (position != btVector3(transform.position.x, transform.position.y, transform.position.z))
-        diffPosition = true;
-    if (roll != transform.rotation.x || pitch != transform.rotation.y || yaw != transform.rotation.z)
-        diffRotation = true;
+        changed = true;
+    if (quat != btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w))
+        changed = true;
 
-    if (diffPosition || diffRotation) {
+    if (changed) {
         btTransform startTransform;
         startTransform.setIdentity();
         startTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
-        btQuaternion rotation;
-        rotation.setEulerZYX(btRadians(transform.rotation.z), btRadians(transform.rotation.y), btRadians(transform.rotation.x));
-        startTransform.setRotation(rotation);
+        startTransform.setRotation(btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w));
         this->_rigidBody->setWorldTransform(startTransform);
     }
 }
@@ -73,15 +66,10 @@ void PhysicInstance::preUpdate(Transform &transform)
 void PhysicInstance::postUpdate(Transform &transform)
 {
     btVector3 position = this->_rigidBody->getCenterOfMassPosition();
-    btScalar roll, pitch, yaw;
-    this->_rigidBody->getOrientation().getEulerZYX(yaw, pitch, roll);
-
-    roll = btDegrees(roll);
-    pitch = btDegrees(pitch);
-    yaw = btDegrees(yaw);
+    btQuaternion quat = this->_rigidBody->getOrientation();
 
     transform.position = glm::vec3(position.x(), position.y(), position.z());
-    transform.rotation = glm::vec3(roll, pitch, yaw);
+    transform.rotation = glm::quat(quat.w(), quat.x(), quat.y(), quat.z());
 }
 
 void PhysicInstance::addToWorld(btDiscreteDynamicsWorld *world)
@@ -121,7 +109,7 @@ btDefaultMotionState *PhysicInstance::initTransform(Transform &transform)
     btTransform startTransform;
     startTransform.setIdentity();
     startTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
-    startTransform.setRotation(btQuaternion(btRadians(transform.rotation.y), btRadians(transform.rotation.x), btRadians(transform.rotation.z)));
+    startTransform.setRotation(btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w));
     return new btDefaultMotionState(startTransform);
 }
 

@@ -33,6 +33,10 @@ void ScriptClass::loadAttributes()
     void *iter = nullptr;
 
     MonoObject *instance = mono_object_new(this->_domain, this->_class);
+    if (!instance) {
+        std::cout << "[Toast Error]Failed to create instance of class: " + std::string(mono_class_get_name(this->_class)) << std::endl;
+        return;
+    }
     mono_runtime_object_init(instance);
     for (int i = 0; i < fieldCount; i++) {
         MonoClassField *field = mono_class_get_fields(this->_class, &iter);

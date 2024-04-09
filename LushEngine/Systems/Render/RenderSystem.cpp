@@ -54,10 +54,8 @@ void RenderSystem::drawModels(Entity &entity, std::shared_ptr<EntityManager> &en
 {
     Model model = entity.getComponent<Model>();
     Transform transform = entity.getComponent<Transform>();
-    glm::quat parentQ = glm::quat(glm::radians(parentTransform.rotation));
-    glm::quat q = parentQ * glm::quat(glm::radians(transform.rotation));
-    transform.rotation = glm::degrees(glm::eulerAngles(q));
-    transform.position = parentQ * transform.position + parentTransform.position;
+    transform.rotation = parentTransform.rotation * transform.rotation;
+    transform.position = parentTransform.rotation * transform.position + parentTransform.position;
 
     this->_graphic->getRenderView().setModel(transform);
     if (this->_resourceManager->getModels().contains(model.name))
@@ -76,10 +74,8 @@ void RenderSystem::drawBillboards(Entity &entity, std::shared_ptr<EntityManager>
 {
     Billboard billboard = entity.getComponent<Billboard>();
     Transform transform = entity.getComponent<Transform>();
-    glm::quat parentQ = glm::quat(glm::radians(parentTransform.rotation));
-    glm::quat q = parentQ * glm::quat(glm::radians(transform.rotation));
-    transform.rotation = glm::degrees(glm::eulerAngles(q));
-    transform.position = parentQ * transform.position + parentTransform.position;
+    transform.rotation = parentTransform.rotation * transform.rotation;
+    transform.position = parentTransform.rotation * transform.position + parentTransform.position;
 
     this->_graphic->getRenderView().setBillboard(transform);
     glActiveTexture(GL_TEXTURE0);

@@ -61,6 +61,38 @@ public struct Quaternion
         return new Quaternion(axis.x * sin, axis.y * sin, axis.z * sin, cos);
     }
 
+    public static Quaternion slerp(Quaternion a, Quaternion b, float t)
+    {
+        float dot = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+
+        if (dot < 0.0f) {
+            b = new Quaternion(-b.x, -b.y, -b.z, -b.w);
+            dot = -dot;
+        }
+
+        float scale0;
+        float scale1;
+
+        if (dot > 1 - 1e-6f) {
+            // The inputs are very close together, do linear interpolation
+            scale0 = 1 - t;
+            scale1 = t;
+        } else {
+            // Standard case, do spherical linear interpolation
+            float theta = (float)Math.Acos(dot);
+            float sinTheta = (float)Math.Sin(theta);
+            scale0 = (float)Math.Sin((1 - t) * theta) / sinTheta;
+            scale1 = (float)Math.Sin(t * theta) / sinTheta;
+        }
+
+        return new Quaternion(
+            scale0 * a.x + scale1 * b.x,
+            scale0 * a.y + scale1 * b.y,
+            scale0 * a.z + scale1 * b.z,
+            scale0 * a.w + scale1 * b.w
+        );
+    }
+
     public static Quaternion operator *(Quaternion a, Vector3 b)
     {
         return new Quaternion(

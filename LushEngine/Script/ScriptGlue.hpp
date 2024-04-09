@@ -19,8 +19,8 @@ namespace Lush
 
             static bool Transform_GetPosition(std::size_t id, glm::vec3 *position);
             static void Transform_SetPosition(std::size_t id, glm::vec3 *position);
-            static bool Transform_GetRotation(std::size_t id, glm::vec3 *rotation);
-            static void Transform_SetRotation(std::size_t id, glm::vec3 *rotation);
+            static bool Transform_GetRotation(std::size_t id, glm::quat *rotation);
+            static void Transform_SetRotation(std::size_t id, glm::quat *rotation);
             static bool Transform_GetScale(std::size_t id, glm::vec3 *scale);
             static void Transform_SetScale(std::size_t id, glm::vec3 *scale);
 

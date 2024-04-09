@@ -453,7 +453,9 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
             Transform &transform = entity.getComponent<Transform>();
 
             ImGui::DragFloat3("Position##Transform", (float *)&transform.position, 0.1f, -FLT_MAX, +FLT_MAX);
-            ImGui::DragFloat3("Rotation##Transform", (float *)&transform.rotation, 1.0f, -FLT_MAX, +FLT_MAX);
+            glm::vec3 euler = glm::degrees(glm::eulerAngles(transform.rotation));
+            ImGui::DragFloat3("Rotation##Transform", (float *)&euler, 1.0f, -FLT_MAX, +FLT_MAX);
+            transform.rotation = glm::quat(glm::radians(euler));
             ImGui::DragFloat3("Scale##Transform", (float *)&transform.scale, 0.01f, 0.0f, +FLT_MAX);
             ImGui::Separator();
         }
@@ -961,20 +963,18 @@ bool GUISystem::drawGuizmo(Entity &entity, std::shared_ptr<EntityManager> &entit
     float snap[3] = {snapValue, snapValue, snapValue};
 
     if (parentTransform.has_value()) {
-        glm::quat parentQ = glm::quat(glm::radians(parentTransform.value().rotation));
-        glm::quat q = parentQ * glm::quat(glm::radians(transform.rotation));
-        transform.rotation = glm::degrees(glm::eulerAngles(q));
-        transform.position = parentQ * transform.position + parentTransform.value().position;
+        transform.rotation = parentTransform.value().rotation * transform.rotation;
+        transform.position = parentTransform.value().rotation * transform.position + parentTransform.value().position;
     }
+    glm::vec3 euler = glm::degrees(glm::eulerAngles(transform.rotation));
     ImGuizmo::SetRect(viewport.x, viewport.y, viewport.z, viewport.w);
-    ImGuizmo::RecomposeMatrixFromComponents((float *)&transform.position, (float *)&transform.rotation, (float *)&transform.scale, (float *)&model);
+    ImGuizmo::RecomposeMatrixFromComponents((float *)&transform.position, (float *)&euler, (float *)&transform.scale, (float *)&model);
     ImGuizmo::Manipulate((float *)&view, (float *)&projection, this->_currentOperation, this->_currentMode, (float *)&model, nullptr, ImGui::GetIO().KeyCtrl ? snap : nullptr);
-    ImGuizmo::DecomposeMatrixToComponents((float *)&model, (float *)&transform.position, (float *)&transform.rotation, (float *)&transform.scale);
+    ImGuizmo::DecomposeMatrixToComponents((float *)&model, (float *)&transform.position, (float *)&euler, (float *)&transform.scale);
+    transform.rotation = glm::quat(glm::radians(euler));
     if (parentTransform.has_value()) {
-        glm::quat parentQ = glm::quat(glm::radians(parentTransform.value().rotation));
-        glm::quat q = glm::inverse(parentQ) * glm::quat(glm::radians(transform.rotation));
-        transform.rotation = glm::degrees(glm::eulerAngles(q));
-        transform.position = glm::inverse(parentQ) * (transform.position - parentTransform.value().position);
+        transform.rotation = glm::inverse(parentTransform.value().rotation) * transform.rotation;
+        transform.position = glm::inverse(parentTransform.value().rotation) * (transform.position - parentTransform.value().position);
     }
     return ImGuizmo::IsUsing();
 }

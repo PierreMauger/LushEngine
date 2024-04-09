@@ -87,8 +87,11 @@ void Scene::loadTransform(rapidxml::xml_node<> *node, Entity &entity)
     Transform transform;
     if (node->first_attribute("position"))
         std::sscanf(node->first_attribute("position")->value(), "%f %f %f", &transform.position.x, &transform.position.y, &transform.position.z);
-    if (node->first_attribute("rotation"))
-        std::sscanf(node->first_attribute("rotation")->value(), "%f %f %f", &transform.rotation.x, &transform.rotation.y, &transform.rotation.z);
+    if (node->first_attribute("rotation")) {
+        glm::vec3 rotation;
+        std::sscanf(node->first_attribute("rotation")->value(), "%f %f %f", &rotation.x, &rotation.y, &rotation.z);
+        transform.rotation = glm::quat(glm::radians(rotation));
+    }
     if (node->first_attribute("scale"))
         std::sscanf(node->first_attribute("scale")->value(), "%f %f %f", &transform.scale.x, &transform.scale.y, &transform.scale.z);
     entity.addComponent(transform);
