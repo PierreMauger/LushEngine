@@ -905,7 +905,7 @@ void GUISystem::drawScene(std::shared_ptr<EntityManager> &entityManager)
         ImGuizmo::BeginFrame();
         ImGuizmo::SetDrawlist();
         if (entityManager->hasEntity(this->_graphic->getSelectedEntity()))
-            guizmoDrawn = this->drawGuizmo(entityManager->getEntity(this->_graphic->getSelectedEntity()));
+            guizmoDrawn = this->drawGuizmo(entityManager->getEntity(this->_graphic->getSelectedEntity()), entityManager);
 
         if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_T)))
             this->_currentOperation = ImGuizmo::TRANSLATE;
@@ -943,11 +943,14 @@ void GUISystem::drawScene(std::shared_ptr<EntityManager> &entityManager)
     ImGui::End();
 }
 
-bool GUISystem::drawGuizmo(Entity &entity)
+bool GUISystem::drawGuizmo(Entity &entity, std::shared_ptr<EntityManager> &entityManager)
 {
     if (!entity.hasComponent<Transform>())
         return false;
     Transform &transform = entity.getComponent<Transform>();
+    std::optional<Transform> parentTransform = entity.getParent().has_value() && entityManager->getEntity(entity.getParent().value()).hasComponent<Transform>()
+                                                   ? std::optional<Transform>(entityManager->getEntity(entity.getParent().value()).getComponent<Transform>())
+                                                   : std::nullopt;
 
     glm::vec4 viewport = this->_graphic->getSceneViewPort();
     glm::mat4 view = this->_graphic->getRenderView().getView();
@@ -957,10 +960,22 @@ bool GUISystem::drawGuizmo(Entity &entity)
     float snapValue = this->_currentOperation == ImGuizmo::ROTATE ? 45.0f : 0.5f;
     float snap[3] = {snapValue, snapValue, snapValue};
 
+    if (parentTransform.has_value()) {
+        glm::quat parentQ = glm::quat(glm::radians(parentTransform.value().rotation));
+        glm::quat q = parentQ * glm::quat(glm::radians(transform.rotation));
+        transform.rotation = glm::degrees(glm::eulerAngles(q));
+        transform.position = parentQ * transform.position + parentTransform.value().position;
+    }
     ImGuizmo::SetRect(viewport.x, viewport.y, viewport.z, viewport.w);
     ImGuizmo::RecomposeMatrixFromComponents((float *)&transform.position, (float *)&transform.rotation, (float *)&transform.scale, (float *)&model);
     ImGuizmo::Manipulate((float *)&view, (float *)&projection, this->_currentOperation, this->_currentMode, (float *)&model, nullptr, ImGui::GetIO().KeyCtrl ? snap : nullptr);
     ImGuizmo::DecomposeMatrixToComponents((float *)&model, (float *)&transform.position, (float *)&transform.rotation, (float *)&transform.scale);
+    if (parentTransform.has_value()) {
+        glm::quat parentQ = glm::quat(glm::radians(parentTransform.value().rotation));
+        glm::quat q = glm::inverse(parentQ) * glm::quat(glm::radians(transform.rotation));
+        transform.rotation = glm::degrees(glm::eulerAngles(q));
+        transform.position = glm::inverse(parentQ) * (transform.position - parentTransform.value().position);
+    }
     return ImGuizmo::IsUsing();
 }
 

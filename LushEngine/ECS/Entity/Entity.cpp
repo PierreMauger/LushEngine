@@ -101,5 +101,7 @@ Entity &Entity::clone(const Entity &other)
     for (auto &[name, component] : other._components)
         this->_components[name] = component->clone();
     this->_scriptComponents = other._scriptComponents;
+    this->_children = other._children;
+    this->_parent = other._parent;
     return *this;
 }

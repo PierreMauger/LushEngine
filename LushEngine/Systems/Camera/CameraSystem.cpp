@@ -75,7 +75,10 @@ void CameraSystem::drawModels(Entity &entity, std::shared_ptr<EntityManager> &en
 {
     Model model = entity.getComponent<Model>();
     Transform transform = entity.getComponent<Transform>();
-    transform.position += parentTransform.position;
+    glm::quat parentQ = glm::quat(glm::radians(parentTransform.rotation));
+    glm::quat q = parentQ * glm::quat(glm::radians(transform.rotation));
+    transform.rotation = glm::degrees(glm::eulerAngles(q));
+    transform.position = parentQ * transform.position + parentTransform.position;
 
     this->_graphic->getRenderView().setModel(transform);
     if (this->_resourceManager->getModels().contains(model.name))

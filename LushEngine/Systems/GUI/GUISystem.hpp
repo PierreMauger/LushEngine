@@ -94,7 +94,7 @@ namespace Lush
             void drawConsole();
             void drawGame();
             void drawScene(std::shared_ptr<EntityManager> &entityManager);
-            bool drawGuizmo(Entity &entity);
+            bool drawGuizmo(Entity &entity, std::shared_ptr<EntityManager> &entityManager);
             void drawFileExplorer();
             void drawProfiler();
             void drawProjectManager(std::shared_ptr<EntityManager> &entityManager);

@@ -64,7 +64,10 @@ void PickingSystem::drawModels(Entity &entity, std::size_t id, std::shared_ptr<E
 {
     Model model = entity.getComponent<Model>();
     Transform transform = entity.getComponent<Transform>();
-    transform.position += parentTransform.position;
+    glm::quat parentQ = glm::quat(glm::radians(parentTransform.rotation));
+    glm::quat q = parentQ * glm::quat(glm::radians(transform.rotation));
+    transform.rotation = glm::degrees(glm::eulerAngles(q));
+    transform.position = parentQ * transform.position + parentTransform.position;
     glm::vec4 color((((id + 1) & 0x000000FF) >> 0) / 255.0f, (((id + 1) & 0x0000FF00) >> 8) / 255.0f, (((id + 1) & 0x00FF0000) >> 16) / 255.0f, 1.0f);
 
     this->_graphic->getRenderView().getShader().setVec4("id", color);
@@ -85,7 +88,10 @@ void PickingSystem::drawBillboards(Entity &entity, std::size_t id, std::shared_p
 {
     Billboard billboard = entity.getComponent<Billboard>();
     Transform transform = entity.getComponent<Transform>();
-    transform.position += parentTransform.position;
+    glm::quat parentQ = glm::quat(glm::radians(parentTransform.rotation));
+    glm::quat q = parentQ * glm::quat(glm::radians(transform.rotation));
+    transform.rotation = glm::degrees(glm::eulerAngles(q));
+    transform.position = parentQ * transform.position + parentTransform.position;
     glm::vec4 color((((id + 1) & 0x000000FF) >> 0) / 255.0f, (((id + 1) & 0x0000FF00) >> 8) / 255.0f, (((id + 1) & 0x00FF0000) >> 16) / 255.0f, 1.0f);
 
     glActiveTexture(GL_TEXTURE0);
