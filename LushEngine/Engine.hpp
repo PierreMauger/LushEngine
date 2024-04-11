@@ -12,9 +12,9 @@
 #include "Systems/Camera/CameraSystem.hpp"
 #include "Systems/FileWatcher/FileWatcherSystem.hpp"
 #include "Systems/GUI/GUISystem.hpp"
-#include "Systems/PostProcessing/PostProcessingSystem.hpp"
 #include "Systems/Physic/PhysicSystem.hpp"
 #include "Systems/Picking/PickingSystem.hpp"
+#include "Systems/PostProcessing/PostProcessingSystem.hpp"
 #include "Systems/Render/RenderSystem.hpp"
 #include "Systems/Scene/SceneSystem.hpp"
 #include "Systems/Script/ScriptSystem.hpp"
@@ -34,6 +34,11 @@ namespace Lush
         public:
             explicit Engine(bool isEditor = false);
             ~Engine() = default;
+
+            template <typename T> void bindSystem()
+            {
+                this->_ecs.getSystemManager().bindSystem<T>(this->_graphic, this->_resourceManager);
+            }
 
             void run();
             void updateMouse();

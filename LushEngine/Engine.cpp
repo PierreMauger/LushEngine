@@ -21,21 +21,15 @@ Engine::Engine(bool isEditor) : _isEditor(isEditor)
     this->_ecs.getSystemManager().bindSystem<ScriptSystem>(this->_graphic, this->_resourceManager);
     this->_ecs.getSystemManager().bindSystem<CameraSystem>(this->_graphic, this->_resourceManager);
     this->_ecs.getSystemManager().bindSystem<RenderSystem>(this->_graphic, this->_resourceManager);
-#ifdef EDITOR_MODE
-    this->_ecs.getSystemManager().bindSystem<SceneSystem>(this->_graphic, this->_resourceManager);
-    this->_ecs.getSystemManager().bindSystem<PickingSystem>(this->_graphic, this->_resourceManager);
-    this->_ecs.getSystemManager().bindSystem<GUISystem>(this->_graphic, this->_resourceManager);
-    this->_ecs.getSystemManager().bindSystem<FileWatcherSystem>(this->_graphic, this->_resourceManager);
 
-    this->_ecs.getEntityManager() = this->_resourceManager->getActiveScene().getEntityManager();
-#else
-    this->_ecs.getSystemManager().bindSystem<PostProcessingSystem>(this->_graphic, this->_resourceManager);
-
-    this->_ecs.getEntityManager()->clone(*this->_resourceManager->getActiveScene().getEntityManager());
-    this->_resourceManager->initScriptInstances(this->_ecs.getEntityManager());
-    this->_resourceManager->initPhysicInstances(this->_ecs.getEntityManager());
-    this->_graphic->setRunning(true);
-#endif
+    if (this->_isEditor) {
+        this->_ecs.getEntityManager() = this->_resourceManager->getActiveScene().getEntityManager();
+    } else {
+        this->_ecs.getEntityManager()->clone(*this->_resourceManager->getActiveScene().getEntityManager());
+        this->_resourceManager->initScriptInstances(this->_ecs.getEntityManager());
+        this->_resourceManager->initPhysicInstances(this->_ecs.getEntityManager());
+        this->_graphic->setRunning(true);
+    }
 }
 
 void Engine::run()

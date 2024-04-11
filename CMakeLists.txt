@@ -74,7 +74,6 @@ set(COMMON_SOURCE_FILES
     ${PROJECT_NAME}/File/Resource.cpp
 
     ${LIBS_PATH}/STB/stb.cpp
-    ${PROJECT_NAME}/main.cpp
 )
 
 # Source files specific to lushEditor
@@ -83,11 +82,13 @@ set(EDITOR_SOURCE_FILES
     ${PROJECT_NAME}/Systems/GUI/GUISystem.cpp
     ${PROJECT_NAME}/Systems/Picking/PickingSystem.cpp
     ${PROJECT_NAME}/Systems/Scene/SceneSystem.cpp
+    ${PROJECT_NAME}/main.cpp
 )
 
 # Source files specific to lushGame
 set(GAME_SOURCE_FILES
     ${PROJECT_NAME}/Systems/PostProcessing/PostProcessingSystem.cpp
+    ${PROJECT_NAME}/main.cpp
 )
 
 # Common libraries
@@ -101,13 +102,18 @@ set(COMMON_LIBRARIES
     ${LIBS_PATH}/libassimp.so.5.2.0
 )
 
-# Add the lushEditor target
-add_executable(lushEditor ${COMMON_SOURCE_FILES} ${EDITOR_SOURCE_FILES})
+# Add a library with the common source files
+add_library(lushCommon STATIC ${COMMON_SOURCE_FILES})
+target_compile_features(lushCommon PRIVATE cxx_std_20)
+target_link_libraries(lushCommon ${COMMON_LIBRARIES})
+
+# Add the editor source files
+add_executable(lushEditor ${EDITOR_SOURCE_FILES})
 target_compile_features(lushEditor PRIVATE cxx_std_20)
 target_compile_definitions(lushEditor PRIVATE EDITOR_MODE)
-target_link_libraries(lushEditor ${COMMON_LIBRARIES})
+target_link_libraries(lushEditor lushCommon)
 
-# Add the lushGame target
-add_executable(lushGame ${COMMON_SOURCE_FILES} ${GAME_SOURCE_FILES})
+# Add the game source files
+add_executable(lushGame ${GAME_SOURCE_FILES})
 target_compile_features(lushGame PRIVATE cxx_std_20)
-target_link_libraries(lushGame ${COMMON_LIBRARIES})
+target_link_libraries(lushGame lushCommon)
