@@ -115,17 +115,34 @@ void ScriptGlue::Entity_RemoveComponent(std::size_t id, MonoString *componentNam
 void ScriptGlue::Entity_SetParent(std::size_t id, std::size_t parentId)
 {
     auto entityManager = ECS::getStaticEntityManager();
+    Entity &entity = entityManager->getEntity(id);
+    Entity &parent = entityManager->getEntity(parentId);
+
     if (!entityManager->hasEntity(id) || id == parentId)
         return;
     if (parentId == 0) {
-        entityManager->getEntity(id).removeParent();
-        entityManager->getEntity(parentId).removeChild(id);
+        entity.removeParent();
+        parent.removeChild(id);
+
+        if (entity.hasComponent<Transform>() && parent.hasComponent<Transform>()) {
+            Transform &transform = entity.getComponent<Transform>();
+            Transform &parentTransform = parent.getComponent<Transform>();
+            transform.rotation = glm::inverse(parentTransform.rotation) * transform.rotation;
+            transform.position = glm::inverse(parentTransform.rotation) * (transform.position - parentTransform.position);
+        }
         return;
     }
     if (!entityManager->hasEntity(parentId))
         return;
-    entityManager->getEntity(id).setParent(parentId);
-    entityManager->getEntity(parentId).addChild(id);
+    entity.setParent(parentId);
+    parent.addChild(id);
+
+    if (entity.hasComponent<Transform>() && parent.hasComponent<Transform>()) {
+        Transform &transform = entity.getComponent<Transform>();
+        Transform &parentTransform = parent.getComponent<Transform>();
+        transform.rotation = parentTransform.rotation * transform.rotation;
+        transform.position = parentTransform.rotation * transform.position + parentTransform.position;
+    }
 }
 
 MonoString *ScriptGlue::Entity_GetName(std::size_t id)

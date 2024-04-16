@@ -20,10 +20,13 @@ public class TestScript : CustomComponent
 
     public void onCollisionEnter(ulong otherId)
     {
-        // Entity other = new Entity(otherId);
+        Entity other = new Entity(otherId);
 
+        if (other.getComponent<Collider>().tag == "player") {
+            this.entity.setParent(otherId);
+        }
         // this.entity.addComponent("Billboard");
         // this.entity.getComponent<Billboard>().name = "Lush.png";
-        this.entity.delete();
+        // this.entity.delete();
     }
 }

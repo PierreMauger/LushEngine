@@ -299,6 +299,7 @@ bool GUISystem::drawEntityInSceneHierarchy(std::shared_ptr<EntityManager> &entit
     }
     if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("ENTITY")) {
+            // dragged entity is the child
             int draggedEntityId = *(const int *)payload->Data;
             if (entityManager->getEntities().contains(draggedEntityId)) {
                 Entity &draggedEntity = entityManager->getEntity(draggedEntityId);
@@ -309,6 +310,12 @@ bool GUISystem::drawEntityInSceneHierarchy(std::shared_ptr<EntityManager> &entit
                         entityManager->getEntity(draggedEntity.getParent().value()).removeChild(draggedEntityId);
                     draggedEntity.setParent(id);
                     entity.addChild(draggedEntityId);
+                    if (draggedEntity.hasComponent<Transform>() && entity.hasComponent<Transform>()) {
+                        Transform &draggedTransform = draggedEntity.getComponent<Transform>();
+                        Transform &entityTransform = entity.getComponent<Transform>();
+                        draggedTransform.rotation = entityTransform.rotation * draggedTransform.rotation;
+                        draggedTransform.position = entityTransform.rotation * draggedTransform.position + entityTransform.position;
+                    }
                 }
             }
         }
@@ -350,6 +357,12 @@ bool GUISystem::drawEntityInSceneHierarchy(std::shared_ptr<EntityManager> &entit
                 if (draggedEntityIt->second.getParent().has_value()) {
                     entityManager->getEntity(draggedEntityIt->second.getParent().value()).removeChild(draggedEntityId);
                     draggedEntityIt->second.removeParent();
+                    if (draggedEntityIt->second.hasComponent<Transform>() && entity.hasComponent<Transform>()) {
+                        Transform &draggedTransform = draggedEntityIt->second.getComponent<Transform>();
+                        Transform &entityTransform = entity.getComponent<Transform>();
+                        draggedTransform.rotation = glm::inverse(entityTransform.rotation) * draggedTransform.rotation;
+                        draggedTransform.position = glm::inverse(entityTransform.rotation) * (draggedTransform.position - entityTransform.position);
+                    }
                 }
 
                 int direction = draggedEntityId < id ? 1 : -1;
@@ -1046,7 +1059,7 @@ void GUISystem::drawAbout()
     ImGui::End();
 }
 
-bool GUISystem::openFolderBrowser(const std::string& title, std::string &path, bool &modal)
+bool GUISystem::openFolderBrowser(const std::string &title, std::string &path, bool &modal)
 {
     if (!ImGui::Begin(title.c_str(), &this->_showRootBrowser, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking)) {
         ImGui::End();
