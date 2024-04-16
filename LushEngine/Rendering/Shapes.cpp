@@ -8,7 +8,7 @@ void Shapes::setupFrameBuffer(FrameBuffer &frameBuffer, glm::vec2 size)
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.framebuffer);
     glGenTextures(1, &frameBuffer.texture);
     glBindTexture(GL_TEXTURE_2D, frameBuffer.texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer.texture, 0);
@@ -25,7 +25,7 @@ void Shapes::setupDepthBuffer(FrameBuffer &frameBuffer, glm::vec2 size)
     glGenFramebuffers(1, &frameBuffer.depthbuffer);
     glGenTextures(1, &frameBuffer.texture);
     glBindTexture(GL_TEXTURE_2D, frameBuffer.texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -57,7 +57,7 @@ void Shapes::setupBillboard(BufferObject &bufferObject)
     glBindBuffer(GL_ARRAY_BUFFER, bufferObject.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(billboardVertices), &billboardVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)nullptr);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 }
@@ -70,7 +70,7 @@ void Shapes::setupPlane(BufferObject &bufferObject)
     glBindBuffer(GL_ARRAY_BUFFER, bufferObject.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)nullptr);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 }
@@ -83,7 +83,7 @@ void Shapes::setupSkybox(BufferObject &bufferObject)
     glBindBuffer(GL_ARRAY_BUFFER, bufferObject.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)nullptr);
 }
 
 void Shapes::setupCube(BufferObject &bufferObject)
@@ -94,7 +94,7 @@ void Shapes::setupCube(BufferObject &bufferObject)
     glBindBuffer(GL_ARRAY_BUFFER, bufferObject.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)nullptr);
 }
 
 void createCircle(std::vector<GLfloat> &circleVertices, int segments, char plane)
@@ -128,7 +128,7 @@ void Shapes::setupSphere(BufferObject &bufferObject, int segments)
     glBindBuffer(GL_ARRAY_BUFFER, bufferObject.vbo);
     glBufferData(GL_ARRAY_BUFFER, sphereVertices.size() * sizeof(float), &sphereVertices[0], GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)nullptr);
 }
 
 void Shapes::deleteBufferObject(BufferObject &bufferObject)

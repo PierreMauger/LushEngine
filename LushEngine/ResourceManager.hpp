@@ -69,12 +69,12 @@ namespace Lush
 
             void setAllResourcesUsage();
 
-            bool isModelUsed(std::string modelName);
-            bool isSkyboxUsed(std::string skyboxName);
-            bool isTextureUsed(std::string textureName);
+            bool isModelUsed(const std::string &modelName);
+            bool isSkyboxUsed(const std::string &skyboxName);
+            bool isTextureUsed(const std::string &textureName);
 
         public:
-            ResourceManager(const std::string &resourceDir);
+            explicit ResourceManager(const std::string &resourceDir);
             ~ResourceManager();
 
             void loadProject(const std::string &dir);
@@ -86,8 +86,8 @@ namespace Lush
             void initScriptInstances(std::shared_ptr<EntityManager> &entityManager);
             void initPhysicInstances(std::shared_ptr<EntityManager> &entityManager);
 
-            void serializeAssetPack(std::string path);
-            void deserializeAssetPack(std::string path);
+            void serializeAssetPack(const std::string &path);
+            void deserializeAssetPack(const std::string &path);
 
             std::unordered_map<std::string, File> &getFiles();
 

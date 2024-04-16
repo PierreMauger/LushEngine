@@ -1,9 +1,13 @@
 #include "Systems/Camera/CameraSystem.hpp"
 
+#include <utility>
+
+#include <utility>
+
 using namespace Lush;
 
 CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
-    : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
+    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
 {
     Shapes::setupDepthBuffer(this->_shadowBuffer, {2048, 2048});
     this->_graphic->getFrameBuffers()["shadow"] = this->_shadowBuffer;
@@ -68,7 +72,7 @@ void CameraSystem::drawShadowMap(std::shared_ptr<EntityManager> &entityManager, 
 
     glCullFace(GL_BACK);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, this->_graphic->getWindowSize().x, this->_graphic->getWindowSize().y);
+    glViewport(0, 0, (int)this->_graphic->getWindowSize().x, (int)this->_graphic->getWindowSize().y);
 }
 
 void CameraSystem::drawModels(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)

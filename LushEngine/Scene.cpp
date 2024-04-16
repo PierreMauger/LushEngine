@@ -53,7 +53,7 @@ void Scene::loadEntity(rapidxml::xml_node<> *node, std::unordered_map<std::strin
     int id = 0;
     if (node->first_attribute("id"))
         id = std::atoi(node->first_attribute("id")->value());
-    else if (this->_entityManager->getEntities().size() > 0)
+    else if (!this->_entityManager->getEntities().empty())
         id = this->_entityManager->getEntities().rbegin()->first + 1;
 
     Entity entity;
@@ -65,7 +65,7 @@ void Scene::loadEntity(rapidxml::xml_node<> *node, std::unordered_map<std::strin
             if (componentLoaders.contains(componentNode->name()))
                 componentLoaders.at(componentNode->name())(componentNode, entity);
             else if (scripts.contains(componentNode->name()))
-                this->loadScript(componentNode, entity, scripts[componentNode->name()]);
+                Lush::Scene::loadScript(componentNode, entity, scripts[componentNode->name()]);
             else
                 std::cout << "Component loader not found for " << componentNode->name() << std::endl;
         }

@@ -111,7 +111,7 @@ void RenderModel::extractBoneWeightForVertices(std::vector<Vertex> &vertices, ai
             unsigned int vertexId = weights[weightIndex].mVertexId;
             float weight = weights[weightIndex].mWeight;
             if (vertexId <= vertices.size())
-                this->setVertexBoneData(vertices[vertexId], boneID, weight);
+                Lush::RenderModel::setVertexBoneData(vertices[vertexId], boneID, weight);
         }
     }
 }
@@ -123,7 +123,7 @@ Mesh RenderModel::processMesh(aiMesh &mesh, const aiScene &scene)
 
     for (unsigned int i = 0; i < mesh.mNumVertices; i++) {
         Vertex vertex{};
-        this->setVertexBoneDataToDefault(vertex);
+        Lush::RenderModel::setVertexBoneDataToDefault(vertex);
         vertex.position = glm::vec3(mesh.mVertices[i].x, mesh.mVertices[i].y, mesh.mVertices[i].z);
         vertex.normal = glm::vec3(mesh.mNormals[i].x, mesh.mNormals[i].y, mesh.mNormals[i].z);
 

@@ -1,9 +1,11 @@
 #include "Systems/PostProcessing/PostProcessingSystem.hpp"
 
+#include <utility>
+
 using namespace Lush;
 
 PostProcessingSystem::PostProcessingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
-    : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
+    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
 {
     Shapes::setupPlane(this->_screen);
 }

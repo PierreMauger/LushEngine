@@ -11,17 +11,16 @@ namespace Lush
     {
         private:
             ScriptClass _class;
-            MonoObject *_instance;
-            MonoMethod *_ctor;
-            MonoMethod *_onInit;
-            MonoMethod *_onUpdate;
-            MonoMethod *_onDestroy;
-            MonoMethod *_onCollisionEnter;
-            MonoMethod *_onCollisionStay;
-            MonoMethod *_onCollisionExit;
-            std::size_t _id;
+            MonoObject *_instance{};
+            MonoMethod *_ctor{};
+            MonoMethod *_onInit{};
+            MonoMethod *_onUpdate{};
+            MonoMethod *_onDestroy{};
+            MonoMethod *_onCollisionEnter{};
+            MonoMethod *_onCollisionStay{};
+            MonoMethod *_onCollisionExit{};
+            std::size_t _id{};
             std::unordered_map<std::string, std::any> _defaultFields;
-            bool _destroyed = false;
 
         public:
             ScriptInstance() = default;

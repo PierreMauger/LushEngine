@@ -21,7 +21,7 @@ namespace Lush
             std::string _content;
 
         public:
-            Skybox(File &file);
+            explicit Skybox(File &file);
             Skybox() = default;
             ~Skybox() = default;
 

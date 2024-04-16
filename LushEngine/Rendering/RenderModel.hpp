@@ -47,7 +47,7 @@ namespace Lush
             void extractBoneWeightForVertices(std::vector<Vertex> &vertices, aiMesh &mesh);
 
         public:
-            RenderModel(File &file);
+            explicit RenderModel(File &file);
             RenderModel() = default;
             ~RenderModel() = default;
 

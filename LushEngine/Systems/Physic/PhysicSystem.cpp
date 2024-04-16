@@ -1,9 +1,11 @@
 #include "Systems/Physic/PhysicSystem.hpp"
 
+#include <utility>
+
 using namespace Lush;
 
 PhysicSystem::PhysicSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
-    : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
+    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
 {
     this->_broadphase = new btDbvtBroadphase();
     this->_collisionConfiguration = new btDefaultCollisionConfiguration();

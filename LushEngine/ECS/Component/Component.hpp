@@ -6,7 +6,7 @@
 namespace Lush
 {
     struct Component {
-            virtual Component *clone() const = 0;
+            [[nodiscard]] virtual Component *clone() const = 0;
             template <class Archive> void serialize([[maybe_unused]] Archive &ar, [[maybe_unused]] const unsigned int version){};
     };
 
@@ -15,7 +15,7 @@ namespace Lush
             glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
             glm::vec3 scale = glm::vec3(1.0f);
 
-            Transform *clone() const override
+            [[nodiscard]] Transform *clone() const override
             {
                 return new Transform(*this);
             }
@@ -77,7 +77,7 @@ namespace Lush
             float near = 0.1f;
             float far = 100.0f;
 
-            Camera *clone() const override
+            [[nodiscard]] Camera *clone() const override
             {
                 return new Camera(*this);
             }
@@ -111,7 +111,7 @@ namespace Lush
             // spot light
             float cutOff = 0.0f;
 
-            Light *clone() const override
+            [[nodiscard]] Light *clone() const override
             {
                 return new Light(*this);
             }
@@ -129,7 +129,7 @@ namespace Lush
     struct Cubemap : public Component {
             std::string name = "LearnOpenGL";
 
-            Cubemap *clone() const override
+            [[nodiscard]] Cubemap *clone() const override
             {
                 return new Cubemap(*this);
             }
@@ -141,10 +141,10 @@ namespace Lush
     };
 
     struct Billboard : public Component {
-            std::string name = "";
+            std::string name;
             bool lockYAxis = false;
 
-            Billboard *clone() const override
+            [[nodiscard]] Billboard *clone() const override
             {
                 return new Billboard(*this);
             }
@@ -157,13 +157,13 @@ namespace Lush
     };
 
     struct Map : public Component {
-            std::string heightMap = "";
-            std::string diffuseTexture = "";
-            std::string normalTexture = "";
-            std::string diffuseTexture2 = "";
-            std::string diffuseTexture3 = "";
+            std::string heightMap;
+            std::string diffuseTexture;
+            std::string normalTexture;
+            std::string diffuseTexture2;
+            std::string diffuseTexture3;
 
-            Map *clone() const override
+            [[nodiscard]] Map *clone() const override
             {
                 return new Map(*this);
             }
@@ -184,7 +184,7 @@ namespace Lush
             float restitution = 0.0f;
             bool kinematic = false;
 
-            RigidBody *clone() const override
+            [[nodiscard]] RigidBody *clone() const override
             {
                 return new RigidBody(*this);
             }
@@ -211,9 +211,9 @@ namespace Lush
             ColliderType type = ColliderType::BOX;
             glm::vec3 center = glm::vec3(0.0f);
             glm::vec3 size = glm::vec3(0.0f);
-            std::string tag = "";
+            std::string tag;
 
-            Collider *clone() const override
+            [[nodiscard]] Collider *clone() const override
             {
                 return new Collider(*this);
             }
@@ -232,7 +232,7 @@ namespace Lush
             float slopeLimit = 45.0f;
             float stepOffset = 1.0f;
 
-            CharacterController *clone() const override
+            [[nodiscard]] CharacterController *clone() const override
             {
                 return new CharacterController(*this);
             }

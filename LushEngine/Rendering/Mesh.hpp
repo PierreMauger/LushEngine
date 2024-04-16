@@ -37,8 +37,6 @@ namespace Lush
             }
     };
 
-
-
     struct Tex {
             std::string name;
             std::string type;
@@ -82,7 +80,7 @@ namespace Lush
             void setupMesh();
 
         public:
-            Mesh(std::vector<Vertex> &vertices, std::vector<unsigned int> &indices, std::vector<Tex> &textures, std::string material);
+            Mesh(std::vector<Vertex> &vertices, std::vector<unsigned int> &indices, std::vector<Tex> &textures, const std::string &material);
             Mesh() = default;
             ~Mesh() = default;
 

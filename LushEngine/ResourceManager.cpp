@@ -60,7 +60,7 @@ void ResourceManager::setAllResourcesUsage()
     for (auto &[modelName, model] : this->_models)
         if (this->isModelUsed(modelName)) {
             model->setUsed(true);
-            for (auto textureName : model->getTextureNames())
+            for (const auto &textureName : model->getTextureNames())
                 this->_textures[textureName]->setUsed(true);
         }
     for (auto &[skyboxName, skybox] : this->_skyboxes)
@@ -72,7 +72,7 @@ void ResourceManager::setAllResourcesUsage()
     this->_textures[this->_logoName]->setUsed(true);
 }
 
-bool ResourceManager::isModelUsed(std::string modelName)
+bool ResourceManager::isModelUsed(const std::string &modelName)
 {
     for (auto &[name, scene] : this->_scenes) {
         if (!scene->isUsed())
@@ -84,7 +84,7 @@ bool ResourceManager::isModelUsed(std::string modelName)
     return false;
 }
 
-bool ResourceManager::isSkyboxUsed(std::string skyboxName)
+bool ResourceManager::isSkyboxUsed(const std::string &skyboxName)
 {
     for (auto &[name, scene] : this->_scenes) {
         if (!scene->isUsed())
@@ -96,7 +96,7 @@ bool ResourceManager::isSkyboxUsed(std::string skyboxName)
     return false;
 }
 
-bool ResourceManager::isTextureUsed(std::string textureName)
+bool ResourceManager::isTextureUsed(const std::string &textureName)
 {
     for (auto &[name, scene] : this->_scenes) {
         if (!scene->isUsed())
@@ -113,7 +113,7 @@ bool ResourceManager::isTextureUsed(std::string textureName)
     return false;
 }
 
-void ResourceManager::serializeAssetPack(std::string path)
+void ResourceManager::serializeAssetPack(const std::string &path)
 {
     std::ofstream ofs(path, std::ios::binary);
     boost::archive::binary_oarchive oa(ofs, boost::archive::no_header);
@@ -163,7 +163,7 @@ void ResourceManager::serializeAssetPack(std::string path)
     ofs.close();
 }
 
-void ResourceManager::deserializeAssetPack(std::string path)
+void ResourceManager::deserializeAssetPack(const std::string &path)
 {
     std::ifstream ifs(path, std::ios::binary);
     boost::archive::binary_iarchive ia(ifs, boost::archive::no_header);

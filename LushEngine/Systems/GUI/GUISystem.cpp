@@ -1,4 +1,5 @@
 #include "Systems/GUI/GUISystem.hpp"
+#include <utility>
 
 using namespace Lush;
 
@@ -6,7 +7,8 @@ static const char *cameraTypeNames[CameraType::CAMERA_TYPE_COUNT] = {"Perspectiv
 static const char *lightTypeNames[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
 static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"box", "Sphere", "Capsule", "Mesh"};
 
-GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
+GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
+    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
 {
     if (!IMGUI_CHECKVERSION())
         throw std::runtime_error("ImGui version is invalid");
@@ -160,7 +162,7 @@ void GUISystem::handleConsole()
             std::stringstream ss;
             ss << std::put_time(&tm, "[%H:%M:%S] ");
 
-            this->_consoleBuffer.push_back({type, ss.str() + line});
+            this->_consoleBuffer.emplace_back(type, ss.str() + line);
         }
         this->_graphic->getStringStream().str("");
     }
@@ -278,18 +280,6 @@ void GUISystem::drawActionBar(std::shared_ptr<EntityManager> &entityManager)
 
 void GUISystem::deleteEntity(std::shared_ptr<EntityManager> &entityManager, std::size_t id, Entity &entity)
 {
-    // if (this->_graphic->isRunning()) {
-    //     for (auto &[scriptName, index] : entity.getScriptIndexes()) {
-    //         this->_resourceManager->getScriptInstances()[index].onDestroy();
-    //         this->_resourceManager->getScriptInstances().erase(index);
-    //     }
-    //     auto physicIt = std::find_if(this->_resourceManager->getPhysicInstances().begin(), this->_resourceManager->getPhysicInstances().end(),
-    //                                  [id](const auto &instance) { return instance->getId() == id; });
-    //     if (physicIt != this->_resourceManager->getPhysicInstances().end()) {
-    //         (*physicIt)->removeFromWorld(this->_resourceManager->getDynamicsWorld());
-    //         this->_resourceManager->getPhysicInstances().erase(physicIt);
-    //     }
-    // }
     for (auto &childId : entity.getChildren())
         this->deleteEntity(entityManager, childId, entityManager->getEntity(childId));
     if (entity.getParent().has_value())
@@ -1056,7 +1046,7 @@ void GUISystem::drawAbout()
     ImGui::End();
 }
 
-bool GUISystem::openFolderBrowser(std::string title, std::string &path, bool &modal)
+bool GUISystem::openFolderBrowser(const std::string& title, std::string &path, bool &modal)
 {
     if (!ImGui::Begin(title.c_str(), &this->_showRootBrowser, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking)) {
         ImGui::End();
@@ -1067,11 +1057,11 @@ bool GUISystem::openFolderBrowser(std::string title, std::string &path, bool &mo
     ImGui::SameLine();
     ImGui::Text("%s", this->_fileBrowserPath.c_str());
     for (const auto &entry : std::filesystem::directory_iterator(this->_fileBrowserPath)) {
-        const auto &path = entry.path();
-        const auto &filenameStr = path.filename().string();
+        const auto &subPath = entry.path();
+        const auto &filenameStr = subPath.filename().string();
         if (entry.is_directory() && filenameStr[0] != '.') {
             if (ImGui::Selectable(filenameStr.c_str(), false, ImGuiSelectableFlags_DontClosePopups)) {
-                this->_fileBrowserPath = path.string();
+                this->_fileBrowserPath = subPath.string();
             }
         }
     }

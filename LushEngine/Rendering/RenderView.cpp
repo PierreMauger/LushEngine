@@ -34,7 +34,7 @@ Shader &RenderView::getShader()
     return *this->_shaders[this->_actShader];
 }
 
-Shader &RenderView::getShader(std::string shaderName)
+Shader &RenderView::getShader(const std::string &shaderName)
 {
     if (!this->_shaders.contains(shaderName))
         throw std::runtime_error("Getting a shader not loaded: " + shaderName);
@@ -51,7 +51,7 @@ glm::mat4 RenderView::getProjection()
     return this->_projection;
 }
 
-void RenderView::setLightMatrix(Transform transform, Light light)
+void RenderView::setLightMatrix(const Transform &transform, const Light &light)
 {
     glm::vec3 front = glm::mat3(glm::toMat4(transform.rotation)) * glm::vec3(0.0f, 0.0f, -1.0f);
 
@@ -67,7 +67,7 @@ glm::mat4 RenderView::getLightMatrix()
     return this->_lightSpaceMatrix;
 }
 
-void RenderView::use(std::string shaderName)
+void RenderView::use(const std::string &shaderName)
 {
     if (!this->_shaders.contains(shaderName))
         throw std::runtime_error("Using unknown shader: " + shaderName);
@@ -77,7 +77,7 @@ void RenderView::use(std::string shaderName)
     }
 }
 
-void RenderView::update(Transform transform, Camera camera)
+void RenderView::update(const Transform &transform, const Camera &camera)
 {
     this->_position = transform.position;
     this->_front = camera.forward;
@@ -144,7 +144,7 @@ void RenderView::setPointLights(std::vector<std::pair<Transform, Light>> pointLi
     }
 }
 
-void RenderView::setModel(Transform transform)
+void RenderView::setModel(const Transform &transform)
 {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, transform.position);
@@ -154,7 +154,7 @@ void RenderView::setModel(Transform transform)
     this->_shaders[this->_actShader]->setMat4("model", model);
 }
 
-void RenderView::setBillboard(Transform transform)
+void RenderView::setBillboard(const Transform &transform)
 {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, transform.position);

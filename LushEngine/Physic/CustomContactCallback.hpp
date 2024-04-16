@@ -38,11 +38,11 @@ namespace Lush
             std::unordered_map<std::pair<const btCollisionObject *, const btCollisionObject *>, CollisionState> _collisionTable;
 
         public:
-            virtual btScalar addSingleResult(btManifoldPoint &cp, const btCollisionObjectWrapper *colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper *colObj1Wrap,
-                                             int partId1, int index1);
+            btScalar addSingleResult(btManifoldPoint &cp, const btCollisionObjectWrapper *colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper *colObj1Wrap,
+                                     int partId1, int index1) override;
 
             void removeExitedCollisions();
-            void onCollision(const btCollisionObject *obj0, const btCollisionObject *obj1, CollisionState state);
+            static void onCollision(const btCollisionObject *obj0, const btCollisionObject *obj1, CollisionState state);
     };
 }
 

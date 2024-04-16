@@ -25,7 +25,7 @@ namespace Lush
             std::string _content;
 
         public:
-            Texture(File &file);
+            explicit Texture(File &file);
             Texture() = default;
             ~Texture();
 
@@ -33,11 +33,11 @@ namespace Lush
             void reload(const File &file);
             void createTexture();
 
-            unsigned int getId() const;
-            int getWidth() const;
-            int getHeight() const;
-            unsigned char *getHeightData() const;
-            std::string getContent() const;
+            [[nodiscard]] unsigned int getId() const;
+            [[nodiscard]] int getWidth() const;
+            [[nodiscard]] int getHeight() const;
+            [[nodiscard]] unsigned char *getHeightData() const;
+            [[nodiscard]] std::string getContent() const;
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {

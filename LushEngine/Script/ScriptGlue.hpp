@@ -36,14 +36,14 @@ namespace Lush
             static bool Camera_GetForward(std::size_t id, glm::vec3 *forward);
             static void Camera_SetForward(std::size_t id, glm::vec3 *forward);
             static bool Camera_GetFOV(std::size_t id, float *fov);
-            static void Camera_SetFOV(std::size_t id, float *fov);
+            static void Camera_SetFOV(std::size_t id, const float *fov);
             static bool Camera_GetNear(std::size_t id, float *near);
-            static void Camera_SetNear(std::size_t id, float *near);
+            static void Camera_SetNear(std::size_t id, const float *near);
             static bool Camera_GetFar(std::size_t id, float *far);
-            static void Camera_SetFar(std::size_t id, float *far);
+            static void Camera_SetFar(std::size_t id, const float *far);
 
             static bool Light_GetIntensity(std::size_t id, float *intensity);
-            static void Light_SetIntensity(std::size_t id, float *intensity);
+            static void Light_SetIntensity(std::size_t id, const float *intensity);
             static bool Light_GetColor(std::size_t id, glm::vec3 *color);
             static void Light_SetColor(std::size_t id, glm::vec3 *color);
 
@@ -53,7 +53,7 @@ namespace Lush
             static bool Billboard_GetName(std::size_t id, MonoString **name);
             static void Billboard_SetName(std::size_t id, MonoString *name);
             static bool Billboard_GetLockYAxis(std::size_t id, bool *lock);
-            static void Billboard_SetLockYAxis(std::size_t id, bool *lock);
+            static void Billboard_SetLockYAxis(std::size_t id, const bool *lock);
 
             static bool Collider_GetTag(std::size_t id, MonoString **tag);
             static void Collider_SetTag(std::size_t id, MonoString *tag);

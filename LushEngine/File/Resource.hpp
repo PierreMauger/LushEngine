@@ -39,7 +39,7 @@ namespace Lush
             ~Resource();
             // virtual ~Resource() = default;
 
-            bool hasFile(const File &file) const;
+            [[nodiscard]] bool hasFile(const File &file) const;
             void setFiles(std::vector<File> &files);
             std::vector<File> &getFiles();
             void setUsed(bool used);

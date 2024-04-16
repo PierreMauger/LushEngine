@@ -95,7 +95,7 @@ void Graphic::handleResizeFramebuffer(int width, int height)
     this->_windowSize = glm::vec2(width, height);
     glViewport(0, 0, width, height);
 
-    for (auto [name, fb] : this->_frameBuffers) {
+    for (const auto &[name, fb] : this->_frameBuffers) {
         if (!fb.resizable)
             continue;
         glBindTexture(GL_TEXTURE_2D, fb.texture);
@@ -205,11 +205,6 @@ std::pair<Transform, Camera> &Graphic::getSceneCamera()
     return this->_sceneCamera;
 }
 
-void Graphic::setSceneCamera(std::pair<Transform, Camera> &sceneCamera)
-{
-    this->_sceneCamera = sceneCamera;
-}
-
 void Graphic::setMouseCursor(int cursor)
 {
     if (cursor < 0 || cursor > 2)
@@ -312,7 +307,7 @@ glm::vec2 Graphic::getWindowSize() const
 void Graphic::setLogo(Texture &logo)
 {
     GLFWimage image;
-    image.pixels = stbi_load_from_memory((const stbi_uc *)logo.getContent().c_str(), static_cast<int>(logo.getContent().size()), &image.width, &image.height, 0, 4);
+    image.pixels = stbi_load_from_memory((const stbi_uc *)logo.getContent().c_str(), static_cast<int>(logo.getContent().size()), &image.width, &image.height, nullptr, 4);
     glfwSetWindowIcon(this->_window, 1, &image);
     stbi_image_free(image.pixels);
 }

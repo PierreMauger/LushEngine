@@ -102,7 +102,7 @@ namespace Lush
             std::size_t getPhysicInstanceIndex(std::size_t entityId);
             bool drawTextureSelect(const std::string &fieldName, std::string &texture);
 
-            bool openFolderBrowser(std::string title, std::string &path, bool &modal);
+            bool openFolderBrowser(const std::string& title, std::string &path, bool &modal);
 
             void build();
 

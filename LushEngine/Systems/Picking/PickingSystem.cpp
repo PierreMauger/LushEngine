@@ -1,9 +1,11 @@
 #include "Systems/Picking/PickingSystem.hpp"
 
+#include <utility>
+
 using namespace Lush;
 
 PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
-    : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
+    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
 {
     Shapes::setupFrameBuffer(this->_graphic->getFrameBuffers()["picking"], this->_graphic->getWindowSize());
 

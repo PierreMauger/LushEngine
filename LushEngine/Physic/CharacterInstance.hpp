@@ -23,7 +23,7 @@ namespace Lush
             CharacterInstance(std::size_t id, Transform &transform, CharacterController &characterController, Collider &collider);
             ~CharacterInstance() override;
 
-            btCollisionObject *getCollisionObject() const override;
+            [[nodiscard]] btCollisionObject *getCollisionObject() const override;
             void preUpdate(Transform &transform) override;
             void postUpdate(Transform &transform) override;
             void addToWorld(btDiscreteDynamicsWorld *world) override;

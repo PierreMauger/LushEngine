@@ -1,8 +1,10 @@
 #include "Systems/Scene/SceneSystem.hpp"
 
+#include <utility>
+
 using namespace Lush;
 
-SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(graphic), _resourceManager(resourceManager)
+SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
 {
     Shapes::setupFrameBuffer(this->_graphic->getFrameBuffers()["scene"], this->_graphic->getWindowSize());
     Shapes::setupFrameBuffer(this->_graphic->getFrameBuffers()["final"], this->_graphic->getWindowSize());

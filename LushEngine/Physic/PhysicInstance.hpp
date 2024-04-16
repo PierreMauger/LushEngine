@@ -14,7 +14,7 @@ namespace Lush
             btRigidBody *_rigidBody;
 
             btDefaultMotionState *initTransform(Transform &transform);
-            btRigidBody *initRigidBody(RigidBody &rigidbody, btDefaultMotionState *motionState, btCollisionShape *collisionShape);
+            static btRigidBody *initRigidBody(RigidBody &rigidbody, btDefaultMotionState *motionState, btCollisionShape *collisionShape);
 
         public:
             PhysicInstance(std::size_t id, Transform &transform, RigidBody &rigidBody);

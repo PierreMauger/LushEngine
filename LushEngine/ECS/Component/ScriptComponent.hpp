@@ -17,7 +17,7 @@ namespace Lush
 
         public:
             ScriptComponent() = default;
-            ScriptComponent(ScriptClass &script);
+            explicit ScriptComponent(ScriptClass &script);
             ~ScriptComponent() = default;
 
             void loadFromScript(ScriptClass &script);

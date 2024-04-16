@@ -23,7 +23,7 @@ namespace Lush
             TerrainInstance(std::size_t id, Transform &transform, Texture &texture);
             ~TerrainInstance() override;
 
-            btCollisionObject *getCollisionObject() const override;
+            [[nodiscard]] btCollisionObject *getCollisionObject() const override;
             void preUpdate(Transform &transform) override;
             void postUpdate(Transform &transform) override;
             void addToWorld(btDiscreteDynamicsWorld *world) override;

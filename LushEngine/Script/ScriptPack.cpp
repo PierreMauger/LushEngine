@@ -63,14 +63,13 @@ void ScriptPack::loadFromAssembly(const std::string &assemblyPath)
     int rows = mono_table_info_get_rows(table_info);
 
     for (int i = 0; i < rows; i++) {
-        MonoClass *klass = nullptr;
         uint32_t cols[MONO_TYPEDEF_SIZE];
         mono_metadata_decode_row(table_info, i, cols, MONO_TYPEDEF_SIZE);
         const char *name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
         const char *name_space = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAMESPACE]);
         if (std::string(name) == "<Module>")
             continue;
-        klass = mono_class_from_name(image, name_space, name);
+        MonoClass *klass = mono_class_from_name(image, name_space, name);
         if (!klass)
             throw std::runtime_error("mono_class_from_name failed for " + std::string(name));
         this->_classes[name] = klass;

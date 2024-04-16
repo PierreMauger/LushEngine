@@ -2,7 +2,6 @@
 #include "Systems/FileWatcher/FileWatcherSystem.hpp"
 #include "Systems/GUI/GUISystem.hpp"
 #include "Systems/Picking/PickingSystem.hpp"
-#include "Systems/PostProcessing/PostProcessingSystem.hpp"
 #include "Systems/Scene/SceneSystem.hpp"
 
 #ifdef EDITOR_MODE

@@ -2,7 +2,7 @@
 
 using namespace Lush;
 
-Mesh::Mesh(std::vector<Vertex> &vertices, std::vector<unsigned int> &indices, std::vector<Tex> &textures, std::string material)
+Mesh::Mesh(std::vector<Vertex> &vertices, std::vector<unsigned int> &indices, std::vector<Tex> &textures, const std::string &material)
 {
     this->_vertices = vertices;
     this->_indices = indices;

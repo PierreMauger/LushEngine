@@ -139,12 +139,9 @@ MonoString *ScriptGlue::Entity_GetName(std::size_t id)
 void ScriptGlue::Entity_Delete(std::size_t id)
 {
     auto entityManager = ECS::getStaticEntityManager();
-    auto resourceManager = ResourceManager::getStaticResourceManager();
-    auto graphic = Graphic::getGraphic();
 
     if (!entityManager->hasEntity(id))
         return;
-
     entityManager->removeEntity(id);
 }
 
@@ -351,7 +348,7 @@ bool ScriptGlue::Camera_GetFOV(std::size_t id, float *fov)
     return false;
 }
 
-void ScriptGlue::Camera_SetFOV(std::size_t id, float *fov)
+void ScriptGlue::Camera_SetFOV(std::size_t id, const float *fov)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;
@@ -377,7 +374,7 @@ bool ScriptGlue::Camera_GetNear(std::size_t id, float *near)
     return false;
 }
 
-void ScriptGlue::Camera_SetNear(std::size_t id, float *near)
+void ScriptGlue::Camera_SetNear(std::size_t id, const float *near)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;
@@ -403,7 +400,7 @@ bool ScriptGlue::Camera_GetFar(std::size_t id, float *far)
     return false;
 }
 
-void ScriptGlue::Camera_SetFar(std::size_t id, float *far)
+void ScriptGlue::Camera_SetFar(std::size_t id, const float *far)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;
@@ -429,7 +426,7 @@ bool ScriptGlue::Light_GetIntensity(std::size_t id, float *intensity)
     return false;
 }
 
-void ScriptGlue::Light_SetIntensity(std::size_t id, float *intensity)
+void ScriptGlue::Light_SetIntensity(std::size_t id, const float *intensity)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;
@@ -537,7 +534,7 @@ bool ScriptGlue::Billboard_GetLockYAxis(std::size_t id, bool *lock)
     return false;
 }
 
-void ScriptGlue::Billboard_SetLockYAxis(std::size_t id, bool *lock)
+void ScriptGlue::Billboard_SetLockYAxis(std::size_t id, const bool *lock)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;

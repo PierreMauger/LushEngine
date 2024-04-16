@@ -12,18 +12,18 @@ namespace Lush
             std::size_t _id;
 
         public:
-            BasicInstance(std::size_t id) : _id(id)
+            explicit BasicInstance(std::size_t id) : _id(id)
             {
             }
 
             virtual ~BasicInstance() = default;
 
-            std::size_t getId() const
+            [[nodiscard]] std::size_t getId() const
             {
                 return this->_id;
             }
 
-            btCollisionShape *initCollider(Transform &transform, Collider &collider)
+            static btCollisionShape *initCollider(Transform &transform, Collider &collider)
             {
                 if (collider.size == glm::vec3(0.0f))
                     collider.size = transform.scale;
@@ -39,7 +39,7 @@ namespace Lush
                 }
             }
 
-            virtual btCollisionObject *getCollisionObject() const = 0;
+            [[nodiscard]] virtual btCollisionObject *getCollisionObject() const = 0;
             virtual void preUpdate(Transform &transform) = 0;
             virtual void postUpdate(Transform &transform) = 0;
 

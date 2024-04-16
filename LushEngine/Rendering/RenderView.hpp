@@ -29,29 +29,29 @@ namespace Lush
             std::string _actShader;
 
         public:
-            RenderView(float aspectRatio);
+            explicit RenderView(float aspectRatio);
             ~RenderView() = default;
 
             void setAspectRatio(float aspectRatio);
             void setShaders(std::unordered_map<std::string, std::shared_ptr<Shader>> &shaders);
             Shader &getShader();
-            Shader &getShader(std::string shaderName);
+            Shader &getShader(const std::string &shaderName);
 
             glm::mat4 getView();
             glm::mat4 getProjection();
 
-            void setLightMatrix(Transform transform, Light light);
+            void setLightMatrix(const Transform &transform, const Light &light);
             glm::mat4 getLightMatrix();
 
-            void use(std::string shaderName);
-            void update(Transform transform, Camera camera);
+            void use(const std::string &shaderName);
+            void update(const Transform &transform, const Camera &camera);
             void rotate(Transform &transform, glm::vec2 offset) const;
             void setView();
             void setSkyboxView();
             void setDirLights(std::vector<std::pair<Transform, Light>> dirLights);
             void setPointLights(std::vector<std::pair<Transform, Light>> pointLights);
-            void setModel(Transform transform);
-            void setBillboard(Transform transform);
+            void setModel(const Transform &transform);
+            void setBillboard(const Transform &transform);
     };
 }
 

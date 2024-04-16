@@ -26,7 +26,7 @@ namespace Lush
             void checkCompileErrors(GLuint shader, const std::string &type);
 
         public:
-            Shader(const File &file);
+            explicit Shader(const File &file);
             Shader() = default;
             ~Shader() = default;
 
