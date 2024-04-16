@@ -13,7 +13,7 @@ public class Entity
     public T getComponent<T>() where T : Component, new()
     {
         if (typeof(T).IsSubclassOf(typeof(CustomComponent))) {
-            object instance = InternalCalls.GetScriptInstance(this.id, typeof(T).Name);
+            object instance = InternalCalls.Entity_GetScriptInstance(this.id, typeof(T).Name);
             return instance as T;
         } else {
             T component = new T() { entity = this };
@@ -23,16 +23,36 @@ public class Entity
 
     public bool hasComponent<T>() where T : Component, new()
     {
-        return InternalCalls.HasComponent(this.id, typeof(T).Name);
+        return InternalCalls.Entity_HasComponent(this.id, typeof(T).Name);
+    }
+
+    public void addComponent(string componentName)
+    {
+        InternalCalls.Entity_AddComponent(this.id, componentName);
+    }
+
+    public void removeComponent(string componentName)
+    {
+        InternalCalls.Entity_RemoveComponent(this.id, componentName);
+    }
+
+    public void setParent(ulong id)
+    {
+        InternalCalls.Entity_SetParent(this.id, id);
+    }
+
+    public void delete()
+    {
+        InternalCalls.Entity_Delete(this.id);
     }
 
     public string getName()
     {
-        return InternalCalls.GetName(this.id);
+        return InternalCalls.Entity_GetName(this.id);
     }
 
     public void log(string message, Toast type = Toast.None)
     {
-        InternalCalls.Log(this.id, message, (int)type);
+        InternalCalls.Entity_Log(this.id, message, (int)type);
     }
 }

@@ -13,12 +13,21 @@ public enum Toast
 public static class InternalCalls
 {
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
-    internal extern static void Log(ulong id, string message, int type = 0);
+    internal extern static object Entity_GetScriptInstance(ulong entityId, string scriptName);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
-    internal extern static string GetName(ulong id);
-
+    internal extern static bool Entity_HasComponent(ulong id, string componentName);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
-    internal extern static bool HasComponent(ulong id, string componentName);
+    internal extern static void Entity_AddComponent(ulong id, string componentName);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Entity_RemoveComponent(ulong id, string componentName);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Entity_SetParent(ulong id, ulong parentId);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Entity_Delete(ulong id);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static string Entity_GetName(ulong id);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Entity_Log(ulong id, string message, int type = 0);
 
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static bool Transform_GetPosition(ulong id, out Vector3 position);
@@ -88,10 +97,9 @@ public static class InternalCalls
     internal extern static void Collider_SetTag(ulong id, string tag);
 
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
-    internal extern static object GetScriptInstance(ulong entityId, string scriptName);
-
-    [MethodImplAttribute(MethodImplOptions.InternalCall)]
     public extern static bool IsKeyDown(int key);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    public extern static ulong GetEntityFromName(string id);
 
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     public extern static float GetMouseMovementX();
@@ -104,7 +112,4 @@ public static class InternalCalls
     public extern static void SetScene(string sceneName);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     public extern static void ResetScene();
-
-    [MethodImplAttribute(MethodImplOptions.InternalCall)]
-    public extern static ulong GetEntityFromName(string id);
 }

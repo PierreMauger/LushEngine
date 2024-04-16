@@ -12,10 +12,14 @@ namespace Lush
     class ScriptGlue
     {
         public:
-            static void Log(std::size_t id, MonoString *message, int type);
-            static MonoString *GetName(std::size_t id);
-            static unsigned long GetEntityFromName(MonoString *name);
-            static bool HasComponent(std::size_t id, MonoString *componentName);
+            static MonoObject *Entity_GetScriptInstance(std::size_t entityId, MonoString *scriptName);
+            static bool Entity_HasComponent(std::size_t id, MonoString *componentName);
+            static void Entity_AddComponent(std::size_t id, MonoString *componentName);
+            static void Entity_RemoveComponent(std::size_t id, MonoString *componentName);
+            static void Entity_SetParent(std::size_t id, std::size_t parentId);
+            static void Entity_Delete(std::size_t id);
+            static MonoString *Entity_GetName(std::size_t id);
+            static void Entity_Log(std::size_t id, MonoString *message, int type);
 
             static bool Transform_GetPosition(std::size_t id, glm::vec3 *position);
             static void Transform_SetPosition(std::size_t id, glm::vec3 *position);
@@ -54,15 +58,13 @@ namespace Lush
             static bool Collider_GetTag(std::size_t id, MonoString **tag);
             static void Collider_SetTag(std::size_t id, MonoString *tag);
 
-            static MonoObject *GetScriptInstance(std::size_t entityId, MonoString *scriptName);
-
             static bool IsKeyDown(int key);
+            static unsigned long GetEntityFromName(MonoString *name);
             static float GetMouseMovementX();
             static float GetMouseMovementY();
             static void SetMouseHidden(bool state);
             static void SetScene(MonoString *sceneName);
             static void ResetScene();
-            static void DeleteEntity(std::size_t id);
 
             static void registerFunctions();
     };

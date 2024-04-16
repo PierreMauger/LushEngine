@@ -30,6 +30,15 @@
         <Controllable speed="10" cameraEntity="0" />
       </Components>
     </Entity>
+    <Entity name="Hat">
+      <Components>
+        <Transform position="0 1 0" rotation="0 90 0"/>
+        <Model name="PirateHat" />
+        <Collider type="Sphere" radius="0.5" tag="item" />
+        <TestScript />
+      </Components>
+    </Entity>
+
     <Entity name="Floor">
       <Components>
         <Transform position="0 -0.5 0" scale="20 0.5 20" />

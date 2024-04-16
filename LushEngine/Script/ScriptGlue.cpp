@@ -2,50 +2,17 @@
 
 using namespace Lush;
 
-void ScriptGlue::Log(std::size_t id, MonoString *message, int type)
+MonoObject *ScriptGlue::Entity_GetScriptInstance(std::size_t entityId, MonoString *scriptName)
 {
-    char *utf8 = mono_string_to_utf8(message);
-    switch (type) {
-    case 1:
-        std::cout << "[Toast Success]";
-        break;
-    case 2:
-        std::cout << "[Toast Info]";
-        break;
-    case 3:
-        std::cout << "[Toast Warning]";
-        break;
-    case 4:
-        std::cout << "[Toast Error]";
-        break;
-    default:
-        break;
-    }
-    std::cout << "[" << id << "]: " << utf8 << std::endl;
-    mono_free(utf8);
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(entityId);
+    std::string name = mono_string_to_utf8(scriptName);
+
+    if (entity.hasScriptComponent(name))
+        return ResourceManager::getStaticResourceManager()->getScriptInstances().at(entity.getScriptIndexes()[name]).getInstance();
+    return nullptr;
 }
 
-MonoString *ScriptGlue::GetName(std::size_t id)
-{
-    if (!ECS::getStaticEntityManager()->hasEntity(id))
-        return nullptr;
-
-    return mono_string_new(mono_domain_get(), ECS::getStaticEntityManager()->getEntity(id).getName().c_str());
-}
-
-unsigned long ScriptGlue::GetEntityFromName(MonoString *name)
-{
-    char *utf8 = mono_string_to_utf8(name);
-    unsigned long id = 0;
-
-    if (ECS::getStaticEntityManager()->hasEntity(utf8))
-        id = ECS::getStaticEntityManager()->getEntityIndex(utf8);
-
-    mono_free(utf8);
-    return id;
-}
-
-bool ScriptGlue::HasComponent(std::size_t id, MonoString *componentName)
+bool ScriptGlue::Entity_HasComponent(std::size_t id, MonoString *componentName)
 {
     char *utf8 = mono_string_to_utf8(componentName);
     bool hasComponent = false;
@@ -76,6 +43,132 @@ bool ScriptGlue::HasComponent(std::size_t id, MonoString *componentName)
     }
     mono_free(utf8);
     return hasComponent;
+}
+
+void ScriptGlue::Entity_AddComponent(std::size_t id, MonoString *componentName)
+{
+    char *utf8 = mono_string_to_utf8(componentName);
+    if (ECS::getStaticEntityManager()->hasEntity(id)) {
+        Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+        if (std::string(utf8) == "Transform")
+            entity.addComponent<Transform>(Transform());
+        else if (std::string(utf8) == "Model")
+            entity.addComponent<Model>(Model());
+        else if (std::string(utf8) == "Camera")
+            entity.addComponent<Camera>(Camera());
+        else if (std::string(utf8) == "Light")
+            entity.addComponent<Light>(Light());
+        else if (std::string(utf8) == "Cubemap")
+            entity.addComponent<Cubemap>(Cubemap());
+        else if (std::string(utf8) == "Billboard")
+            entity.addComponent<Billboard>(Billboard());
+        else if (std::string(utf8) == "Map")
+            entity.addComponent<Map>(Map());
+        else if (std::string(utf8) == "RigidBody")
+            entity.addComponent<RigidBody>(RigidBody());
+        else if (std::string(utf8) == "Collider")
+            entity.addComponent<Collider>(Collider());
+        else if (std::string(utf8) == "CharacterController")
+            entity.addComponent<CharacterController>(CharacterController());
+        else {
+            auto resourceManager = ResourceManager::getStaticResourceManager();
+            if (resourceManager->getScripts().contains(utf8)) {
+                ScriptComponent scriptComponent(resourceManager->getScripts()[utf8]);
+                entity.addScriptComponent(std::string(utf8), scriptComponent);
+            }
+        }
+    }
+    mono_free(utf8);
+}
+
+void ScriptGlue::Entity_RemoveComponent(std::size_t id, MonoString *componentName)
+{
+    char *utf8 = mono_string_to_utf8(componentName);
+    if (ECS::getStaticEntityManager()->hasEntity(id)) {
+        Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+        if (std::string(utf8) == "Transform")
+            entity.removeComponent<Transform>();
+        else if (std::string(utf8) == "Model")
+            entity.removeComponent<Model>();
+        else if (std::string(utf8) == "Camera")
+            entity.removeComponent<Camera>();
+        else if (std::string(utf8) == "Light")
+            entity.removeComponent<Light>();
+        else if (std::string(utf8) == "Cubemap")
+            entity.removeComponent<Cubemap>();
+        else if (std::string(utf8) == "Billboard")
+            entity.removeComponent<Billboard>();
+        else if (std::string(utf8) == "Map")
+            entity.removeComponent<Map>();
+        else if (std::string(utf8) == "RigidBody")
+            entity.removeComponent<RigidBody>();
+        else if (std::string(utf8) == "Collider")
+            entity.removeComponent<Collider>();
+        else if (std::string(utf8) == "CharacterController")
+            entity.removeComponent<CharacterController>();
+        else
+            entity.removeScriptComponent(std::string(utf8));
+    }
+    mono_free(utf8);
+}
+
+void ScriptGlue::Entity_SetParent(std::size_t id, std::size_t parentId)
+{
+    auto entityManager = ECS::getStaticEntityManager();
+    if (!entityManager->hasEntity(id) || id == parentId)
+        return;
+    if (parentId == 0) {
+        entityManager->getEntity(id).removeParent();
+        entityManager->getEntity(parentId).removeChild(id);
+        return;
+    }
+    if (!entityManager->hasEntity(parentId))
+        return;
+    entityManager->getEntity(id).setParent(parentId);
+    entityManager->getEntity(parentId).addChild(id);
+}
+
+MonoString *ScriptGlue::Entity_GetName(std::size_t id)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return nullptr;
+
+    return mono_string_new(mono_domain_get(), ECS::getStaticEntityManager()->getEntity(id).getName().c_str());
+}
+
+void ScriptGlue::Entity_Delete(std::size_t id)
+{
+    auto entityManager = ECS::getStaticEntityManager();
+    auto resourceManager = ResourceManager::getStaticResourceManager();
+    auto graphic = Graphic::getGraphic();
+
+    if (!entityManager->hasEntity(id))
+        return;
+
+    entityManager->removeEntity(id);
+}
+
+void ScriptGlue::Entity_Log(std::size_t id, MonoString *message, int type)
+{
+    char *utf8 = mono_string_to_utf8(message);
+    switch (type) {
+    case 1:
+        std::cout << "[Toast Success]";
+        break;
+    case 2:
+        std::cout << "[Toast Info]";
+        break;
+    case 3:
+        std::cout << "[Toast Warning]";
+        break;
+    case 4:
+        std::cout << "[Toast Error]";
+        break;
+    default:
+        break;
+    }
+    std::cout << "[" << id << "]: " << utf8 << std::endl;
+    mono_free(utf8);
 }
 
 bool ScriptGlue::Transform_GetPosition(std::size_t id, glm::vec3 *position)
@@ -485,21 +578,23 @@ void ScriptGlue::Collider_SetTag(std::size_t id, MonoString *tag)
         std::cout << "[Toast Error]Entity " << id << " has no Collider component" << std::endl;
 }
 
-MonoObject *ScriptGlue::GetScriptInstance(std::size_t entityId, MonoString *scriptName)
-{
-    Entity &entity = ECS::getStaticEntityManager()->getEntity(entityId);
-    std::string name = mono_string_to_utf8(scriptName);
-
-    if (entity.hasScriptComponent(name))
-        return ResourceManager::getStaticResourceManager()->getScriptInstances().at(entity.getScriptIndexes()[name]).getInstance();
-    return nullptr;
-}
-
 bool ScriptGlue::IsKeyDown(int key)
 {
     GLFWwindow *window = glfwGetCurrentContext();
 
     return window != nullptr && glfwGetKey(window, key) == GLFW_PRESS;
+}
+
+unsigned long ScriptGlue::GetEntityFromName(MonoString *name)
+{
+    char *utf8 = mono_string_to_utf8(name);
+    unsigned long id = 0;
+
+    if (ECS::getStaticEntityManager()->hasEntity(utf8))
+        id = ECS::getStaticEntityManager()->getEntityIndex(utf8);
+
+    mono_free(utf8);
+    return id;
 }
 
 float ScriptGlue::GetMouseMovementX()
@@ -560,21 +655,16 @@ void ScriptGlue::ResetScene()
     resourceManager->setSceneChanged(true);
 }
 
-void ScriptGlue::DeleteEntity(std::size_t id)
-{
-    auto entityManager = ECS::getStaticEntityManager();
-
-    if (!entityManager->hasEntity(id))
-        return;
-    entityManager->removeEntity(id);
-}
-
 void ScriptGlue::registerFunctions()
 {
-    mono_add_internal_call("InternalCalls::Log", (void *)Log);
-    mono_add_internal_call("InternalCalls::GetName", (void *)GetName);
-    mono_add_internal_call("InternalCalls::GetEntityFromName", (void *)GetEntityFromName);
-    mono_add_internal_call("InternalCalls::HasComponent", (void *)HasComponent);
+    mono_add_internal_call("InternalCalls::Entity_GetScriptInstance", (void *)Entity_GetScriptInstance);
+    mono_add_internal_call("InternalCalls::Entity_HasComponent", (void *)Entity_HasComponent);
+    mono_add_internal_call("InternalCalls::Entity_AddComponent", (void *)Entity_AddComponent);
+    mono_add_internal_call("InternalCalls::Entity_RemoveComponent", (void *)Entity_RemoveComponent);
+    mono_add_internal_call("InternalCalls::Entity_SetParent", (void *)Entity_SetParent);
+    mono_add_internal_call("InternalCalls::Entity_GetName", (void *)Entity_GetName);
+    mono_add_internal_call("InternalCalls::Entity_Delete", (void *)Entity_Delete);
+    mono_add_internal_call("InternalCalls::Entity_Log", (void *)Entity_Log);
     mono_add_internal_call("InternalCalls::Transform_GetPosition", (void *)Transform_GetPosition);
     mono_add_internal_call("InternalCalls::Transform_SetPosition", (void *)Transform_SetPosition);
     mono_add_internal_call("InternalCalls::Transform_GetRotation", (void *)Transform_GetRotation);
@@ -605,12 +695,11 @@ void ScriptGlue::registerFunctions()
     mono_add_internal_call("InternalCalls::Billboard_SetLockYAxis", (void *)Billboard_SetLockYAxis);
     mono_add_internal_call("InternalCalls::Collider_GetTag", (void *)Collider_GetTag);
     mono_add_internal_call("InternalCalls::Collider_SetTag", (void *)Collider_SetTag);
-    mono_add_internal_call("InternalCalls::GetScriptInstance", (void *)GetScriptInstance);
     mono_add_internal_call("InternalCalls::IsKeyDown", (void *)IsKeyDown);
+    mono_add_internal_call("InternalCalls::GetEntityFromName", (void *)GetEntityFromName);
     mono_add_internal_call("InternalCalls::GetMouseMovementX", (void *)GetMouseMovementX);
     mono_add_internal_call("InternalCalls::GetMouseMovementY", (void *)GetMouseMovementY);
     mono_add_internal_call("InternalCalls::SetMouseHidden", (void *)SetMouseHidden);
     mono_add_internal_call("InternalCalls::SetScene", (void *)SetScene);
     mono_add_internal_call("InternalCalls::ResetScene", (void *)ResetScene);
-    mono_add_internal_call("InternalCalls::DeleteEntity", (void *)DeleteEntity);
 }

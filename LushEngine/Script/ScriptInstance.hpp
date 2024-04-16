@@ -24,6 +24,7 @@ namespace Lush
             bool _destroyed = false;
 
         public:
+            ScriptInstance() = default;
             ScriptInstance(ScriptClass &script, std::size_t id, std::unordered_map<std::string, std::any> &defaultFields);
             ~ScriptInstance() = default;
 

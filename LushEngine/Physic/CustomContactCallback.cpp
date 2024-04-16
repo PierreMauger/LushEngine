@@ -24,12 +24,11 @@ void CustomContactCallback::removeExitedCollisions()
         if (it->second == COLLISION_EXIT) {
             onCollision(it->first.first, it->first.second, COLLISION_EXIT);
             it = this->_collisionTable.erase(it);
+            continue;
         } else if (it->second == COLLISION_STAY) {
             it->second = COLLISION_EXIT;
-            ++it;
-        } else {
-            ++it;
         }
+        ++it;
     }
 }
 
@@ -61,5 +60,7 @@ void CustomContactCallback::onCollision(const btCollisionObject *obj0, const btC
             scriptInstances[index].onCollisionStay(id1);
         else if (state == COLLISION_EXIT)
             scriptInstances[index].onCollisionExit(id1);
+        if (!ECS::getStaticEntityManager()->hasEntity(id0))
+            break;
     }
 }

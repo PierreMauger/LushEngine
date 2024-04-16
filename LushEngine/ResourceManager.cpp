@@ -236,12 +236,15 @@ void ResourceManager::initScriptInstances(std::shared_ptr<EntityManager> &entity
         entity.clearScriptIndexes();
         for (auto &[name, script] : this->_scripts) {
             if (entity.hasScriptComponent(name)) {
-                entity.addScriptIndex(name, this->_scriptInstances.size());
-                this->_scriptInstances.emplace_back(script, id, entity.getScriptComponent(name).getFields());
+                std::size_t scriptId = 0;
+                if (!this->_scriptInstances.empty())
+                    scriptId = this->_scriptInstances.rbegin()->first + 1;
+                entity.addScriptIndex(name, scriptId);
+                this->_scriptInstances[scriptId] = ScriptInstance(script, id, entity.getScriptComponent(name).getFields());
             }
         }
     }
-    for (auto &instance : this->_scriptInstances)
+    for (auto &[id, instance] : this->_scriptInstances)
         instance.onInit();
 }
 
@@ -406,7 +409,7 @@ std::unordered_map<std::string, ScriptClass> &ResourceManager::getScripts()
     return this->_scripts;
 }
 
-std::vector<ScriptInstance> &ResourceManager::getScriptInstances()
+std::map<std::size_t, ScriptInstance> &ResourceManager::getScriptInstances()
 {
     return this->_scriptInstances;
 }

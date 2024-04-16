@@ -278,18 +278,18 @@ void GUISystem::drawActionBar(std::shared_ptr<EntityManager> &entityManager)
 
 void GUISystem::deleteEntity(std::shared_ptr<EntityManager> &entityManager, std::size_t id, Entity &entity)
 {
-    if (this->_graphic->isRunning()) {
-        for (auto &[scriptName, index] : entity.getScriptIndexes()) {
-            this->_resourceManager->getScriptInstances()[index].onDestroy();
-            this->_resourceManager->getScriptInstances().erase(this->_resourceManager->getScriptInstances().begin() + index);
-        }
-        auto physicIt = std::find_if(this->_resourceManager->getPhysicInstances().begin(), this->_resourceManager->getPhysicInstances().end(),
-                                     [id](const auto &instance) { return instance->getId() == id; });
-        if (physicIt != this->_resourceManager->getPhysicInstances().end()) {
-            (*physicIt)->removeFromWorld(this->_resourceManager->getDynamicsWorld());
-            this->_resourceManager->getPhysicInstances().erase(physicIt);
-        }
-    }
+    // if (this->_graphic->isRunning()) {
+    //     for (auto &[scriptName, index] : entity.getScriptIndexes()) {
+    //         this->_resourceManager->getScriptInstances()[index].onDestroy();
+    //         this->_resourceManager->getScriptInstances().erase(index);
+    //     }
+    //     auto physicIt = std::find_if(this->_resourceManager->getPhysicInstances().begin(), this->_resourceManager->getPhysicInstances().end(),
+    //                                  [id](const auto &instance) { return instance->getId() == id; });
+    //     if (physicIt != this->_resourceManager->getPhysicInstances().end()) {
+    //         (*physicIt)->removeFromWorld(this->_resourceManager->getDynamicsWorld());
+    //         this->_resourceManager->getPhysicInstances().erase(physicIt);
+    //     }
+    // }
     for (auto &childId : entity.getChildren())
         this->deleteEntity(entityManager, childId, entityManager->getEntity(childId));
     if (entity.getParent().has_value())

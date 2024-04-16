@@ -44,7 +44,7 @@ namespace Lush
             std::unique_ptr<ScriptPack> _gamePack;
 
             std::unordered_map<std::string, ScriptClass> _scripts;
-            std::vector<ScriptInstance> _scriptInstances;
+            std::map<std::size_t, ScriptInstance> _scriptInstances;
             std::vector<std::unique_ptr<BasicInstance>> _physicInstances;
 
             std::string _logoName = "Lush.png";
@@ -100,7 +100,7 @@ namespace Lush
 
             MonoClass *getComponentClass();
             std::unordered_map<std::string, ScriptClass> &getScripts();
-            std::vector<ScriptInstance> &getScriptInstances();
+            std::map<std::size_t, ScriptInstance> &getScriptInstances();
             std::vector<std::unique_ptr<BasicInstance>> &getPhysicInstances();
 
             Scene &getActiveScene();

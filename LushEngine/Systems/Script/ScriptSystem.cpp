@@ -12,11 +12,18 @@ void ScriptSystem::update([[maybe_unused]] std::shared_ptr<EntityManager> &entit
 {
     if (this->_graphic->isPaused() || !this->_graphic->isRunning())
         return;
-    for (auto &instance : this->_resourceManager->getScriptInstances()) {
-        instance.onUpdate(this->getDeltaTime());
+    for (auto it = this->_resourceManager->getScriptInstances().begin(); it != this->_resourceManager->getScriptInstances().end();) {
+        auto &[id, instance] = *it;
+        if (!entityManager->hasEntity(instance.getId())) {
+            this->_resourceManager->getScriptInstances()[id].onDestroy();
+            it = this->_resourceManager->getScriptInstances().erase(it);
+            continue;
+        }
+        instance.onUpdate(deltaTime);
         if (this->_resourceManager->isSceneChanged()) {
             this->_resourceManager->setSceneChanged(false);
             return;
         }
+        ++it;
     }
 }
