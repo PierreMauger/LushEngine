@@ -44,3 +44,10 @@ std::string File::load() const
     std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     return content;
 }
+
+void File::save(const std::string &content) const
+{
+    std::ofstream file(this->_path);
+    file << content;
+    file.close();
+}

@@ -11,9 +11,9 @@
 #include "File/Resource.hpp"
 #include "Includes.hpp"
 #include "RapidXML/rapidxml.hpp"
-#include "RapidXML/rapidxml_print.hpp"
-#include "Script/ScriptClass.hpp"
+#include "RapidXML/rapidxml_ext.hpp"
 #include "Rendering/Mesh.hpp"
+#include "Script/ScriptClass.hpp"
 
 namespace Lush
 {
@@ -44,6 +44,20 @@ namespace Lush
             static void loadCollider(rapidxml::xml_node<> *node, Entity &entity);
             static void loadCharacterController(rapidxml::xml_node<> *node, Entity &entity);
             static void loadScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &script);
+
+            void save(std::unordered_map<std::string, ScriptClass> &scripts);
+            void saveEntity(rapidxml::xml_node<> *node, std::unordered_map<std::string, ScriptClass> &scripts, std::size_t entityId, Entity &entity);
+            static void saveTransform(rapidxml::xml_node<> *node, Entity &entity);
+            static void saveModel(rapidxml::xml_node<> *node, Entity &entity);
+            static void saveCamera(rapidxml::xml_node<> *node, Entity &entity);
+            static void saveLight(rapidxml::xml_node<> *node, Entity &entity);
+            static void saveCubemap(rapidxml::xml_node<> *node, Entity &entity);
+            static void saveBillboard(rapidxml::xml_node<> *node, Entity &entity);
+            static void saveMap(rapidxml::xml_node<> *node, Entity &entity);
+            static void saveRigidBody(rapidxml::xml_node<> *node, Entity &entity);
+            static void saveCollider(rapidxml::xml_node<> *node, Entity &entity);
+            static void saveCharacterController(rapidxml::xml_node<> *node, Entity &entity);
+            static void saveScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &script);
 
             void serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version)
             {

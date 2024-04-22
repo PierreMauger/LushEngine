@@ -86,6 +86,11 @@ void GUISystem::update(std::shared_ptr<EntityManager> &entityManager, float delt
     this->drawMenuBar();
     this->drawActionBar(entityManager);
 
+    if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S) && ImGui::GetIO().KeyCtrl) {
+        this->_resourceManager->getActiveScene().save(this->_resourceManager->getScripts());
+        std::cout << "[Toast Success]Scene " << this->_resourceManager->getActiveScene().getFiles()[0].getName() << " saved" << std::endl;
+    }
+
     if (this->_showSceneHierarchy)
         this->drawSceneHierarchy(entityManager);
     if (this->_showProperties)
@@ -912,16 +917,18 @@ void GUISystem::drawScene(std::shared_ptr<EntityManager> &entityManager)
         if (entityManager->hasEntity(this->_graphic->getSelectedEntity()))
             guizmoDrawn = this->drawGuizmo(entityManager->getEntity(this->_graphic->getSelectedEntity()), entityManager);
 
-        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_T)))
-            this->_currentOperation = ImGuizmo::TRANSLATE;
-        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_R)))
-            this->_currentOperation = ImGuizmo::ROTATE;
-        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_S)))
-            this->_currentOperation = ImGuizmo::SCALE;
-        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_L)))
-            this->_currentMode = ImGuizmo::LOCAL;
-        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_G)))
-            this->_currentMode = ImGuizmo::WORLD;
+        if (!ImGui::GetIO().KeyCtrl && !ImGuizmo::IsUsing()) {
+            if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_T)))
+                this->_currentOperation = ImGuizmo::TRANSLATE;
+            if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_R)))
+                this->_currentOperation = ImGuizmo::ROTATE;
+            if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_S)))
+                this->_currentOperation = ImGuizmo::SCALE;
+            if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_L)))
+                this->_currentMode = ImGuizmo::LOCAL;
+            if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_G)))
+                this->_currentMode = ImGuizmo::WORLD;
+        }
 
         glm::vec4 viewport = this->_graphic->getSceneViewPort();
         ImVec2 cubePos(viewport.x + viewport.z - 128, viewport.y);

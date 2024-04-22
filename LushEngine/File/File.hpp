@@ -24,6 +24,7 @@ namespace Lush
             void updateLastModify();
 
             [[nodiscard]] std::string load() const;
+            void save(const std::string &content) const;
     };
 }
 
