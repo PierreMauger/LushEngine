@@ -1,7 +1,5 @@
 #include "Systems/PostProcessing/PostProcessingSystem.hpp"
 
-#include <utility>
-
 using namespace Lush;
 
 PostProcessingSystem::PostProcessingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)

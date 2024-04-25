@@ -43,6 +43,7 @@ namespace Lush
             static void loadRigidBody(rapidxml::xml_node<> *node, Entity &entity);
             static void loadCollider(rapidxml::xml_node<> *node, Entity &entity);
             static void loadCharacterController(rapidxml::xml_node<> *node, Entity &entity);
+            static void loadUIElement(rapidxml::xml_node<> *node, Entity &entity);
             static void loadScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &script);
 
             void save(std::unordered_map<std::string, ScriptClass> &scripts);
@@ -57,6 +58,7 @@ namespace Lush
             static void saveRigidBody(rapidxml::xml_node<> *node, Entity &entity);
             static void saveCollider(rapidxml::xml_node<> *node, Entity &entity);
             static void saveCharacterController(rapidxml::xml_node<> *node, Entity &entity);
+            static void saveUIElement(rapidxml::xml_node<> *node, Entity &entity);
             static void saveScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &script);
 
             void serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version)

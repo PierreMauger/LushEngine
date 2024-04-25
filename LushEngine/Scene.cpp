@@ -16,6 +16,7 @@ static const std::unordered_map<std::string, std::function<void(rapidxml::xml_no
     {"RigidBody", &Scene::loadRigidBody},
     {"Collider", &Scene::loadCollider},
     {"CharacterController", &Scene::loadCharacterController},
+    {"UIElement", &Scene::loadUIElement},
 };
 
 Scene::Scene(File &file, std::unordered_map<std::string, ScriptClass> &scripts) : Resource(ResourceType::SCENE, file)
@@ -237,6 +238,19 @@ void Scene::loadCharacterController(rapidxml::xml_node<> *node, Entity &entity)
     entity.addComponent(characterController);
 }
 
+void Scene::loadUIElement(rapidxml::xml_node<> *node, Entity &entity)
+{
+    UIElement uiElement;
+    if (node->first_attribute("size"))
+        std::sscanf(node->first_attribute("size")->value(), "%f %f", &uiElement.size.x, &uiElement.size.y);
+    if (node->first_attribute("offset"))
+        std::sscanf(node->first_attribute("offset")->value(), "%f %f", &uiElement.offset.x, &uiElement.offset.y);
+    if (node->first_attribute("anchor"))
+        uiElement.anchor = std::stoi(node->first_attribute("anchor")->value());
+    uiElement.textureName = node->first_attribute("textureName")->value();
+    entity.addComponent(uiElement);
+}
+
 void Scene::loadScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &script)
 {
     ScriptComponent scriptComponent(script);
@@ -346,6 +360,12 @@ void Scene::saveEntity(rapidxml::xml_node<> *node, std::unordered_map<std::strin
         componentsNode->append_node(characterControllerNode);
 
         Scene::saveCharacterController(characterControllerNode, entity);
+    }
+    if (entity.hasComponent<UIElement>()) {
+        rapidxml::xml_node<> *uiElementNode = doc->allocate_node(rapidxml::node_element, "UIElement");
+        componentsNode->append_node(uiElementNode);
+
+        Scene::saveUIElement(uiElementNode, entity);
     }
     for (auto &[name, scriptClass] : scripts) {
         if (entity.hasScriptComponent(name)) {
@@ -591,6 +611,27 @@ void Scene::saveCharacterController(rapidxml::xml_node<> *node, Entity &entity)
         char *stepOffsetValue = node->document()->allocate_string(stepOffsetStream.str().c_str());
         node->append_attribute(node->document()->allocate_attribute("stepOffset", stepOffsetValue));
     }
+}
+
+void Scene::saveUIElement(rapidxml::xml_node<> *node, Entity &entity)
+{
+    UIElement &uiElement = entity.getComponent<UIElement>();
+    if (uiElement.size != glm::vec2(100.0f)) {
+        std::stringstream sizeStream;
+        sizeStream << uiElement.size.x << " " << uiElement.size.y;
+        char *sizeValue = node->document()->allocate_string(sizeStream.str().c_str());
+        node->append_attribute(node->document()->allocate_attribute("size", sizeValue));
+    }
+    if (uiElement.offset != glm::vec2(0.0f)) {
+        std::stringstream offsetStream;
+        offsetStream << uiElement.offset.x << " " << uiElement.offset.y;
+        char *offsetValue = node->document()->allocate_string(offsetStream.str().c_str());
+        node->append_attribute(node->document()->allocate_attribute("offset", offsetValue));
+    }
+    if (uiElement.anchor != 0)
+        node->append_attribute(node->document()->allocate_attribute("anchor", node->document()->allocate_string(std::to_string(uiElement.anchor).c_str())));
+    if (uiElement.textureName != "")
+        node->append_attribute(node->document()->allocate_attribute("textureName", uiElement.textureName.c_str()));
 }
 
 void Scene::saveScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &script)

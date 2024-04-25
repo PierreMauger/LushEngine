@@ -24,7 +24,7 @@ namespace Lush
             // std::vector<std::pair<Transform, Light>> _areaLights;
 
             void drawShadowMap(std::shared_ptr<EntityManager> &entityManager, Entity lightEntity);
-            void drawModels(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
+            void drawModel(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
 
         public:
             explicit CameraSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager);

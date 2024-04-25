@@ -61,6 +61,8 @@ void Entity::clearScriptIndexes()
 
 void Entity::addChild(std::size_t index)
 {
+    if (std::find(this->_children.begin(), this->_children.end(), index) != this->_children.end())
+        return;
     this->_children.push_back(index);
 }
 

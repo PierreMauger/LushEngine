@@ -61,5 +61,18 @@
         </Entity>
       </Children>
     </Entity>
+
+    <Entity name="Menu center">
+      <Components>
+        <UIElement size="60 40" anchor="4" textureName="gradient.jpeg" />
+      </Components>
+      <Children>
+        <Entity name="Button">
+          <Components>
+            <UIElement size="30 30" anchor="7" textureName="Geometry.png" />
+          </Components>
+        </Entity>
+      </Children>
+    </Entity>
   </Entities>
 </Scene>

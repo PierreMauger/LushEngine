@@ -21,6 +21,7 @@ public class TestScript : CustomComponent
     public void onCollisionEnter(ulong otherId)
     {
         Entity other = new Entity(otherId);
+        this.entity.log("Collision Enter with " + otherId);
 
         if (other.getComponent<Collider>().tag == "player") {
             this.entity.setParent(otherId);

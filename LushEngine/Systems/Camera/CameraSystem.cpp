@@ -1,9 +1,5 @@
 #include "Systems/Camera/CameraSystem.hpp"
 
-#include <utility>
-
-#include <utility>
-
 using namespace Lush;
 
 CameraSystem::CameraSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
@@ -67,7 +63,7 @@ void CameraSystem::drawShadowMap(std::shared_ptr<EntityManager> &entityManager, 
     for (auto &[id, entity] : entityManager->getEntities()) {
         if (entity.getParent().has_value() || !entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
             continue;
-        this->drawModels(entity, entityManager);
+        this->drawModel(entity, entityManager);
     }
 
     glCullFace(GL_BACK);
@@ -75,7 +71,7 @@ void CameraSystem::drawShadowMap(std::shared_ptr<EntityManager> &entityManager, 
     glViewport(0, 0, (int)this->_graphic->getWindowSize().x, (int)this->_graphic->getWindowSize().y);
 }
 
-void CameraSystem::drawModels(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
+void CameraSystem::drawModel(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
 {
     Model model = entity.getComponent<Model>();
     Transform transform = entity.getComponent<Transform>();
@@ -91,6 +87,6 @@ void CameraSystem::drawModels(Entity &entity, std::shared_ptr<EntityManager> &en
             continue;
         Entity &child = entityManager->getEntities()[childId];
         if (child.hasComponent<Transform>() && child.hasComponent<Model>())
-            this->drawModels(child, entityManager, transform);
+            this->drawModel(child, entityManager, transform);
     }
 }

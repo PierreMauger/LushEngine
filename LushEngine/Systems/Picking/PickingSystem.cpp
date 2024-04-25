@@ -1,7 +1,5 @@
 #include "Systems/Picking/PickingSystem.hpp"
 
-#include <utility>
-
 using namespace Lush;
 
 PickingSystem::PickingSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
@@ -34,7 +32,7 @@ void PickingSystem::update(std::shared_ptr<EntityManager> &entityManager, float 
         if (entity.getParent().has_value())
             continue;
         if (entity.hasComponent<Transform>() && entity.hasComponent<Model>())
-            this->drawModels(entity, id, entityManager);
+            this->drawModel(entity, id, entityManager);
     }
 
     this->_graphic->getRenderView().use("PickingBillboard");
@@ -43,7 +41,7 @@ void PickingSystem::update(std::shared_ptr<EntityManager> &entityManager, float 
         if (entity.getParent().has_value())
             continue;
         if (entity.hasComponent<Transform>() && entity.hasComponent<Billboard>())
-            this->drawBillboards(entity, id, entityManager);
+            this->drawBillboard(entity, id, entityManager);
     }
 
     // convert from viewport coord to screen coord (picking buffer is drawn on whole screen and resized later to viewport)
@@ -62,7 +60,7 @@ void PickingSystem::update(std::shared_ptr<EntityManager> &entityManager, float 
     this->drawOutline(pixel);
 }
 
-void PickingSystem::drawModels(Entity &entity, std::size_t id, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
+void PickingSystem::drawModel(Entity &entity, std::size_t id, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
 {
     Model model = entity.getComponent<Model>();
     Transform transform = entity.getComponent<Transform>();
@@ -80,11 +78,11 @@ void PickingSystem::drawModels(Entity &entity, std::size_t id, std::shared_ptr<E
             continue;
         Entity &child = entityManager->getEntities()[childId];
         if (child.hasComponent<Transform>() && child.hasComponent<Model>())
-            this->drawModels(child, childId, entityManager, transform);
+            this->drawModel(child, childId, entityManager, transform);
     }
 }
 
-void PickingSystem::drawBillboards(Entity &entity, std::size_t id, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
+void PickingSystem::drawBillboard(Entity &entity, std::size_t id, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
 {
     Billboard billboard = entity.getComponent<Billboard>();
     Transform transform = entity.getComponent<Transform>();
@@ -107,7 +105,7 @@ void PickingSystem::drawBillboards(Entity &entity, std::size_t id, std::shared_p
             continue;
         Entity &child = entityManager->getEntities()[childId];
         if (child.hasComponent<Transform>() && child.hasComponent<Model>())
-            this->drawModels(child, childId, entityManager, transform);
+            this->drawModel(child, childId, entityManager, transform);
     }
 }
 

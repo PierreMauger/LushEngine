@@ -120,7 +120,7 @@ void Graphic::handleMousePress(int button, int action, [[maybe_unused]] int mods
     }
 }
 
-void Graphic::handleMouseScroll(double xoffset, double yoffset)
+void Graphic::handleMouseScroll([[maybe_unused]] double xoffset, double yoffset)
 {
     this->_mouseScroll = yoffset;
 }

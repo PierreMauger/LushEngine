@@ -1,7 +1,5 @@
 #include "Systems/Render/RenderSystem.hpp"
 
-#include <utility>
-
 using namespace Lush;
 
 RenderSystem::RenderSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
@@ -38,7 +36,7 @@ void RenderSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
     for (auto &[id, entity] : entityManager->getEntities()) {
         if (entity.getParent().has_value() || !entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
             continue;
-        this->drawModels(entity, entityManager);
+        this->drawModel(entity, entityManager);
     }
 
     this->_graphic->getRenderView().use("Billboard");
@@ -46,13 +44,13 @@ void RenderSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
     for (auto &[id, entity] : entityManager->getEntities()) {
         if (entity.getParent().has_value() || !entity.hasComponent<Transform>() || !entity.hasComponent<Billboard>())
             continue;
-        this->drawBillboards(entity, entityManager);
+        this->drawBillboard(entity, entityManager);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderSystem::drawModels(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
+void RenderSystem::drawModel(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
 {
     Model model = entity.getComponent<Model>();
     Transform transform = entity.getComponent<Transform>();
@@ -68,11 +66,11 @@ void RenderSystem::drawModels(Entity &entity, std::shared_ptr<EntityManager> &en
             continue;
         Entity &child = entityManager->getEntities()[childId];
         if (child.hasComponent<Transform>() && child.hasComponent<Model>())
-            this->drawModels(child, entityManager, transform);
+            this->drawModel(child, entityManager, transform);
     }
 }
 
-void RenderSystem::drawBillboards(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
+void RenderSystem::drawBillboard(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
 {
     Billboard billboard = entity.getComponent<Billboard>();
     Transform transform = entity.getComponent<Transform>();
@@ -93,7 +91,7 @@ void RenderSystem::drawBillboards(Entity &entity, std::shared_ptr<EntityManager>
             continue;
         Entity &child = entityManager->getEntities()[childId];
         if (child.hasComponent<Transform>() && child.hasComponent<Model>())
-            this->drawModels(child, entityManager, transform);
+            this->drawModel(child, entityManager, transform);
     }
 }
 

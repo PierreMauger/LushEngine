@@ -1,7 +1,5 @@
 #include "Systems/Physic/PhysicSystem.hpp"
 
-#include <utility>
-
 using namespace Lush;
 
 PhysicSystem::PhysicSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)

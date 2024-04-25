@@ -81,7 +81,7 @@ namespace Lush
 
             std::pair<Transform, Camera> &getSceneCamera();
 
-        void setMouseCursor(int cursor);
+            void setMouseCursor(int cursor);
             bool isMouseHidden() const;
             void setMouseHidden(bool mouseHidden);
             void setSceneHovered(bool sceneHovered);

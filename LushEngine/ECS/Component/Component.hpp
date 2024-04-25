@@ -244,6 +244,26 @@ namespace Lush
                 ar &stepOffset;
             }
     };
+
+    struct UIElement : public Component {
+            glm::vec2 size = glm::vec2(100.0f);
+            glm::vec2 offset = glm::vec2(0.0f);
+            int anchor = 0;
+            std::string textureName;
+
+            [[nodiscard]] UIElement *clone() const override
+            {
+                return new UIElement(*this);
+            }
+
+            template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
+            {
+                ar &size;
+                ar &offset;
+                ar &anchor;
+                ar &textureName;
+            }
+    };
 }
 
 #endif // COMPONENT_HPP

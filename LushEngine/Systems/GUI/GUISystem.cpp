@@ -1,11 +1,12 @@
 #include "Systems/GUI/GUISystem.hpp"
-#include <utility>
 
 using namespace Lush;
 
 static const char *cameraTypeNames[CameraType::CAMERA_TYPE_COUNT] = {"Perspective", "Orthographic"};
 static const char *lightTypeNames[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
 static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"box", "Sphere", "Capsule", "Mesh"};
+static const char *anchorNames[9] = {"Top\nLeft",     " Top\nCenter",  " Top\nRight",    "Middle\n Left", "Middle\nCenter",
+                                     "Middle\nRight", "Bottom\n Left", "Bottom\nCenter", "Bottom\nRight"};
 
 GUISystem::GUISystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
     : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
@@ -622,22 +623,23 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
         if (ImGui::CollapsingHeader(ICON_FA_BOXES " Collider", &open, ImGuiTreeNodeFlags_DefaultOpen)) {
             Collider &collider = entity.getComponent<Collider>();
 
+            ImGui::PushID("Collider");
             bool isEdited = false;
-            if (ImGui::SliderInt("Type##Collider", (int *)&collider.type, 0, ColliderType::COLLIDER_TYPE_COUNT - 1, colliderTypeNames[collider.type]))
+            if (ImGui::SliderInt("Type", (int *)&collider.type, 0, ColliderType::COLLIDER_TYPE_COUNT - 1, colliderTypeNames[collider.type]))
                 isEdited = true;
-            if (ImGui::DragFloat3("Center##Collider", (float *)&collider.center, 0.1f, -FLT_MAX, +FLT_MAX))
+            if (ImGui::DragFloat3("Center", (float *)&collider.center, 0.1f, -FLT_MAX, +FLT_MAX))
                 isEdited = true;
             switch (collider.type) {
             case ColliderType::BOX:
-                if (ImGui::DragFloat3("Size##Collider", (float *)&collider.size, 0.1f, -FLT_MAX, +FLT_MAX))
+                if (ImGui::DragFloat3("Size", (float *)&collider.size, 0.1f, -FLT_MAX, +FLT_MAX))
                     isEdited = true;
                 break;
             case ColliderType::SPHERE:
-                if (ImGui::DragFloat("Radius##Collider", &collider.size.x, 0.1f, -FLT_MAX, +FLT_MAX))
+                if (ImGui::DragFloat("Radius", &collider.size.x, 0.1f, -FLT_MAX, +FLT_MAX))
                     isEdited = true;
                 break;
             case ColliderType::CAPSULE:
-                if (ImGui::DragFloat2("Radius##Collider", (float *)&collider.size, 0.1f, -FLT_MAX, +FLT_MAX))
+                if (ImGui::DragFloat2("Radius", (float *)&collider.size, 0.1f, -FLT_MAX, +FLT_MAX))
                     isEdited = true;
                 break;
             default:
@@ -645,7 +647,7 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
             }
             static char buffer[32];
             strcpy(buffer, collider.tag.c_str());
-            if (ImGui::InputText("Tag##Collider", buffer, sizeof(buffer))) {
+            if (ImGui::InputText("Tag", buffer, sizeof(buffer))) {
                 collider.tag = buffer;
                 isEdited = true;
             }
@@ -653,6 +655,7 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                 std::size_t instance = this->getPhysicInstanceIndex(this->_graphic->getSelectedEntity());
                 // this->_resourceManager->getPhysicInstances()[instance].updateColliderRuntime(collider);
             }
+            ImGui::PopID();
             ImGui::Separator();
         }
         if (!open)
@@ -669,6 +672,30 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
         }
         if (!open)
             entity.removeComponent<CharacterController>();
+    }
+    if (entity.hasComponent<UIElement>()) {
+        bool open = true;
+        if (ImGui::CollapsingHeader(ICON_FA_ARROWS_ALT " UIElement", &open, ImGuiTreeNodeFlags_DefaultOpen)) {
+            UIElement &uiElement = entity.getComponent<UIElement>();
+
+            ImGui::PushID("UIElement");
+            ImGui::DragFloat2("Size", (float *)&uiElement.size, 1.0f, 0.0f, 100.0f);
+            ImGui::DragFloat2("Offset", (float *)&uiElement.offset, 1.0f, -FLT_MAX, +FLT_MAX);
+            ImGui::Text("Anchor");
+            ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.5f, 0.5f));
+            for (int i = 0; i < 9; i++) {
+                if (i % 3 != 0)
+                    ImGui::SameLine();
+                if (ImGui::Selectable(anchorNames[i], uiElement.anchor == i, 0, ImVec2(50, 50)))
+                    uiElement.anchor = i;
+            }
+            ImGui::PopStyleVar();
+            this->drawTextureSelect("Texture", uiElement.textureName);
+            ImGui::PopID();
+            ImGui::Separator();
+        }
+        if (!open)
+            entity.removeComponent<UIElement>();
     }
     std::size_t it = 0;
     for (auto &[scriptName, script] : this->_resourceManager->getScripts()) {
@@ -791,6 +818,12 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
             ImGui::SameLine(20, 0);
             if (ImGui::Selectable("CharacterController##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
                 entity.addComponent(CharacterController());
+        }
+        if (!entity.hasComponent<UIElement>()) {
+            ImGui::Text(ICON_FA_ARROWS_ALT);
+            ImGui::SameLine(20, 0);
+            if (ImGui::Selectable("UIElement##selectable", false, ImGuiSelectableFlags_SpanAllColumns))
+                entity.addComponent(UIElement());
         }
 
         it = 0;

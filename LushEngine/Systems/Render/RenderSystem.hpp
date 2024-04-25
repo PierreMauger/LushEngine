@@ -19,8 +19,8 @@ namespace Lush
             BufferObject _skybox{};
             BufferObject _billboard{};
 
-            void drawModels(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
-            void drawBillboards(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
+            void drawModel(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
+            void drawBillboard(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
             void drawMap(std::shared_ptr<EntityManager> &entityManager);
             void drawSkybox(std::shared_ptr<EntityManager> &entityManager);
 

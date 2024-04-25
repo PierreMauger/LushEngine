@@ -1,10 +1,9 @@
 #include "Systems/Scene/SceneSystem.hpp"
 
-#include <utility>
-
 using namespace Lush;
 
-SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager) : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
+SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<ResourceManager> resourceManager)
+    : ASystem(60.0f), _graphic(std::move(graphic)), _resourceManager(std::move(resourceManager))
 {
     Shapes::setupFrameBuffer(this->_graphic->getFrameBuffers()["scene"], this->_graphic->getWindowSize());
     Shapes::setupFrameBuffer(this->_graphic->getFrameBuffers()["final"], this->_graphic->getWindowSize());
@@ -51,7 +50,7 @@ void SceneSystem::update(std::shared_ptr<EntityManager> &entityManager, float de
     for (auto &[id, entity] : entityManager->getEntities()) {
         if (entity.getParent().has_value() || !entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
             continue;
-        this->drawModels(entity, entityManager);
+        this->drawModel(entity, entityManager);
     }
 
     this->_graphic->getRenderView().use("Billboard");
@@ -59,12 +58,23 @@ void SceneSystem::update(std::shared_ptr<EntityManager> &entityManager, float de
     for (auto &[id, entity] : entityManager->getEntities()) {
         if (entity.getParent().has_value() || !entity.hasComponent<Transform>() || !entity.hasComponent<Billboard>())
             continue;
-        this->drawBillboards(entity, entityManager);
+        this->drawBillboard(entity, entityManager);
     }
 
     this->drawCameraFrustum(entityManager);
     this->drawLightDirection(entityManager);
     this->drawGrid();
+
+    glDisable(GL_DEPTH_TEST);
+    this->_graphic->getRenderView().use("UI");
+    glBindVertexArray(this->_grid.vao);
+    for (auto &[id, entity] : entityManager->getEntities()) {
+        if (entity.getParent().has_value() || !entity.hasComponent<UIElement>())
+            continue;
+        this->drawUI(entity, entityManager);
+    }
+    glBindVertexArray(0);
+    glEnable(GL_DEPTH_TEST);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -144,7 +154,7 @@ void SceneSystem::handleMouse()
     }
 }
 
-void SceneSystem::drawModels(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
+void SceneSystem::drawModel(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
 {
     Model model = entity.getComponent<Model>();
     Transform transform = entity.getComponent<Transform>();
@@ -160,11 +170,11 @@ void SceneSystem::drawModels(Entity &entity, std::shared_ptr<EntityManager> &ent
             continue;
         Entity &child = entityManager->getEntities()[childId];
         if (child.hasComponent<Transform>() && child.hasComponent<Model>())
-            this->drawModels(child, entityManager, transform);
+            this->drawModel(child, entityManager, transform);
     }
 }
 
-void SceneSystem::drawBillboards(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
+void SceneSystem::drawBillboard(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform)
 {
     Billboard billboard = entity.getComponent<Billboard>();
     Transform transform = entity.getComponent<Transform>();
@@ -185,7 +195,27 @@ void SceneSystem::drawBillboards(Entity &entity, std::shared_ptr<EntityManager> 
             continue;
         Entity &child = entityManager->getEntities()[childId];
         if (child.hasComponent<Transform>() && child.hasComponent<Model>())
-            this->drawModels(child, entityManager, transform);
+            this->drawModel(child, entityManager, transform);
+    }
+}
+
+void SceneSystem::drawUI(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const UIElement &parentUIElement)
+{
+    UIElement uiElement = entity.getComponent<UIElement>();
+    uiElement.size = parentUIElement.size * uiElement.size / 100.0f;
+
+    this->_graphic->getRenderView().getShader().setVec2("size", uiElement.size);
+    if (this->_resourceManager->getTextures().contains(uiElement.textureName))
+        glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[uiElement.textureName]->getId());
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    for (auto &childId : entity.getChildren()) {
+        if (!entityManager->getEntities().contains(childId))
+            continue;
+        Entity &child = entityManager->getEntities()[childId];
+        if (child.hasComponent<UIElement>())
+            this->drawUI(child, entityManager, uiElement);
     }
 }
 

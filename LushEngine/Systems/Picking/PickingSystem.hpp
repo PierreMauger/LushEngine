@@ -19,8 +19,8 @@ namespace Lush
             BufferObject _billboard{};
             BufferObject _plane{};
 
-            void drawModels(Entity &entity, std::size_t id, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
-            void drawBillboards(Entity &entity, std::size_t id, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
+            void drawModel(Entity &entity, std::size_t id, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
+            void drawBillboard(Entity &entity, std::size_t id, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
             void drawOutline(std::size_t pixel);
 
         public:

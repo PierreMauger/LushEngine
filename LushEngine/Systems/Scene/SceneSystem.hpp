@@ -28,8 +28,9 @@ namespace Lush
 
             void handleMouse();
             void generatePerlinTexture();
-            void drawModels(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
-            void drawBillboards(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
+            void drawModel(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
+            void drawBillboard(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
+            void drawUI(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const UIElement &parentUIElement = UIElement());
             void drawMap(std::shared_ptr<EntityManager> &entityManager);
             void drawSkybox(std::shared_ptr<EntityManager> &entityManager);
             void drawCameraFrustum(std::shared_ptr<EntityManager> &entityManager);

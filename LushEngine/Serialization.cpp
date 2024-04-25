@@ -21,6 +21,7 @@ namespace boost::serialization
             serializeIf<RigidBody>(typeName, componentMap, ar);
             serializeIf<Collider>(typeName, componentMap, ar);
             serializeIf<CharacterController>(typeName, componentMap, ar);
+            serializeIf<UIElement>(typeName, componentMap, ar);
         }
     }
 
@@ -42,6 +43,7 @@ namespace boost::serialization
             deserializeIf<RigidBody>(type, componentMap, ar);
             deserializeIf<Collider>(type, componentMap, ar);
             deserializeIf<CharacterController>(type, componentMap, ar);
+            deserializeIf<UIElement>(type, componentMap, ar);
         }
     }
 }

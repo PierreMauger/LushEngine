@@ -38,6 +38,8 @@ bool ScriptGlue::Entity_HasComponent(std::size_t id, MonoString *componentName)
             hasComponent = entity.hasComponent<Collider>();
         else if (std::string(utf8) == "CharacterController")
             hasComponent = entity.hasComponent<CharacterController>();
+        else if (std::string(utf8) == "UIElement")
+            hasComponent = entity.hasComponent<UIElement>();
         else
             hasComponent = entity.hasScriptComponent(utf8);
     }
@@ -70,6 +72,8 @@ void ScriptGlue::Entity_AddComponent(std::size_t id, MonoString *componentName)
             entity.addComponent<Collider>(Collider());
         else if (std::string(utf8) == "CharacterController")
             entity.addComponent<CharacterController>(CharacterController());
+        else if (std::string(utf8) == "UIElement")
+            entity.addComponent<UIElement>(UIElement());
         else {
             auto resourceManager = ResourceManager::getStaticResourceManager();
             if (resourceManager->getScripts().contains(utf8)) {
@@ -106,6 +110,8 @@ void ScriptGlue::Entity_RemoveComponent(std::size_t id, MonoString *componentNam
             entity.removeComponent<Collider>();
         else if (std::string(utf8) == "CharacterController")
             entity.removeComponent<CharacterController>();
+        else if (std::string(utf8) == "UIElement")
+            entity.removeComponent<UIElement>();
         else
             entity.removeScriptComponent(std::string(utf8));
     }
