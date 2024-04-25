@@ -69,7 +69,7 @@ btCollisionObject *CharacterInstance::getCollisionObject() const
     return this->_ghostObject;
 }
 
-void CharacterInstance::preUpdate(Transform &transform)
+void CharacterInstance::preUpdate(Transform &transform, const Transform &parentTransform)
 {
     btVector3 origin = this->_ghostObject->getWorldTransform().getOrigin();
     btVector3 diff = btVector3(transform.position.x, transform.position.y, transform.position.z) - origin;

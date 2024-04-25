@@ -27,7 +27,12 @@ void PhysicSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
         if (!entityManager->hasEntity(instance->getId()))
             continue;
         Transform &transform = entityManager->getEntity(instance->getId()).getComponent<Transform>();
-        instance->preUpdate(transform);
+        if (entityManager->getEntity(instance->getId()).getParent().has_value() &&
+            entityManager->getEntity(entityManager->getEntity(instance->getId()).getParent().value()).hasComponent<Transform>()) {
+            instance->preUpdate(transform, entityManager->getEntity(entityManager->getEntity(instance->getId()).getParent().value()).getComponent<Transform>());
+        } else {
+            instance->preUpdate(transform);
+        }
     }
     this->_dynamicsWorld->stepSimulation(deltaTime);
     for (auto it = this->_resourceManager->getPhysicInstances().begin(); it != this->_resourceManager->getPhysicInstances().end();) {

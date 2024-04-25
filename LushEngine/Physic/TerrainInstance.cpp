@@ -30,7 +30,7 @@ btCollisionObject *TerrainInstance::getCollisionObject() const
     return this->_rigidBody;
 }
 
-void TerrainInstance::preUpdate(Transform &transform)
+void TerrainInstance::preUpdate(Transform &transform, const Transform &parentTransform)
 {
 }
 

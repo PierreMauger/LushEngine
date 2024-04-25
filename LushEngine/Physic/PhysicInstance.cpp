@@ -42,25 +42,15 @@ btCollisionObject *PhysicInstance::getCollisionObject() const
     return this->_rigidBody;
 }
 
-void PhysicInstance::preUpdate(Transform &transform)
+void PhysicInstance::preUpdate(Transform &transform, const Transform &parentTransform)
 {
-    bool changed = false;
 
-    btVector3 position = this->_rigidBody->getCenterOfMassPosition();
-    btQuaternion quat = this->_rigidBody->getOrientation();
+    this->_rigidBody->setWorldTransform(btTransform(btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w),
+                                                    btVector3(transform.position.x, transform.position.y, transform.position.z)));
 
-    if (position != btVector3(transform.position.x, transform.position.y, transform.position.z))
-        changed = true;
-    if (quat != btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w))
-        changed = true;
-
-    if (changed) {
-        btTransform startTransform;
-        startTransform.setIdentity();
-        startTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
-        startTransform.setRotation(btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w));
-        this->_rigidBody->setWorldTransform(startTransform);
-    }
+    this->_rigidBody->getMotionState()->setWorldTransform(
+        btTransform(btQuaternion(parentTransform.rotation.x, parentTransform.rotation.y, parentTransform.rotation.z, parentTransform.rotation.w),
+                    btVector3(parentTransform.position.x, parentTransform.position.y, parentTransform.position.z)));
 }
 
 void PhysicInstance::postUpdate(Transform &transform)

@@ -24,7 +24,7 @@ namespace Lush
             ~CharacterInstance() override;
 
             [[nodiscard]] btCollisionObject *getCollisionObject() const override;
-            void preUpdate(Transform &transform) override;
+            void preUpdate(Transform &transform, const Transform &parentTransform) override;
             void postUpdate(Transform &transform) override;
             void addToWorld(btDiscreteDynamicsWorld *world) override;
             void removeFromWorld(btDiscreteDynamicsWorld *world) override;

@@ -40,7 +40,7 @@ namespace Lush
             }
 
             [[nodiscard]] virtual btCollisionObject *getCollisionObject() const = 0;
-            virtual void preUpdate(Transform &transform) = 0;
+            virtual void preUpdate(Transform &transform, const Transform &parentTransform = Transform()) = 0;
             virtual void postUpdate(Transform &transform) = 0;
 
             virtual void addToWorld(btDiscreteDynamicsWorld *world) = 0;
