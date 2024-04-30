@@ -55,22 +55,16 @@ void Mesh::draw(Shader &shader, Model &model, std::unordered_map<std::string, st
     shader.setFloat("material.shininess", material.shininess);
 
     shader.setFloat("tex.shininess", 32.0f);
-    glActiveTexture(GL_TEXTURE0 + this->_textures.size());
     shader.setInt("tex.diffuse", (int)this->_textures.size());
     shader.setInt("tex.emission", (int)this->_textures.size());
     shader.setInt("tex.specular", (int)this->_textures.size());
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     for (unsigned int i = 0; i < this->_textures.size(); i++) {
-        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTextureUnit(i, textures[this->_textures[i].name]->getId());
         shader.setInt(this->_textures[i].type, (int)i);
-        glBindTexture(GL_TEXTURE_2D, textures[this->_textures[i].name]->getId());
     }
-
     glBindVertexArray(this->_bufferObject.vao);
     glDrawElements(GL_TRIANGLES, (int)this->_indices.size(), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
-    if (!model.textures.empty())
-        glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTextures(0, this->_textures.size(), {0});
 }

@@ -90,8 +90,7 @@ void PickingSystem::drawBillboard(Entity &entity, std::size_t id, std::shared_pt
     transform.position = parentTransform.rotation * transform.position + parentTransform.position;
     glm::vec4 color((((id + 1) & 0x000000FF) >> 0) / 255.0f, (((id + 1) & 0x0000FF00) >> 8) / 255.0f, (((id + 1) & 0x00FF0000) >> 16) / 255.0f, 1.0f);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures().contains(billboard.name) ? this->_resourceManager->getTextures()[billboard.name]->getId() : 0);
+    glBindTextureUnit(0, this->_resourceManager->getTextures().contains(billboard.name) ? this->_resourceManager->getTextures()[billboard.name]->getId() : 0);
     this->_graphic->getRenderView().getShader().setInt("tex", 0);
     this->_graphic->getRenderView().getShader().setVec4("id", color);
     this->_graphic->getRenderView().getShader().setBool("lockYAxis", billboard.lockYAxis);
@@ -104,8 +103,8 @@ void PickingSystem::drawBillboard(Entity &entity, std::size_t id, std::shared_pt
         if (!entityManager->getEntities().contains(childId))
             continue;
         Entity &child = entityManager->getEntities()[childId];
-        if (child.hasComponent<Transform>() && child.hasComponent<Model>())
-            this->drawModel(child, childId, entityManager, transform);
+        if (child.hasComponent<Transform>() && child.hasComponent<Billboard>())
+            this->drawBillboard(child, childId, entityManager, transform);
     }
 }
 

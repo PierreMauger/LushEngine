@@ -30,9 +30,8 @@ void RenderSystem::update(std::shared_ptr<EntityManager> &entityManager, float d
 
     this->_graphic->getRenderView().use("Model");
     this->_graphic->getRenderView().setView();
-    glActiveTexture(GL_TEXTURE9);
+    glBindTextureUnit(9, this->_graphic->getFrameBuffers()["shadow"].texture);
     this->_graphic->getRenderView().getShader().setInt("shadowMap", 9);
-    glBindTexture(GL_TEXTURE_2D, this->_graphic->getFrameBuffers()["shadow"].texture);
     for (auto &[id, entity] : entityManager->getEntities()) {
         if (entity.getParent().has_value() || !entity.hasComponent<Transform>() || !entity.hasComponent<Model>())
             continue;
@@ -78,8 +77,7 @@ void RenderSystem::drawBillboard(Entity &entity, std::shared_ptr<EntityManager> 
     transform.position = parentTransform.rotation * transform.position + parentTransform.position;
 
     this->_graphic->getRenderView().setBillboard(transform);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures().contains(billboard.name) ? this->_resourceManager->getTextures()[billboard.name]->getId() : 0);
+    glBindTextureUnit(0, this->_resourceManager->getTextures().contains(billboard.name) ? this->_resourceManager->getTextures()[billboard.name]->getId() : 0);
     this->_graphic->getRenderView().getShader().setInt("tex", 0);
     this->_graphic->getRenderView().getShader().setBool("lockYAxis", billboard.lockYAxis);
     glBindVertexArray(this->_billboard.vao);
@@ -90,8 +88,8 @@ void RenderSystem::drawBillboard(Entity &entity, std::shared_ptr<EntityManager> 
         if (!entityManager->getEntities().contains(childId))
             continue;
         Entity &child = entityManager->getEntities()[childId];
-        if (child.hasComponent<Transform>() && child.hasComponent<Model>())
-            this->drawModel(child, entityManager, transform);
+        if (child.hasComponent<Transform>() && child.hasComponent<Billboard>())
+            this->drawBillboard(child, entityManager, transform);
     }
 }
 
@@ -105,37 +103,18 @@ void RenderSystem::drawMap(std::shared_ptr<EntityManager> &entityManager)
         Map map = entity.getComponent<Map>();
 
         this->_graphic->getRenderView().setModel(entity.getComponent<Transform>());
-        glActiveTexture(GL_TEXTURE0);
-        if (this->_resourceManager->getTextures().contains(map.heightMap))
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.heightMap]->getId());
-        else
-            glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTextureUnit(0, this->_resourceManager->getTextures().contains(map.heightMap) ? this->_resourceManager->getTextures()[map.heightMap]->getId() : 0);
         this->_graphic->getRenderView().getShader().setInt("heightMap", 0);
-        glActiveTexture(GL_TEXTURE1);
-        if (this->_resourceManager->getTextures().contains(map.diffuseTexture))
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.diffuseTexture]->getId());
-        else
-            glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTextureUnit(1, this->_resourceManager->getTextures().contains(map.diffuseTexture) ? this->_resourceManager->getTextures()[map.diffuseTexture]->getId() : 0);
         this->_graphic->getRenderView().getShader().setInt("diffuseTexture", 1);
-        glActiveTexture(GL_TEXTURE2);
-        if (this->_resourceManager->getTextures().contains(map.normalTexture))
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.normalTexture]->getId());
-        else
-            glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTextureUnit(2, this->_resourceManager->getTextures().contains(map.normalTexture) ? this->_resourceManager->getTextures()[map.normalTexture]->getId() : 0);
         this->_graphic->getRenderView().getShader().setInt("normalTexture", 2);
-        glActiveTexture(GL_TEXTURE3);
-        if (this->_resourceManager->getTextures().contains(map.diffuseTexture2))
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.diffuseTexture2]->getId());
-        else
-            glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTextureUnit(3, this->_resourceManager->getTextures().contains(map.diffuseTexture2) ? this->_resourceManager->getTextures()[map.diffuseTexture2]->getId() : 0);
         this->_graphic->getRenderView().getShader().setInt("diffuseTexture2", 3);
-        glActiveTexture(GL_TEXTURE4);
-        if (this->_resourceManager->getTextures().contains(map.diffuseTexture3))
-            glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures()[map.diffuseTexture3]->getId());
-        else
-            glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTextureUnit(4, this->_resourceManager->getTextures().contains(map.diffuseTexture3) ? this->_resourceManager->getTextures()[map.diffuseTexture3]->getId() : 0);
         this->_graphic->getRenderView().getShader().setInt("diffuseTexture3", 4);
         this->_resourceManager->getMapMesh().draw();
+        glBindTextures(0, 5, {0});
     }
 }
 
