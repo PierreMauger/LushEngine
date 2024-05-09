@@ -4,7 +4,7 @@ using namespace Lush;
 
 static const char *cameraTypeNames[CameraType::CAMERA_TYPE_COUNT] = {"Perspective", "Orthographic"};
 static const char *lightTypeNames[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
-static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"box", "Sphere", "Capsule", "Mesh"};
+static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"Box", "Sphere", "Capsule", "Mesh"};
 static const std::unordered_map<std::string, std::function<void(rapidxml::xml_node<> *, Entity &)>> componentLoaders = {
     {"Transform", &Scene::loadTransform},
     {"Model", &Scene::loadModel},
@@ -103,6 +103,8 @@ void Scene::loadModel(rapidxml::xml_node<> *node, Entity &entity)
     Model temp;
     if (node->first_attribute("name"))
         temp.name = node->first_attribute("name")->value();
+    if (node->first_attribute("culling"))
+        temp.culling = node->first_attribute("culling")->value() == std::string("false") ? false : true;
     for (rapidxml::xml_node<> *materialNode = node->first_node("Material"); materialNode; materialNode = materialNode->next_sibling("Material")) {
         Material material;
         std::string name;
@@ -412,6 +414,8 @@ void Scene::saveModel(rapidxml::xml_node<> *node, Entity &entity)
     Model &model = entity.getComponent<Model>();
     if (model.name != "")
         node->append_attribute(node->document()->allocate_attribute("name", model.name.c_str()));
+    if (!model.culling)
+        node->append_attribute(node->document()->allocate_attribute("culling", "false"));
     for (auto &[name, material] : model.materials) {
         rapidxml::xml_node<> *materialNode = node->document()->allocate_node(rapidxml::node_element, "Material");
         node->append_node(materialNode);
@@ -559,32 +563,26 @@ void Scene::saveCollider(rapidxml::xml_node<> *node, Entity &entity)
         node->append_attribute(node->document()->allocate_attribute("center", centerValue));
     }
     if (collider.type == ColliderType::SPHERE) {
-        if (collider.size.x != 1.0f) {
+        if (collider.size.x != 0.0f) {
             std::stringstream radiusStream;
             radiusStream << collider.size.x;
             char *radiusValue = node->document()->allocate_string(radiusStream.str().c_str());
             node->append_attribute(node->document()->allocate_attribute("radius", radiusValue));
         }
     } else if (collider.type == ColliderType::CAPSULE) {
-        if (collider.size != glm::vec3(1.0f)) {
+        if (collider.size.x != 0.0f && collider.size.y != 0.0f) {
             std::stringstream sizeStream;
             sizeStream << collider.size.x << " " << collider.size.y;
             char *sizeValue = node->document()->allocate_string(sizeStream.str().c_str());
             node->append_attribute(node->document()->allocate_attribute("radius", sizeValue));
         }
     } else {
-        if (collider.size != glm::vec3(1.0f)) {
+        if (collider.size != glm::vec3(0.0f)) {
             std::stringstream sizeStream;
             sizeStream << collider.size.x << " " << collider.size.y << " " << collider.size.z;
             char *sizeValue = node->document()->allocate_string(sizeStream.str().c_str());
             node->append_attribute(node->document()->allocate_attribute("size", sizeValue));
         }
-    }
-    if (collider.size != glm::vec3(0.0f)) {
-        std::stringstream sizeStream;
-        sizeStream << collider.size.x << " " << collider.size.y << " " << collider.size.z;
-        char *sizeValue = node->document()->allocate_string(sizeStream.str().c_str());
-        node->append_attribute(node->document()->allocate_attribute("size", sizeValue));
     }
     if (collider.tag != "")
         node->append_attribute(node->document()->allocate_attribute("tag", collider.tag.c_str()));

@@ -32,6 +32,9 @@ void Texture::createTexture()
 
     if (!data)
         return;
+    if (this->_nrChannels == 4)
+        this->_hasTransparency = Texture::calcTransparency(data, this->_width, this->_height);
+
     this->_heightData = new unsigned char[this->_width * this->_height];
     if (this->_nrChannels == 1) {
         memcpy(this->_heightData, data, this->_width * this->_height);
@@ -58,6 +61,17 @@ void Texture::createTexture()
     stbi_image_free(data);
 }
 
+bool Texture::calcTransparency(const unsigned char* data, int width, int height) {
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            int alphaIndex = (y * width + x) * 4 + 3;
+            if (data[alphaIndex] != 255 && data[alphaIndex] != 0) // Check if alpha is not fully opaque
+                return true;
+        }
+    }
+    return false;
+}
+
 unsigned int Texture::getId() const
 {
     return this->_id;
@@ -81,4 +95,9 @@ unsigned char *Texture::getHeightData() const
 std::string Texture::getContent() const
 {
     return this->_content;
+}
+
+bool Texture::hasTransparency() const
+{
+    return this->_hasTransparency;
 }

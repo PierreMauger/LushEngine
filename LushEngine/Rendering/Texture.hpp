@@ -23,6 +23,7 @@ namespace Lush
             int _nrChannels;
             unsigned char *_heightData = nullptr;
             std::string _content;
+            bool _hasTransparency = false;
 
         public:
             explicit Texture(File &file);
@@ -32,12 +33,14 @@ namespace Lush
             void load(const File &file);
             void reload(const File &file);
             void createTexture();
+            static bool calcTransparency(const unsigned char* data, int width, int height);
 
             [[nodiscard]] unsigned int getId() const;
             [[nodiscard]] int getWidth() const;
             [[nodiscard]] int getHeight() const;
             [[nodiscard]] unsigned char *getHeightData() const;
             [[nodiscard]] std::string getContent() const;
+            [[nodiscard]] bool hasTransparency() const;
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {

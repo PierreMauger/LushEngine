@@ -4,7 +4,7 @@ using namespace Lush;
 
 static const char *cameraTypeNames[CameraType::CAMERA_TYPE_COUNT] = {"Perspective", "Orthographic"};
 static const char *lightTypeNames[LightType::LIGHT_TYPE_COUNT] = {"Dir", "Point", "Spot", "Area"};
-static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"box", "Sphere", "Capsule", "Mesh"};
+static const char *colliderTypeNames[ColliderType::COLLIDER_TYPE_COUNT] = {"Box", "Sphere", "Capsule", "Mesh"};
 static const char *anchorNames[9] = {"Top\nLeft",     " Top\nCenter",  " Top\nRight",    "Middle\n Left", "Middle\nCenter",
                                      "Middle\nRight", "Bottom\n Left", "Bottom\nCenter", "Bottom\nRight"};
 
@@ -487,7 +487,7 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                 }
                 ImGui::EndCombo();
             }
-            ImGui::Text("Materials (%d)", this->_resourceManager->getModels()[selectedItem]->getMaterialNb());
+            ImGui::Text("Materials (%ld)", this->_resourceManager->getModels()[selectedItem]->getMaterials().size());
             int i = 0;
             for (auto &[name, material] : model.materials) {
                 ImGui::PushID(i);
@@ -495,7 +495,7 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                 ImGui::PopID();
                 i++;
             }
-            if (this->_resourceManager->getModels()[selectedItem]->getMaterialNb() > model.materials.size()) {
+            if (this->_resourceManager->getModels()[selectedItem]->getMaterials().size() > model.materials.size()) {
                 std::unordered_map<std::string, Material> &defaultMaterials = this->_resourceManager->getModels()[selectedItem]->getMaterials();
 
                 if (ImGui::BeginCombo("Select Material##Model", "Select Material")) {
@@ -508,7 +508,7 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                     ImGui::EndCombo();
                 }
             }
-            ImGui::Text("Textures (%d)", this->_resourceManager->getModels()[selectedItem]->getTextureNb());
+            ImGui::Text("Textures (%ld)", this->_resourceManager->getModels()[selectedItem]->getTextureNames().size());
             ImGui::Separator();
         }
         if (!open)

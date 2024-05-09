@@ -26,6 +26,9 @@ namespace Lush
 
             GLuint _perlinTexture = 0;
 
+            std::vector<std::pair<Transform, Model>> _blendModel;
+            std::vector<std::pair<Transform, Billboard>> _blendBillboard;
+
             void handleMouse();
             void generatePerlinTexture();
             void drawModel(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());

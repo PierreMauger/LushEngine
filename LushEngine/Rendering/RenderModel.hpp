@@ -35,6 +35,7 @@ namespace Lush
             std::vector<Tex> _defaultTextures;
             std::unordered_map<std::string, BoneInfo> _boneInfoMap;
             int _boneCounter = 0;
+            bool _hasTransparency = false;
 
             // std::unordered_map<std::string, BoneInfo> &getBoneInfoMap();
             // int &getBoneCount();
@@ -55,10 +56,9 @@ namespace Lush
             void reload(const File &file);
             void draw(Shader &shader, Model &model, std::unordered_map<std::string, std::unique_ptr<Texture>> &textures);
 
-            int getMaterialNb() const;
-            int getTextureNb() const;
             std::unordered_map<std::string, Material> &getMaterials();
             std::vector<std::string> getTextureNames();
+            bool hasTransparency(std::unordered_map<std::string, std::unique_ptr<Lush::Texture>> &textures) const;
 
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {

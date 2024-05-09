@@ -57,7 +57,7 @@ namespace Lush
             bool _showScene = true;
             bool _showFileExplorer = true;
             bool _showProfiler = true;
-            bool _showProjectManager = false;
+            bool _showProjectManager = true;
             bool _showBuildBrowser = false;
             bool _showRootBrowser = false;
             bool _showAbout = false;

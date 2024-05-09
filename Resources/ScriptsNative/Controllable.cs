@@ -7,16 +7,6 @@ public class Controllable : CustomComponent
     public Entity cameraEntity = null;
     public float speed = 10.0f;
 
-    private static float DeltaBetweenAngle(float current, float target)
-    {
-        return (target - current + 540.0f) % 360.0f - 180.0f;
-    }
-
-    private static float LerpBetweenAngle(float current, float target, float t)
-    {
-        return current + t * DeltaBetweenAngle(current, target);
-    }
-
     public void onInit()
     {
         transform = this.entity.getComponent<Transform>();

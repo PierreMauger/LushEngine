@@ -47,6 +47,7 @@ namespace Lush
 
     struct Model : public Component {
             std::string name = "Fox";
+            bool culling = true;
             std::unordered_map<std::string, Material> materials;
             std::vector<std::string> textures;
 
@@ -58,6 +59,7 @@ namespace Lush
             template <class Archive> void serialize(Archive &ar, [[maybe_unused]] const unsigned int version)
             {
                 ar &name;
+                ar &culling;
                 ar &materials;
                 ar &textures;
             }

@@ -168,14 +168,11 @@ void main()
     for (int i = 0; i < pointLightCount && i < NB_POINT_LIGHTS; i++)
         result += calcPointLight(object, pointLights[i], norm, FragPos, viewDir);
 
-    if (hasTexture) {
-        result *= texture(tex.diffuse, TexCoords).a;
-        if (texture(tex.diffuse, TexCoords).a == 0.0f)
-            discard;
-    }
+    if (hasTexture && texture(tex.diffuse, TexCoords).a == 0.0f)
+        discard;
 
     float shadow = calcShadow(FragPosLightSpace);
     result *= 1.0f - shadow;
 
-    FragColor = vec4(result + object.emission, 1.0f);
+    FragColor = vec4(result + object.emission, texture(tex.diffuse, TexCoords).a);
 }

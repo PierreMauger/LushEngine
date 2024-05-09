@@ -23,6 +23,7 @@ namespace Lush
             std::vector<std::pair<Transform, Light>> _spotLights;
             // std::vector<std::pair<Transform, Light>> _areaLights;
 
+            void calcLight(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
             void drawShadowMap(std::shared_ptr<EntityManager> &entityManager, Entity lightEntity);
             void drawModel(Entity &entity, std::shared_ptr<EntityManager> &entityManager, const Transform &parentTransform = Transform());
 

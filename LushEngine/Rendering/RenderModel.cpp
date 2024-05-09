@@ -202,16 +202,6 @@ void RenderModel::draw(Shader &shader, Model &model, std::unordered_map<std::str
         mesh.draw(shader, model, textures);
 }
 
-int RenderModel::getMaterialNb() const
-{
-    return this->_defaultMaterials.size();
-}
-
-int RenderModel::getTextureNb() const
-{
-    return this->_defaultTextures.size();
-}
-
 std::unordered_map<std::string, Material> &RenderModel::getMaterials()
 {
     return this->_defaultMaterials;
@@ -224,4 +214,13 @@ std::vector<std::string> RenderModel::getTextureNames()
     for (auto &texture : this->_defaultTextures)
         names.push_back(texture.name);
     return names;
+}
+
+bool RenderModel::hasTransparency(std::unordered_map<std::string, std::unique_ptr<Lush::Texture>> &textures) const
+{
+    for (auto &texture : this->_defaultTextures)
+        if (textures.contains(texture.name) && textures[texture.name]->hasTransparency()) {
+            return true;
+        }
+    return false;
 }

@@ -62,7 +62,7 @@
       </Children>
     </Entity>
 
-    <Entity name="Menu center">
+    <!-- <Entity name="Menu center">
       <Components>
         <UIElement size="60 40" anchor="4" textureName="gradient.jpeg" />
       </Components>
@@ -73,6 +73,6 @@
           </Components>
         </Entity>
       </Children>
-    </Entity>
+    </Entity> -->
   </Entities>
 </Scene>

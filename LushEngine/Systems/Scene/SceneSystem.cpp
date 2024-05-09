@@ -30,10 +30,10 @@ void SceneSystem::update(std::shared_ptr<EntityManager> &entityManager, float de
 {
     this->handleMouse();
 
-    auto &[transform, camera] = this->_graphic->getSceneCamera();
+    auto &[cameraTransform, cameraData] = this->_graphic->getSceneCamera();
 
     this->_graphic->getRenderView().setAspectRatio(this->_graphic->getSceneViewPort().z / this->_graphic->getSceneViewPort().w);
-    this->_graphic->getRenderView().update(transform, camera);
+    this->_graphic->getRenderView().update(cameraTransform, cameraData);
     glBindFramebuffer(GL_FRAMEBUFFER, this->_graphic->getFrameBuffers()["scene"].framebuffer);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -41,6 +41,9 @@ void SceneSystem::update(std::shared_ptr<EntityManager> &entityManager, float de
 
     this->drawSkybox(entityManager);
     this->drawMap(entityManager);
+
+    this->_blendModel.clear();
+    this->_blendBillboard.clear();
 
     this->_graphic->getRenderView().use("Model");
     this->_graphic->getRenderView().setView();
@@ -60,6 +63,32 @@ void SceneSystem::update(std::shared_ptr<EntityManager> &entityManager, float de
             continue;
         this->drawBillboard(entity, entityManager);
     }
+
+    std::sort(this->_blendModel.begin(), this->_blendModel.end(), [&cameraTransform](const auto &a, const auto &b) {
+        return glm::length(a.first.position - cameraTransform.position) > glm::length(b.first.position - cameraTransform.position);
+    });
+    std::sort(this->_blendBillboard.begin(), this->_blendBillboard.end(), [&cameraTransform](const auto &a, const auto &b) {
+        return glm::length(a.first.position - cameraTransform.position) > glm::length(b.first.position - cameraTransform.position);
+    });
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    this->_graphic->getRenderView().use("Model");
+    for (auto &[transform, model] : this->_blendModel) {
+        this->_graphic->getRenderView().setModel(transform);
+        if (this->_resourceManager->getModels().contains(model.name))
+            this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model, this->_resourceManager->getTextures());
+    }
+    this->_graphic->getRenderView().use("Billboard");
+    for (auto &[transform, billboard] : this->_blendBillboard) {
+        this->_graphic->getRenderView().setBillboard(transform);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, this->_resourceManager->getTextures().contains(billboard.name) ? this->_resourceManager->getTextures()[billboard.name]->getId() : 0);
+        this->_graphic->getRenderView().getShader().setInt("tex", 0);
+        glBindVertexArray(this->_billboard.vao);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+    }
+    glDisable(GL_BLEND);
 
     this->drawCameraFrustum(entityManager);
     this->drawLightDirection(entityManager);
@@ -162,8 +191,17 @@ void SceneSystem::drawModel(Entity &entity, std::shared_ptr<EntityManager> &enti
     transform.position = parentTransform.rotation * transform.position + parentTransform.position;
 
     this->_graphic->getRenderView().setModel(transform);
-    if (this->_resourceManager->getModels().contains(model.name))
-        this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model, this->_resourceManager->getTextures());
+    if (this->_resourceManager->getModels().contains(model.name)) {
+        if (this->_resourceManager->getModels()[model.name]->hasTransparency(this->_resourceManager->getTextures()))
+            this->_blendModel.push_back(std::make_pair(transform, model));
+        else {
+            if (!model.culling)
+                glDisable(GL_CULL_FACE);
+            this->_resourceManager->getModels()[model.name]->draw(this->_graphic->getRenderView().getShader(), model, this->_resourceManager->getTextures());
+            if (!model.culling)
+                glEnable(GL_CULL_FACE);
+        }
+    }
 
     for (auto &childId : entity.getChildren()) {
         if (!entityManager->getEntities().contains(childId))
