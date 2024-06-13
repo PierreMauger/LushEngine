@@ -475,14 +475,15 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
         bool open = true;
         if (ImGui::CollapsingHeader(ICON_FA_CUBE " Model", &open, ImGuiTreeNodeFlags_DefaultOpen)) {
             Model &model = entity.getComponent<Model>();
-
+            if (!this->_resourceManager->getModels().contains(model.name)) {
+                ImGui::Text("Model %s not found", model.name.c_str());
+            }
             std::string selectedItem = model.name;
-            if (ImGui::BeginCombo("Select Item##Model", selectedItem.c_str())) {
+            if (ImGui::BeginCombo("Select Item##Model", model.name.c_str())) {
                 for (auto &[key, value] : this->_resourceManager->getModels()) {
-                    bool isSelected = (selectedItem == key);
-                    if (ImGui::Selectable(key.c_str(), isSelected))
+                    if (ImGui::Selectable(key.c_str(), model.name == key))
                         model.name = key;
-                    if (isSelected)
+                    if (model.name == key)
                         ImGui::SetItemDefaultFocus();
                 }
                 ImGui::EndCombo();
@@ -607,12 +608,12 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                 isEdited = true;
             if (ImGui::Checkbox("Kinematic##RigidBody", &rigidBody.kinematic))
                 isEdited = true;
-            if (isEdited && this->_graphic->isRunning()) {
-                std::size_t instance = this->getPhysicInstanceIndex(this->_graphic->getSelectedEntity());
-                if (instance != (std::size_t)-1) {
-                    // this->_resourceManager->getPhysicInstances()[instance].updateRigidBodyRuntime(rigidBody);
-                }
-            }
+            // if (isEdited && this->_graphic->isRunning()) {
+            // std::size_t instance = this->getPhysicInstanceIndex(this->_graphic->getSelectedEntity());
+            // if (instance != (std::size_t)-1) {
+            // this->_resourceManager->getPhysicInstances()[instance].updateRigidBodyRuntime(rigidBody);
+            // }
+            // }
             ImGui::Separator();
         }
         if (!open)
@@ -651,10 +652,10 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                 collider.tag = buffer;
                 isEdited = true;
             }
-            if (isEdited && this->_graphic->isRunning()) {
-                std::size_t instance = this->getPhysicInstanceIndex(this->_graphic->getSelectedEntity());
-                // this->_resourceManager->getPhysicInstances()[instance].updateColliderRuntime(collider);
-            }
+            // if (isEdited && this->_graphic->isRunning()) {
+            // std::size_t instance = this->getPhysicInstanceIndex(this->_graphic->getSelectedEntity());
+            // this->_resourceManager->getPhysicInstances()[instance].updateColliderRuntime(collider);
+            // }
             ImGui::PopID();
             ImGui::Separator();
         }
@@ -704,6 +705,8 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
             if (ImGui::CollapsingHeader((ICON_FA_FILE_CODE " " + scriptName).c_str(), &open, ImGuiTreeNodeFlags_DefaultOpen)) {
                 ImGui::PushID(it);
                 for (auto &[fieldName, field] : script.getFields()) {
+                    if (!field.isSerialized)
+                        continue;
                     if (this->_graphic->isRunning()) {
                         std::size_t instanceIndex = entity.getScriptIndexes()[scriptName];
                         if (field.type == "Single") {
@@ -741,6 +744,9 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                             strcpy(buffer, value.c_str());
                             if (ImGui::InputText(fieldName.c_str(), buffer, sizeof(buffer)))
                                 value = buffer;
+                        } else if (field.type == "Vector3") {
+                            glm::vec3 &value = entity.getScriptComponent(scriptName).getField<glm::vec3>(fieldName);
+                            ImGui::DragFloat3(fieldName.c_str(), (float *)&value, 0.1f, -FLT_MAX, +FLT_MAX);
                         }
                     }
                 }
@@ -1316,17 +1322,6 @@ void GUISystem::drawProjectManager(std::shared_ptr<EntityManager> &entityManager
         this->_editingProject = "New Project";
     }
     ImGui::End();
-}
-
-std::size_t GUISystem::getPhysicInstanceIndex(std::size_t entityId)
-{
-    std::size_t i = 0;
-    for (auto &instance : this->_resourceManager->getPhysicInstances()) {
-        if (instance->getId() == entityId)
-            return i;
-        i++;
-    }
-    return (std::size_t)-1;
 }
 
 bool GUISystem::drawTextureSelect(const std::string &fieldName, std::string &texture)

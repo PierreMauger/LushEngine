@@ -99,7 +99,6 @@ namespace Lush
             void drawProfiler();
             void drawProjectManager(std::shared_ptr<EntityManager> &entityManager);
             void drawAbout();
-            std::size_t getPhysicInstanceIndex(std::size_t entityId);
             bool drawTextureSelect(const std::string &fieldName, std::string &texture);
 
             bool openFolderBrowser(const std::string& title, std::string &path, bool &modal);

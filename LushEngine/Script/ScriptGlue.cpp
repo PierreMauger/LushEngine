@@ -106,14 +106,23 @@ void ScriptGlue::Entity_RemoveComponent(std::size_t id, MonoString *componentNam
             entity.removeComponent<Map>();
         else if (std::string(utf8) == "RigidBody")
             entity.removeComponent<RigidBody>();
-        else if (std::string(utf8) == "Collider")
+        else if (std::string(utf8) == "Collider") {
             entity.removeComponent<Collider>();
+            auto &instances = ResourceManager::getStaticResourceManager()->getPhysicInstances();
+            auto instance = std::find_if(instances.begin(), instances.end(), [id](const auto &instance) { return instance->getId() == id; });
+            if (instance == instances.end())
+                return;
+            (*instance)->removeFromWorld(ResourceManager::getStaticResourceManager()->getDynamicsWorld());
+            instances.erase(instance);
+        }
         else if (std::string(utf8) == "CharacterController")
             entity.removeComponent<CharacterController>();
         else if (std::string(utf8) == "UIElement")
             entity.removeComponent<UIElement>();
-        else
+        else {
+            ResourceManager::getStaticResourceManager()->getScriptInstances().erase(entity.getScriptIndexes()[std::string(utf8)]);
             entity.removeScriptComponent(std::string(utf8));
+        }
     }
     mono_free(utf8);
 }
@@ -579,7 +588,7 @@ bool ScriptGlue::Collider_GetTag(std::size_t id, MonoString **tag)
         *tag = mono_string_new(mono_domain_get(), entity.getComponent<Collider>().tag.c_str());
         return true;
     }
-    std::cout << "[Toast Error]Entity " << id << " has no Billboard component" << std::endl;
+    std::cout << "[Toast Error]Entity " << id << " has no Collider component" << std::endl;
     return false;
 }
 

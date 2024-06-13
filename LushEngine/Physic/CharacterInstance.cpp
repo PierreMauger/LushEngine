@@ -12,7 +12,7 @@ CharacterInstance::CharacterInstance(std::size_t id, Transform &transform, Chara
 
     btTransform startTransform;
     startTransform.setIdentity();
-    startTransform.setOrigin(btVector3(transform.position.x, transform.position.y - characterController.center.y, transform.position.z));
+    startTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
     this->_ghostObject->setWorldTransform(startTransform);
 
     this->_characterController = new btKinematicCharacterController(this->_ghostObject, collisionShape, characterController.stepOffset);
@@ -44,7 +44,7 @@ CharacterInstance::CharacterInstance(std::size_t id, Transform &transform, Chara
 
     btTransform startTransform;
     startTransform.setIdentity();
-    startTransform.setOrigin(btVector3(transform.position.x, transform.position.y - characterController.center.y, transform.position.z));
+    startTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
     this->_ghostObject->setWorldTransform(startTransform);
     this->_collisionObject->setWorldTransform(startTransform);
 

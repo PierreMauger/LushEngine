@@ -44,7 +44,6 @@ btCollisionObject *PhysicInstance::getCollisionObject() const
 
 void PhysicInstance::preUpdate(Transform &transform, const Transform &parentTransform)
 {
-
     this->_rigidBody->setWorldTransform(btTransform(btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w),
                                                     btVector3(transform.position.x, transform.position.y, transform.position.z)));
 

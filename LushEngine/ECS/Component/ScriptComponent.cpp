@@ -11,11 +11,13 @@ void ScriptComponent::loadFromScript(ScriptClass &script)
 {
     for (auto &[fieldName, field] : script.getFields()) {
         if (field.type == "Single")
-            this->addField(fieldName, std:: any_cast<float>(field.value));
+            this->addField(fieldName, std::any_cast<float>(field.defaultValue));
         else if (field.type == "Entity" || field.type == "UInt64")
-            this->addField(fieldName, std:: any_cast<unsigned long>(field.value));
+            this->addField(fieldName, std::any_cast<unsigned long>(field.defaultValue));
         else if (field.type == "String")
-            this->addField(fieldName, std:: any_cast<std::string>(field.value));
+            this->addField(fieldName, std::any_cast<std::string>(field.defaultValue));
+        else if (field.type == "Vector3")
+            this->addField(fieldName, std::any_cast<glm::vec3>(field.defaultValue));
     }
 }
 
@@ -42,10 +44,10 @@ bool ScriptComponent::hasField(const std::string &name)
 void ScriptComponent::serialize(boost::archive::binary_oarchive &ar, [[maybe_unused]] const unsigned int version)
 {
     std::size_t size = this->_fields.size();
-    ar &size;
+    ar & size;
 
     for (auto &[name, value] : this->_fields) {
-        ar &name;
+        ar & name;
         ar &std::string(value.type().name());
         if (value.type() == typeid(float))
             ar &std::any_cast<float &>(value);
@@ -59,26 +61,26 @@ void ScriptComponent::serialize(boost::archive::binary_oarchive &ar, [[maybe_unu
 void ScriptComponent::serialize(boost::archive::binary_iarchive &ar, [[maybe_unused]] const unsigned int version)
 {
     std::size_t size = this->_fields.size();
-    ar &size;
+    ar & size;
 
     for (std::size_t i = 0; i < size; i++) {
         std::string name;
-        ar &name;
+        ar & name;
         std::string type;
-        ar &type;
+        ar & type;
 
         std::any value;
         if (type == typeid(float).name()) {
             float elem{};
-            ar &elem;
+            ar & elem;
             value = elem;
         } else if (type == typeid(unsigned long).name()) {
             unsigned long elem{};
-            ar &elem;
+            ar & elem;
             value = elem;
         } else if (type == typeid(std::string).name()) {
             std::string elem{};
-            ar &elem;
+            ar & elem;
             value = elem;
         }
         this->_fields[name] = value;

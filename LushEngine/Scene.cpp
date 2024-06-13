@@ -38,9 +38,8 @@ void Scene::load(const File &file, std::unordered_map<std::string, ScriptClass> 
 
     rapidxml::xml_node<> *rootNode = doc.first_node("Scene");
     rapidxml::xml_node<> *entitiesNode = rootNode->first_node("Entities");
-    for (rapidxml::xml_node<> *entityNode = entitiesNode->first_node("Entity"); entityNode; entityNode = entityNode->next_sibling("Entity")) {
+    for (rapidxml::xml_node<> *entityNode = entitiesNode->first_node("Entity"); entityNode; entityNode = entityNode->next_sibling("Entity"))
         this->loadEntity(entityNode, scripts);
-    }
 }
 
 void Scene::reload(const File &file, std::unordered_map<std::string, ScriptClass> &scripts)
@@ -77,9 +76,8 @@ void Scene::loadEntity(rapidxml::xml_node<> *node, std::unordered_map<std::strin
     }
     this->_entityManager->addEntity(entity, id);
     if (node->first_node("Children")) {
-        for (rapidxml::xml_node<> *childNode = node->first_node("Children")->first_node("Entity"); childNode; childNode = childNode->next_sibling("Entity")) {
+        for (rapidxml::xml_node<> *childNode = node->first_node("Children")->first_node("Entity"); childNode; childNode = childNode->next_sibling("Entity"))
             this->loadEntity(childNode, scripts, id);
-        }
     }
 }
 
@@ -265,6 +263,11 @@ void Scene::loadScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &
                 scriptComponent.addField(attribute->name(), std::stoul(attribute->value()));
             else if (script.getFields()[attribute->name()].type == "String")
                 scriptComponent.addField(attribute->name(), std::string(attribute->value()));
+            else if (script.getFields()[attribute->name()].type == "Vector3") {
+                glm::vec3 value;
+                std::sscanf(attribute->value(), "%f %f %f", &value.x, &value.y, &value.z);
+                scriptComponent.addField(attribute->name(), value);
+            }
         }
     }
     entity.addScriptComponent(node->name(), scriptComponent);

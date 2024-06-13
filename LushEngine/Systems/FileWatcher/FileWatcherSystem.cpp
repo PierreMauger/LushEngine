@@ -215,7 +215,6 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, std::shared_ptr<Ent
     auto &scriptPack = this->_resourceManager->getGamePack();
 
     scriptPack->reload(files);
-    std::cout << "[Toast Success]Reloaded Game script pack" << std::endl;
     for (auto &[className, klass] : scriptPack->getClasses()) {
         this->_resourceManager->getScripts()[className].reload(scriptPack->getDomain(), klass, this->_resourceManager->getComponentClass());
 
@@ -231,6 +230,7 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, std::shared_ptr<Ent
             entity.addScriptComponent(className, scriptComponent);
         }
     }
+    std::cout << "[Toast Success]Reloaded Game script pack" << std::endl;
 }
 
 void FileWatcherSystem::reloadScene(Resource &resource, std::shared_ptr<EntityManager> &entityManager)

@@ -2,20 +2,20 @@
 
 using namespace Lush;
 
-ScriptClass::ScriptClass(MonoDomain *domain, MonoClass *scriptClass, MonoClass *componentClass)
+ScriptClass::ScriptClass(MonoDomain *domain, MonoClass *monoClass, MonoClass *componentClass)
 {
     try {
-        this->load(domain, scriptClass, componentClass);
+        this->load(domain, monoClass, componentClass);
         this->loadAttributes();
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
 }
 
-void ScriptClass::load(MonoDomain *domain, MonoClass *scriptClass, MonoClass *componentClass)
+void ScriptClass::load(MonoDomain *domain, MonoClass *monoClass, MonoClass *componentClass)
 {
     this->_domain = domain;
-    this->_class = scriptClass;
+    this->_class = monoClass;
 
     this->_methods["ctor"] = mono_class_get_method_from_name(componentClass, ".ctor", 1);
     this->_methods["onInit"] = mono_class_get_method_from_name(this->_class, "onInit", 0);
@@ -48,22 +48,25 @@ void ScriptClass::loadAttributes()
         MonoClass *fieldClass = mono_class_from_mono_type(fieldType);
         const char *fieldClassName = mono_class_get_name(fieldClass); // ex: Int32
 
-        if (fieldAttrs & MONO_FIELD_ATTR_PUBLIC) {
-            if (std::string(fieldClassName) == "Single") {
-                float value;
-                mono_field_get_value(instance, field, &value);
-                this->_fields[fieldName] = {fieldClassName, field, value};
-            } else if (std::string(fieldClassName) == "Entity" || std::string(fieldClassName) == "UInt64") {
-                unsigned long value;
-                mono_field_get_value(instance, field, &value);
-                this->_fields[fieldName] = {fieldClassName, field, value};
-            } else if (std::string(fieldClassName) == "String") {
-                MonoString *value;
-                mono_field_get_value(instance, field, &value);
-                this->_fields[fieldName] = {fieldClassName, field, value ? std::string(mono_string_to_utf8(value)) : ""};
-            } else {
-                this->_fields[fieldName] = {fieldClassName, field};
-            }
+        bool isSerialized = fieldAttrs & MONO_FIELD_ATTR_PUBLIC;
+        if (std::string(fieldClassName) == "Single") {
+            float defaultValue;
+            mono_field_get_value(instance, field, &defaultValue);
+            this->_fields[fieldName] = {fieldClassName, field, defaultValue, isSerialized};
+        } else if (std::string(fieldClassName) == "Entity" || std::string(fieldClassName) == "UInt64") {
+            unsigned long defaultValue;
+            mono_field_get_value(instance, field, &defaultValue);
+            this->_fields[fieldName] = {fieldClassName, field, defaultValue, isSerialized};
+        } else if (std::string(fieldClassName) == "String") {
+            MonoString *defaultValue;
+            mono_field_get_value(instance, field, &defaultValue);
+            this->_fields[fieldName] = {fieldClassName, field, defaultValue ? std::string(mono_string_to_utf8(defaultValue)) : "", isSerialized};
+        } else if (std::string(fieldClassName) == "Vector3") {
+            float *defaultValue = new float[3]{0.0f, 0.0f, 0.0f};
+            mono_field_get_value(instance, field, defaultValue);
+            this->_fields[fieldName] = {fieldClassName, field, glm::vec3(defaultValue[0], defaultValue[1], defaultValue[2]), isSerialized};
+        } else {
+            this->_fields[fieldName] = {fieldClassName, field, isSerialized};
         }
     }
 }

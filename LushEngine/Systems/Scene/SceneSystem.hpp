@@ -37,6 +37,7 @@ namespace Lush
             void drawMap(std::shared_ptr<EntityManager> &entityManager);
             void drawSkybox(std::shared_ptr<EntityManager> &entityManager);
             void drawCameraFrustum(std::shared_ptr<EntityManager> &entityManager);
+            void drawCollider(std::shared_ptr<EntityManager> &entityManager);
             void drawLightDirection(std::shared_ptr<EntityManager> &entityManager);
             void drawGrid();
 

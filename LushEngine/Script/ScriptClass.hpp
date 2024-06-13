@@ -17,7 +17,8 @@ namespace Lush
     typedef struct {
         std::string type;
         MonoClassField *field;
-        std::any value;
+        std::any defaultValue;
+        bool isSerialized = false;
     } FieldInfo;
 
     class ScriptClass
@@ -30,13 +31,13 @@ namespace Lush
             std::unordered_map<std::string, FieldInfo> _fields;
 
         public:
-            ScriptClass(MonoDomain *domain, MonoClass *scriptClass, MonoClass *componentClass);
+            ScriptClass(MonoDomain *domain, MonoClass *monoClass, MonoClass *componentClass);
             ScriptClass() = default;
             ~ScriptClass() = default;
 
-            void load(MonoDomain *domain, MonoClass *scriptClass, MonoClass *componentClass);
+            void load(MonoDomain *domain, MonoClass *monoClass, MonoClass *componentClass);
             void loadAttributes();
-            void reload(MonoDomain *domain, MonoClass *scriptClass, MonoClass *componentClass);
+            void reload(MonoDomain *domain, MonoClass *monoClass, MonoClass *componentClass);
 
             MonoMethod *getMethod(const std::string &name);
             std::unordered_map<std::string, FieldInfo> &getFields();

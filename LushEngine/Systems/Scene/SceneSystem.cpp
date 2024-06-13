@@ -91,6 +91,7 @@ void SceneSystem::update(std::shared_ptr<EntityManager> &entityManager, float de
     glDisable(GL_BLEND);
 
     this->drawCameraFrustum(entityManager);
+    this->drawCollider(entityManager);
     this->drawLightDirection(entityManager);
     this->drawGrid();
 
@@ -358,6 +359,46 @@ void SceneSystem::drawCameraFrustum(std::shared_ptr<EntityManager> &entityManage
     glBindVertexArray(0);
 }
 
+void SceneSystem::drawCollider(std::shared_ptr<EntityManager> &entityManager)
+{
+    if (!entityManager->getEntities().contains(this->_graphic->getSelectedEntity()))
+        return;
+    Entity &entity = entityManager->getEntity(this->_graphic->getSelectedEntity());
+    if (!entity.hasComponent<Transform>() || !entity.hasComponent<Collider>())
+        return;
+
+    this->_graphic->getRenderView().use("CameraFrustum");
+    this->_graphic->getRenderView().setView();
+
+    Transform transform = entity.getComponent<Transform>();
+    Collider collider = entity.getComponent<Collider>();
+
+    glm::mat4 model = glm::mat4(1.0f);
+    switch (collider.type) {
+    case ColliderType::BOX:
+        model = glm::translate(model, transform.position);
+        model *= glm::toMat4(transform.rotation);
+        model = glm::scale(model, collider.size != glm::vec3(0.0f) ? collider.size : transform.scale);
+        this->_graphic->getRenderView().getShader().setMat4("frustum", model);
+
+        glBindVertexArray(this->_cameraFrustum.vao);
+        glDrawArrays(GL_LINES, 0, 24);
+        glBindVertexArray(0);
+        break;
+    case ColliderType::SPHERE:
+        model = glm::translate(model, transform.position);
+        model = glm::scale(model, glm::vec3(collider.size.x));
+        this->_graphic->getRenderView().getShader().setMat4("frustum", model);
+
+        glBindVertexArray(this->_sphere.vao);
+        glDrawArrays(GL_LINE_LOOP, 0, 32 + 1);
+        glDrawArrays(GL_LINE_LOOP, 32 + 1, 32 + 1);
+        glDrawArrays(GL_LINE_LOOP, (32 + 1) * 2, 32 + 1);
+        glBindVertexArray(0);
+        break;
+    }
+}
+
 void SceneSystem::drawLightDirection(std::shared_ptr<EntityManager> &entityManager)
 {
     if (!entityManager->getEntities().contains(this->_graphic->getSelectedEntity()))
@@ -371,18 +412,17 @@ void SceneSystem::drawLightDirection(std::shared_ptr<EntityManager> &entityManag
     this->_graphic->getRenderView().use("CameraFrustum");
     this->_graphic->getRenderView().setView();
 
+    glm::mat4 model = glm::mat4(1.0f);
     switch (light.type) {
-    case LightType::DIRECTIONAL: {
-        glm::mat4 lightSpaceMatrix = glm::inverse(this->_graphic->getRenderView().getLightMatrix());
-        this->_graphic->getRenderView().getShader().setMat4("frustum", lightSpaceMatrix);
+    case LightType::DIRECTIONAL:
+        model = glm::inverse(this->_graphic->getRenderView().getLightMatrix());
+        this->_graphic->getRenderView().getShader().setMat4("frustum", model);
 
         glBindVertexArray(this->_cameraFrustum.vao);
         glDrawArrays(GL_LINES, 0, 24);
         glBindVertexArray(0);
         break;
-    }
-    case LightType::POINT: {
-        glm::mat4 model = glm::mat4(1.0f);
+    case LightType::POINT:
         model = glm::translate(model, transform.position);
         model = glm::scale(model, glm::vec3(light.intensity));
         this->_graphic->getRenderView().getShader().setMat4("frustum", model);
@@ -392,18 +432,16 @@ void SceneSystem::drawLightDirection(std::shared_ptr<EntityManager> &entityManag
         glDrawArrays(GL_LINE_LOOP, (32 + 1) * 2, 32 + 1);
         glBindVertexArray(0);
         break;
-    }
-    case LightType::SPOT: {
+    case LightType::SPOT:
         glm::vec3 direction = glm::mat3(glm::toMat4(transform.rotation)) * glm::vec3(0.0f, 0.0f, -1.0f);
-
         glm::mat4 view = glm::lookAt(transform.position, transform.position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 frustum = glm::inverse(glm::perspective(glm::radians(15.0f), 1.0f, 0.1f, 5.0f) * view);
-        this->_graphic->getRenderView().getShader().setMat4("frustum", frustum);
+
+        model = glm::inverse(glm::perspective(glm::radians(15.0f), 1.0f, 0.1f, 5.0f) * view);
+        this->_graphic->getRenderView().getShader().setMat4("frustum", model);
 
         glBindVertexArray(this->_cameraFrustum.vao);
         glDrawArrays(GL_LINES, 0, 24);
         glBindVertexArray(0);
         break;
-    }
     }
 }
