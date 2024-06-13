@@ -263,10 +263,15 @@ void Scene::loadScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &
                 scriptComponent.addField(attribute->name(), std::stoul(attribute->value()));
             else if (script.getFields()[attribute->name()].type == "String")
                 scriptComponent.addField(attribute->name(), std::string(attribute->value()));
+            else if (script.getFields()[attribute->name()].type == "Boolean")
+                scriptComponent.addField(attribute->name(), attribute->value() == std::string("true") ? true : false);
             else if (script.getFields()[attribute->name()].type == "Vector3") {
                 glm::vec3 value;
                 std::sscanf(attribute->value(), "%f %f %f", &value.x, &value.y, &value.z);
                 scriptComponent.addField(attribute->name(), value);
+            } else {
+                std::cout << "Field type not found for " << script.getFields()[attribute->name()].type << std::endl;
+
             }
         }
     }
@@ -660,6 +665,21 @@ void Scene::saveScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &
                     continue;
                 char *fieldValue = doc->allocate_string(scriptComponent.getField<std::string>(name).c_str());
                 node->append_attribute(doc->allocate_attribute(name.c_str(), fieldValue));
+            } else if (field.type == "Boolean") {
+                if (!scriptComponent.getField<bool>(name))
+                    continue;
+                char *fieldValue = doc->allocate_string(scriptComponent.getField<bool>(name) ? "true" : "false");
+                node->append_attribute(doc->allocate_attribute(name.c_str(), fieldValue));
+            } else if (field.type == "Vector3") {
+                if (scriptComponent.getField<glm::vec3>(name) == glm::vec3(0.0f))
+                    continue;
+                glm::vec3 value = scriptComponent.getField<glm::vec3>(name);
+                std::stringstream fieldStream;
+                fieldStream << value.x << " " << value.y << " " << value.z;
+                char *fieldValue = doc->allocate_string(fieldStream.str().c_str());
+                node->append_attribute(doc->allocate_attribute(name.c_str(), fieldValue));
+            } else {
+                std::cout << "Field type not found for " << field.type << std::endl;
             }
         }
     }

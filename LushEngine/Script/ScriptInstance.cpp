@@ -88,6 +88,10 @@ void ScriptInstance::onInit()
             this->setFieldValue<unsigned long>(name, std::any_cast<unsigned long>(value));
         else if (type == "String")
             this->setFieldValue<std::string>(name, std::any_cast<std::string>(value));
+        else if (type == "Boolean")
+            this->setFieldValue<bool>(name, std::any_cast<bool>(value));
+        else if (type == "Vector3")
+            this->setFieldValue<glm::vec3>(name, std::any_cast<glm::vec3>(value));
     }
     if (this->_onInit) {
         void *args[0];

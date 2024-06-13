@@ -729,6 +729,14 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                                 // this->_resourceManager->getScriptInstances()[instanceIndex].setFieldValue(fieldName, std::string(buffer));
                             }
                             ImGui::PopStyleColor();
+                        } else if (field.type == "Boolean") {
+                            bool value = this->_resourceManager->getScriptInstances()[instanceIndex].getFieldValue<bool>(fieldName);
+                            if (ImGui::Checkbox(fieldName.c_str(), &value))
+                                this->_resourceManager->getScriptInstances()[instanceIndex].setFieldValue(fieldName, value);
+                        } else if (field.type == "Vector3") {
+                            glm::vec3 value = this->_resourceManager->getScriptInstances()[instanceIndex].getFieldValue<glm::vec3>(fieldName);
+                            if (ImGui::DragFloat3(fieldName.c_str(), (float *)&value, 0.1f, -FLT_MAX, +FLT_MAX))
+                                this->_resourceManager->getScriptInstances()[instanceIndex].setFieldValue(fieldName, value);
                         }
                     } else {
                         if (field.type == "Single") {
@@ -744,6 +752,9 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
                             strcpy(buffer, value.c_str());
                             if (ImGui::InputText(fieldName.c_str(), buffer, sizeof(buffer)))
                                 value = buffer;
+                        } else if (field.type == "Boolean") {
+                            bool &value = entity.getScriptComponent(scriptName).getField<bool>(fieldName);
+                            ImGui::Checkbox(fieldName.c_str(), &value);
                         } else if (field.type == "Vector3") {
                             glm::vec3 &value = entity.getScriptComponent(scriptName).getField<glm::vec3>(fieldName);
                             ImGui::DragFloat3(fieldName.c_str(), (float *)&value, 0.1f, -FLT_MAX, +FLT_MAX);

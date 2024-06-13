@@ -61,6 +61,10 @@ void ScriptClass::loadAttributes()
             MonoString *defaultValue;
             mono_field_get_value(instance, field, &defaultValue);
             this->_fields[fieldName] = {fieldClassName, field, defaultValue ? std::string(mono_string_to_utf8(defaultValue)) : "", isSerialized};
+        } else if (std::string(fieldClassName) == "Boolean") {
+            bool defaultValue;
+            mono_field_get_value(instance, field, &defaultValue);
+            this->_fields[fieldName] = {fieldClassName, field, defaultValue, isSerialized};
         } else if (std::string(fieldClassName) == "Vector3") {
             float *defaultValue = new float[3]{0.0f, 0.0f, 0.0f};
             mono_field_get_value(instance, field, defaultValue);

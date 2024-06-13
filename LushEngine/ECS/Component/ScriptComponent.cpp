@@ -16,6 +16,8 @@ void ScriptComponent::loadFromScript(ScriptClass &script)
             this->addField(fieldName, std::any_cast<unsigned long>(field.defaultValue));
         else if (field.type == "String")
             this->addField(fieldName, std::any_cast<std::string>(field.defaultValue));
+        else if (field.type == "Boolean")
+            this->addField(fieldName, std::any_cast<bool>(field.defaultValue));
         else if (field.type == "Vector3")
             this->addField(fieldName, std::any_cast<glm::vec3>(field.defaultValue));
     }
