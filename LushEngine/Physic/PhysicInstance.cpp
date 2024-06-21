@@ -71,6 +71,11 @@ void PhysicInstance::removeFromWorld(btDiscreteDynamicsWorld *world)
     world->removeRigidBody(this->_rigidBody);
 }
 
+void PhysicInstance::addForce(const glm::vec3 &force)
+{
+    this->_rigidBody->applyCentralForce(btVector3(force.x, force.y, force.z));
+}
+
 void PhysicInstance::updateRigidBodyRuntime(RigidBody &rigidBody)
 {
     this->_rigidBody->setFriction(rigidBody.friction);

@@ -114,8 +114,7 @@ void ScriptGlue::Entity_RemoveComponent(std::size_t id, MonoString *componentNam
                 return;
             (*instance)->removeFromWorld(ResourceManager::getStaticResourceManager()->getDynamicsWorld());
             instances.erase(instance);
-        }
-        else if (std::string(utf8) == "CharacterController")
+        } else if (std::string(utf8) == "CharacterController")
             entity.removeComponent<CharacterController>();
         else if (std::string(utf8) == "UIElement")
             entity.removeComponent<UIElement>();
@@ -133,21 +132,7 @@ void ScriptGlue::Entity_SetParent(std::size_t id, std::size_t parentId)
     Entity &entity = entityManager->getEntity(id);
     Entity &parent = entityManager->getEntity(parentId);
 
-    if (!entityManager->hasEntity(id) || id == parentId)
-        return;
-    if (parentId == 0) {
-        entity.removeParent();
-        parent.removeChild(id);
-
-        if (entity.hasComponent<Transform>() && parent.hasComponent<Transform>()) {
-            Transform &transform = entity.getComponent<Transform>();
-            Transform &parentTransform = parent.getComponent<Transform>();
-            transform.rotation = glm::inverse(parentTransform.rotation) * transform.rotation;
-            transform.position = glm::inverse(parentTransform.rotation) * (transform.position - parentTransform.position);
-        }
-        return;
-    }
-    if (!entityManager->hasEntity(parentId))
+    if (!entityManager->hasEntity(id) || !entityManager->hasEntity(parentId) || id == parentId)
         return;
     entity.setParent(parentId);
     parent.addChild(id);
@@ -157,6 +142,25 @@ void ScriptGlue::Entity_SetParent(std::size_t id, std::size_t parentId)
         Transform &parentTransform = parent.getComponent<Transform>();
         transform.rotation = parentTransform.rotation * transform.rotation;
         transform.position = parentTransform.rotation * transform.position + parentTransform.position;
+    }
+}
+
+void ScriptGlue::Entity_RemoveParent(std::size_t id)
+{
+    auto entityManager = ECS::getStaticEntityManager();
+    Entity &entity = entityManager->getEntity(id);
+    if (!entity.getParent().has_value())
+        return;
+    Entity &parent = entityManager->getEntity(entity.getParent().value());
+
+    entity.removeParent();
+    parent.removeChild(id);
+
+    if (entity.hasComponent<Transform>() && parent.hasComponent<Transform>()) {
+        Transform &transform = entity.getComponent<Transform>();
+        Transform &parentTransform = parent.getComponent<Transform>();
+        transform.rotation = glm::inverse(parentTransform.rotation) * transform.rotation;
+        transform.position = glm::inverse(parentTransform.rotation) * (transform.position - parentTransform.position);
     }
 }
 
@@ -600,11 +604,20 @@ void ScriptGlue::Collider_SetTag(std::size_t id, MonoString *tag)
 
     if (entity.hasComponent<Collider>()) {
         char *utf8 = mono_string_to_utf8(tag);
-
         entity.getComponent<Collider>().tag = utf8;
         mono_free(utf8);
     } else
         std::cout << "[Toast Error]Entity " << id << " has no Collider component" << std::endl;
+}
+
+void ScriptGlue::RigidBody_AddForce(std::size_t id, glm::vec3 *force)
+{
+    auto &instances = ResourceManager::getStaticResourceManager()->getPhysicInstances();
+    auto instance = std::find_if(instances.begin(), instances.end(), [id](const auto &instance) { return instance->getId() == id; });
+
+    if (instance == instances.end())
+        return;
+    (*instance)->addForce(*force);
 }
 
 bool ScriptGlue::IsKeyDown(int key)
@@ -691,6 +704,7 @@ void ScriptGlue::registerFunctions()
     mono_add_internal_call("InternalCalls::Entity_AddComponent", (void *)Entity_AddComponent);
     mono_add_internal_call("InternalCalls::Entity_RemoveComponent", (void *)Entity_RemoveComponent);
     mono_add_internal_call("InternalCalls::Entity_SetParent", (void *)Entity_SetParent);
+    mono_add_internal_call("InternalCalls::Entity_RemoveParent", (void *)Entity_RemoveParent);
     mono_add_internal_call("InternalCalls::Entity_GetName", (void *)Entity_GetName);
     mono_add_internal_call("InternalCalls::Entity_Delete", (void *)Entity_Delete);
     mono_add_internal_call("InternalCalls::Entity_Log", (void *)Entity_Log);
@@ -724,6 +738,7 @@ void ScriptGlue::registerFunctions()
     mono_add_internal_call("InternalCalls::Billboard_SetLockYAxis", (void *)Billboard_SetLockYAxis);
     mono_add_internal_call("InternalCalls::Collider_GetTag", (void *)Collider_GetTag);
     mono_add_internal_call("InternalCalls::Collider_SetTag", (void *)Collider_SetTag);
+    mono_add_internal_call("InternalCalls::RigidBody_AddForce", (void *)RigidBody_AddForce);
     mono_add_internal_call("InternalCalls::IsKeyDown", (void *)IsKeyDown);
     mono_add_internal_call("InternalCalls::GetEntityFromName", (void *)GetEntityFromName);
     mono_add_internal_call("InternalCalls::GetMouseMovementX", (void *)GetMouseMovementX);

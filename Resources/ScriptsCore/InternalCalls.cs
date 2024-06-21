@@ -23,6 +23,8 @@ public static class InternalCalls
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void Entity_SetParent(ulong id, ulong parentId);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Entity_RemoveParent(ulong id);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void Entity_Delete(ulong id);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static string Entity_GetName(ulong id);
@@ -96,6 +98,8 @@ public static class InternalCalls
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void Collider_SetTag(ulong id, string tag);
 
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void RigidBody_AddForce(ulong id, ref Vector3 force);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     public extern static bool IsKeyDown(int key);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]

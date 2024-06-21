@@ -100,3 +100,8 @@ void CharacterInstance::removeFromWorld(btDiscreteDynamicsWorld *world)
     world->removeCollisionObject(this->_collisionObject);
     world->removeAction(this->_characterController);
 }
+
+void CharacterInstance::addForce(const glm::vec3 &force)
+{
+    this->_characterController->jump(btVector3(force.x, force.y, force.z));
+}

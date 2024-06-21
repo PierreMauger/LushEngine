@@ -28,6 +28,7 @@ namespace Lush
             void postUpdate(Transform &transform) override;
             void addToWorld(btDiscreteDynamicsWorld *world) override;
             void removeFromWorld(btDiscreteDynamicsWorld *world) override;
+            void addForce(const glm::vec3 &force) override;
     };
 }
 

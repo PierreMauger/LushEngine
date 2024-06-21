@@ -41,6 +41,11 @@ public class Entity
         InternalCalls.Entity_SetParent(this.id, id);
     }
 
+    public void removeParent()
+    {
+        InternalCalls.Entity_RemoveParent(this.id);
+    }
+
     public void delete()
     {
         InternalCalls.Entity_Delete(this.id);
@@ -49,6 +54,11 @@ public class Entity
     public string getName()
     {
         return InternalCalls.Entity_GetName(this.id);
+    }
+
+    public void addForce(Vector3 force)
+    {
+        InternalCalls.RigidBody_AddForce(this.id, ref force);
     }
 
     public void log(string message, Toast type = Toast.None)

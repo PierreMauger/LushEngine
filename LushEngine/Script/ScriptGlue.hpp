@@ -17,6 +17,7 @@ namespace Lush
             static void Entity_AddComponent(std::size_t id, MonoString *componentName);
             static void Entity_RemoveComponent(std::size_t id, MonoString *componentName);
             static void Entity_SetParent(std::size_t id, std::size_t parentId);
+            static void Entity_RemoveParent(std::size_t id);
             static void Entity_Delete(std::size_t id);
             static MonoString *Entity_GetName(std::size_t id);
             static void Entity_Log(std::size_t id, MonoString *message, int type);
@@ -57,6 +58,8 @@ namespace Lush
 
             static bool Collider_GetTag(std::size_t id, MonoString **tag);
             static void Collider_SetTag(std::size_t id, MonoString *tag);
+
+            static void RigidBody_AddForce(std::size_t id, glm::vec3 *force);
 
             static bool IsKeyDown(int key);
             static unsigned long GetEntityFromName(MonoString *name);

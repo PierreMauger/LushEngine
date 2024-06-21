@@ -47,3 +47,7 @@ void TerrainInstance::removeFromWorld(btDiscreteDynamicsWorld *world)
 {
     world->removeRigidBody(this->_rigidBody);
 }
+
+void TerrainInstance::addForce(const glm::vec3 &force)
+{
+}
