@@ -46,6 +46,8 @@ namespace Lush
             virtual void addToWorld(btDiscreteDynamicsWorld *world) = 0;
             virtual void removeFromWorld(btDiscreteDynamicsWorld *world) = 0;
 
+            virtual glm::vec3 getVelocity() const = 0;
+            virtual void setVelocity(const glm::vec3 &velocity) = 0;
             virtual void addForce(const glm::vec3 &force) = 0;
     };
 }

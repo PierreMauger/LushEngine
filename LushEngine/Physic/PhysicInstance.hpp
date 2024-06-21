@@ -27,6 +27,9 @@ namespace Lush
             void postUpdate(Transform &transform) override;
             void addToWorld(btDiscreteDynamicsWorld *world) override;
             void removeFromWorld(btDiscreteDynamicsWorld *world) override;
+
+            [[nodiscard]] glm::vec3 getVelocity() const override;
+            void setVelocity(const glm::vec3 &velocity) override;
             void addForce(const glm::vec3 &force) override;
 
             void updateRigidBodyRuntime(RigidBody &rigidBody);

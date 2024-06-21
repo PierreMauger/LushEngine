@@ -122,3 +122,11 @@ public class Collider : Component
         set => InternalCalls.Collider_SetTag(entity.id, value);
     }
 }
+
+public class RigidBody : Component
+{
+    public Vector3 velocity {
+        get => InternalCalls.RigidBody_GetVelocity(entity.id, out Vector3 velocity) ? velocity : new Vector3();
+        set => InternalCalls.RigidBody_SetVelocity(entity.id, ref value);
+    }
+}

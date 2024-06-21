@@ -71,6 +71,17 @@ void PhysicInstance::removeFromWorld(btDiscreteDynamicsWorld *world)
     world->removeRigidBody(this->_rigidBody);
 }
 
+glm::vec3 PhysicInstance::getVelocity() const
+{
+    btVector3 velocity = this->_rigidBody->getLinearVelocity();
+    return glm::vec3(velocity.x(), velocity.y(), velocity.z());
+}
+
+void PhysicInstance::setVelocity(const glm::vec3 &velocity)
+{
+    this->_rigidBody->setLinearVelocity(btVector3(velocity.x, velocity.y, velocity.z));
+}
+
 void PhysicInstance::addForce(const glm::vec3 &force)
 {
     this->_rigidBody->applyCentralForce(btVector3(force.x, force.y, force.z));

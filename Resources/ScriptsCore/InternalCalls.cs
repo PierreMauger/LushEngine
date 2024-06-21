@@ -99,6 +99,10 @@ public static class InternalCalls
     internal extern static void Collider_SetTag(ulong id, string tag);
 
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static bool RigidBody_GetVelocity(ulong id, out Vector3 velocity);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void RigidBody_SetVelocity(ulong id, ref Vector3 velocity);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void RigidBody_AddForce(ulong id, ref Vector3 force);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     public extern static bool IsKeyDown(int key);

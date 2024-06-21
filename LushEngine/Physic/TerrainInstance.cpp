@@ -48,6 +48,15 @@ void TerrainInstance::removeFromWorld(btDiscreteDynamicsWorld *world)
     world->removeRigidBody(this->_rigidBody);
 }
 
+glm::vec3 TerrainInstance::getVelocity() const
+{
+    return glm::vec3(0.0f);
+}
+
+void TerrainInstance::setVelocity(const glm::vec3 &velocity)
+{
+}
+
 void TerrainInstance::addForce(const glm::vec3 &force)
 {
 }

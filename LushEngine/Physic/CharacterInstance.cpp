@@ -101,6 +101,17 @@ void CharacterInstance::removeFromWorld(btDiscreteDynamicsWorld *world)
     world->removeAction(this->_characterController);
 }
 
+glm::vec3 CharacterInstance::getVelocity() const
+{
+    btVector3 velocity = this->_characterController->getLinearVelocity();
+    return glm::vec3(velocity.x(), velocity.y(), velocity.z());
+}
+
+void CharacterInstance::setVelocity(const glm::vec3 &velocity)
+{
+    this->_characterController->setLinearVelocity(btVector3(velocity.x, velocity.y, velocity.z));
+}
+
 void CharacterInstance::addForce(const glm::vec3 &force)
 {
     this->_characterController->jump(btVector3(force.x, force.y, force.z));

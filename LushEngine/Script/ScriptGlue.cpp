@@ -610,6 +610,36 @@ void ScriptGlue::Collider_SetTag(std::size_t id, MonoString *tag)
         std::cout << "[Toast Error]Entity " << id << " has no Collider component" << std::endl;
 }
 
+bool ScriptGlue::RigidBody_GetVelocity(std::size_t id, glm::vec3 *velocity)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return false;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+    auto &instances = ResourceManager::getStaticResourceManager()->getPhysicInstances();
+    auto instance = std::find_if(instances.begin(), instances.end(), [id](const auto &instance) { return instance->getId() == id; });
+
+    if (entity.hasComponent<RigidBody>() && instance != instances.end()) {
+        *velocity = (*instance)->getVelocity();
+        return true;
+    }
+    std::cout << "[Toast Error]Entity " << id << " has no RigidBody component" << std::endl;
+    return false;
+}
+
+void ScriptGlue::RigidBody_SetVelocity(std::size_t id, glm::vec3 *velocity)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+    auto &instances = ResourceManager::getStaticResourceManager()->getPhysicInstances();
+    auto instance = std::find_if(instances.begin(), instances.end(), [id](const auto &instance) { return instance->getId() == id; });
+
+    if (entity.hasComponent<RigidBody>() && instance != instances.end())
+        (*instance)->setVelocity(*velocity);
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no RigidBody component" << std::endl;
+}
+
 void ScriptGlue::RigidBody_AddForce(std::size_t id, glm::vec3 *force)
 {
     auto &instances = ResourceManager::getStaticResourceManager()->getPhysicInstances();
@@ -738,6 +768,8 @@ void ScriptGlue::registerFunctions()
     mono_add_internal_call("InternalCalls::Billboard_SetLockYAxis", (void *)Billboard_SetLockYAxis);
     mono_add_internal_call("InternalCalls::Collider_GetTag", (void *)Collider_GetTag);
     mono_add_internal_call("InternalCalls::Collider_SetTag", (void *)Collider_SetTag);
+    mono_add_internal_call("InternalCalls::RigidBody_GetVelocity", (void *)RigidBody_GetVelocity);
+    mono_add_internal_call("InternalCalls::RigidBody_SetVelocity", (void *)RigidBody_SetVelocity);
     mono_add_internal_call("InternalCalls::RigidBody_AddForce", (void *)RigidBody_AddForce);
     mono_add_internal_call("InternalCalls::IsKeyDown", (void *)IsKeyDown);
     mono_add_internal_call("InternalCalls::GetEntityFromName", (void *)GetEntityFromName);

@@ -59,6 +59,8 @@ namespace Lush
             static bool Collider_GetTag(std::size_t id, MonoString **tag);
             static void Collider_SetTag(std::size_t id, MonoString *tag);
 
+            static bool RigidBody_GetVelocity(std::size_t id, glm::vec3 *velocity);
+            static void RigidBody_SetVelocity(std::size_t id, glm::vec3 *velocity);
             static void RigidBody_AddForce(std::size_t id, glm::vec3 *force);
 
             static bool IsKeyDown(int key);
