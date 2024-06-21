@@ -52,6 +52,7 @@ namespace Lush
                 return this->_components.contains(typeid(T));
             }
 
+            std::unordered_map<std::string, ScriptComponent> &getScriptComponents();
             ScriptComponent &getScriptComponent(const std::string &className);
             void addScriptComponent(const std::string &className, ScriptComponent &scriptComponent);
             void removeScriptComponent(const std::string &className);

@@ -21,6 +21,11 @@ void Entity::setName(const std::string &name)
     this->_name = name;
 }
 
+std::unordered_map<std::string, ScriptComponent> &Entity::getScriptComponents()
+{
+    return this->_scriptComponents;
+}
+
 ScriptComponent &Entity::getScriptComponent(const std::string &className)
 {
     auto it = this->_scriptComponents.find(className);

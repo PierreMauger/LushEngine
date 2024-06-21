@@ -66,9 +66,10 @@ void ScriptGlue::Entity_AddComponent(std::size_t id, MonoString *componentName)
             entity.addComponent<Billboard>(Billboard());
         else if (std::string(utf8) == "Map")
             entity.addComponent<Map>(Map());
-        else if (std::string(utf8) == "RigidBody")
+        else if (std::string(utf8) == "RigidBody") {
             entity.addComponent<RigidBody>(RigidBody());
-        else if (std::string(utf8) == "Collider")
+            ResourceManager::getStaticResourceManager()->initPhysicInstance(id, entity);
+        } else if (std::string(utf8) == "Collider")
             entity.addComponent<Collider>(Collider());
         else if (std::string(utf8) == "CharacterController")
             entity.addComponent<CharacterController>(CharacterController());
@@ -79,6 +80,11 @@ void ScriptGlue::Entity_AddComponent(std::size_t id, MonoString *componentName)
             if (resourceManager->getScripts().contains(utf8)) {
                 ScriptComponent scriptComponent(resourceManager->getScripts()[utf8]);
                 entity.addScriptComponent(std::string(utf8), scriptComponent);
+                std::size_t scriptId = 0;
+                if (!resourceManager->getScriptInstances().empty())
+                    scriptId = resourceManager->getScriptInstances().rbegin()->first + 1;
+                entity.addScriptIndex(utf8, scriptId);
+                resourceManager->getScriptInstances()[scriptId] = ScriptInstance(resourceManager->getScripts()[utf8], id, scriptComponent.getFields());
             }
         }
     }

@@ -262,6 +262,8 @@ void GUISystem::drawActionBar(std::shared_ptr<EntityManager> &entityManager)
                     this->_resourceManager->initPhysicInstances(entityManager);
                 } else {
                     this->_resourceManager->getScriptInstances().clear();
+                    for (auto &[id, entity] : entityManager->getEntities())
+                        entity.clearScriptIndexes();
                     this->_resourceManager->resetDynamicsWorld();
                     this->_resourceManager->getPhysicInstances().clear();
                     entityManager = this->_resourceManager->getActiveScene().getEntityManager();

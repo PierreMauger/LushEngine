@@ -85,6 +85,7 @@ namespace Lush
 
             void initScriptInstances(std::shared_ptr<EntityManager> &entityManager);
             void initPhysicInstances(std::shared_ptr<EntityManager> &entityManager);
+            void initPhysicInstance(std::size_t id, Entity &entity);
 
             void serializeAssetPack(const std::string &path);
             void deserializeAssetPack(const std::string &path);

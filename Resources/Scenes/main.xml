@@ -33,7 +33,7 @@
       <Components>
         <Transform position="0 0.5 -5" />
         <Model name="Maxwell" />
-        <!-- <TestScript /> -->
+        <Maxwell />
       </Components>
     </Entity>
     <Entity name="First fox">
