@@ -30,6 +30,7 @@ void ScriptPack::load(std::vector<File> &files)
         throw std::runtime_error("mcs failed for " + command);
 
     this->_domain = mono_domain_create_appdomain((char *)this->_name.c_str(), nullptr);
+    mono_domain_set(this->_domain, false);
 
     MonoAssembly *assembly = mono_domain_assembly_open(this->_domain, assemblyPath.c_str());
     if (!assembly)
@@ -50,6 +51,7 @@ void ScriptPack::load(std::vector<File> &files)
 void ScriptPack::loadFromAssembly(const std::string &assemblyPath)
 {
     this->_domain = mono_domain_create_appdomain((char *)this->_name.c_str(), nullptr);
+    mono_domain_set(this->_domain, false);
 
     MonoAssembly *assembly = mono_domain_assembly_open(this->_domain, assemblyPath.c_str());
     if (!assembly)

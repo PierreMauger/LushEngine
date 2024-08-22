@@ -69,6 +69,8 @@ public static class InternalCalls
     internal extern static bool Camera_GetFar(ulong id, out float far);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void Camera_SetFar(ulong id, float far);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static bool Camera_GetAspect(ulong id, out float aspect);
 
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static bool Light_GetIntensity(ulong id, out float type);
@@ -78,6 +80,10 @@ public static class InternalCalls
     internal extern static bool Light_GetColor(ulong id, out Vector3 color);
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static void Light_SetColor(ulong id, ref Vector3 color);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static bool Light_GetShadowSize(ulong id, out Vector3 shadowSize);
+    [MethodImplAttribute(MethodImplOptions.InternalCall)]
+    internal extern static void Light_SetShadowSize(ulong id, ref Vector3 shadowSize);
 
     [MethodImplAttribute(MethodImplOptions.InternalCall)]
     internal extern static bool Cubemap_GetName(ulong id, out string name);

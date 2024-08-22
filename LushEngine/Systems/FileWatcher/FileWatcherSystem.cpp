@@ -209,11 +209,12 @@ void FileWatcherSystem::reloadShader(Resource &resource)
 
 void FileWatcherSystem::reloadScriptPack(Resource &resource, std::shared_ptr<EntityManager> &entityManager)
 {
-    if (*this->_resourceManager->getGamePack().get() != resource)
+    if (*this->_resourceManager->getGamePack() != resource)
         return;
     std::vector<File> files = resource.getFiles();
-    auto &scriptPack = this->_resourceManager->getGamePack();
+    auto scriptPack = this->_resourceManager->getGamePack();
 
+    mono_domain_set(this->_resourceManager->getRootDomain(), false);
     scriptPack->reload(files);
     for (auto &[className, klass] : scriptPack->getClasses()) {
         this->_resourceManager->getScripts()[className].reload(scriptPack->getDomain(), klass, this->_resourceManager->getComponentClass());

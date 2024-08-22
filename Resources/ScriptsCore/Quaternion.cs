@@ -7,44 +7,56 @@ public struct Quaternion
     public float z;
     public float w;
 
-    public Quaternion(float x, float y, float z, float w) {
+    public Quaternion(float x, float y, float z, float w)
+    {
         this.x = x;
         this.y = y;
         this.z = z;
         this.w = w;
     }
 
-    public Quaternion normalize()
+    public Quaternion Normalize()
     {
         float length = MathF.Sqrt(x * x + y * y + z * z + w * w);
         return new Quaternion(x / length, y / length, z / length, w / length);
     }
 
-    public static Quaternion lookAt(Vector3 direction, Vector3 up)
+    public Quaternion Conjugate()
     {
-        Vector3 forward = direction.normalize();
-        Vector3 right = Vector3.cross(up, forward).normalize();
-        up = Vector3.cross(forward, right).normalize();
+        return new Quaternion(-x, -y, -z, w);
+    }
+
+    public static Quaternion LookAt(Vector3 direction, Vector3 up)
+    {
+        Vector3 forward = direction.Normalize();
+        Vector3 right = Vector3.Cross(up, forward).Normalize();
 
         // always case 1 or 3 because the up vector is always (0, 1, 0)
         // case 2 and 4 may need to have value swapped
         float trace = right.x + up.y + forward.z;
-        if (trace > 0.0f) {
+        if (trace > 0.0f)
+        {
             float s = MathF.Sqrt(trace + 1.0f);
             float w = s * 0.5f;
             s = 0.5f / s;
             return new Quaternion((right.y + up.x) * s, w, (up.z - forward.y) * s, (right.z - forward.x) * s);
-        } else if (right.x > up.y && right.x > forward.z) {
+        }
+        else if (right.x > up.y && right.x > forward.z)
+        {
             float s = MathF.Sqrt(1.0f + right.x - up.y - forward.z);
             float x = s * 0.5f;
             s = 0.5f / s;
             return new Quaternion(x, (right.y + up.x) * s, (forward.x + right.z) * s, (up.z - forward.y) * s);
-        } else if (up.y > forward.z) {
+        }
+        else if (up.y > forward.z)
+        {
             float s = MathF.Sqrt(1.0f + up.y - right.x - forward.z);
             float y = s * 0.5f;
             s = 0.5f / s;
             return new Quaternion((up.z + forward.y) * s, (right.z - forward.x) * s, (right.y - up.x) * s, y);
-        } else {
+        }
+        else
+        {
             float s = MathF.Sqrt(1.0f + forward.z - right.x - up.y);
             float z = s * 0.5f;
             s = 0.5f / s;
@@ -52,7 +64,7 @@ public struct Quaternion
         }
     }
 
-    public static Quaternion angleAxis(float angle, Vector3 axis)
+    public static Quaternion AngleAxis(float angle, Vector3 axis)
     {
         float halfAngle = angle * 0.5f;
         float sin = MathF.Sin(halfAngle);
@@ -61,11 +73,12 @@ public struct Quaternion
         return new Quaternion(axis.x * sin, axis.y * sin, axis.z * sin, cos);
     }
 
-    public static Quaternion slerp(Quaternion a, Quaternion b, float t)
+    public static Quaternion Slerp(Quaternion a, Quaternion b, float t)
     {
         float dot = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 
-        if (dot < 0.0f) {
+        if (dot < 0.0f)
+        {
             b = new Quaternion(-b.x, -b.y, -b.z, -b.w);
             dot = -dot;
         }
@@ -73,16 +86,19 @@ public struct Quaternion
         float scale0;
         float scale1;
 
-        if (dot > 1 - 1e-6f) {
-            // The inputs are very close together, do linear interpolation
+        if (dot > 1 - 1e-6f)
+        {
+            // Linear interpolation for very close quaternions
             scale0 = 1 - t;
             scale1 = t;
-        } else {
-            // Standard case, do spherical linear interpolation
-            float theta = (float)Math.Acos(dot);
-            float sinTheta = (float)Math.Sin(theta);
-            scale0 = (float)Math.Sin((1 - t) * theta) / sinTheta;
-            scale1 = (float)Math.Sin(t * theta) / sinTheta;
+        }
+        else
+        {
+            // Spherical linear interpolation
+            float theta = MathF.Acos(dot);
+            float sinTheta = MathF.Sin(theta);
+            scale0 = MathF.Sin((1 - t) * theta) / sinTheta;
+            scale1 = MathF.Sin(t * theta) / sinTheta;
         }
 
         return new Quaternion(

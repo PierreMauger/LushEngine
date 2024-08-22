@@ -25,22 +25,22 @@ public class ThirdPersonCamera : CustomComponent
         float mouseX = InternalCalls.GetMouseMovementX();
         float mouseY = InternalCalls.GetMouseMovementY();
 
-        Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
-        Vector3 right = Vector3.cross(camera.forward, up).normalize();
+        Vector3 up = Vector3.Up;
+        Vector3 right = Vector3.Cross(camera.forward, up).Normalize();
 
-        Quaternion q = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
         // movement X
-        q = Quaternion.angleAxis(Vector3.degreesToRadians(-mouseX) * sensibility, up);
-        camera.forward = (camera.forward * q).normalize();
+        Quaternion horizontalRotation = Quaternion.AngleAxis(Vector3.DegreesToRadians(-mouseX) * sensibility, up);
+        camera.forward = (camera.forward * horizontalRotation).Normalize();
         // movement Y
-        q = Quaternion.angleAxis(Vector3.degreesToRadians(mouseY) * sensibility, right);
-        Vector3 forward = (camera.forward * q).normalize();
-        if (Vector3.dot(forward, up) < 0.9f && Vector3.dot(forward, up) > -0.9f)
+        Quaternion verticalRotation = Quaternion.AngleAxis(Vector3.DegreesToRadians(mouseY) * sensibility, right);
+        Vector3 forward = (camera.forward * verticalRotation).Normalize();
+        float dotProduct = Vector3.Dot(forward, up);
+        if (dotProduct < 0.9f && dotProduct > -0.9f)
             camera.forward = forward;
 
         // set camera behind player
         Vector3 tmpPosition = transform.position;
-        tmpPosition = Vector3.lerp(tmpPosition, playerTransform.position - camera.forward * distance, 1.0f);
+        tmpPosition = Vector3.Lerp(tmpPosition, playerTransform.position - camera.forward * distance, 1.0f);
         transform.position = tmpPosition;
     }
 }

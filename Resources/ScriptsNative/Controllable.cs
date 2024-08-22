@@ -29,7 +29,7 @@ public class Controllable : CustomComponent
             moveDirection -= tmpCamForward;
         if (InternalCalls.IsKeyDown(0x44)) // D
             moveDirection += new Vector3(-tmpCamForward.z, 0.0f, tmpCamForward.x);
-        moveDirection = moveDirection.normalize();
+        moveDirection = moveDirection.Normalize();
 
         if (moveDirection != new Vector3() && speed != 0.0f) {
             // Apply movement
@@ -38,8 +38,8 @@ public class Controllable : CustomComponent
             transform.position = tmpPos;
 
             // Align character rotation with movement direction
-            Quaternion targetRotation = Quaternion.lookAt(moveDirection, new Vector3(0.0f, 1.0f, 0.0f));
-            transform.rotation = Quaternion.slerp(transform.rotation, targetRotation, deltaTime * speed);
+            Quaternion targetRotation = Quaternion.LookAt(moveDirection, new Vector3(0.0f, 1.0f, 0.0f));
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, deltaTime * speed);
         }
     }
 }

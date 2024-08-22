@@ -84,8 +84,6 @@ void Graphic::setCallBacks()
 
 void Graphic::handleKeyboardPress(int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods)
 {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(this->_window, true);
     if (key == GLFW_KEY_TAB && action == GLFW_PRESS && this->_running)
         this->setMouseHidden(!this->_mouseHidden);
 }

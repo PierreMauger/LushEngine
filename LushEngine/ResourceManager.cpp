@@ -18,8 +18,8 @@ ResourceManager::ResourceManager(const std::string &resourceDir)
 
 ResourceManager::~ResourceManager()
 {
-    if (this->_domain)
-        mono_jit_cleanup(this->_domain);
+    if (mono_domain_get())
+        mono_jit_cleanup(mono_domain_get());
 }
 
 void ResourceManager::loadProject(const std::string &dir)
@@ -224,8 +224,8 @@ void ResourceManager::initScriptDomain(const std::string &dir)
     // setenv("MONO_LOG_LEVEL", "debug", 1);
     // setenv("MONO_LOG_MASK", "dll,cfg", 1);
 
-    this->_domain = mono_jit_init("LushJIT");
-    if (!this->_domain)
+    this->_rootDomain = mono_jit_init("LushJIT");
+    if (!this->_rootDomain)
         throw std::runtime_error("mono_jit_init failed");
     mono_thread_set_main(mono_thread_current());
 }
@@ -396,14 +396,19 @@ std::unordered_map<std::string, std::unique_ptr<Skybox>> &ResourceManager::getSk
     return this->_skyboxes;
 }
 
+std::shared_ptr<ScriptPack> ResourceManager::getGamePack()
+{
+    return this->_gamePack;
+}
+
+MonoDomain *ResourceManager::getRootDomain()
+{
+    return this->_rootDomain;
+}
+
 MonoClass *ResourceManager::getComponentClass()
 {
     return this->_corePack->getClasses()["Component"];
-}
-
-std::unique_ptr<ScriptPack> &ResourceManager::getGamePack()
-{
-    return this->_gamePack;
 }
 
 std::unordered_map<std::string, ScriptClass> &ResourceManager::getScripts()

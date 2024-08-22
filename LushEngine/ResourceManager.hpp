@@ -40,8 +40,8 @@ namespace Lush
             std::unordered_map<std::string, std::unique_ptr<RenderModel>> _models;
             std::unordered_map<std::string, std::unique_ptr<Skybox>> _skyboxes;
             std::unordered_map<std::string, std::unique_ptr<Scene>> _scenes;
-            std::unique_ptr<ScriptPack> _corePack;
-            std::unique_ptr<ScriptPack> _gamePack;
+            std::shared_ptr<ScriptPack> _corePack;
+            std::shared_ptr<ScriptPack> _gamePack;
 
             std::unordered_map<std::string, ScriptClass> _scripts;
             std::map<std::size_t, ScriptInstance> _scriptInstances;
@@ -52,7 +52,7 @@ namespace Lush
             bool _sceneChanged = false;
 
             std::unique_ptr<MapMesh> _mapMesh;
-            MonoDomain *_domain = nullptr;
+            MonoDomain *_rootDomain = nullptr;
             btDiscreteDynamicsWorld *_dynamicsWorld = nullptr;
 
             void initScriptDomain(const std::string &dir);
@@ -97,8 +97,9 @@ namespace Lush
             std::unordered_map<std::string, std::unique_ptr<RenderModel>> &getModels();
             std::unordered_map<std::string, std::unique_ptr<Skybox>> &getSkyboxes();
             std::unordered_map<std::string, std::unique_ptr<Scene>> &getScenes();
-            std::unique_ptr<ScriptPack> &getGamePack();
+            std::shared_ptr<ScriptPack> getGamePack();
 
+            MonoDomain *getRootDomain();
             MonoClass *getComponentClass();
             std::unordered_map<std::string, ScriptClass> &getScripts();
             std::map<std::size_t, ScriptInstance> &getScriptInstances();

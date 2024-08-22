@@ -211,13 +211,16 @@ void Scene::loadCollider(rapidxml::xml_node<> *node, Entity &entity)
     }
     if (node->first_attribute("center"))
         std::sscanf(node->first_attribute("center")->value(), "%f %f %f", &collider.center.x, &collider.center.y, &collider.center.z);
-    if (collider.type == ColliderType::SPHERE) {
+    switch (collider.type) {
+    case (ColliderType::SPHERE):
         if (node->first_attribute("radius"))
             std::sscanf(node->first_attribute("radius")->value(), "%f", &collider.size.x);
-    } else if (collider.type == ColliderType::CAPSULE) {
+        break;
+    case (ColliderType::CAPSULE):
         if (node->first_attribute("radius"))
             std::sscanf(node->first_attribute("radius")->value(), "%f %f", &collider.size.x, &collider.size.y);
-    } else {
+        break;
+    default:
         if (node->first_attribute("size"))
             std::sscanf(node->first_attribute("size")->value(), "%f %f %f", &collider.size.x, &collider.size.y, &collider.size.z);
     }
@@ -271,7 +274,6 @@ void Scene::loadScript(rapidxml::xml_node<> *node, Entity &entity, ScriptClass &
                 scriptComponent.addField(attribute->name(), value);
             } else {
                 std::cout << "Field type not found for " << script.getFields()[attribute->name()].type << std::endl;
-
             }
         }
     }

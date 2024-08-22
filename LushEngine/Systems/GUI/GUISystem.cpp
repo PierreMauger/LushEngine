@@ -671,6 +671,7 @@ void GUISystem::drawProperties(std::shared_ptr<EntityManager> &entityManager)
 
             ImGui::DragFloat3("Center##CharacterController", (float *)&characterController.center, 1.0f, -FLT_MAX, +FLT_MAX);
             ImGui::SliderFloat("SlopeLimit##CharacterController", &characterController.slopeLimit, 0.0f, 90.0f);
+            ImGui::SliderFloat("StepOffset##CharacterController", &characterController.stepOffset, 0.0f, 2.0f);
             ImGui::Separator();
         }
         if (!open)
@@ -1163,6 +1164,11 @@ void GUISystem::drawProjectManager(std::shared_ptr<EntityManager> &entityManager
     windowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingOverOther | ImGuiDockNodeFlags_NoDockingSplitOther;
     ImGui::SetNextWindowClass(&windowClass);
     if (!ImGui::Begin("Project Manager", &this->_showProjectManager, ImGuiWindowFlags_NoResize)) {
+        ImGui::End();
+        return;
+    }
+    if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_Escape)) {
+        this->_showProjectManager = false;
         ImGui::End();
         return;
     }

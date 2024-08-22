@@ -53,10 +53,11 @@ glm::mat4 RenderView::getProjection()
 
 void RenderView::setLightMatrix(const Transform &transform, const Light &light)
 {
-    glm::vec3 front = glm::mat3(glm::toMat4(transform.rotation)) * glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 front = glm::mat3(glm::toMat4(transform.rotation)) * glm::vec3(0.0f, -1.0f, 0.0f);
+    glm::vec3 up = (glm::abs(front.y) == 1.0f) ? glm::vec3(0.0f, 0.0f, 1.0f) : glm::vec3(0.0f, 1.0f, 0.0f);
 
     this->_position = transform.position;
-    this->_view = glm::lookAt(this->_position, this->_position + front, glm::vec3(0.0f, 1.0f, 0.0f));
+    this->_view = glm::lookAt(this->_position, this->_position + front, up);
     this->_projection = glm::ortho(light.shadowSize.x / 2, -light.shadowSize.x / 2, light.shadowSize.y / 2, -light.shadowSize.y / 2, 0.1f, light.shadowSize.z);
 
     this->_lightSpaceMatrix = this->_projection * this->_view;
@@ -122,7 +123,7 @@ void RenderView::setDirLights(std::vector<std::pair<Transform, Light>> dirLights
     this->_shaders[this->_actShader]->setInt("dirLightCount", (int)dirLights.size());
 
     for (std::size_t i = 0; i < dirLights.size() && i < 2; i++) {
-        glm::vec3 direction = glm::vec3(0.0f, 0.0f, -1.0f);
+        glm::vec3 direction = glm::vec3(0.0f, -1.0f, 0.0f);
         glm::quat q = dirLights[i].first.rotation;
         direction = glm::mat3(glm::toMat4(q)) * direction;
 

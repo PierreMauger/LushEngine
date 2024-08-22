@@ -81,6 +81,9 @@ public class Camera : Component
         get => InternalCalls.Camera_GetFar(entity.id, out float far) ? far : 0.0f;
         set => InternalCalls.Camera_SetFar(entity.id, value);
     }
+    public float aspect {
+        get => InternalCalls.Camera_GetAspect(entity.id, out float aspect) ? aspect : 0.0f;
+    }
 }
 
 public class Light : Component
@@ -92,6 +95,10 @@ public class Light : Component
     public Vector3 color {
         get => InternalCalls.Light_GetColor(entity.id, out Vector3 color) ? color : new Vector3();
         set => InternalCalls.Light_SetColor(entity.id, ref value);
+    }
+    public Vector3 shadowSize {
+        get => InternalCalls.Light_GetShadowSize(entity.id, out Vector3 shadowSize) ? shadowSize : new Vector3();
+        set => InternalCalls.Light_SetShadowSize(entity.id, ref value);
     }
 }
 

@@ -36,17 +36,20 @@ namespace Lush
 
             static bool Camera_GetForward(std::size_t id, glm::vec3 *forward);
             static void Camera_SetForward(std::size_t id, glm::vec3 *forward);
-            static bool Camera_GetFOV(std::size_t id, float *fov);
-            static void Camera_SetFOV(std::size_t id, const float *fov);
+            static bool Camera_GetFov(std::size_t id, float *fov);
+            static void Camera_SetFov(std::size_t id, const float *fov);
             static bool Camera_GetNear(std::size_t id, float *near);
             static void Camera_SetNear(std::size_t id, const float *near);
             static bool Camera_GetFar(std::size_t id, float *far);
             static void Camera_SetFar(std::size_t id, const float *far);
+            static bool Camera_GetAspect(std::size_t id, float *aspect);
 
             static bool Light_GetIntensity(std::size_t id, float *intensity);
             static void Light_SetIntensity(std::size_t id, const float *intensity);
             static bool Light_GetColor(std::size_t id, glm::vec3 *color);
             static void Light_SetColor(std::size_t id, glm::vec3 *color);
+            static bool Light_GetShadowSize(std::size_t id, glm::vec3 *shadowSize);
+            static void Light_SetShadowSize(std::size_t id, glm::vec3 *shadowSize);
 
             static bool Cubemap_GetName(std::size_t id, MonoString **name);
             static void Cubemap_SetName(std::size_t id, MonoString *name);

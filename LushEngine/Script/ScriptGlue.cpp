@@ -376,7 +376,7 @@ void ScriptGlue::Camera_SetForward(std::size_t id, glm::vec3 *forward)
         std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
 }
 
-bool ScriptGlue::Camera_GetFOV(std::size_t id, float *fov)
+bool ScriptGlue::Camera_GetFov(std::size_t id, float *fov)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
         return false;
@@ -390,7 +390,7 @@ bool ScriptGlue::Camera_GetFOV(std::size_t id, float *fov)
     return false;
 }
 
-void ScriptGlue::Camera_SetFOV(std::size_t id, const float *fov)
+void ScriptGlue::Camera_SetFov(std::size_t id, const float *fov)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
         return;
@@ -454,6 +454,21 @@ void ScriptGlue::Camera_SetFar(std::size_t id, const float *far)
         std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
 }
 
+bool ScriptGlue::Camera_GetAspect(std::size_t id, float *aspect)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return false;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+    if (!entity.hasComponent<Camera>()) {
+        std::cout << "[Toast Error]Entity " << id << " has no Camera component" << std::endl;
+        return false;
+    }
+
+    Graphic *graphic = Graphic::getGraphic();
+    *aspect = graphic->getWindowSize().x / graphic->getWindowSize().y;
+    return true;
+}
+
 bool ScriptGlue::Light_GetIntensity(std::size_t id, float *intensity)
 {
     if (!ECS::getStaticEntityManager()->hasEntity(id))
@@ -502,6 +517,32 @@ void ScriptGlue::Light_SetColor(std::size_t id, glm::vec3 *color)
 
     if (entity.hasComponent<Light>())
         entity.getComponent<Light>().color = *color;
+    else
+        std::cout << "[Toast Error]Entity " << id << " has no Light component" << std::endl;
+}
+
+bool ScriptGlue::Light_GetShadowSize(std::size_t id, glm::vec3 *shadowSize)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return false;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Light>()) {
+        *shadowSize = entity.getComponent<Light>().shadowSize;
+        return true;
+    }
+    std::cout << "[Toast Error]Entity " << id << " has no Light component" << std::endl;
+    return false;
+}
+
+void ScriptGlue::Light_SetShadowSize(std::size_t id, glm::vec3 *shadowSize)
+{
+    if (!ECS::getStaticEntityManager()->hasEntity(id))
+        return;
+    Entity &entity = ECS::getStaticEntityManager()->getEntity(id);
+
+    if (entity.hasComponent<Light>())
+        entity.getComponent<Light>().shadowSize = *shadowSize;
     else
         std::cout << "[Toast Error]Entity " << id << " has no Light component" << std::endl;
 }
@@ -756,16 +797,19 @@ void ScriptGlue::registerFunctions()
     mono_add_internal_call("InternalCalls::Model_SetMaterialColor", (void *)Model_SetMaterialColor);
     mono_add_internal_call("InternalCalls::Camera_GetForward", (void *)Camera_GetForward);
     mono_add_internal_call("InternalCalls::Camera_SetForward", (void *)Camera_SetForward);
-    mono_add_internal_call("InternalCalls::Camera_GetFOV", (void *)Camera_GetFOV);
-    mono_add_internal_call("InternalCalls::Camera_SetFOV", (void *)Camera_SetFOV);
+    mono_add_internal_call("InternalCalls::Camera_GetFov", (void *)Camera_GetFov);
+    mono_add_internal_call("InternalCalls::Camera_SetFov", (void *)Camera_SetFov);
     mono_add_internal_call("InternalCalls::Camera_GetNear", (void *)Camera_GetNear);
     mono_add_internal_call("InternalCalls::Camera_SetNear", (void *)Camera_SetNear);
     mono_add_internal_call("InternalCalls::Camera_GetFar", (void *)Camera_GetFar);
     mono_add_internal_call("InternalCalls::Camera_SetFar", (void *)Camera_SetFar);
+    mono_add_internal_call("InternalCalls::Camera_GetAspect", (void *)Camera_GetAspect);
     mono_add_internal_call("InternalCalls::Light_GetIntensity", (void *)Light_GetIntensity);
     mono_add_internal_call("InternalCalls::Light_SetIntensity", (void *)Light_SetIntensity);
     mono_add_internal_call("InternalCalls::Light_GetColor", (void *)Light_GetColor);
     mono_add_internal_call("InternalCalls::Light_SetColor", (void *)Light_SetColor);
+    mono_add_internal_call("InternalCalls::Light_GetShadowSize", (void *)Light_GetShadowSize);
+    mono_add_internal_call("InternalCalls::Light_SetShadowSize", (void *)Light_SetShadowSize);
     mono_add_internal_call("InternalCalls::Cubemap_GetName", (void *)Cubemap_GetName);
     mono_add_internal_call("InternalCalls::Cubemap_SetName", (void *)Cubemap_SetName);
     mono_add_internal_call("InternalCalls::Billboard_GetName", (void *)Billboard_GetName);
