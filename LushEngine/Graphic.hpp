@@ -38,8 +38,6 @@ namespace Lush
             std::size_t _hoveredEntity = 0;
             std::size_t _selectedEntity = -1;
 
-            std::pair<Transform, Camera> _sceneCamera;
-
             bool _mouseHidden = false;
             bool _sceneHovered = false;
             int _mouseButton = -1;
@@ -79,9 +77,7 @@ namespace Lush
             void setSelectedEntity(std::size_t selectedEntity);
             std::size_t getSelectedEntity() const;
 
-            std::pair<Transform, Camera> &getSceneCamera();
-
-            void setMouseCursor(int cursor);
+            void setMouseCursor(unsigned int cursor);
             bool isMouseHidden() const;
             void setMouseHidden(bool mouseHidden);
             void setSceneHovered(bool sceneHovered);

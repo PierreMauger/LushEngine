@@ -14,6 +14,11 @@ SceneSystem::SceneSystem(std::shared_ptr<Graphic> graphic, std::shared_ptr<Resou
     Shapes::setupCube(this->_cameraFrustum);
     Shapes::setupSphere(this->_sphere, 32);
 
+    this->_sceneCamera.first.position = glm::vec3(10.0f, 5.0f, 15.0f);
+    this->_sceneCamera.first.rotation = glm::quat(glm::radians(glm::vec3(15.0f, -30.0f, 180.0f)));
+    this->_sceneCamera.second.forward = glm::mat3(glm::toMat4(this->_sceneCamera.first.rotation)) * glm::vec3(0.0f, 0.0f, -1.0f);
+    this->_sceneCamera.second.far = 1000.0f;
+
     this->generatePerlinTexture();
 }
 
@@ -30,7 +35,7 @@ void SceneSystem::update(std::shared_ptr<EntityManager> &entityManager, float de
 {
     this->handleMouse();
 
-    auto &[cameraTransform, cameraData] = this->_graphic->getSceneCamera();
+    auto &[cameraTransform, cameraData] = this->_sceneCamera;
 
     this->_graphic->getRenderView().setAspectRatio(this->_graphic->getSceneViewPort().z / this->_graphic->getSceneViewPort().w);
     this->_graphic->getRenderView().update(cameraTransform, cameraData);
@@ -160,7 +165,7 @@ void SceneSystem::generatePerlinTexture()
 
 void SceneSystem::handleMouse()
 {
-    auto &[transform, camera] = this->_graphic->getSceneCamera();
+    auto &[transform, camera] = this->_sceneCamera;
 
     if (this->_graphic->isSceneHovered()) {
         if (this->_graphic->getMouseButton() == 1) {

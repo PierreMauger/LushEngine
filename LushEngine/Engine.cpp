@@ -8,20 +8,19 @@ Engine::Engine(bool isEditor) : _isEditor(isEditor)
     // init resources
     this->_resourceManager = std::make_shared<ResourceManager>(isEditor ? "libs" : "Data");
     this->_isEditor ? this->_resourceManager->loadEditor() : this->_resourceManager->loadGame();
-    auto &scenes = this->_resourceManager->getScenes();
-    std::string mainSceneName = scenes.contains("main") ? "main" : scenes.begin()->first;
-    this->_resourceManager->setActiveScene(mainSceneName);
 
     // init graphic
     this->_graphic->setLogo(this->_resourceManager->getLogo());
     this->_graphic->getRenderView().setShaders(this->_resourceManager->getShaders());
 
-    // init ecs
+    // init common systems
     this->_ecs.getSystemManager().bindSystem<PhysicSystem>(this->_graphic, this->_resourceManager);
     this->_ecs.getSystemManager().bindSystem<ScriptSystem>(this->_graphic, this->_resourceManager);
     this->_ecs.getSystemManager().bindSystem<CameraSystem>(this->_graphic, this->_resourceManager);
     this->_ecs.getSystemManager().bindSystem<RenderSystem>(this->_graphic, this->_resourceManager);
 
+    // set scenes
+    this->_resourceManager->setActiveScene(this->_resourceManager->getScenes().contains("main") ? "main" : this->_resourceManager->getScenes().begin()->first);
     if (this->_isEditor) {
         this->_ecs.getEntityManager() = this->_resourceManager->getActiveScene().getEntityManager();
     } else {

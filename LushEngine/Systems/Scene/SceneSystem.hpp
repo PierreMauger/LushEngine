@@ -18,6 +18,8 @@ namespace Lush
             std::shared_ptr<Graphic> _graphic;
             std::shared_ptr<ResourceManager> _resourceManager;
 
+            std::pair<Transform, Camera> _sceneCamera;
+
             BufferObject _skybox{};
             BufferObject _billboard{};
             BufferObject _grid{};

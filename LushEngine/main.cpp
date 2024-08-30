@@ -13,6 +13,8 @@ const bool editor = false;
 int main()
 {
     Lush::Engine engine(editor);
+
+    // init unique systems
 #ifdef EDITOR_MODE
     engine.bindSystem<Lush::SceneSystem>();
     engine.bindSystem<Lush::PickingSystem>();

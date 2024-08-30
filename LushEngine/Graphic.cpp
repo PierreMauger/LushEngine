@@ -14,11 +14,6 @@ Graphic::Graphic(int sizeX, int sizeY, const std::string &title) : _renderView((
     graphic = this;
     this->setGLFWContext(sizeX, sizeY, title);
 
-    this->_sceneCamera.first.position = glm::vec3(10.0f, 5.0f, 15.0f);
-    this->_sceneCamera.first.rotation = glm::quat(glm::radians(glm::vec3(15.0f, -30.0f, 180.0f)));
-    this->_sceneCamera.second.forward = glm::mat3(glm::toMat4(this->_sceneCamera.first.rotation)) * glm::vec3(0.0f, 0.0f, -1.0f);
-    this->_sceneCamera.second.far = 1000.0f;
-
     this->_mousePosition = glm::vec2(sizeX / 2, sizeY / 2);
     this->_gameViewPort = glm::vec4(0.0f, 0.0f, sizeX, sizeY);
     this->_sceneViewPort = glm::vec4(0.0f, 0.0f, sizeX, sizeY);
@@ -198,17 +193,12 @@ std::size_t Graphic::getSelectedEntity() const
     return this->_selectedEntity;
 }
 
-std::pair<Transform, Camera> &Graphic::getSceneCamera()
+void Graphic::setMouseCursor(unsigned int cursor)
 {
-    return this->_sceneCamera;
-}
-
-void Graphic::setMouseCursor(int cursor)
-{
-    if (cursor < 0 || cursor > 2)
-        glfwSetCursor(this->_window, nullptr);
-    else
+    if (cursor < this->_cursors.size())
         glfwSetCursor(this->_window, this->_cursors[cursor]);
+    else
+        glfwSetCursor(this->_window, nullptr);
 }
 
 bool Graphic::isMouseHidden() const
