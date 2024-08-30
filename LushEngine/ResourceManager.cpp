@@ -18,8 +18,8 @@ ResourceManager::ResourceManager(const std::string &resourceDir)
 
 ResourceManager::~ResourceManager()
 {
-    if (mono_domain_get())
-        mono_jit_cleanup(mono_domain_get());
+    if (this->_rootDomain)
+        mono_jit_cleanup(this->_rootDomain);
 }
 
 void ResourceManager::loadProject(const std::string &dir)
@@ -255,30 +255,42 @@ void ResourceManager::initPhysicInstances(std::shared_ptr<EntityManager> &entity
 
 void ResourceManager::initPhysicInstance(std::size_t id, Entity &entity)
 {
-    if (entity.hasComponent<Transform>()) {
-        if (entity.hasComponent<CharacterController>()) {
-            if (entity.hasComponent<Collider>())
-                this->_physicInstances.emplace_back(
-                    std::make_unique<CharacterInstance>(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>(), entity.getComponent<Collider>()));
-            else
-                this->_physicInstances.emplace_back(std::make_unique<CharacterInstance>(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>()));
+    // if (entity.hasComponent<Transform>()) {
+    //     if (entity.hasComponent<CharacterController>()) {
+    //         if (entity.hasComponent<Collider>())
+    //             this->_physicInstances.emplace_back(
+    //                 std::make_unique<CharacterInstance>(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>(), entity.getComponent<Collider>()));
+    //         else
+    //             this->_physicInstances.emplace_back(std::make_unique<CharacterInstance>(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>()));
 
-        } else if (entity.hasComponent<RigidBody>()) {
-            if (entity.hasComponent<Collider>())
-                this->_physicInstances.emplace_back(
-                    std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>(), entity.getComponent<Collider>()));
-            else
-                this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>()));
-        } else if (entity.hasComponent<Map>()) {
-            if (entity.hasComponent<Collider>())
-                this->_physicInstances.emplace_back(
-                    std::make_unique<TerrainInstance>(id, entity.getComponent<Transform>(), *this->_textures[entity.getComponent<Map>().heightMap]));
-        } else if (entity.hasComponent<Collider>())
-            this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<Collider>()));
-        else
-            return;
-        this->_physicInstances.back()->addToWorld(this->_dynamicsWorld);
-    }
+    //     } else if (entity.hasComponent<RigidBody>()) {
+    //         if (entity.hasComponent<Collider>())
+    //             this->_physicInstances.emplace_back(
+    //                 std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>(), entity.getComponent<Collider>()));
+    //         else
+    //             this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>()));
+    //     } else if (entity.hasComponent<Map>()) {
+    //         if (entity.hasComponent<Collider>())
+    //             this->_physicInstances.emplace_back(
+    //                 std::make_unique<TerrainInstance>(id, entity.getComponent<Transform>(), *this->_textures[entity.getComponent<Map>().heightMap]));
+    //     } else if (entity.hasComponent<Collider>())
+    //         this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<Collider>()));
+    //     else
+    //         return;
+    // }
+    if (!entity.hasComponent<Transform>())
+        return; // entity must have a transform component
+    if (entity.hasComponent<CharacterController>() && entity.hasComponent<Collider>())
+        this->_physicInstances.emplace_back(std::make_unique<CharacterInstance>(id, entity.getComponent<Transform>(), entity.getComponent<CharacterController>(), entity.getComponent<Collider>()));
+    else if (entity.hasComponent<Map>() && entity.hasComponent<Collider>())
+        this->_physicInstances.emplace_back(std::make_unique<TerrainInstance>(id, entity.getComponent<Transform>(), *this->_textures[entity.getComponent<Map>().heightMap]));
+    else if (entity.hasComponent<RigidBody>() && entity.hasComponent<Collider>())
+        this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<RigidBody>(), entity.getComponent<Collider>()));
+    else if (entity.hasComponent<Collider>())
+        this->_physicInstances.emplace_back(std::make_unique<PhysicInstance>(id, entity.getComponent<Transform>(), entity.getComponent<Collider>()));
+    else
+        return;
+    this->_physicInstances.back()->addToWorld(this->_dynamicsWorld);
 }
 
 void ResourceManager::loadDirectoryFiles(const std::filesystem::path &path, const std::function<void(const std::string &)> &func, const std::vector<std::string> &extensions)
@@ -366,7 +378,7 @@ void ResourceManager::reloadScripts(const std::string &dir)
     this->loadDirectoryFiles(dir, [&tempFiles, this](const std::string &path) { tempFiles.push_back(this->_files[path]); }, {".cs"});
     for (auto &file : this->_gamePack->getFiles())
         tempFiles.push_back(file);
-    this->_gamePack->reload(tempFiles);
+    this->_gamePack->reload(tempFiles, this->_rootDomain);
     for (auto &[name, klass] : this->_gamePack->getClasses())
         this->_scripts[name] = ScriptClass(this->_gamePack->getDomain(), klass, this->getComponentClass());
 }

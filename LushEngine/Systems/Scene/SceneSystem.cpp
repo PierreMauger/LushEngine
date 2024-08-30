@@ -194,7 +194,7 @@ void SceneSystem::drawModel(Entity &entity, std::shared_ptr<EntityManager> &enti
     this->_graphic->getRenderView().setModel(transform);
     if (this->_resourceManager->getModels().contains(model.name)) {
         if (this->_resourceManager->getModels()[model.name]->hasTransparency(this->_resourceManager->getTextures()))
-            this->_blendModel.push_back(std::make_pair(transform, model));
+            this->_blendModel.emplace_back(transform, model);
         else {
             if (!model.culling)
                 glDisable(GL_CULL_FACE);

@@ -6,10 +6,10 @@ ScriptPack::ScriptPack(std::vector<File> &files, const std::string &name) : Reso
 {
     this->_name = name;
     try {
-        if (files.size() > 1)
-            this->load(files);
-        else
+        if (files.size() == 1 && files[0].getExtension() == ".dll")
             this->loadFromAssembly(files[0].getPath());
+        else
+            this->load(files);
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
@@ -78,8 +78,10 @@ void ScriptPack::loadFromAssembly(const std::string &assemblyPath)
     }
 }
 
-void ScriptPack::reload(std::vector<File> &files)
+void ScriptPack::reload(std::vector<File> &files, MonoDomain *rootDomain)
 {
+    // before unloading, unset domain by setting it back to root domain
+    mono_domain_set(rootDomain, false);
     mono_domain_unload(this->_domain);
     this->_classes.clear();
 

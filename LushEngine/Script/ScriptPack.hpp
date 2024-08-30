@@ -30,7 +30,7 @@ namespace Lush
             ~ScriptPack() = default;
 
             void load(std::vector<File> &files);
-            void reload(std::vector<File> &files);
+            void reload(std::vector<File> &files, MonoDomain *rootDomain);
             void loadFromAssembly(const std::string &assemblyPath);
 
             std::string getName() const;

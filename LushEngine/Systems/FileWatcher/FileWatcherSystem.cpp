@@ -214,8 +214,7 @@ void FileWatcherSystem::reloadScriptPack(Resource &resource, std::shared_ptr<Ent
     std::vector<File> files = resource.getFiles();
     auto scriptPack = this->_resourceManager->getGamePack();
 
-    mono_domain_set(this->_resourceManager->getRootDomain(), false);
-    scriptPack->reload(files);
+    scriptPack->reload(files, this->_resourceManager->getRootDomain());
     for (auto &[className, klass] : scriptPack->getClasses()) {
         this->_resourceManager->getScripts()[className].reload(scriptPack->getDomain(), klass, this->_resourceManager->getComponentClass());
 

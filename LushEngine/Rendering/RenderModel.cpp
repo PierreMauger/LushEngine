@@ -187,7 +187,7 @@ std::vector<Tex> RenderModel::getTexturesFromMaterial(aiMaterial *mat, aiTexture
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
         aiString str;
         mat->GetTexture(type, i, &str);
-        tex.push_back({str.C_Str(), typeName});
+        tex.emplace_back(str.C_Str(), typeName);
     }
     return tex;
 }
